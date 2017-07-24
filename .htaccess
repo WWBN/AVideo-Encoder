@@ -1,0 +1,11 @@
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin: *
+</IfModule>
+<IfModule mod_rewrite.c>
+    RewriteEngine on
+
+    RewriteRule    ^login$ objects/login.json.php    [NC,L]
+    RewriteRule    ^logoff$ objects/logoff.json.php    [NC,L]
+    
+
+</IfModule>

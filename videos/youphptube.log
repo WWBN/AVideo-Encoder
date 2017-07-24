@@ -1,0 +1,320 @@
+[20-Jul-2017 15:13:15 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_intro_YPTuniqid_5970f2bb0746d8.00390288
+[20-Jul-2017 15:13:15 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/342_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/342_tmpFile_converted.mp4] 
+[20-Jul-2017 15:13:22 America/Sao_Paulo] Duration founded: 0:00:12
+[20-Jul-2017 15:13:22 America/Sao_Paulo] YouPHPTube-Encoder sending file to https://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[20-Jul-2017 15:13:22 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/342_tmpFile_converted.mp4
+[20-Jul-2017 15:13:23 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_intro_YPTuniqid_5970f2bb0746d8.00390288
+[20-Jul-2017 15:13:23 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/343_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/343_tmpFile_converted.mp4] 
+[20-Jul-2017 15:13:34 America/Sao_Paulo] Duration founded: 0:00:11
+[20-Jul-2017 15:13:34 America/Sao_Paulo] YouPHPTube-Encoder sending file to https://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[20-Jul-2017 15:13:34 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/343_tmpFile_converted.mp4
+[24-Jul-2017 11:21:47 America/Sao_Paulo] PHP Fatal error:  Cannot declare class Format, because the name is already in use in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 0
+[24-Jul-2017 11:27:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 11:28:05 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 11:28:24 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 11:34:07 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:35:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:35:54 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:36:41 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:37:18 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:37:19 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:37:19 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:37:23 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:37:33 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:39:26 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:39:30 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:39:46 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:39:49 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:40:06 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:41:10 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:150
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 150
+[24-Jul-2017 12:41:14 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:150
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 150
+[24-Jul-2017 12:41:31 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:150
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 150
+[24-Jul-2017 12:41:34 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:150
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 150
+[24-Jul-2017 12:43:27 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:149
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 149
+[24-Jul-2017 12:43:53 America/Sao_Paulo] PHP Fatal error:  Uncaught Error: Call to undefined function __() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php:150
+Stack trace:
+#0 {main}
+  thrown in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/index.php on line 150
+[24-Jul-2017 12:45:18 America/Sao_Paulo] PHP Notice:  Undefined variable: siteURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 30
+[24-Jul-2017 12:45:18 America/Sao_Paulo] PHP Notice:  Undefined variable: name in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 17
+[24-Jul-2017 12:45:18 America/Sao_Paulo] PHP Notice:  Undefined variable: siteURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 38
+[24-Jul-2017 12:46:20 America/Sao_Paulo] PHP Notice:  Undefined variable: name in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 17
+[24-Jul-2017 12:46:51 America/Sao_Paulo] PHP Notice:  Undefined variable: name in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Streamer.php on line 17
+[24-Jul-2017 13:04:14 America/Sao_Paulo] PHP Notice:  A session had already been started - ignoring session_start() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/upload.php on line 7
+[24-Jul-2017 13:04:15 America/Sao_Paulo] PHP Notice:  A session had already been started - ignoring session_start() in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/upload.php on line 7
+[24-Jul-2017 13:33:54 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_EnabeAdWords_YPTuniqid_59762171015041.40954273
+[24-Jul-2017 13:33:54 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile_converted.mp4] 
+[24-Jul-2017 13:34:44 America/Sao_Paulo] Duration founded: 0:02:14
+[24-Jul-2017 13:34:44 America/Sao_Paulo] YouPHPTube-Encoder sending file to https://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 13:34:44 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile_converted.mp4
+[24-Jul-2017 13:34:52 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_EnabeAdWords_YPTuniqid_59762171015041.40954273
+[24-Jul-2017 13:34:53 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/2_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/2_tmpFile_converted.mp4] 
+[24-Jul-2017 13:36:03 America/Sao_Paulo] Duration founded: 0:02:14
+[24-Jul-2017 13:36:03 America/Sao_Paulo] YouPHPTube-Encoder sending file to https://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 13:36:03 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/2_tmpFile_converted.mp4
+[24-Jul-2017 13:36:46 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile_converted.mp4] 
+[24-Jul-2017 13:37:27 America/Sao_Paulo] Duration founded: 0:02:14
+[24-Jul-2017 13:37:27 America/Sao_Paulo] YouPHPTube-Encoder sending file to https://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 13:37:27 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/1_tmpFile_converted.mp4
+[24-Jul-2017 13:48:11 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/Sistema de gestao.mkv
+[24-Jul-2017 13:48:12 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile_converted.mp4] 
+[24-Jul-2017 13:49:16 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 13:49:16 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:49:16 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:49:16 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile_converted.mp4
+[24-Jul-2017 13:49:16 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:49:16 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:49:29 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/Sistema de gestao.mkv
+[24-Jul-2017 13:49:29 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile_converted.mp4] 
+[24-Jul-2017 13:51:02 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 13:51:02 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:51:02 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:51:02 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile_converted.mp4
+[24-Jul-2017 13:51:02 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:51:02 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:51:05 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/vokoscreen-2017-06-07_14-11-42.mkv
+[24-Jul-2017 13:51:06 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile_converted.mp4] 
+[24-Jul-2017 13:52:24 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 13:52:24 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:52:24 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:52:24 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile_converted.mp4
+[24-Jul-2017 13:52:24 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:52:24 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:52:37 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/vokoscreen-2017-06-07_14-11-42.mkv
+[24-Jul-2017 13:52:38 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile_converted.mp4] 
+[24-Jul-2017 13:54:25 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 13:54:25 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:54:25 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:54:25 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile_converted.mp4
+[24-Jul-2017 13:54:25 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:54:25 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:54:28 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/VisualizarProjeto.mkv
+[24-Jul-2017 13:54:29 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile_converted.mp4] 
+[24-Jul-2017 13:55:20 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 13:55:20 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:55:20 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:55:20 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile_converted.mp4
+[24-Jul-2017 13:55:20 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:55:20 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:55:28 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/VisualizarProjeto.mkv
+[24-Jul-2017 13:55:28 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile_converted.mp4] 
+[24-Jul-2017 13:56:48 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 13:56:48 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:56:48 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:56:48 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile_converted.mp4
+[24-Jul-2017 13:56:48 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:56:48 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:56:50 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/Sistema de gestao.mkv
+[24-Jul-2017 13:56:50 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile_converted.mp4] 
+[24-Jul-2017 13:57:54 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 13:57:54 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:57:54 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:57:54 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile_converted.mp4
+[24-Jul-2017 13:57:54 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:57:54 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:58:05 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/Sistema de gestao.mkv
+[24-Jul-2017 13:58:06 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile_converted.mp4] 
+[24-Jul-2017 13:59:37 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 13:59:37 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 13:59:37 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 13:59:37 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile_converted.mp4
+[24-Jul-2017 13:59:37 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 13:59:37 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 13:59:39 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/VisualizarProjeto.mkv
+[24-Jul-2017 13:59:40 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile_converted.mp4] 
+[24-Jul-2017 14:00:22 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 14:00:22 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 14:00:22 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 14:00:22 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile_converted.mp4
+[24-Jul-2017 14:00:22 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 14:00:22 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 14:00:30 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/VisualizarProjeto.mkv
+[24-Jul-2017 14:00:30 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile_converted.mp4] 
+[24-Jul-2017 14:01:48 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 14:01:48 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 14:01:48 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 14:01:48 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile_converted.mp4
+[24-Jul-2017 14:01:48 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 14:01:48 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 14:01:50 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/vokoscreen-2017-06-07_14-11-42.mkv
+[24-Jul-2017 14:01:51 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile_converted.mp4] 
+[24-Jul-2017 14:03:02 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 14:03:02 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 14:03:02 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 14:03:02 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile_converted.mp4
+[24-Jul-2017 14:03:02 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 14:03:02 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 14:03:15 America/Sao_Paulo] Getting Video File /home/daniel/Vídeos/vokoscreen-2017-06-07_14-11-42.mkv
+[24-Jul-2017 14:03:15 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile_converted.mp4] 
+[24-Jul-2017 14:05:02 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 14:05:02 America/Sao_Paulo] PHP Notice:  Undefined index: YouPHPTubeURL in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 409
+[24-Jul-2017 14:05:02 America/Sao_Paulo] YouPHPTube-Encoder sending file to youPHPTubeEncoder.json
+[24-Jul-2017 14:05:02 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile_converted.mp4
+[24-Jul-2017 14:05:02 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 419
+[24-Jul-2017 14:05:02 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 420
+[24-Jul-2017 14:52:45 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile_converted.mp4] 
+[24-Jul-2017 14:53:50 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 14:53:50 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 14:53:50 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/3_tmpFile_converted.mp4
+[24-Jul-2017 14:53:50 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 14:53:50 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 14:53:50 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile_converted.mp4] 
+[24-Jul-2017 14:55:23 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 14:55:23 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 14:55:23 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/4_tmpFile_converted.mp4
+[24-Jul-2017 14:55:23 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 14:55:23 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 14:55:23 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile_converted.mp4] 
+[24-Jul-2017 14:56:44 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 14:56:44 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 14:56:44 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/5_tmpFile_converted.mp4
+[24-Jul-2017 14:56:44 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 14:56:44 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 14:56:45 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile_converted.mp4] 
+[24-Jul-2017 14:58:33 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 14:58:33 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 14:58:33 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/6_tmpFile_converted.mp4
+[24-Jul-2017 14:58:33 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 14:58:33 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 14:58:34 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile_converted.mp4] 
+[24-Jul-2017 14:59:27 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 14:59:27 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 14:59:27 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/7_tmpFile_converted.mp4
+[24-Jul-2017 14:59:27 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 14:59:27 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 14:59:28 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile_converted.mp4] 
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:09 America/Sao_Paulo] PHP Notice:  Undefined variable: file in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 296
+[24-Jul-2017 15:00:09 America/Sao_Paulo] {"status":"error", "msg":"getDurationFromFile ERROR, File () Not Found"}
+[24-Jul-2017 15:00:48 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 15:00:48 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:00:48 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/8_tmpFile_converted.mp4
+[24-Jul-2017 15:00:48 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:00:48 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:00:48 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile_converted.mp4] 
+[24-Jul-2017 15:01:55 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 15:01:55 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:01:55 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/9_tmpFile_converted.mp4
+[24-Jul-2017 15:01:55 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:01:55 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:01:56 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile.mp4 -vf scale=640:360 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile_converted.mp4] 
+[24-Jul-2017 15:03:29 America/Sao_Paulo] Duration founded: 0:03:14
+[24-Jul-2017 15:03:29 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:03:29 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/10_tmpFile_converted.mp4
+[24-Jul-2017 15:03:29 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:03:29 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:03:29 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile_converted.mp4] 
+[24-Jul-2017 15:04:16 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 15:04:16 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:04:16 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/11_tmpFile_converted.mp4
+[24-Jul-2017 15:04:16 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:04:16 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:04:17 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile.mp4 -vf scale=320:180 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile_converted.mp4] 
+[24-Jul-2017 15:04:43 America/Sao_Paulo] Duration founded: 0:02:23
+[24-Jul-2017 15:04:43 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:04:43 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/12_tmpFile_converted.mp4
+[24-Jul-2017 15:04:43 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:04:43 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:04:43 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile_converted.mp4] 
+[24-Jul-2017 15:05:52 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 15:05:52 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:05:52 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/13_tmpFile_converted.mp4
+[24-Jul-2017 15:05:52 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:05:52 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 15:05:53 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile.mp4 -vf scale=320:180 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile_converted.mp4] 
+[24-Jul-2017 15:06:31 America/Sao_Paulo] Duration founded: 0:03:52
+[24-Jul-2017 15:06:31 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 15:06:31 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/14_tmpFile_converted.mp4
+[24-Jul-2017 15:06:31 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 15:06:31 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 16:02:19 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_EnabeAdWords_YPTuniqid_5976443b6b5466.65974893
+[24-Jul-2017 16:02:19 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/15_tmpFile.mp4 -vf scale=1280:720 -vcodec h264 -acodec aac -strict -2 -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/15_tmpFile_converted.mp4] 
+[24-Jul-2017 16:03:01 America/Sao_Paulo] Duration founded: 0:02:14
+[24-Jul-2017 16:03:01 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 16:03:01 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/15_tmpFile_converted.mp4
+[24-Jul-2017 16:03:01 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 16:03:01 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
+[24-Jul-2017 16:03:09 America/Sao_Paulo] Getting Video File https://127.0.0.1/YouPHPTube-Encoder/videos/original_EnabeAdWords_YPTuniqid_5976443b6b5466.65974893
+[24-Jul-2017 16:03:09 America/Sao_Paulo] YouPHPTube-Encoder Start Encoder [ffmpeg -i /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/16_tmpFile.mp4 -vf scale=320:180 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/16_tmpFile_converted.mp4] 
+[24-Jul-2017 16:03:32 America/Sao_Paulo] Duration founded: 0:02:14
+[24-Jul-2017 16:03:32 America/Sao_Paulo] YouPHPTube-Encoder sending file to http://127.0.0.1/YouPHPTube/youPHPTubeEncoder.json
+[24-Jul-2017 16:03:32 America/Sao_Paulo] YouPHPTube-Encoder reading file from /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/16_tmpFile_converted.mp4
+[24-Jul-2017 16:03:32 America/Sao_Paulo] PHP Notice:  Undefined index: user in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 423
+[24-Jul-2017 16:03:32 America/Sao_Paulo] PHP Notice:  Undefined index: password in /home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/objects/Encoder.php on line 424
