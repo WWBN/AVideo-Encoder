@@ -89,8 +89,8 @@ $frows = Format::getAll();
             if (!Login::canUpload()) {
                 ?>
                 <div class="row">
-                    <div class="col-xs-1 col-sm-2 col-lg-4"></div>
-                    <div class="col-xs-10 col-sm-8 col-lg-4">
+                    <div class="col-xs-1 col-md-2"></div>
+                    <div class="col-xs-10 col-md-8 ">
                         <form class="form-compact well form-horizontal"  id="loginForm">
                             <fieldset>
                                 <legend>Please sign in</legend>
@@ -131,13 +131,11 @@ $frows = Format::getAll();
                                         <button type="submit" class="btn btn-success  btn-block" id="mainButton" ><span class="fa fa-sign-in"></span> Sign in</button>
                                     </div>
                                 </div>
-                                </div>
                             </fieldset>
 
                         </form>
-
                     </div>
-                    <div class="col-xs-1 col-sm-2 col-lg-4"></div>
+                    <div class="col-xs-1 col-md-2"></div>
                 </div>
                 <script>
                     $(document).ready(function () {

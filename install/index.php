@@ -93,31 +93,6 @@ require_once '../objects/functions.php';
                         }
                         ?>
                         
-                        
-                        <?php
-                        /*
-                        if (check_mysqlnd()) {
-                            ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>This server is using MySQLnd as the driver</strong>
-                            </div>                  
-                            <?php
-                        } else {
-                            ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>This server is not using MySQLnd as the driver</strong><details>
-                                    mysqli_result::fetch_all() requires MySQL Native Driver (mysqlnd).
-                                    <pre><code>sudo apt-get install php5-mysqlnd</code></pre>
-                                </details>
-                            </div>                  
-                            <?php
-                        }
-                         * 
-                         */
-                        ?>
-                        
                         <?php
                         if ($exifTool = isExifToo()) {
                             ?>
