@@ -4,6 +4,16 @@
 <IfModule mod_rewrite.c>
     RewriteEngine on
 
+    RewriteRule    ^$ view/    [NC,L]
+    RewriteRule    ^status$ view/status.php    [NC,L]
+    RewriteRule    ^upload$ view/upload.php    [NC,L]
+    RewriteRule    ^listFiles.json$ view/listFiles.json.php    [NC,L]
+    RewriteRule    ^deleteQueue$ view/deleteQueue.php    [NC,L]
+    RewriteRule    ^saveConfig$ view/saveConfig.php    [NC,L]
+    RewriteRule    ^youtubeDl.json$ view/youtubeDl.json.php    [NC,L]
+    RewriteRule    ^send.json$ view/send.json.php    [NC,L]
+    RewriteRule    ^queue.json$ view/queue.json.php    [NC,L]
+    RewriteRule    ^queue$ view/queue.php    [NC,L]
     RewriteRule    ^login$ objects/login.json.php    [NC,L]
     RewriteRule    ^logoff$ objects/logoff.json.php    [NC,L]
     

@@ -23,6 +23,10 @@ class Format extends Object {
             $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
         } else if ($this->id == 8) {
             $obj = $this->runVideoToAudio($pathFileName, $encoder_queue_id);
+        } elseif ($this->id == 9) {
+            $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
+        } else if ($this->id == 10) {
+            $obj = $this->runBothAudio($pathFileName, $encoder_queue_id);
         } else {
             $obj = static::exec($this->id, $pathFileName, $destinationFile, $encoder_queue_id);
         }
@@ -55,6 +59,32 @@ class Format extends Object {
         $obj = static::exec(6, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
         if (!$obj->error) {
             //MP4 to OGG
+            $obj = static::exec(4, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
+        }
+        return $obj;
+    }
+    
+    private function runBothVideo($pathFileName, $encoder_queue_id) {
+        $path_parts = pathinfo($pathFileName);
+        $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
+
+        // Video to MP4
+        $obj = static::exec(1, $pathFileName, $destinationFile . ".mp4", $encoder_queue_id);
+        if (!$obj->error) {
+            //MP4 to WEBM
+            $obj = static::exec(2, $pathFileName, $destinationFile . ".webm", $encoder_queue_id);
+        }
+        return $obj;
+    }
+    
+    private function runBothAudio($pathFileName, $encoder_queue_id) {
+        $path_parts = pathinfo($pathFileName);
+        $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
+
+        // Audio to MP3
+        $obj = static::exec(3, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
+        if (!$obj->error) {
+            //MP3 to OGG
             $obj = static::exec(4, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
         }
         return $obj;

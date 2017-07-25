@@ -1,7 +1,8 @@
 <?php
 
-require_once $global['systemRootPath'] . 'objects/Format.php';
+require_once  $global['systemRootPath'] . 'objects/Format.php';
 require_once  $global['systemRootPath'] . 'objects/Login.php';
+require_once  $global['systemRootPath'] . 'objects/Streamer.php';
 
 class Encoder extends Object {
 
@@ -274,8 +275,15 @@ class Encoder extends Object {
 
         if ($res) {
             $result = $res->fetch_assoc();
-            $result['return_vars'] = json_decode($result['return_vars']);
-            return $result;
+            if(!empty($result)){
+                $result['return_vars'] = json_decode($result['return_vars']);
+                $s = new Streamer($result['streamers_id']);
+                $result['streamer_site'] = $s->getSiteURL();
+                $result['streamer_priority'] = $s->getPriority();
+                return $result;
+            }else{
+                return false;
+            }
         } else {
             die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
         }
@@ -293,6 +301,9 @@ class Encoder extends Object {
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $row['return_vars'] = json_decode($row['return_vars']);
+                $s = new Streamer($row['streamers_id']);
+                $row['streamer_site'] = $s->getSiteURL();
+                $row['streamer_priority'] = $s->getPriority();
                 $rows[] = $row;
             }
         } else {
@@ -365,7 +376,7 @@ class Encoder extends Object {
                             $videos_id = $return_vars->videos_id;
                         }
                         // notify YouPHPTube it is done
-                        $response = static::sendFile($resp->destinationFile, $videos_id, $code->getExtension(), $encoder);
+                        $response = $encoder->send();
                         if (!$response->error) {
                             // update queue status
                             $encoder->setStatus("done");
@@ -390,11 +401,28 @@ class Encoder extends Object {
     function send() {
         global $global;
         $f = new Format($this->getFormats_id());
-        $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
         $return_vars = json_decode($this->getReturn_vars());
         $videos_id = (!empty($return_vars->videos_id) ? $return_vars->videos_id : 0);
-        $format = $f->getExtension();
-        return static::sendFile($file, $videos_id, $format, $this);
+        $return = new stdClass();
+        $return->sends = array();
+        $return->formats_id = $this->getFormats_id();
+        // if is a bulk encode id >= 7 send multiple files 
+        if($f->getId()>=7){
+            $codes = explode("-", $f->getCode());
+            foreach ($codes as $value) {
+                $f = new Format($value);
+                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
+                $format = $f->getExtension();
+                $r = static::sendFile($file, $videos_id, $format, $this);
+                $videos_id = $r->response->video_id;
+                $return->sends[] = $r;
+            }
+        }else{
+            $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
+            $format = $f->getExtension();
+            $return->sends[] = static::sendFile($file, $videos_id, $format, $this);
+        }
+        return $return;
     }
 
     static function sendFile($file, $videos_id, $format, $encoder = null) {
@@ -402,6 +430,8 @@ class Encoder extends Object {
 
         $obj = new stdClass();
         $obj->error = true;
+        $obj->format = $format;
+        $obj->file = $file;
 
         $duration = static::getDurationFromFile($file);
         $title = $encoder->getTitle();
@@ -409,6 +439,8 @@ class Encoder extends Object {
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $youPHPTubeURL = $s->getSiteURL();
+        $user = $s->getUser();
+        $pass = $s->getPass();
         
         $target = $youPHPTubeURL . "youPHPTubeEncoder.json";
         $obj->target = $target;
@@ -420,8 +452,8 @@ class Encoder extends Object {
             'videos_id' => $videos_id,
             'format' => $format,
             'videoDownloadedLink' => $videoDownloadedLink,
-            'user' => $global['user'],
-            'password' => $global['password'],
+            'user' => $user,
+            'password' => $pass,
             'video' => new CURLFile($file),
             'image' => new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)))
         );
@@ -435,7 +467,7 @@ class Encoder extends Object {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = curl_exec($curl);
-        $obj->response = $r;
+        $obj->response = json_decode($r);
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
