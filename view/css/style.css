@@ -46,3 +46,12 @@
     background: inherit;
     left: 20px;
 }
+
+.navbar-brand {
+    padding: 0px !important; /* firefox bug fix */
+    margin-left: 10px !important;
+}
+.navbar-brand>img {
+    height: 100%;
+    width: auto;
+}

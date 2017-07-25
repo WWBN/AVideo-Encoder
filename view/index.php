@@ -62,7 +62,9 @@ $frows = Format::getAll();
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Encoder</a>
+                    <a class="navbar-brand" href="<?php echo $global['webSiteRootURL']; ?>" >
+                        <img src="<?php echo $global['webSiteRootURL']; ?>view/img/logo.png" class="img-responsive ">
+                    </a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
