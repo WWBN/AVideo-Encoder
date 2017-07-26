@@ -31,15 +31,27 @@ class Login {
 
         $context = stream_context_create($opts);
 
-        $result = file_get_contents($youPHPTubeURL . 'login', false, $context);
-
-        $object = json_decode($result);
-        $object->streamer = $youPHPTubeURL;
-        $object->streamers_id = 0; 
-        if(!empty($object->canUpload)){
-            $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL);
+        $result = @file_get_contents($youPHPTubeURL . 'login', false, $context);
+        if(empty($result)){
+            $object = new stdClass();
+            $object->streamer = false;
+            $object->streamers_id = 0;
+            $object->isLogged = false;
+            $object->isAdmin = false;
+            $object->canUpload = false;
+            $object->canComment = false;
+        }else{        
+            $object = json_decode($result);
+            $object->streamer = $youPHPTubeURL;
+            $object->streamers_id = 0; 
+            if(!empty($object->canUpload)){
+                $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL);
+            }
+            if($object->streamers_id){
+                $s = new Streamer($object->streamers_id);
+                $object->isAdmin = $s->getIsAdmin();
+            }
         }
-        
         $_SESSION['login'] = $object;   
         
     }

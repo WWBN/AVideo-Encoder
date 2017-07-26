@@ -5,6 +5,9 @@
     RewriteEngine on
 
     RewriteRule    ^$ view/    [NC,L]
+    RewriteRule    ^isAdmin$ view/isAdmin.php    [NC,L]
+    RewriteRule    ^removeStreamer$ view/removeStreamer.php    [NC,L]
+    RewriteRule    ^priority$ view/priority.php    [NC,L]
     RewriteRule    ^status$ view/status.php    [NC,L]
     RewriteRule    ^upload$ view/upload.php    [NC,L]
     RewriteRule    ^listFiles.json$ view/listFiles.json.php    [NC,L]
@@ -12,6 +15,7 @@
     RewriteRule    ^saveConfig$ view/saveConfig.php    [NC,L]
     RewriteRule    ^youtubeDl.json$ view/youtubeDl.json.php    [NC,L]
     RewriteRule    ^send.json$ view/send.json.php    [NC,L]
+    RewriteRule    ^streamers.json$ view/streamers.json.php    [NC,L]
     RewriteRule    ^queue.json$ view/queue.json.php    [NC,L]
     RewriteRule    ^queue$ view/queue.php    [NC,L]
     RewriteRule    ^login$ objects/login.json.php    [NC,L]

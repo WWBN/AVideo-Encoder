@@ -76,6 +76,21 @@ if ($_POST['createTables'] > 0) {
     }
 }
 
+
+$sql = "INSERT INTO streamers (siteURL, user, pass, priority, created, modified, isAdmin) VALUES ('{$_POST['siteURL']}', '{$_POST['inputUser']}', '{$_POST['inputPassword']}', 1, now(), now(), 1)";
+if ($mysqli->query($sql) !== TRUE) {
+    $obj->error = "Error creating streamer: " . $mysqli->error;
+    echo json_encode($obj);
+    exit;
+}
+
+$sql = "INSERT INTO configurations (id, allowedStreamersURL, defaultPriority, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', now(), now())";
+if ($mysqli->query($sql) !== TRUE) {
+    $obj->error = "Error creating streamer: " . $mysqli->error;
+    echo json_encode($obj);
+    exit;
+}
+
 $sql = "INSERT INTO `formats` VALUES "
         . "(1,'MP4','ffmpeg -i {\$pathFileName} -vf scale=640:360 -vcodec h264 -acodec aac -strict -2 -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp4'),"
         . "(2,'Webm','ffmpeg -i {\$pathFileName} -vf scale=320:180 -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {\$destinationFile}','2017-07-11 12:56:26','2017-07-24 16:07:03','webm','mp4'),"

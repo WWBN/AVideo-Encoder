@@ -172,7 +172,7 @@ abstract class Object{
     private function getAllFields(){        
         global $global, $mysqlDatabase;
         $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{$mysqlDatabase}' AND TABLE_NAME = '".static::getTableName()."'";
-        
+        //echo $sql;
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
         $rows = array();

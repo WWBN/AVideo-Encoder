@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `streamers` (
   `user` VARCHAR(45) NOT NULL,
   `pass` VARCHAR(45) NOT NULL,
   `priority` INT NOT NULL DEFAULT 3,
+  `isAdmin` TINYINT(1) NOT NULL DEFAULT 0,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
   PRIMARY KEY (`id`))
@@ -65,6 +66,19 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
     REFERENCES `streamers` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `configurations`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `configurations` (
+  `id` INT NOT NULL,
+  `allowedStreamersURL` TEXT NULL,
+  `defaultPriority` INT(1) NULL,
+  `created` DATETIME NULL,
+  `modified` DATETIME NULL,
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 

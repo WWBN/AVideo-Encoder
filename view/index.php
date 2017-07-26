@@ -5,11 +5,17 @@ if(!file_exists($config)){
 }
 require_once $config;
 require_once '../objects/Encoder.php';
+require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 $rows = Encoder::getAllQueue();
 $frows = Format::getAll();
+$streamerURL = @$_GET['webSiteRootURL'];
+if(empty($streamerURL)){
+    $streamerURL = Streamer::getFirstURL();
+}
+$config = new Configuration();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,11 +75,7 @@ $frows = Format::getAll();
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <?php
-                        if (!Login::isLogged()) {
-                            ?>
-                            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                            <?php
-                        } else {
+                        if (Login::isLogged()) {
                             ?>
                             <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
                             <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
@@ -101,7 +103,7 @@ $frows = Format::getAll();
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                            <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="<?php echo @$_GET['webSiteRootURL']; ?>" required >
+                                            <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="<?php echo $streamerURL; ?>" required >
                                         </div>
                                     </div>
                                 </div>
@@ -147,7 +149,14 @@ $frows = Format::getAll();
                                 data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val()},
                                 type: 'post',
                                 success: function (response) {
-                                    if (!response.isLogged) {
+                                    if (response.error) {
+                                        modal.hidePleaseWait();
+                                        swal("Sorry!", response.error, "error");
+                                    } else
+                                    if (!response.streamer) {
+                                        modal.hidePleaseWait();
+                                        swal("Sorry!", "We could not found your streamer site!", "error");
+                                    } else if (!response.isLogged) {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "Your user or password is wrong!", "error");
                                     } else {
@@ -177,6 +186,13 @@ $frows = Format::getAll();
                         if (empty($global['disableConfigurations'])) {
                             ?>
                             <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
+                            <?php
+                        }
+                        ?>
+                        <?php
+                        if (Login::isAdmin()) {
+                            ?>
+                            <li><a data-toggle="tab" href="#streamers"><span class="glyphicon glyphicon-user"></span> Streamers</a></li>
                             <?php
                         }
                         ?>
@@ -214,9 +230,46 @@ $frows = Format::getAll();
                                     <?php
                                 }
                                 ?>
+                                <hr>
+                            <div class="form-group">
+                                <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
+                                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="defaultPriority">Default Priority</label>
+                                <select class="" id="defaultPriority">
+                                    <?php
+                                    $priority = $config->getDefaultPriority();
+                                    for ($index = 1; $index <= 10; $index++) {
+                                        echo '<option value="' . $index . '" '.($priority==$index?"selected":"").' >' . $index . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+
                                 <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
                             </div>
                         <?php } ?>
+                        <?php
+                        if (Login::isAdmin()) {
+                            ?>
+                            <div id="streamers" class="tab-pane fade">
+                                <table id="gridStreamer" class="table table-condensed table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th data-column-id="siteURL" data-width="40%">URL</th>
+                                            <th data-column-id="user" data-width="30%">User</th>
+                                            <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
+                                            <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
+                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <?php
+                        }
+                        ?>
                     </div>
                 </div>
                 <div class="col-md-6" >
@@ -446,7 +499,12 @@ $frows = Format::getAll();
                             modal.showPleaseWait();
                             $.ajax({
                                 url: 'saveConfig',
-                                data: {"formats": [[1, $("#format_1").val()], [2, $("#format_2").val()], [3, $("#format_3").val()], [4, $("#format_4").val()], [5, $("#format_5").val()], [6, $("#format_6").val()]]},
+                                data: {
+                                    "formats": [[1, $("#format_1").val()], [2, $("#format_2").val()], [3, $("#format_3").val()], [4, $("#format_4").val()], [5, $("#format_5").val()], [6, $("#format_6").val()]],
+                                    "allowedStreamers": $("#allowedStreamers").val(),
+                                    "defaultPriority": $("#defaultPriority").val(),
+                                    
+                                },
                                 type: 'post',
                                 success: function (response) {
                                     console.log(response);
@@ -571,6 +629,79 @@ $frows = Format::getAll();
                                 });
                             });
                             $('[data-toggle="popover"]').popover();
+                        });
+                        
+                        
+                        
+                        var gridStreamer = $("#gridStreamer").bootgrid({
+                            ajax: true,
+                            url: "streamers.json",
+                            formatters: {
+                                "priority": function (column, row) {
+                                    var tag = "<select class='priority' rowId='"+row.id+"'>";
+                                    for(i=1;i<=10;i++){
+                                        var selected = "";
+                                        if(row.priority == i){
+                                            selected = "selected";
+                                        }
+                                        tag += "<option value='"+i+"' "+selected+">"+i+"</option>";
+                                    }
+                                    tag += "</select>";
+                                    return tag;
+                                },
+                                "admin": function (column, row) {
+                                    var tag = "<select class='isAdmin' rowId='"+row.id+"'>";
+                                    tag += "<option value='1' "+(row.isAdmin=="1"?"selected":"")+">Yes</option>";
+                                    tag += "<option value='0' "+(row.isAdmin=="1"?"":"selected")+">No</option>";
+                                    tag += "</select>";
+                                    return tag;
+                                },
+                                "commands": function (column, row) {
+                                    var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" data-placement="left" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                                    
+                                    return deleteBtn;
+                                }
+                            }
+                        }).on("loaded.rs.jquery.bootgrid", function () {
+                            gridStreamer.find(".command-delete").on("click", function (e) {
+                                modal.showPleaseWait();
+                                var row_index = $(this).closest('tr').index();
+                                var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                                console.log(row);
+                                $.ajax({
+                                    url: 'removeStreamer',
+                                    data: {"id": row.id},
+                                    type: 'post',
+                                    success: function (response) {
+                                        $("#grid").bootgrid("reload");
+                                        modal.hidePleaseWait();
+                                    }
+                                });
+                            });
+                            
+                            gridStreamer.find(".priority").on("click", function (e) {
+                                modal.showPleaseWait();
+                                $.ajax({
+                                    url: 'priority',
+                                    data: {"id": $(this).attr('rowId'), "priority": $(this).val()},
+                                    type: 'post',
+                                    success: function (response) {
+                                        modal.hidePleaseWait();
+                                    }
+                                });
+                            });
+                            
+                            gridStreamer.find(".isAdmin").on("click", function (e) {
+                                modal.showPleaseWait();
+                                $.ajax({
+                                    url: 'isAdmin',
+                                    data: {"id": $(this).attr('rowId'), "isAdmin": $(this).val()},
+                                    type: 'post',
+                                    success: function (response) {
+                                        modal.hidePleaseWait();
+                                    }
+                                });
+                            });
                         });
                     }
                     );
