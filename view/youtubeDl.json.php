@@ -3,9 +3,9 @@
 $obj = new stdClass();
 header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
-require_once 'objects/Encoder.php';
-require_once 'objects/Login.php';
-require_once 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/Encoder.php';
+require_once $global['systemRootPath'] . 'objects/Login.php';
+require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 
 if (!Login::canUpload()) {
@@ -31,9 +31,9 @@ if (!($streamers_id = Login::getStreamerId())) {
 
         $filename = preg_replace("/[^A-Za-z0-9]+/", "_", $title);
         $filename = uniqid("{$filename}_YPTuniqid_", true) . ".mp4";
-        
+
         $s = new Streamer($streamers_id);
-        
+
         $e = new Encoder("");
         $e->setStreamers_id($streamers_id);
         $e->setTitle($title);
@@ -52,11 +52,19 @@ if (!($streamers_id = Login::getStreamerId())) {
             } else {
                 $e->setFormats_id(8);
             }
-            $encoders_ids[] = $e->save();
         } else {
             $e->setFormats_id(9);
-            $encoders_ids[] = $e->save();
         }
+        $obj = new stdClass();
+        $f = new Format($e->getFormats_id());
+        $format = $f->getExtension();
+        $response = Encoder::sendFile('', 0, $format, $e);
+        //var_dump($response);exit;
+        if(!empty($response->response->video_id)){
+            $obj->videos_id = $response->response->video_id;
+        }
+        $e->setReturn_vars(json_encode($obj));
+        $encoders_ids[] = $e->save();
     }
 }
 die(json_encode($obj));

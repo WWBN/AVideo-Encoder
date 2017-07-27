@@ -55,16 +55,25 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 } else {
                     $e->setFormats_id(8);
                 }
-                $encoders_ids[] = $e->save();
             } else {
                 $e->setFormats_id(9);
-                $encoders_ids[] = $e->save();
             }
         } else {       
             $e->setFormats_id(10);
-            $encoders_ids[] = $e->save();
         }
+        
+        
+        $obj = new stdClass();
+        $f = new Format($e->getFormats_id());
+        $format = $f->getExtension();
+        $response = Encoder::sendFile('', 0, $format, $e);
+        if(!empty($response->response->video_id)){
+            $obj->videos_id = $response->response->video_id;
+        }
+        $e->setReturn_vars(json_encode($obj));
 
+        $encoders_ids[] = $e->save();
+        
         $obj->error = false;
         $obj->msg = "Your file ($filename) is queue";
     }

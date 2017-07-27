@@ -453,10 +453,13 @@ class Encoder extends Object {
             'format' => $format,
             'videoDownloadedLink' => $videoDownloadedLink,
             'user' => $user,
-            'password' => $pass,
-            'video' => new CURLFile($file),
-            'image' => new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)))
+            'password' => $pass
         );
+        
+        if(!empty($file)){
+            $postFields['video'] = new CURLFile($file);
+            $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+        }
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -467,6 +470,7 @@ class Encoder extends Object {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = curl_exec($curl);
+        $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
@@ -476,8 +480,9 @@ class Encoder extends Object {
             $obj->error = false;
         }
         curl_close($curl);
+        //var_dump($obj);exit;
         return $obj;
-    }
+    }    
 
     static function getVideoConversionStatus($encoder_queue_id) {
         global $global;

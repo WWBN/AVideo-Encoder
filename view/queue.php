@@ -27,9 +27,6 @@ if(empty($e->getId())){
     $e->setFileURI($_POST['fileURI']);
     $e->setFilename($_POST['filename']);
     $e->setTitle($path_parts['filename']);
-    $obj = new stdClass();
-    $obj->videos_id = @$_POST['videos_id'];
-    $e->setReturn_vars(json_encode($obj));
     $e->setPriority($s->getPriority());
     
     if (!empty($_POST['audioOnly']) && $_POST['audioOnly']!=='false') {
@@ -38,14 +35,26 @@ if(empty($e->getId())){
         } else {
             $e->setFormats_id(8);
         }
-        $id = $e->save();
     } else if(!empty($_POST['format'])){
         $e->setFormats_id($_POST['format']);
-        $id = $e->save();
     }else{
         $e->setFormats_id(9);
-        $id = $e->save();
     }
+    $obj = new stdClass();
+    $obj->videos_id = @$_POST['videos_id'];
+    // notify streamer if need
+    if(empty($obj->videos_id)){
+        $f = new Format($e->getFormats_id());
+        $format = $f->getExtension();
+        
+        $response = Encoder::sendFile('', 0, $format, $e);
+        //var_dump($response);exit;
+        if(!empty($response->response->video_id)){
+            $obj->videos_id = $response->response->video_id;
+        }
+    }
+    $e->setReturn_vars(json_encode($obj));
+    $id = $e->save();
 }else{
     $e->setStatus('queue');
     $id = $e->save();

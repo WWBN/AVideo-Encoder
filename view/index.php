@@ -33,29 +33,6 @@ $config = new Configuration();
         <script src="view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
         <script src="view/js/main.js" type="text/javascript"></script>
         <link href="view/css/style.css" rel="stylesheet" type="text/css"/>
-        <style>
-            body {
-                margin: 30px 0px;
-            }
-            .progress {
-                position: relative;
-                height: 25px;
-            }
-            .progress > .progress-type {
-                position: absolute;
-                left: 0px;
-                font-weight: 800;
-                padding: 3px 30px 2px 10px;
-                color: rgb(255, 255, 255);
-                background-color: rgba(25, 25, 25, 0.2);
-            }
-            .progress > .progress-completed {
-                position: absolute;
-                right: 0px;
-                font-weight: 800;
-                padding: 3px 10px 2px;
-            }
-        </style>
     </head>
 
     <body>        
@@ -273,7 +250,9 @@ $config = new Configuration();
                     </div>
                 </div>
                 <div class="col-md-6" >
-
+                    
+                    <div class="alert alert-success"><span class="glyphicon glyphicon-send"></span>  All converted files will be submited to the streamer site <strong><?php echo Login::getStreamerURL(); ?></strong></div>
+                    
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
@@ -283,23 +262,21 @@ $config = new Configuration();
                             <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
                         <?php } ?>
                         <li class="pull-right">
-                            <a>
-                                <label>
-                                    <input type="checkbox" id="inputAudioOnly">
-                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                                </label>
                                 <label style="display: none;" id="spectrum">
                                     <input type="checkbox" id="inputAudioSpectrum">
                                     <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                                 </label>
-                            </a>
+                                <label>
+                                    <input type="checkbox" id="inputAudioOnly">
+                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                                </label>
                         </li>
                     </ul>
 
                     <div class="tab-content">
                         <div id="download" class="tab-pane fade in active">
                             <div class="alert alert-info">
-                                <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
+                                <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
                             </div>
                             <form id="downloadForm" onsubmit="">
                                 <div class="input-group">
@@ -407,7 +384,7 @@ $config = new Configuration();
                                     
                                     $("#downloadProgress" + id).slideDown();
 
-                                    if (response.download_status && response.download_status.progress < 100) {
+                                    if (response.download_status && !response.encoding_status.progress) {
                                         $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [Downloading ...] </strong> " + response.download_status.progress + '%');
                                     } else {
                                         $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + "[" + response.encoding_status.from + " to " + response.encoding_status.to + "] </strong> " + response.encoding_status.progress + '%');
@@ -523,6 +500,9 @@ $config = new Configuration();
                                 data: {"videoURL": $('#inputVideoURL').val(), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked")},
                                 type: 'post',
                                 success: function (response) {
+                                    if(response.text){
+                                        swal("Sorry!", response.text, response.type);
+                                    }
                                     console.log(response);
                                     modal.hidePleaseWait();
                                 }
