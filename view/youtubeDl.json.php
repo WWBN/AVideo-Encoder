@@ -14,7 +14,8 @@ if (!Login::canUpload()) {
 if (!($streamers_id = Login::getStreamerId())) {
     $obj->msg = "There is no streamer site";
 } else {
-
+    // remove list parameter from
+    $_POST['videoURL'] = preg_replace('~(\?|&)list=[^&]*~','$1',$_POST['videoURL']);
     $cmd = "youtube-dl -e {$_POST['videoURL']}";
     $obj->command = $cmd;
     exec($cmd . "  2>&1", $output, $return_val);
