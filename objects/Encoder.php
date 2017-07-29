@@ -204,7 +204,7 @@ class Encoder extends Object {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = "youtube-dl -o {$tmpfname}.mp4 {$videoURL}";
+        $cmd = "youtube-dl -k -o {$tmpfname}.mp4 {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -406,6 +406,7 @@ class Encoder extends Object {
         $return = new stdClass();
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
+        $return->error = false;
         // if is a bulk encode id >= 7 send multiple files 
         if($f->getId()>=7){
             $codes = explode("-", $f->getCode());
@@ -415,12 +416,21 @@ class Encoder extends Object {
                 $format = $f->getExtension();
                 $r = static::sendFile($file, $videos_id, $format, $this);
                 $videos_id = $r->response->video_id;
+                if($r->error){
+                    $return->error = true;
+                    $return->msg = $r->msg;
+                }
                 $return->sends[] = $r;
             }
         }else{
             $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
             $format = $f->getExtension();
-            $return->sends[] = static::sendFile($file, $videos_id, $format, $this);
+            $r = static::sendFile($file, $videos_id, $format, $this);
+            if($r->error){
+                $return->error = true;
+                $return->msg = $r->msg;
+            }
+            $return->sends[] = $r;
         }
         return $return;
     }
@@ -459,6 +469,7 @@ class Encoder extends Object {
         if(!empty($file)){
             $postFields['video'] = new CURLFile($file);
             $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
         }
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
@@ -612,6 +623,34 @@ class Encoder extends Object {
             return $global['systemRootPath'] . "view/img/notfound.jpg";
         } else {
             return $destinationFile;
+        }
+    }
+    
+    static function getGifImage($pathFileName, $seconds = 5, $howLong=3) {
+        global $global;
+        $destinationFile = "{$pathFileName}.gif";
+        // do not encode again
+        if (file_exists($destinationFile)) {
+            return $destinationFile;
+        }
+        
+        $duration = static::parseSecondsToDuration($seconds);
+        
+        //Generate a palette:
+        eval('$ffmpeg ="ffmpeg -y -ss 30 -t 3 -i input.flv -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
+        exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            error_log("Create Pallete Gif Image error: {$ffmpeg}");
+            return $global['systemRootPath'] . "view/img/notfound.gif";
+        } else {
+            eval('$ffmpeg ="ffmpeg -ss {$seconds} -t {$howLong} -i input.flv -i {$pathFileName}palette.png -filter_complex "fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse" {$destinationFile}";');
+            exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+            if ($return_val !== 0) {
+                error_log("Create Gif Image error: {$ffmpeg}");
+                return $global['systemRootPath'] . "view/img/notfound.gif";
+            } else {
+                return $destinationFile;
+            }
         }
     }
     
