@@ -470,7 +470,7 @@ require_once '../objects/functions.php';
                                             swal("Sorry!", response.error, "error");
                                         } else {
                                             swal("Congratulations!", response.error, "success");
-                                            //window.location.reload(false);
+                                            window.location.reload(false);
                                         }
                                     },
                                     error: function (xhr, ajaxOptions, thrownError) {
