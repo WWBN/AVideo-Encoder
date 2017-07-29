@@ -146,9 +146,9 @@ require_once '../objects/functions.php';
                                     Update the package list.
                                     <br>
                                     <pre><code>
-                                                sudo apt-get update
-                                                sudo apt-get dist-upgrade
-                                                                                    </code></pre>
+                                                        sudo apt-get update
+                                                        sudo apt-get dist-upgrade
+                                                                                            </code></pre>
                                     <br>
                                     Now FFmpeg is available to be installed with apt:
                                     <br>
@@ -325,12 +325,25 @@ require_once '../objects/functions.php';
                             </div>
 
                             <div class="form-group">
-                                <label for="allowedStreamers">Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public)</label>
+                                <label for="allowedStreamers">
+                                    Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public) 
+                                    <a href="#" data-toggle="popover" 
+                                       title="What is this?" 
+                                       data-content="Only the listed sites will be allowed to use this encoder installarion">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </a>
+                                </label>
                                 <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label for="defaultPriority">Default Priority</label>
+                                <label for="defaultPriority">Default Priority
+                                    <a href="#" data-toggle="popover" 
+                                       title="What is this?" 
+                                       data-content="When a user send an media, what will be the priority?">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </a>
+                                </label>
                                 <select class="" id="defaultPriority">
                                     <?php
                                     for ($index = 1; $index <= 10; $index++) {
@@ -353,7 +366,13 @@ require_once '../objects/functions.php';
                             <div class="alert alert-info" id="streamer" >
 
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube Streamer Site URL</label>
+                                    <label for="siteURL">YouPHPTube Streamer Site URL
+                                    <a href="#" data-toggle="popover" 
+                                       title="What is this?" 
+                                       data-content="If you do not have YouPHPTube Streamer Site yet, download it https://github.com/DanielnetoDotCom/YouPHPTube">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </a>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
                                         <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="" required >
@@ -390,10 +409,10 @@ require_once '../objects/functions.php';
 
         <script>
             $(function () {
-                $('#siteURL').keyup(function(){
+                $('#siteURL').keyup(function () {
                     $('#allowedStreamers').val($(this).val());
                 });
-                
+                $('[data-toggle="popover"]').popover(); 
                 $('#configurationForm').submit(function (evt) {
                     evt.preventDefault();
 
@@ -450,7 +469,7 @@ require_once '../objects/functions.php';
                                             swal("Sorry!", response.error, "error");
                                         } else {
                                             swal("Congratulations!", response.error, "success");
-                                            window.location.reload(false);
+                                            //window.location.reload(false);
                                         }
                                     },
                                     error: function (xhr, ajaxOptions, thrownError) {
