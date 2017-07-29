@@ -5,6 +5,7 @@ require_once '../objects/functions.php';
 <html lang="en">
     <head>
         <title>Install YouPHPTube</title>
+        <link rel="icon" href="../view/img/favicon.png">
         <link href="../view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="../view/js/seetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
         <script src="../view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
@@ -146,9 +147,9 @@ require_once '../objects/functions.php';
                                     Update the package list.
                                     <br>
                                     <pre><code>
-                                                sudo apt-get update
-                                                sudo apt-get dist-upgrade
-                                                                                    </code></pre>
+                                                        sudo apt-get update
+                                                        sudo apt-get dist-upgrade
+                                                                                            </code></pre>
                                     <br>
                                     Now FFmpeg is available to be installed with apt:
                                     <br>
@@ -325,12 +326,25 @@ require_once '../objects/functions.php';
                             </div>
 
                             <div class="form-group">
-                                <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
+                                <label for="allowedStreamers">
+                                    Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public) 
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
+                                       title="What is this?" 
+                                       data-content="Only the listed sites will be allowed to use this encoder installarion">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </button>
+                                </label>
                                 <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label for="defaultPriority">Default Priority</label>
+                                <label for="defaultPriority">Default Priority
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover" type="button"
+                                       title="What is this?" 
+                                       data-content="When a user send an media, what will be the priority?">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </button>
+                                </label>
                                 <select class="" id="defaultPriority">
                                     <?php
                                     for ($index = 1; $index <= 10; $index++) {
@@ -353,21 +367,27 @@ require_once '../objects/functions.php';
                             <div class="alert alert-info" id="streamer" >
 
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube URL</label>
+                                    <label for="siteURL">YouPHPTube Streamer Site URL
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
+                                       title="What is this?" 
+                                       data-content="If you do not have YouPHPTube Streamer Site yet, download it https://github.com/DanielnetoDotCom/YouPHPTube">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </button>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                        <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="<?php echo @$_GET['webSiteRootURL']; ?>" required >
+                                        <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="" required >
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="inputUser">YouPHPTube admin User</label>
+                                    <label for="inputUser">YouPHPTube Streamer Site admin User</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                        <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo @$_GET['user']; ?>" required >
+                                        <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="admin" required >
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube admin Password</label>
+                                    <label for="siteURL">YouPHPTube Streamer Site admin Password</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                                         <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
@@ -390,10 +410,10 @@ require_once '../objects/functions.php';
 
         <script>
             $(function () {
-                $('#siteURL').keyUp(function(){
+                $('#siteURL').keyup(function () {
                     $('#allowedStreamers').val($(this).val());
                 });
-                
+                $('[data-toggle="popover"]').popover(); 
                 $('#configurationForm').submit(function (evt) {
                     evt.preventDefault();
 
@@ -450,7 +470,7 @@ require_once '../objects/functions.php';
                                             swal("Sorry!", response.error, "error");
                                         } else {
                                             swal("Congratulations!", response.error, "success");
-                                            window.location.reload(false);
+                                            //window.location.reload(false);
                                         }
                                     },
                                     error: function (xhr, ajaxOptions, thrownError) {

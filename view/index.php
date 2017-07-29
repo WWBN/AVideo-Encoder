@@ -26,6 +26,7 @@ $config = new Configuration();
         <meta name="author" content="">
 
         <title>YouPHPTube Encoder</title>
+        <link rel="icon" href="view/img/favicon.png">
         <script src="view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
         <link href="view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <script src="view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
