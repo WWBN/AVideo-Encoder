@@ -643,7 +643,7 @@ class Encoder extends Object {
             error_log("Create Pallete Gif Image error: {$ffmpeg}");
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
-            eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex "fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse" {$destinationFile}";');
+            eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 error_log("Create Gif Image error: {$ffmpeg}");
