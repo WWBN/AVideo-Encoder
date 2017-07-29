@@ -326,7 +326,7 @@ require_once '../objects/functions.php';
 
                             <div class="form-group">
                                 <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
-                                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value="" required="required"></textarea>
+                                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
                             </div>
 
                             <div class="form-group">
@@ -374,7 +374,7 @@ require_once '../objects/functions.php';
                                     </div>
                                 </div>
                                 <div class="alert alert-warning">
-                                    If you do not have YouPHPTube Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/YouPHPTube">here</a>. Then, please, go back here and finish this installation.
+                                    If you do not have YouPHPTube Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/YouPHPTube" target="_blank">here</a>. Then, please, go back here and finish this installation.
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -390,6 +390,10 @@ require_once '../objects/functions.php';
 
         <script>
             $(function () {
+                $('#siteURL').keyUp(function(){
+                    $('#allowedStreamers').val($(this).val());
+                });
+                
                 $('#configurationForm').submit(function (evt) {
                     evt.preventDefault();
 
