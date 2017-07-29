@@ -640,7 +640,7 @@ class Encoder extends Object {
         $duration = static::parseSecondsToDuration($seconds);
         
         //Generate a palette:
-        eval('$ffmpeg ="ffmpeg -y -ss 30 -t 3 -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
+        eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Create Pallete Gif Image error: {$ffmpeg}");
