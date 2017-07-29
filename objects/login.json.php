@@ -12,5 +12,5 @@ if(!Streamer::isURLAllowed($_POST['siteURL'])){
     die(json_encode($object));
 }
 
-Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL']);
+Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL'], $_POST['encodedPass']);
 echo json_encode($_SESSION['login']);

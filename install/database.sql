@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS `configurations` (
   `defaultPriority` INT(1) NULL,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
+  `version` VARCHAR(10) NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 

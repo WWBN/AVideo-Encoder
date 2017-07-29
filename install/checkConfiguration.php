@@ -1,6 +1,6 @@
 <?php
 
-$installationVersion = "3.4";
+$installationVersion = "1.0";
 
 header('Content-Type: application/json');
 
@@ -84,7 +84,7 @@ if ($mysqli->query($sql) !== TRUE) {
     exit;
 }
 
-$sql = "INSERT INTO configurations (id, allowedStreamersURL, defaultPriority, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', now(), now())";
+$sql = "INSERT INTO configurations (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
 if ($mysqli->query($sql) !== TRUE) {
     $obj->error = "Error creating streamer: " . $mysqli->error;
     echo json_encode($obj);

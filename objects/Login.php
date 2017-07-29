@@ -4,7 +4,7 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once dirname(__FILE__) .'/Streamer.php';
 class Login {
 
-    static function run($user, $pass, $youPHPTubeURL) {
+    static function run($user, $pass, $youPHPTubeURL, $encodedPass=false) {
         global $global;
         if (substr($youPHPTubeURL, -1) !== '/') {
             $youPHPTubeURL .= "/";
@@ -13,7 +13,8 @@ class Login {
         $postdata = http_build_query(
                 array(
                     'user' => $user,
-                    'pass' => $pass
+                    'pass' => $pass,
+                    'encodedPass' => $encodedPass
                 )
         );
 
@@ -45,7 +46,7 @@ class Login {
             $object->streamer = $youPHPTubeURL;
             $object->streamers_id = 0; 
             if(!empty($object->canUpload)){
-                $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL);
+                $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL, $encodedPass);
             }
             if($object->streamers_id){
                 $s = new Streamer($object->streamers_id);

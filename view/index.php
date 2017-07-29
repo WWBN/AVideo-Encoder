@@ -100,7 +100,7 @@ $config = new Configuration();
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
+                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="<?php echo @$_GET['pass']; ?>" >
                                         </div>
                                     </div>
                                 </div>
@@ -117,13 +117,17 @@ $config = new Configuration();
                     <div class="col-xs-1 col-md-2"></div>
                 </div>
                 <script>
+                    var encodedPass = <?php
+                        // if pass all parameters submit the form
+                            echo (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass']))?'true':'false';
+                        ?>;
                     $(document).ready(function () {
                         $('#loginForm').submit(function (evt) {
                             evt.preventDefault();
                             modal.showPleaseWait();
                             $.ajax({
                                 url: 'login',
-                                data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val()},
+                                data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass":encodedPass},
                                 type: 'post',
                                 success: function (response) {
                                     if (response.error) {
@@ -143,6 +147,16 @@ $config = new Configuration();
                             });
                             return false;
                         });
+                        
+                        $('#inputPassword').keyup(function () { encodedPass = false; });
+                        
+                        <?php
+                        // if pass all parameters submit the form
+                        if(!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])){
+                            echo '$(\'#loginForm\').submit()';
+                        }
+                        ?>
+                        
                     });
 
                 </script>    

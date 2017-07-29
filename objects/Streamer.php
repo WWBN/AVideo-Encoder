@@ -12,9 +12,9 @@ class Streamer extends Object {
         return 'streamers';
     }
         
-    private static function get($user, $pass, $siteURL){
+    private static function get($user, $siteURL){
         global $global;
-        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND pass = '{$pass}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
+        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
         //echo $sql;exit;
         $res = $global['mysqli']->query($sql);
         if ($res) {
@@ -43,21 +43,26 @@ class Streamer extends Object {
         return $row['siteURL'];
     }
     
-    static function createIfNotExists($user, $pass, $siteURL){
+    static function createIfNotExists($user, $pass, $siteURL, $encodedPass=false){
+        if(!$encodedPass || $encodedPass==='false'){
+            $pass = md5($pass);
+        }
         if (substr($siteURL, -1) !== '/') {
             $siteURL .= "/";
         }
-        if($row = static::get($user, $pass, $siteURL)){
+        if($row = static::get($user, $siteURL)){
             if(!empty($row['id'])){
                 return $row['id'];
             }
         }
         
         if(static::isURLAllowed($siteURL)){
+            $config = new Configuration();
             $s = new Streamer('');
             $s->setUser($user);
             $s->setPass($pass);
             $s->setSiteURL($siteURL);
+            $s->setIsAdmin(0);
             $s->setPriority($config->getDefaultPriority());
             return $s->save();
         }else{
@@ -67,7 +72,11 @@ class Streamer extends Object {
     
     static function isURLAllowed($siteURL){
         $config = new Configuration();
-        $allowed = explode(PHP_EOL, $config->getAllowedStreamersURL());
+        $urls = $config->getAllowedStreamersURL();
+        if(empty($urls)){
+            return true;
+        }
+        $allowed = explode(PHP_EOL, $urls);
         $return = false;
         if(empty($allowed)){
             $return = true;
@@ -89,7 +98,7 @@ class Streamer extends Object {
         }
         return $return;
     }
-    
+            
     function getId() {
         return $this->id;
     }
