@@ -447,6 +447,7 @@ require_once '../objects/functions.php';
                                 $('#streamer').removeClass('alert-info');
                                 $('#streamer').removeClass('alert-danger');
                                 $('#streamer').addClass('alert-success');
+                                console.log(webSiteRootURL + 'install/checkConfiguration.php');
                                 $.ajax({
                                     url: webSiteRootURL + 'install/checkConfiguration.php',
                                     data: {
