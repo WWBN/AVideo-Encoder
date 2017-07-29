@@ -637,13 +637,13 @@ class Encoder extends Object {
         $duration = static::parseSecondsToDuration($seconds);
         
         //Generate a palette:
-        eval('$ffmpeg ="ffmpeg -y -ss 30 -t 3 -i input.flv -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
+        eval('$ffmpeg ="ffmpeg -y -ss 30 -t 3 -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Create Pallete Gif Image error: {$ffmpeg}");
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
-            eval('$ffmpeg ="ffmpeg -ss {$seconds} -t {$howLong} -i input.flv -i {$pathFileName}palette.png -filter_complex "fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse" {$destinationFile}";');
+            eval('$ffmpeg ="ffmpeg -ss {$seconds} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex "fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 error_log("Create Gif Image error: {$ffmpeg}");
