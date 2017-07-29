@@ -481,6 +481,7 @@ class Encoder extends Object {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = curl_exec($curl);
+        error_log("YouPHPTube-Streamer answer {$r}");
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno = curl_errno($curl)) {
