@@ -181,7 +181,7 @@ require_once '../objects/functions.php';
                                     $dir = getPathToApplication() . "videos";
                                     if (!file_exists($dir)) {
                                         ?>
-                                        The video directory does not exists, YouPHPTube had no permition to create it, you must create it manualy!
+                                        The video directory does not exist, YouPHPTube had no permission to create it, you must create it manually!
                                         <br>
                                         <pre><code>sudo mkdir <?php echo $dir; ?></code></pre>
                                         <?php
@@ -478,7 +478,7 @@ require_once '../objects/functions.php';
                                         if (xhr.status == 404) {
                                             swal("Sorry!", "Your Site URL is wrong!", "error");
                                         } else {
-                                            swal("Sorry!", "Unknow error!", "error");
+                                            swal("Sorry!", "Unknown error!", "error");
                                         }
                                     }
                                 });
