@@ -434,7 +434,7 @@ require_once '../objects/functions.php';
 
                     $.ajax({
                         url: siteURL + '/login',
-                        data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val()},
+                        data: {"user": inputUser, "pass": inputPassword, "siteURL": siteURL},
                         type: 'post',
                         success: function (response) {
                             if (!response.isAdmin) {
@@ -470,7 +470,7 @@ require_once '../objects/functions.php';
                                             swal("Sorry!", response.error, "error");
                                         } else {
                                             swal("Congratulations!", response.error, "success");
-                                            window.location.reload(false);
+                                            //window.location.reload(false);
                                         }
                                     },
                                     error: function (xhr, ajaxOptions, thrownError) {
