@@ -1,6 +1,6 @@
 <?php
 $config = dirname(__FILE__) . '/../videos/configuration.php';
-if(!file_exists($config)){
+if (!file_exists($config)) {
     header("Location: install/index.php");
 }
 require_once $config;
@@ -12,7 +12,7 @@ require_once '../objects/Login.php';
 $rows = Encoder::getAllQueue();
 $frows = Format::getAll();
 $streamerURL = @$_GET['webSiteRootURL'];
-if(empty($streamerURL)){
+if (empty($streamerURL)) {
     $streamerURL = Streamer::getFirstURL();
 }
 $config = new Configuration();
@@ -119,16 +119,16 @@ $config = new Configuration();
                 </div>
                 <script>
                     var encodedPass = <?php
-                        // if pass all parameters submit the form
-                            echo (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass']))?'true':'false';
-                        ?>;
+            // if pass all parameters submit the form
+            echo (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])) ? 'true' : 'false';
+            ?>;
                     $(document).ready(function () {
                         $('#loginForm').submit(function (evt) {
                             evt.preventDefault();
                             modal.showPleaseWait();
                             $.ajax({
                                 url: 'login',
-                                data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass":encodedPass},
+                                data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass": encodedPass},
                                 type: 'post',
                                 success: function (response) {
                                     if (response.error) {
@@ -148,16 +148,18 @@ $config = new Configuration();
                             });
                             return false;
                         });
-                        
-                        $('#inputPassword').keyup(function () { encodedPass = false; });
-                        
-                        <?php
-                        // if pass all parameters submit the form
-                        if(!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])){
-                            echo '$(\'#loginForm\').submit()';
-                        }
-                        ?>
-                        
+
+                        $('#inputPassword').keyup(function () {
+                            encodedPass = false;
+                        });
+
+    <?php
+    // if pass all parameters submit the form
+    if (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])) {
+        echo '$(\'#loginForm\').submit()';
+    }
+    ?>
+
                     });
 
                 </script>    
@@ -223,22 +225,22 @@ $config = new Configuration();
                                 }
                                 ?>
                                 <hr>
-                            <div class="form-group">
-                                <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
-                                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
-                            </div>
+                                <div class="form-group">
+                                    <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
+                                    <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
+                                </div>
 
-                            <div class="form-group">
-                                <label for="defaultPriority">Default Priority</label>
-                                <select class="" id="defaultPriority">
-                                    <?php
-                                    $priority = $config->getDefaultPriority();
-                                    for ($index = 1; $index <= 10; $index++) {
-                                        echo '<option value="' . $index . '" '.($priority==$index?"selected":"").' >' . $index . '</option>';
-                                    }
-                                    ?>
-                                </select>
-                            </div>
+                                <div class="form-group">
+                                    <label for="defaultPriority">Default Priority</label>
+                                    <select class="" id="defaultPriority">
+                                        <?php
+                                        $priority = $config->getDefaultPriority();
+                                        for ($index = 1; $index <= 10; $index++) {
+                                            echo '<option value="' . $index . '" ' . ($priority == $index ? "selected" : "") . ' >' . $index . '</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
 
                                 <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
                             </div>
@@ -265,9 +267,9 @@ $config = new Configuration();
                     </div>
                 </div>
                 <div class="col-md-6" >
-                    
+
                     <div class="alert alert-success"><span class="glyphicon glyphicon-send"></span>  All converted files will be submited to the streamer site <strong><?php echo Login::getStreamerURL(); ?></strong></div>
-                    
+
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
@@ -277,14 +279,14 @@ $config = new Configuration();
                             <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
                         <?php } ?>
                         <li class="pull-right">
-                                <label style="display: none;" id="spectrum">
-                                    <input type="checkbox" id="inputAudioSpectrum">
-                                    <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                                </label>
-                                <label>
-                                    <input type="checkbox" id="inputAudioOnly">
-                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                                </label>
+                            <label style="display: none;" id="spectrum">
+                                <input type="checkbox" id="inputAudioSpectrum">
+                                <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                            </label>
+                            <label>
+                                <input type="checkbox" id="inputAudioOnly">
+                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                            </label>
                         </li>
                     </ul>
 
@@ -396,7 +398,7 @@ $config = new Configuration();
                                         });
                                         encodingNowId = id;
                                     }
-                                    
+
                                     $("#downloadProgress" + id).slideDown();
 
                                     if (response.download_status && !response.encoding_status.progress) {
@@ -449,10 +451,10 @@ $config = new Configuration();
                         }
                         console.log(queueItemAfter);
                         var item = '<div id="encodeProgress' + queueItem.id + '">';
-                        item += '<a href="'+queueItem.streamer_site+'" class="btn btn-default btn-xs" target="_blank">'+queueItem.streamer_site+'</a>';
+                        item += '<a href="' + queueItem.streamer_site + '" class="btn btn-default btn-xs" target="_blank">' + queueItem.streamer_site + '</a>';
                         item += '<div class="progress progress-striped active " id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
                         item += '<div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">';
-                        item += '<span class="sr-only">0% Complete</span></div><span class="progress-type"><span class="badge ">Priority '+queueItem.streamer_priority+'</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
+                        item += '<span class="sr-only">0% Complete</span></div><span class="progress-type"><span class="badge ">Priority ' + queueItem.streamer_priority + '</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
                         item += '</div><div class="progress progress-striped active " id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
                         item += '</div>';
                         if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
@@ -495,7 +497,6 @@ $config = new Configuration();
                                     "formats": [[1, $("#format_1").val()], [2, $("#format_2").val()], [3, $("#format_3").val()], [4, $("#format_4").val()], [5, $("#format_5").val()], [6, $("#format_6").val()]],
                                     "allowedStreamers": $("#allowedStreamers").val(),
                                     "defaultPriority": $("#defaultPriority").val(),
-                                    
                                 },
                                 type: 'post',
                                 success: function (response) {
@@ -515,8 +516,12 @@ $config = new Configuration();
                                 data: {"videoURL": $('#inputVideoURL').val(), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked")},
                                 type: 'post',
                                 success: function (response) {
-                                    if(response.text){
-                                        swal("Sorry!", response.text, response.type);
+                                    if (response.text) {
+                                        swal({
+                                            title:response.title,
+                                            text:response.text,
+                                            type:response.type,
+                                            html:true});
                                     }
                                     console.log(response);
                                     modal.hidePleaseWait();
@@ -625,35 +630,35 @@ $config = new Configuration();
                             });
                             $('[data-toggle="popover"]').popover();
                         });
-                        
-                        
-                        
+
+
+
                         var gridStreamer = $("#gridStreamer").bootgrid({
                             ajax: true,
                             url: "streamers.json",
                             formatters: {
                                 "priority": function (column, row) {
-                                    var tag = "<select class='priority' rowId='"+row.id+"'>";
-                                    for(i=1;i<=10;i++){
+                                    var tag = "<select class='priority' rowId='" + row.id + "'>";
+                                    for (i = 1; i <= 10; i++) {
                                         var selected = "";
-                                        if(row.priority == i){
+                                        if (row.priority == i) {
                                             selected = "selected";
                                         }
-                                        tag += "<option value='"+i+"' "+selected+">"+i+"</option>";
+                                        tag += "<option value='" + i + "' " + selected + ">" + i + "</option>";
                                     }
                                     tag += "</select>";
                                     return tag;
                                 },
                                 "admin": function (column, row) {
-                                    var tag = "<select class='isAdmin' rowId='"+row.id+"'>";
-                                    tag += "<option value='1' "+(row.isAdmin=="1"?"selected":"")+">Yes</option>";
-                                    tag += "<option value='0' "+(row.isAdmin=="1"?"":"selected")+">No</option>";
+                                    var tag = "<select class='isAdmin' rowId='" + row.id + "'>";
+                                    tag += "<option value='1' " + (row.isAdmin == "1" ? "selected" : "") + ">Yes</option>";
+                                    tag += "<option value='0' " + (row.isAdmin == "1" ? "" : "selected") + ">No</option>";
                                     tag += "</select>";
                                     return tag;
                                 },
                                 "commands": function (column, row) {
                                     var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" data-placement="left" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
-                                    
+
                                     return deleteBtn;
                                 }
                             }
@@ -673,7 +678,7 @@ $config = new Configuration();
                                     }
                                 });
                             });
-                            
+
                             gridStreamer.find(".priority").on("click", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({
@@ -685,7 +690,7 @@ $config = new Configuration();
                                     }
                                 });
                             });
-                            
+
                             gridStreamer.find(".isAdmin").on("click", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({

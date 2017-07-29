@@ -22,7 +22,7 @@ if (!($streamers_id = Login::getStreamerId())) {
         $obj->error = "youtube-dl get title ERROR** " . print_r($output, true);
         $obj->type = "warning";
         $obj->title = "Sorry!";
-        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $output[0], "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature'>https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature</a>");
+        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $output[0], "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature</a>");
     } else {
         $title = end($output);
         $obj->type = "success";
