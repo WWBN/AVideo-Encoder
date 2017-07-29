@@ -468,8 +468,10 @@ class Encoder extends Object {
         
         if(!empty($file)){
             $postFields['video'] = new CURLFile($file);
-            $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
-            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+            if($format == "mp4"){
+                $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+                $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+            }
         }
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
