@@ -5,6 +5,7 @@ require_once '../objects/functions.php';
 <html lang="en">
     <head>
         <title>Install YouPHPTube</title>
+        <link rel="icon" href="../view/img/favicon.png">
         <link href="../view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="../view/js/seetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
         <script src="../view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
