@@ -325,7 +325,7 @@ require_once '../objects/functions.php';
                             </div>
 
                             <div class="form-group">
-                                <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
+                                <label for="allowedStreamers">Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public)</label>
                                 <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
                             </div>
 
@@ -353,21 +353,21 @@ require_once '../objects/functions.php';
                             <div class="alert alert-info" id="streamer" >
 
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube URL</label>
+                                    <label for="siteURL">YouPHPTube Streamer Site URL</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                        <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="<?php echo @$_GET['webSiteRootURL']; ?>" required >
+                                        <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="" required >
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="inputUser">YouPHPTube admin User</label>
+                                    <label for="inputUser">YouPHPTube Streamer Site admin User</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                        <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo @$_GET['user']; ?>" required >
+                                        <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="admin" required >
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube admin Password</label>
+                                    <label for="siteURL">YouPHPTube Streamer Site admin Password</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                                         <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
@@ -390,7 +390,7 @@ require_once '../objects/functions.php';
 
         <script>
             $(function () {
-                $('#siteURL').keyUp(function(){
+                $('#siteURL').keyup(function(){
                     $('#allowedStreamers').val($(this).val());
                 });
                 
