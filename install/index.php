@@ -373,7 +373,9 @@ require_once '../objects/functions.php';
                                         <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
                                     </div>
                                 </div>
-
+                                <div class="alert alert-warning">
+                                    If you do not have YouPHPTube Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/YouPHPTube">here</a>. Then, please, go back here and finish this installation.
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
