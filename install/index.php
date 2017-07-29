@@ -328,22 +328,22 @@ require_once '../objects/functions.php';
                             <div class="form-group">
                                 <label for="allowedStreamers">
                                     Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public) 
-                                    <a href="#" data-toggle="popover" 
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover" 
                                        title="What is this?" 
                                        data-content="Only the listed sites will be allowed to use this encoder installarion">
                                         <i class="glyphicon glyphicon-question-sign"></i>
-                                    </a>
+                                    </button>
                                 </label>
                                 <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
                             </div>
 
                             <div class="form-group">
                                 <label for="defaultPriority">Default Priority
-                                    <a href="#" data-toggle="popover" 
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover" 
                                        title="What is this?" 
                                        data-content="When a user send an media, what will be the priority?">
                                         <i class="glyphicon glyphicon-question-sign"></i>
-                                    </a>
+                                    </button>
                                 </label>
                                 <select class="" id="defaultPriority">
                                     <?php
@@ -368,11 +368,11 @@ require_once '../objects/functions.php';
 
                                 <div class="form-group">
                                     <label for="siteURL">YouPHPTube Streamer Site URL
-                                    <a href="#" data-toggle="popover" 
+                                    <button class="btn btn-xs btn-primary" data-toggle="popover" 
                                        title="What is this?" 
                                        data-content="If you do not have YouPHPTube Streamer Site yet, download it https://github.com/DanielnetoDotCom/YouPHPTube">
                                         <i class="glyphicon glyphicon-question-sign"></i>
-                                    </a>
+                                    </button>
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
