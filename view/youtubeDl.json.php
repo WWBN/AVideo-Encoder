@@ -17,6 +17,10 @@ if (!($streamers_id = Login::getStreamerId())) {
     // remove list parameter from
     $_POST['videoURL'] = preg_replace('~(\?|&)list=[^&]*~','$1',$_POST['videoURL']);
     $_POST['videoURL'] = str_replace("?&", "?", $_POST['videoURL']);
+    if (substr($_POST['videoURL'], -1) !== '&') {
+        $_POST['videoURL'] = substr($_POST['videoURL'], 0, -1);
+    }
+    
     $cmd = "youtube-dl -e {$_POST['videoURL']}";
     $obj->command = $cmd;
     exec($cmd . "  2>&1", $output, $return_val);
