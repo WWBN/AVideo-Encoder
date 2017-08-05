@@ -683,13 +683,13 @@ $config = new Configuration();
                                     data: {"id": row.id},
                                     type: 'post',
                                     success: function (response) {
-                                        $("#grid").bootgrid("reload");
+                                        $("#gridStreamer").bootgrid("reload");
                                         modal.hidePleaseWait();
                                     }
                                 });
                             });
 
-                            gridStreamer.find(".priority").on("click", function (e) {
+                            gridStreamer.find(".priority").on("change", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({
                                     url: 'priority',
@@ -701,7 +701,7 @@ $config = new Configuration();
                                 });
                             });
 
-                            gridStreamer.find(".isAdmin").on("click", function (e) {
+                            gridStreamer.find(".isAdmin").on("change", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({
                                     url: 'isAdmin',
