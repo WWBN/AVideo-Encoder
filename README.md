@@ -18,6 +18,8 @@ In order for you to be able to run YouPHPTube, there are certain tools that need
 - PHP 5.3+
 - MySQL 5.0+
 - Apache web server 2.x (with mod_rewrite enabled)
+- FFMPEG
+- PHP Shell Exec Access, *Note: This function is disabled when PHP is running in safe mode.*
 
 # What is new on this version?
 Since version 4.x+ we separate the streamer website from the encoder website, so that we can distribute the application on different servers.
