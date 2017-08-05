@@ -16,6 +16,7 @@ foreach ($rows as $key=>$value) {
     $f = new Format($rows[$key]['formats_id']);
     $rows[$key]['format']= $f->getName();
 }
+$rows = array_values($rows);
 $total = Encoder::getTotal();
 
 echo '{  "current": '.$_POST['current'].',"rowCount": '.$_POST['rowCount'].', "total": '.($total-$totalSkiped).', "rows":'. json_encode($rows).'}';
