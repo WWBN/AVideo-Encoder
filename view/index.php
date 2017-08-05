@@ -613,6 +613,13 @@ $config = new Configuration();
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
                                         modal.hidePleaseWait();
+                                        if (response.error) {
+                                            swal({
+                                                title: "Ops",
+                                                text: response.msg,
+                                                type: "error",
+                                                html: true});
+                                        }
                                     }
                                 });
                             });
