@@ -154,7 +154,7 @@ $config = new Configuration();
                         });
 
     <?php
-    // if pass all parameters submit the form
+// if pass all parameters submit the form
     if (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])) {
         echo '$(\'#loginForm\').submit()';
     }
@@ -176,15 +176,14 @@ $config = new Configuration();
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Encoding Queue</a></li>
                         <li><a data-toggle="tab" href="#log"><span class="glyphicon glyphicon-cog"></span> Queue Log</a></li>
-                        <?php
-                        if (empty($global['disableConfigurations'])) {
-                            ?>
-                            <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
-                            <?php
-                        }
-                        ?>
+
                         <?php
                         if (Login::isAdmin()) {
+                            if (empty($global['disableConfigurations'])) {
+                                ?>
+                                <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
+                                <?php
+                            }
                             ?>
                             <li><a data-toggle="tab" href="#streamers"><span class="glyphicon glyphicon-user"></span> Streamers</a></li>
                             <?php
@@ -208,43 +207,47 @@ $config = new Configuration();
                             </table>
                         </div>
                         <?php
-                        if (empty($global['disableConfigurations'])) {
-                            ?>
-                            <div id="config" class="tab-pane fade">
-                                <?php
-                                foreach ($frows as $value) {
-                                    if ($value['id'] >= 7) {
-                                        break;
-                                    }
-                                    ?>
-                                    <div class="input-group input-group-lg">
-                                        <span class="input-group-addon"><?php echo $value['id']; ?> - <?php echo $value['name']; ?></span>
-                                        <input type="text" class="form-control" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo $value['code']; ?>">
-                                    </div>    
-                                    <?php
-                                }
+                        if (Login::isAdmin()) {
+                            if (empty($global['disableConfigurations'])) {
                                 ?>
-                                <hr>
-                                <div class="form-group">
-                                    <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
-                                    <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="defaultPriority">Default Priority</label>
-                                    <select class="" id="defaultPriority">
-                                        <?php
-                                        $priority = $config->getDefaultPriority();
-                                        for ($index = 1; $index <= 10; $index++) {
-                                            echo '<option value="' . $index . '" ' . ($priority == $index ? "selected" : "") . ' >' . $index . '</option>';
+                                <div id="config" class="tab-pane fade">
+                                    <?php
+                                    foreach ($frows as $value) {
+                                        if ($value['id'] >= 7) {
+                                            break;
                                         }
                                         ?>
-                                    </select>
-                                </div>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-addon"><?php echo $value['id']; ?> - <?php echo $value['name']; ?></span>
+                                            <input type="text" class="form-control" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo $value['code']; ?>">
+                                        </div>    
+                                        <?php
+                                    }
+                                    ?>
+                                    <hr>
+                                    <div class="form-group">
+                                        <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
+                                        <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
+                                    </div>
 
-                                <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
-                            </div>
-                        <?php } ?>
+                                    <div class="form-group">
+                                        <label for="defaultPriority">Default Priority</label>
+                                        <select class="" id="defaultPriority">
+                                            <?php
+                                            $priority = $config->getDefaultPriority();
+                                            for ($index = 1; $index <= 10; $index++) {
+                                                echo '<option value="' . $index . '" ' . ($priority == $index ? "selected" : "") . ' >' . $index . '</option>';
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+
+                                    <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
+                                </div>
+                                <?php
+                            }
+                        }
+                        ?>
                         <?php
                         if (Login::isAdmin()) {
                             ?>
@@ -518,10 +521,10 @@ $config = new Configuration();
                                 success: function (response) {
                                     if (response.text) {
                                         swal({
-                                            title:response.title,
-                                            text:response.text,
-                                            type:response.type,
-                                            html:true});
+                                            title: response.title,
+                                            text: response.text,
+                                            type: response.type,
+                                            html: true});
                                     }
                                     console.log(response);
                                     modal.hidePleaseWait();
