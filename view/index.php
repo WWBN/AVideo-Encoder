@@ -244,7 +244,7 @@ $config = new Configuration();
 
                                     <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
                                 </div>
-                                <?php
+                            <?php
                             }
                         }
                         ?>
@@ -277,10 +277,10 @@ $config = new Configuration();
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
                         <?php
-                        if (empty($global['disableBulkEncode'])) {
-                            ?>
-                            <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
-                        <?php } ?>
+                            if (empty($global['disableBulkEncode'])) {
+                                ?>
+                                <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
+                            <?php } ?>
                         <li class="pull-right">
                             <label style="display: none;" id="spectrum">
                                 <input type="checkbox" id="inputAudioSpectrum">
@@ -326,26 +326,26 @@ $config = new Configuration();
                             </form>
                         </div>
                         <?php
-                        if (empty($global['disableBulkEncode'])) {
-                            ?>
+                            if (empty($global['disableBulkEncode'])) {
+                                ?>
 
-                            <div id="bulk" class="tab-pane fade">
-                                <div class="alert alert-info">
-                                    <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
+                                <div id="bulk" class="tab-pane fade">
+                                    <div class="alert alert-info">
+                                        <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
+                                    </div>
+                                    <div class="input-group">
+                                        <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-secondary" id="pathBtn">
+                                                <span class="glyphicon glyphicon-list"></span> List Files
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <ul class="list-group" id="files">
+                                    </ul>
+                                    <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
                                 </div>
-                                <div class="input-group">
-                                    <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-secondary" id="pathBtn">
-                                            <span class="glyphicon glyphicon-list"></span> List Files
-                                        </button>
-                                    </span>
-                                </div>
-                                <ul class="list-group" id="files">
-                                </ul>
-                                <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
-                            </div>
-                        <?php } ?>
+        <?php } ?>
                     </div>
                 </div>
 
@@ -457,8 +457,8 @@ $config = new Configuration();
                         item += '<a href="' + queueItem.streamer_site + '" class="btn btn-default btn-xs" target="_blank">' + queueItem.streamer_site + '</a>';
                         item += '<div class="progress progress-striped active " id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
                         item += '<div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">';
-                        item += '<span class="sr-only">0% Complete</span><span class="progress-type"><span class="badge ">Priority ' + queueItem.streamer_priority + '</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
-                        item += '</div></div><div class="progress progress-striped active " id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
+                        item += '<span class="sr-only">0% Complete</span></div><span class="progress-type"><span class="badge ">Priority ' + queueItem.streamer_priority + '</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
+                        item += '</div><div class="progress progress-striped active " id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
                         item += '</div>';
                         if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
                             $("#encoding").append(item);
