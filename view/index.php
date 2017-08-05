@@ -676,7 +676,7 @@ $config = new Configuration();
                             gridStreamer.find(".command-delete").on("click", function (e) {
                                 modal.showPleaseWait();
                                 var row_index = $(this).closest('tr').index();
-                                var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                                var row = $("#gridStreamer").bootgrid("getCurrentRows")[row_index];
                                 console.log(row);
                                 $.ajax({
                                     url: 'removeStreamer',
