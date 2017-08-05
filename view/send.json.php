@@ -8,6 +8,13 @@ if (!empty($_POST['id'])) {
     $obj->item = $_POST['id'];
     $e = new Encoder($_POST['id']);
     if (!empty($e->getId())) {
+        if(!Login::isAdmin()){
+            if(Login::getStreamerId() != $e->getStreamers_id()){
+                $obj->msg = "You must be Admin to be able to send somebody else queue";
+                echo json_encode($obj);
+                exit;
+            }
+        }
         $obj->error = false;
         $obj->msg = $e->send();
     } else {

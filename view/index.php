@@ -77,7 +77,7 @@ $config = new Configuration();
 
 
                                 <div class="form-group">
-                                    <label class="col-md-4 control-label">YouPHPTube Site</label>  
+                                    <label class="col-md-4 control-label">YouPHPTube Streamer Site</label>  
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
