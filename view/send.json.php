@@ -2,6 +2,7 @@
 header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'].'objects/Encoder.php';
+require_once $global['systemRootPath'].'objects/Login.php';
 $obj = new stdClass();
 $obj->error = true;
 if (!empty($_POST['id'])) {
