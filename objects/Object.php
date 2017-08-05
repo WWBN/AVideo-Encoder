@@ -192,8 +192,10 @@ abstract class Object{
             $sql = "DELETE FROM ".static::getTableName()." ";
             $sql .= " WHERE id = {$this->id}";
             $global['lastQuery'] = $sql;
+            error_log("Delete Query: ".$sql);
             return $global['mysqli']->query($sql);
         } 
+        error_log("Id for table ".static::getTableName()." not defined for deletion");
         return false;
     }
 }
