@@ -415,7 +415,9 @@ class Encoder extends Object {
                 $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
                 $format = $f->getExtension();
                 $r = static::sendFile($file, $videos_id, $format, $this);
-                $videos_id = $r->response->video_id;
+                if(!empty($r->response->video_id)){
+                    $videos_id = $r->response->video_id;
+                }
                 if($r->error){
                     $return->error = true;
                     $return->msg = $r->msg;
