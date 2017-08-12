@@ -47,6 +47,13 @@ class Login {
             $object->streamers_id = 0; 
             if(!empty($object->canUpload)){
                 $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL, $encodedPass);
+                if(!$encodedPass){
+                    $pass = md5($pass);
+                }
+                // update pass
+                $s = new Streamer($object->streamers_id);
+                $s->setPass($pass);
+                $s->save();
             }
             if($object->streamers_id){
                 $s = new Streamer($object->streamers_id);
