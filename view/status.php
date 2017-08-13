@@ -37,6 +37,7 @@ if(empty($obj->encoding['id'])){
 
 if(!empty($_GET['serverStatus'])){
     require_once '../objects/ServerMonitor.php';
+    require_once '../objects/functions.php';
     $obj->cpu = ServerMonitor::getCpu();
     $obj->memory = ServerMonitor::getMemory();
     $obj->file_upload_max_size = file_upload_max_size();
