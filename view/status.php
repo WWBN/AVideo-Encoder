@@ -35,5 +35,10 @@ if(empty($obj->encoding['id'])){
     $obj->msg = "The file [{$obj->encoding['id']}] {$obj->encoding['filename']} is encoding";
 }
 
+if(!empty($_GET['serverStatus'])){
+    $obj->cpu = ServerMonitor::getCpu();
+    $obj->memory = ServerMonitor::getMemory();
+    $obj->file_upload_max_size = file_upload_max_size();
+}
 $resp = json_encode($obj);
 echo $resp;
