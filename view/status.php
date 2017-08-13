@@ -40,7 +40,7 @@ if(!empty($_GET['serverStatus'])){
     require_once '../objects/functions.php';
     $obj->cpu = ServerMonitor::getCpu();
     $obj->memory = ServerMonitor::getMemory();
-    $obj->file_upload_max_size = file_upload_max_size();
+    $obj->file_upload_max_size = get_max_file_size();
 }
 $resp = json_encode($obj);
 echo $resp;
