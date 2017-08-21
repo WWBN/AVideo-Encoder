@@ -2,6 +2,11 @@
 This is the Encoder for <a href="https://www.youphptube.com/" target="_blank">YouPHPTube</a>
 YouPHPTube! is an video-sharing website, It is an open source solution that is freely available to everyone. With YouPHPTube you can create your own video sharing site, YouPHPTube will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site. The service was created in march 2017.
 
+<div align="center">
+<img src="https://youphptube.com/img/prints/encoder.png">
+<a href="https://encoder.youphptube.com/" target="_blank">View Public Encoder</a>
+</div>
+
 # Why do I need the Encoder?
 You may want to install the encoder for a few reasons:
 If you have a faster server than the public encoder server (which is likely to happen) or If you'd like a private way of encoding your videos
