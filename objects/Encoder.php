@@ -46,6 +46,24 @@ class Encoder extends Object {
         }
         return $rows;
     }
+    
+    
+    static function getTotal($onlyMine = false) {
+        //will receive 
+        //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
+        global $global;
+        $sql = "SELECT id FROM  ".static::getTableName()." WHERE 1=1  ";
+        if ($onlyMine && !Login::isAdmin()) {
+            $sql .= " AND streamers_id = ".Login::getStreamerId()." ";
+        }
+        $sql .= self::getSqlSearchFromPost();
+
+        $global['lastQuery'] = $sql;
+        $res = $global['mysqli']->query($sql);
+
+
+        return $res->num_rows;
+    }
 
     function getId() {
         return $this->id;
