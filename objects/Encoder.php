@@ -1,8 +1,8 @@
 <?php
 
-require_once  $global['systemRootPath'] . 'objects/Format.php';
-require_once  $global['systemRootPath'] . 'objects/Login.php';
-require_once  $global['systemRootPath'] . 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/Format.php';
+require_once $global['systemRootPath'] . 'objects/Login.php';
+require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 class Encoder extends Object {
 
@@ -24,6 +24,27 @@ class Encoder extends Object {
         $this->setTitle($global['mysqli']->real_escape_string($this->getTitle()));
         $this->setStatus_obs($global['mysqli']->real_escape_string($this->getStatus_obs()));
         return parent::save();
+    }
+
+    static function getAll($onlyMine = false) {
+        global $global;
+        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
+        if ($onlyMine && !Login::isAdmin()) {
+            $sql .= " AND streamers_id = ".Login::getStreamerId()." ";
+        }
+        $sql .= self::getSqlFromPost();
+        
+        $global['lastQuery'] = $sql;
+        $res = $global['mysqli']->query($sql);
+        $rows = array();
+        if ($res) {
+            while ($row = $res->fetch_assoc()) {
+                $rows[] = $row;
+            }
+        } else {
+            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+        }
+        return $rows;
     }
 
     function getId() {
@@ -113,7 +134,7 @@ class Encoder extends Object {
     function setVideoDownloadedLink($videoDownloadedLink) {
         $this->videoDownloadedLink = $videoDownloadedLink;
     }
-    
+
     function getDownloadedFileName() {
         return $this->downloadedFileName;
     }
@@ -121,15 +142,15 @@ class Encoder extends Object {
     function setDownloadedFileName($downloadedFileName) {
         $this->downloadedFileName = $downloadedFileName;
     }
-    
+
     function getStreamers_id() {
         return $this->streamers_id;
     }
 
     function setStreamers_id($streamers_id) {
         $this->streamers_id = $streamers_id;
-    }    
-    
+    }
+
     function setFormats_id($formats_id) {
         if (!preg_match('/^[0-9]+$/', $formats_id)) {
             $formats_id = Format::createIfNotExists($formats_id);
@@ -166,9 +187,9 @@ class Encoder extends Object {
         $obj->error = true;
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
-        
+
         $e = Encoder::getFromFileURI($url);
-        if(!empty($e['downloadedFileName'])){
+        if (!empty($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
@@ -229,12 +250,12 @@ class Encoder extends Object {
         $obj->filename = "";
         $obj->progress = 0;
         $file = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
-        if(!file_exists($file)){
+        if (!file_exists($file)) {
             return $obj;
         }
         $text = file_get_contents($file);
         preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
-        if(!empty($matches[1])){
+        if (!empty($matches[1])) {
             $obj->filename = $matches[1];
         }
         preg_match_all('/\[download\] +([0-9.]+)% of/', $text, $matches, PREG_SET_ORDER);
@@ -275,13 +296,13 @@ class Encoder extends Object {
 
         if ($res) {
             $result = $res->fetch_assoc();
-            if(!empty($result)){
+            if (!empty($result)) {
                 $result['return_vars'] = json_decode($result['return_vars']);
                 $s = new Streamer($result['streamers_id']);
                 $result['streamer_site'] = $s->getSiteURL();
                 $result['streamer_priority'] = $s->getPriority();
                 return $result;
-            }else{
+            } else {
                 return false;
             }
         } else {
@@ -408,27 +429,27 @@ class Encoder extends Object {
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
         // if is a bulk encode id >= 7 send multiple files 
-        if($f->getId()>=7){
+        if ($f->getId() >= 7) {
             $codes = explode("-", $f->getCode());
             foreach ($codes as $value) {
                 $f = new Format($value);
                 $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
                 $format = $f->getExtension();
                 $r = static::sendFile($file, $videos_id, $format, $this);
-                if(!empty($r->response->video_id)){
+                if (!empty($r->response->video_id)) {
                     $videos_id = $r->response->video_id;
                 }
-                if($r->error){
+                if ($r->error) {
                     $return->error = true;
                     $return->msg = $r->msg;
                 }
                 $return->sends[] = $r;
             }
-        }else{
+        } else {
             $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
             $format = $f->getExtension();
             $r = static::sendFile($file, $videos_id, $format, $this);
-            if($r->error){
+            if ($r->error) {
                 $return->error = true;
                 $return->msg = $r->msg;
             }
@@ -453,7 +474,7 @@ class Encoder extends Object {
         $youPHPTubeURL = $s->getSiteURL();
         $user = $s->getUser();
         $pass = $s->getPass();
-        
+
         $target = $youPHPTubeURL . "youPHPTubeEncoder.json";
         $obj->target = $target;
         error_log("YouPHPTube-Encoder sending file to {$target}");
@@ -467,10 +488,10 @@ class Encoder extends Object {
             'user' => $user,
             'password' => $pass
         );
-        
-        if(!empty($file)){
+
+        if (!empty($file)) {
             $postFields['video'] = new CURLFile($file);
-            if($format == "mp4"){
+            if ($format == "mp4") {
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
@@ -498,7 +519,7 @@ class Encoder extends Object {
         curl_close($curl);
         //var_dump($obj);exit;
         return $obj;
-    }    
+    }
 
     static function getVideoConversionStatus($encoder_queue_id) {
         global $global;
@@ -630,17 +651,17 @@ class Encoder extends Object {
             return $destinationFile;
         }
     }
-    
-    static function getGifImage($pathFileName, $seconds = 5, $howLong=3) {
+
+    static function getGifImage($pathFileName, $seconds = 5, $howLong = 3) {
         global $global;
         $destinationFile = "{$pathFileName}.gif";
         // do not encode again
         if (file_exists($destinationFile)) {
             return $destinationFile;
         }
-        
+
         $duration = static::parseSecondsToDuration($seconds);
-        
+
         //Generate a palette:
         eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
@@ -658,7 +679,7 @@ class Encoder extends Object {
             }
         }
     }
-    
+
     function delete() {
         global $global;
         exec("rm {$global['systemRootPath']}videos/{$this->id}_tmpFile* < /dev/null 2>&1", $output, $return_val);
@@ -714,7 +735,7 @@ function stream_notification_callback($notification_code, $severity, $message, $
             break;
         case STREAM_NOTIFY_REDIRECTED:
             //echo "Being redirected to: ", $message;
-            $txt = "Being redirected to: ". $message;
+            $txt = "Being redirected to: " . $message;
             break;
 
         case STREAM_NOTIFY_CONNECT:
@@ -724,19 +745,19 @@ function stream_notification_callback($notification_code, $severity, $message, $
 
         case STREAM_NOTIFY_FILE_SIZE_IS:
             //echo "Got the filesize: ", $bytes_max;
-            $txt = "Got the filesize: ". $bytes_max;
+            $txt = "Got the filesize: " . $bytes_max;
             break;
 
         case STREAM_NOTIFY_MIME_TYPE_IS:
             //echo "Found the mime-type: ", $message;
-            $txt = "Found the mime-type: ". $message;
+            $txt = "Found the mime-type: " . $message;
             break;
 
         case STREAM_NOTIFY_PROGRESS:
             //echo "Made some progress, downloaded ", $bytes_transferred, " so far";
-            $p = number_format(($bytes_transferred/$bytes_max)*100, 2);
+            $p = number_format(($bytes_transferred / $bytes_max) * 100, 2);
             $txt = "[download]  {$p}% of {$bytes_max}Bytes";
             break;
     }
-    $myfile = file_put_contents($global['systemRootPath'] . 'videos/'.$global['queue_id'].'_tmpFile_downloadProgress.txt', $txt.PHP_EOL , FILE_APPEND | LOCK_EX);
+    $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
 }
