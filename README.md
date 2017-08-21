@@ -9,10 +9,10 @@ If you have a faster server than the public encoder server (which is likely to h
 But the mandatory installation if you are using a private network. The public encoder will not have access to send the videos to your streamer site
 
 If your server does not have a public IP or uses an IP on some of these bands:
-10.0.0.0/8
-127.0.0.0/8 (Localhost)
-172.16.0.0/12
-192.168.0.0/16
+- 10.0.0.0/8
+- 127.0.0.0/8 (Localhost)
+- 172.16.0.0/12
+- 192.168.0.0/16
 
 Surely you need to install an encoder
 
