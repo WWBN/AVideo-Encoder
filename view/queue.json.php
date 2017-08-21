@@ -9,6 +9,6 @@ foreach ($rows as $key=>$value) {
     $rows[$key]['format']= $f->getName();
 }
 $rows = array_values($rows);
-$total = Encoder::getTotal();
+$total = Encoder::getTotal(true);
 
 echo '{  "current": '.$_POST['current'].',"rowCount": '.$_POST['rowCount'].', "total": '.($total).', "rows":'. json_encode($rows).'}';
