@@ -92,7 +92,7 @@ abstract class Object{
         }else{
             $_POST['current'] = 0;
             $_POST['rowCount'] = 0;
-            $sql .= " LIMIT 12 ";
+            //$sql .= " LIMIT 12 ";
         }
         return $sql;
     }
