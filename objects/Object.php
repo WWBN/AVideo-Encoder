@@ -90,7 +90,7 @@ abstract class Object{
             $current = ($_POST['current']-1)*$_POST['rowCount'];
             $sql .= " LIMIT $current, {$_POST['rowCount']} ";
         }else{
-            $_POST['current'] = 0;
+            $_POST['current'] = 1;
             $_POST['rowCount'] = 0;
             //$sql .= " LIMIT 12 ";
         }
