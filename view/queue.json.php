@@ -11,4 +11,8 @@ foreach ($rows as $key=>$value) {
 $rows = array_values($rows);
 $total = Encoder::getTotal(true);
 
+if(empty($_POST['rowCount']) && !empty($total)){
+    $_POST['rowCount'] = $total;
+}
+
 echo '{  "current": '.$_POST['current'].',"rowCount": '.$_POST['rowCount'].', "total": '.($total).', "rows":'. json_encode($rows).'}';
