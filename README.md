@@ -4,8 +4,7 @@ YouPHPTube! is an video-sharing website, It is an open source solution that is f
 
 # Why do I need the Encoder?
 You may want to install the encoder for a few reasons:
-If you have a faster server than the public encoder server (which is likely to happen)
-If you'd like a private way of encoding your videos
+If you have a faster server than the public encoder server (which is likely to happen) or If you'd like a private way of encoding your videos
 
 But the mandatory installation if you are using a private network. The public encoder will not have access to send the videos to your streamer site
 
