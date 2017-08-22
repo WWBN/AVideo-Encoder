@@ -506,6 +506,7 @@ class Encoder extends Object {
             'user' => $user,
             'password' => $pass
         );
+        $obj->postFields = $postFields;
 
         if (!empty($file)) {
             $postFields['video'] = new CURLFile($file);
