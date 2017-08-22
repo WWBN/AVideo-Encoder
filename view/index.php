@@ -171,7 +171,7 @@ $config = new Configuration();
                 <script src="view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
                 <!-- The main CSS file -->
                 <link href="view/mini-upload-form/assets/css/style.css" rel="stylesheet" />
-                <div class="col-md-6">
+                <div class="col-md-8">
 
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Encoding Queue</a></li>
@@ -269,9 +269,14 @@ $config = new Configuration();
                         ?>
                     </div>
                 </div>
-                <div class="col-md-6" >
+                <div class="col-md-4" >
 
-                    <div class="alert alert-success"><span class="glyphicon glyphicon-send"></span>  All converted files will be submited to the streamer site <strong><?php echo Login::getStreamerURL(); ?></strong></div>
+                    <div class="alert alert-success">
+                        <span class="glyphicon glyphicon-send"></span>  
+                        All converted files will be submited to the streamer site 
+                        <strong><?php echo Login::getStreamerURL(); ?></strong><br>
+                        <span class="label label-danger">The encoder Max File Size is: <?php echo get_max_file_size(); ?></span>
+                    </div>
 
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
@@ -580,7 +585,9 @@ $config = new Configuration();
                                     return btn + status + "<br>" + row.status_obs;
                                 },
                                 "title": function (column, row) {
-                                    return "Priority: " + row.priority + " [" + row.format + "]" + "<br>" + row.title;
+                                    var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ row.streamer +' <span class="badge">Priority '+ row.priority +'</span></a>';
+                                    title += '<span class="label label-primary">' + row.format +'</span><br>'+row.title; 
+                                    return title;
                                 }
                             }
                         }).on("loaded.rs.jquery.bootgrid", function () {
