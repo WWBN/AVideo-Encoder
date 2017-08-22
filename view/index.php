@@ -587,7 +587,7 @@ $config = new Configuration();
                                 "title": function (column, row) {
                                     var l = getLocation(row.streamer);
                                     var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ l.hostname +' <span class="badge">Priority '+ row.priority +'</span></a>';
-                                    title += '<span class="label label-primary">' + row.format +'</span><br>'+row.title; 
+                                    title += '<br><span class="label label-primary">' + row.format +'</span><br>'+row.title; 
                                     return title;
                                 }
                             }
