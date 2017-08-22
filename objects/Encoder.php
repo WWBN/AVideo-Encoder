@@ -514,6 +514,7 @@ class Encoder extends Object {
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
+            $obj->videoFileSize = humanFileSize(filesize($file));
         }
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
