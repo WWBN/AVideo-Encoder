@@ -3,6 +3,7 @@
 require_once $global['systemRootPath'] . 'objects/Format.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends Object {
 
