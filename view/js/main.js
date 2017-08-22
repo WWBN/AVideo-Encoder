@@ -1,5 +1,20 @@
 var modal;
 
+/**
+ * URL into hostname and path in javascript?
+ * @param {type} href
+ * @returns {Element|getLocation.l}
+ * var l = getLocation("http://example.com/path");
+console.debug(l.hostname)
+>> "example.com"
+console.debug(l.pathname)
+>> "/path"
+ */
+var getLocation = function(href) {
+    var l = document.createElement("a");
+    l.href = href;
+    return l;
+};
 
 $(function () {
    modal = modal || (function () {
