@@ -585,7 +585,8 @@ $config = new Configuration();
                                     return btn + status + "<br>" + row.status_obs;
                                 },
                                 "title": function (column, row) {
-                                    var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ row.streamer +' <span class="badge">Priority '+ row.priority +'</span></a>';
+                                    var l = getLocation(row.streamer);
+                                    var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ l.hostname +' <span class="badge">Priority '+ row.priority +'</span></a>';
                                     title += '<span class="label label-primary">' + row.format +'</span><br>'+row.title; 
                                     return title;
                                 }
