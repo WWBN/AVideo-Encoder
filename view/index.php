@@ -278,7 +278,7 @@ $config = new Configuration();
                         <span class="label label-danger">The encoder Max File Size is: <strong><?php echo get_max_file_size(); ?></strong></span>
                         <span class="label label-danger">The Streamer Max File Size is: <strong id="max_file_size">Loading ...</strong></span>
                         <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
-                        <span class="label label-danger">The Streamer Current Video Storage Limit is: <strong id="currentStorageUsage">Loading ...</strong></span>
+                        <span class="label label-danger">The Streamer Current Video Storage is: <strong id="currentStorageUsage">Loading ...</strong></span>
                     </div>
 
                     <ul class="nav nav-tabs">
