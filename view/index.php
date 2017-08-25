@@ -479,7 +479,7 @@ $config = new Configuration();
                         checkProgress();
                         
                         $.ajax({
-                            url: '<?php echo Login::getStreamerURL(); ?>status'
+                            url: '<?php echo Login::getStreamerURL(); ?>status',
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
                                 $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes);
