@@ -477,9 +477,10 @@ $config = new Configuration();
 
                     $(document).ready(function () {
                         checkProgress();
-                        
+                        var streamerURL = "<?php echo Login::getStreamerURL(); ?>";
+                        var streamerURLHttps = streamerURL.replace(/^http:\/\//i, 'https://');
                         $.ajax({
-                            url: '<?php echo Login::getStreamerURL(); ?>status',
+                            url: streamerURLHttps+'status',
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
                                 $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes);
