@@ -493,8 +493,12 @@ $config = new Configuration();
                             url: streamerURL+'status',
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
-                                $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes);
-                                $('#currentStorageUsage').text(response.currentStorageUsage);
+                                $('#currentStorageUsage').text((60/response.currentStorageUsage).toFixed(2)+" Minutes");
+                                if(response.videoStorageLimitMinutes){
+                                    $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes+" Minutes");
+                                }else{
+                                    $('#videoStorageLimitMinutes').text("Unlimited");
+                                }
                             }
                         });
                         
