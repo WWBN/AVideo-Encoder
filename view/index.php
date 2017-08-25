@@ -275,7 +275,10 @@ $config = new Configuration();
                         <span class="glyphicon glyphicon-send"></span>  
                         All converted files will be submited to the streamer site 
                         <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                        <span class="label label-danger">The encoder Max File Size is: <?php echo get_max_file_size(); ?></span>
+                        <span class="label label-danger">The encoder Max File Size is: <strong><?php echo get_max_file_size(); ?></strong></span>
+                        <span class="label label-danger">The Streamer Max File Size is: <strong id="max_file_size">Loading ...</strong></span>
+                        <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
+                        <span class="label label-danger">The Streamer Current Video Storage Limit is: <strong id="currentStorageUsage">Loading ...</strong></span>
                     </div>
 
                     <ul class="nav nav-tabs">
@@ -474,7 +477,16 @@ $config = new Configuration();
 
                     $(document).ready(function () {
                         checkProgress();
-
+                        
+                        $.ajax({
+                            url: '<?php echo Login::getStreamerURL(); ?>status'
+                            success: function (response) {
+                                $('#max_file_size').text(response.max_file_size);
+                                $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes);
+                                $('#currentStorageUsage').text(response.currentStorageUsage);
+                            }
+                        });
+                        
                         $("#addQueueBtn").click(function () {
                             $('#files li').each(function () {
                                 if ($(this).find('.someSwitchOption').is(":checked")) {
