@@ -11,9 +11,9 @@ foreach ($rows as $key=>$value) {
     $s = new Streamer($rows[$key]['streamers_id']);
     $rows[$key]['streamer']= $s->getSiteURL();
     $rows[$key]['mp4_filesize']= filesize("{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted.mp4");
-    $rows[$key]['mp4_filesize_human']= humanFileSize($rows[$key]['filesize']);
+    $rows[$key]['mp4_filesize_human']= humanFileSize($rows[$key]['mp4_filesize']);
     $rows[$key]['webm_filesize']= filesize("{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted.webm");
-    $rows[$key]['webm_filesize_human']= humanFileSize($rows[$key]['filesize']);
+    $rows[$key]['webm_filesize_human']= humanFileSize($rows[$key]['webm_filesize']);
 }
 $rows = array_values($rows);
 $total = Encoder::getTotal(true);
