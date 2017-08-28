@@ -10,7 +10,7 @@ foreach ($rows as $key=>$value) {
     $rows[$key]['format']= $f->getName();
     $s = new Streamer($rows[$key]['streamers_id']);
     $rows[$key]['streamer']= $s->getSiteURL();
-    $rows[$key]['filesize']= filesize("{$global['systemRootPath']}videos/" . $rows[$key]['filename']);
+    $rows[$key]['filesize']= filesize("{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted.".$f->getExtension());
     $rows[$key]['filesize_human']= humanFileSize($rows[$key]['filesize']);
 }
 $rows = array_values($rows);
