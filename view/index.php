@@ -515,6 +515,7 @@ $config = new Configuration();
                                 }else{
                                     $('#videoStorageLimitMinutes').text("Unlimited");
                                 }
+                                updateFileSizes();
                             }
                         });
                         
@@ -693,6 +694,7 @@ $config = new Configuration();
                                 });
                             });
                             $('[data-toggle="popover"]').popover();
+                            updateFileSizes();
                         });
 
 
