@@ -482,10 +482,6 @@ $config = new Configuration();
                         }
                         $('.fileSize').each(function(i, obj) {
                             var fileSize = $(obj).attr("value");
-                            console.log(fileSize);
-                            console.log(streamerMaxFileSize);
-                            console.log($(obj));
-                            console.log(obj);
                             if(fileSize > streamerMaxFileSize){
                                 $(obj).removeClass("label-success");
                                 $(obj).addClass("label-danger");
