@@ -474,6 +474,21 @@ $config = new Configuration();
                             $(item).insertAfter("#" + queueItemAfter.id);
                         }
                     }
+                    
+                    var streamerMaxFileSize = 0;
+                    function updateFileSizes(){
+                        if(!streamerMaxFileSize){
+                            return false;
+                        }
+                        $('.fileSize').each(function(i, obj) {
+                            var fileSize = $(obj).attr("value");
+                            if(fileSize > streamerMaxFileSize){
+                                $(obj).removeClass("label-success");
+                                $(obj).addClass("label-danger");
+                                $(obj).text($(obj).text()+" [File is too big]");
+                            }
+                        });
+                    }
 
                     $(document).ready(function () {
                         checkProgress();
@@ -493,6 +508,7 @@ $config = new Configuration();
                             url: streamerURL+'status',
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
+                                streamerMaxFileSize = response.file_upload_max_size;
                                 $('#currentStorageUsage').text((response.currentStorageUsage/60).toFixed(2)+" Minutes");
                                 if(response.videoStorageLimitMinutes){
                                     $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes+" Minutes");
@@ -615,8 +631,8 @@ $config = new Configuration();
                                     var l = getLocation(row.streamer);
                                     var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ l.hostname +' <span class="badge">Priority '+ row.priority +'</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format +'</span>'; 
-                                    title += '<br><span class="label label-success">MP4 Size: ' + row.mp4_filesize_human +'</span>'; 
-                                    title += '<span class="label label-success">WEBM Size: ' + row.webm_filesize_human +'</span>'; 
+                                    title += '<br><span class="label label-success fileSize" value="'+row.mp4_filesize+'">MP4 Size: ' + row.mp4_filesize_human +'</span>'; 
+                                    title += '<br><span class="label label-success fileSize" value="'+row.webm_filesize+'">WEBM Size: ' + row.webm_filesize_human +'</span>'; 
                                     title += '<br>'+row.title; 
                                     return title;
                                 }
