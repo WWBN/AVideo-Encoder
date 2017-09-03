@@ -294,13 +294,13 @@ $config = new Configuration();
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                             </label>
-                            <label>
-                                <input type="checkbox" id="inputAudioOnly">
-                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                            </label>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
                                 <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video
+                            </label>
+                            <label>
+                                <input type="checkbox" id="inputAudioOnly">
+                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
                             </label>
                         </li>
                     </ul>
