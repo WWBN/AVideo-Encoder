@@ -15,12 +15,12 @@ if (!($streamers_id = Login::getStreamerId())) {
     $obj->msg = "There is no streamer site";
 } else {
     // remove list parameter from
-    $_POST['videoURL'] = preg_replace('~(\?|&)list=[^&]*~','$1',$_POST['videoURL']);
+    $_POST['videoURL'] = preg_replace('~(\?|&)list=[^&]*~', '$1', $_POST['videoURL']);
     $_POST['videoURL'] = str_replace("?&", "?", $_POST['videoURL']);
     if (substr($_POST['videoURL'], -1) == '&') {
         $_POST['videoURL'] = substr($_POST['videoURL'], 0, -1);
     }
-    
+
     $cmd = "youtube-dl -e {$_POST['videoURL']}";
     $obj->command = $cmd;
     exec($cmd . "  2>&1", $output, $return_val);
@@ -58,7 +58,11 @@ if (!($streamers_id = Login::getStreamerId())) {
             } else {
                 $e->setFormats_id(8);
             }
+        } else if (!empty($_POST['webm']) && $_POST['webm'] !== 'false') {
+            // mp4 only
+            $e->setFormats_id(1);
         } else {
+            // mp4 and webm
             $e->setFormats_id(9);
         }
         $obj = new stdClass();
@@ -66,7 +70,7 @@ if (!($streamers_id = Login::getStreamerId())) {
         $format = $f->getExtension();
         $response = Encoder::sendFile('', 0, $format, $e);
         //var_dump($response);exit;
-        if(!empty($response->response->video_id)){
+        if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
         }
         $e->setReturn_vars(json_encode($obj));

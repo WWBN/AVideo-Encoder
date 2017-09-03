@@ -244,7 +244,7 @@ $config = new Configuration();
 
                                     <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
                                 </div>
-                            <?php
+                                <?php
                             }
                         }
                         ?>
@@ -285,10 +285,10 @@ $config = new Configuration();
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
                         <?php
-                            if (empty($global['disableBulkEncode'])) {
-                                ?>
-                                <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
-                            <?php } ?>
+                        if (empty($global['disableBulkEncode'])) {
+                            ?>
+                            <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
+                        <?php } ?>
                         <li class="pull-right">
                             <label style="display: none;" id="spectrum">
                                 <input type="checkbox" id="inputAudioSpectrum">
@@ -297,6 +297,10 @@ $config = new Configuration();
                             <label>
                                 <input type="checkbox" id="inputAudioOnly">
                                 <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                            </label>
+                            <label  id="webm">
+                                <input type="checkbox" id="inputWebM">
+                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video
                             </label>
                         </li>
                     </ul>
@@ -334,26 +338,26 @@ $config = new Configuration();
                             </form>
                         </div>
                         <?php
-                            if (empty($global['disableBulkEncode'])) {
-                                ?>
+                        if (empty($global['disableBulkEncode'])) {
+                            ?>
 
-                                <div id="bulk" class="tab-pane fade">
-                                    <div class="alert alert-info">
-                                        <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
-                                    </div>
-                                    <div class="input-group">
-                                        <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-secondary" id="pathBtn">
-                                                <span class="glyphicon glyphicon-list"></span> List Files
-                                            </button>
-                                        </span>
-                                    </div>
-                                    <ul class="list-group" id="files">
-                                    </ul>
-                                    <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
+                            <div id="bulk" class="tab-pane fade">
+                                <div class="alert alert-info">
+                                    <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
                                 </div>
-        <?php } ?>
+                                <div class="input-group">
+                                    <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-secondary" id="pathBtn">
+                                            <span class="glyphicon glyphicon-list"></span> List Files
+                                        </button>
+                                    </span>
+                                </div>
+                                <ul class="list-group" id="files">
+                                </ul>
+                                <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
 
@@ -474,18 +478,18 @@ $config = new Configuration();
                             $(item).insertAfter("#" + queueItemAfter.id);
                         }
                     }
-                    
+
                     var streamerMaxFileSize = 0;
-                    function updateFileSizes(){
-                        if(!streamerMaxFileSize){
+                    function updateFileSizes() {
+                        if (!streamerMaxFileSize) {
                             return false;
                         }
-                        $('.fileSize').each(function(i, obj) {
+                        $('.fileSize').each(function (i, obj) {
                             var fileSize = $(obj).attr("value");
-                            if(fileSize > streamerMaxFileSize){
+                            if (fileSize > streamerMaxFileSize) {
                                 $(obj).removeClass("label-success");
                                 $(obj).addClass("label-danger");
-                                $(obj).text($(obj).text()+" [File is too big]");
+                                $(obj).text($(obj).text() + " [File is too big]");
                             }
                         });
                     }
@@ -493,39 +497,39 @@ $config = new Configuration();
                     $(document).ready(function () {
                         checkProgress();
                         var streamerURL = "<?php echo Login::getStreamerURL(); ?>";
-                        <?php
-                        /**
-                         * If you are over https change the URL to https
-                         */
-                        $url = parse_url($global['webSiteRootURL']);
-                        if($url['scheme'] == 'https'){
-                        ?>
-                        streamerURL = streamerURL.replace(/^http:\/\//i, 'https://');
-                        <?php
-                        }
-                        ?>
+    <?php
+    /**
+     * If you are over https change the URL to https
+     */
+    $url = parse_url($global['webSiteRootURL']);
+    if ($url['scheme'] == 'https') {
+        ?>
+                            streamerURL = streamerURL.replace(/^http:\/\//i, 'https://');
+        <?php
+    }
+    ?>
                         $.ajax({
-                            url: streamerURL+'status',
+                            url: streamerURL + 'status',
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
                                 streamerMaxFileSize = response.file_upload_max_size;
-                                $('#currentStorageUsage').text((response.currentStorageUsage/60).toFixed(2)+" Minutes");
-                                if(response.videoStorageLimitMinutes){
-                                    $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes+" Minutes");
-                                }else{
+                                $('#currentStorageUsage').text((response.currentStorageUsage / 60).toFixed(2) + " Minutes");
+                                if (response.videoStorageLimitMinutes) {
+                                    $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes + " Minutes");
+                                } else {
                                     $('#videoStorageLimitMinutes').text("Unlimited");
                                 }
                                 updateFileSizes();
                             }
                         });
-                        
+
                         $("#addQueueBtn").click(function () {
                             $('#files li').each(function () {
                                 if ($(this).find('.someSwitchOption').is(":checked")) {
                                     var id = $(this).attr('id');
                                     $.ajax({
                                         url: 'queue',
-                                        data: {"fileURI": $(this).attr('path'), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked")},
+                                        data: {"fileURI": $(this).attr('path'), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked"), "webm": $('#inputWebM').is(":checked")},
                                         type: 'post',
                                         success: function (response) {
                                             $('#' + id).find('.label').fadeIn();
@@ -565,7 +569,7 @@ $config = new Configuration();
                             evt.preventDefault();
                             $.ajax({
                                 url: 'youtubeDl.json',
-                                data: {"videoURL": $('#inputVideoURL').val(), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked")},
+                                data: {"videoURL": $('#inputVideoURL').val(), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked"), "webm": $('#inputWebM').is(":checked")},
                                 type: 'post',
                                 success: function (response) {
                                     if (response.text) {
@@ -584,9 +588,13 @@ $config = new Configuration();
 
                         $('#inputAudioOnly').change(function () {
                             if ($(this).is(":checked")) {
-                                $('#spectrum').fadeIn();
+                                $('#webm').fadeOut("slow", function () {
+                                    $('#spectrum').fadeIn();
+                                });
                             } else {
-                                $('#spectrum').fadeOut();
+                                $('#spectrum').fadeOut("slow", function () {
+                                    $('#webm').fadeIn();
+                                });
                             }
                         });
 
@@ -630,11 +638,11 @@ $config = new Configuration();
                                 },
                                 "title": function (column, row) {
                                     var l = getLocation(row.streamer);
-                                    var title = '<a href="'+ row.streamer +'" target="_blank" class="btn btn-primary btn-xs">'+ l.hostname +' <span class="badge">Priority '+ row.priority +'</span></a>';
-                                    title += '<br><span class="label label-primary">' + row.format +'</span>'; 
-                                    title += '<br><span class="label label-success fileSize" value="'+row.mp4_filesize+'">MP4 Size: ' + row.mp4_filesize_human +'</span>'; 
-                                    title += '<br><span class="label label-success fileSize" value="'+row.webm_filesize+'">WEBM Size: ' + row.webm_filesize_human +'</span>'; 
-                                    title += '<br>'+row.title; 
+                                    var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
+                                    title += '<br><span class="label label-primary">' + row.format + '</span>';
+                                    title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize + '">MP4 Size: ' + row.mp4_filesize_human + '</span>';
+                                    title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize + '">WEBM Size: ' + row.webm_filesize_human + '</span>';
+                                    title += '<br>' + row.title;
                                     return title;
                                 }
                             }

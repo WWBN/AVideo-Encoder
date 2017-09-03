@@ -37,7 +37,11 @@ if(empty($e->getId())){
         }
     } else if(!empty($_POST['format'])){
         $e->setFormats_id($_POST['format']);
+    }else if (!empty($_POST['webm']) && $_POST['webm']!=='false') {
+        // mp4 only
+        $e->setFormats_id(1);
     }else{
+        // mp4 and webm
         $e->setFormats_id(9);
     }
     $obj = new stdClass();
