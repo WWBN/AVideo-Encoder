@@ -41,7 +41,7 @@ $(function () {
                 });
 
             });
-            data.formData =  {"audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked")};
+            data.formData =  {"audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked"), "webm": $('#inputWebM').is(":checked")};
             // Automatically upload the file once it is added to the queue
             var jqXHR = data.submit();
         },
