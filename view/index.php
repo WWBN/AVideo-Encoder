@@ -296,7 +296,7 @@ $config = new Configuration();
                             </label>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
-                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video
+                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video <small>(For Chrome Browsers)</small>
                             </label>
                             <label>
                                 <input type="checkbox" id="inputAudioOnly">
