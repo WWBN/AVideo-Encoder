@@ -27,6 +27,7 @@ $config = new Configuration();
 
         <title>YouPHPTube Encoder</title>
         <link rel="icon" href="view/img/favicon.png">
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <script src="view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
         <link href="view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <script src="view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
@@ -296,7 +297,10 @@ $config = new Configuration();
                             </label>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
-                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video <small>(For Chrome Browsers)</small>
+                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video<br>
+                                <small class="label label-warning">
+                                    <i class="fa fa-chrome" aria-hidden="true"></i>(For Chrome Browsers)
+                                </small>
                             </label>
                             <label>
                                 <input type="checkbox" id="inputAudioOnly">
