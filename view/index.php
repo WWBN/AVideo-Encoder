@@ -290,16 +290,16 @@ $config = new Configuration();
                             ?>
                             <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
                         <?php } ?>
-                        <li class="pull-right" style="text-align:top;">
+                        <li class="pull-right">
                             <label style="display: none;" id="spectrum">
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                             </label>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
-                                <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video<br>
+                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
                                 <small class="label label-warning">
-                                    <i class="fa fa-chrome" aria-hidden="true"></i> For Chrome Browsers
+                                     For Chrome Browsers
                                 </small>
                             </label>
                             <label>
