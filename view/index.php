@@ -290,7 +290,7 @@ $config = new Configuration();
                             ?>
                             <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
                         <?php } ?>
-                        <li class="pull-right">
+                        <li class="pull-right" style="text-align:top;">
                             <label style="display: none;" id="spectrum">
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
@@ -299,7 +299,7 @@ $config = new Configuration();
                                 <input type="checkbox" id="inputWebM">
                                 <span class="glyphicon glyphicon-facetime-video"></span> Extract WebM Video<br>
                                 <small class="label label-warning">
-                                    <i class="fa fa-chrome" aria-hidden="true"></i>(For Chrome Browsers)
+                                    <i class="fa fa-chrome" aria-hidden="true"></i> For Chrome Browsers
                                 </small>
                             </label>
                             <label>
