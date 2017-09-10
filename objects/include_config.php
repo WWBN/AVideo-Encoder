@@ -18,4 +18,5 @@ $global['mysqli']->query("SET time_zone='$offset';");
 
 session_start();
 
+require_once $global['systemRootPath'].'objects/functions.php';
 require_once $global['systemRootPath'].'objects/Object.php';
