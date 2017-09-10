@@ -35,7 +35,7 @@ if (!($streamers_id = Login::getStreamerId())) {
         $obj->title = "Congratulations!";
         $obj->text = sprintf("Your video (%s) is downloading", $title);
 
-        $filename = preg_replace("/[^A-Za-z0-9]+/", "_", $title);
+        $filename = preg_replace("/[^A-Za-z0-9]+/", "_", cleanString($title));
         $filename = uniqid("{$filename}_YPTuniqid_", true) . ".mp4";
 
         $s = new Streamer($streamers_id);
