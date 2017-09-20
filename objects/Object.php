@@ -79,6 +79,8 @@ abstract class Object{
         if(!empty($_POST['sort'])){
             $orderBy = array();
             foreach ($_POST['sort'] as $key => $value) {
+                $key = $global['mysqli']->real_escape_string($key);
+                $value = $global['mysqli']->real_escape_string($value);
                 $orderBy[] = " {$key} {$value} ";
             }
             $sql .= " ORDER BY ".implode(",", $orderBy);
@@ -87,6 +89,8 @@ abstract class Object{
         }
         
         if(!empty($_POST['rowCount']) && !empty($_POST['current']) && $_POST['rowCount']>0){
+            $_POST['rowCount'] = intval($_POST['rowCount']);
+            $_POST['current'] = intval($_POST['current']);
             $current = ($_POST['current']-1)*$_POST['rowCount'];
             $sql .= " LIMIT $current, {$_POST['rowCount']} ";
         }else{
