@@ -6,7 +6,7 @@ $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile.".png";
 $cache_life = '60'; //caching time, in seconds
 $filemtime = @filemtime($destination);  // returns FALSE if file does not exist
 if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])){
-    $exec = "ffmpeg -i {$url} -f image2 -vframes 1 {$destination}";
+    $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
     error_log("Exec get Image: {$exec}");
     shell_exec($exec);
 }
