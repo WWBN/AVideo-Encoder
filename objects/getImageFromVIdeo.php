@@ -1,5 +1,5 @@
 <?php
-$url = base64_decode($_GET['url']);
+$url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
 $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile.".png";
 if(!file_exists($destination)){
