@@ -2,7 +2,10 @@
 $url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
 $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile.".png";
-if(!file_exists($destination)){
+
+$cache_life = '60'; //caching time, in seconds
+$filemtime = @filemtime($destination);  // returns FALSE if file does not exist
+if(!$filemtime || (time() - $filemtime >= $cache_life)){
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 {$destination}";
     error_log("Exec get Image: {$exec}");
     shell_exec($exec);
