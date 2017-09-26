@@ -22,7 +22,7 @@
     RewriteRule    ^queue$ view/queue.php    [NC,L]
     RewriteRule    ^login$ objects/login.json.php    [NC,L]
     RewriteRule    ^logoff$ objects/logoff.json.php    [NC,L]
-    RewriteRule    ^getImage/([A-Za-z0-9=]+)$ objects/getImage.php?base64Url=$1    [NC,L]
+    RewriteRule    ^getImage/([A-Za-z0-9=]+)/([A-Za-z0-9=]+)$ objects/getImage.php?base64Url=$1&format=$2    [NC,L]
     
 
 </IfModule>
