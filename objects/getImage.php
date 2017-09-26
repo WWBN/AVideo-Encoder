@@ -2,10 +2,14 @@
 $url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
 $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
-$cache_life = '60'; //caching time, in seconds
+$cache_life = '120'; //caching time, in seconds
 
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
+    $destination .= ".".$_GET['format'];
+    $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
+}else if($_GET['format'] === 'jpg'){
+    header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
 }else if($_GET['format'] === 'gif'){
