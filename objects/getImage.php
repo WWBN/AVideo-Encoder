@@ -14,7 +14,7 @@ if($_GET['format'] === 'png'){
     //Generate a palette:
     $ffmpeg ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destination}palette.png";
     exec($ffmpeg);
-    $exec ="ffmpeg -ss {$duration} -t {$howLong} -i {$destination} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+    $exec ="ffmpeg -t 3 -i {$destination} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
