@@ -244,7 +244,7 @@ class Encoder extends Object {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = "youtube-dl -k -o {$tmpfname}.mp4 {$videoURL}";
+        $cmd = "youtube-dl -k -o {$tmpfname}.mp4 -f 'mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
