@@ -435,6 +435,7 @@ require_once '../objects/functions.php';
                     $.ajax({
                         url: siteURL + '/login',
                         data: {"user": inputUser, "pass": inputPassword, "siteURL": siteURL},
+                        dataType: 'jsonp',
                         type: 'post',
                         success: function (response) {
                             if (!response.isAdmin) {
