@@ -3,6 +3,7 @@ $config = dirname(__FILE__) . '/../videos/configuration.php';
 if (!file_exists($config)) {
     header("Location: install/index.php");
 }
+header('Access-Control-Allow-Origin: *');
 require_once $config;
 require_once '../objects/Encoder.php';
 require_once '../objects/Configuration.php';
