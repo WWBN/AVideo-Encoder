@@ -32,8 +32,8 @@ class Login {
         );
 
         $context = stream_context_create($opts);
-
-        $result = @file_get_contents($youPHPTubeURL . 'login', false, $context);
+        $url = $youPHPTubeURL . 'login';
+        $result = @file_get_contents($url, false, $context);
         if (empty($result)) {
             $object = new stdClass();
             $object->streamer = false;
@@ -60,6 +60,7 @@ class Login {
                 $s->save();
             }
         }
+        $object->youPHPTubeURL = $url;
         $object->result = $result;
         $_SESSION['login'] = $object;
     }
