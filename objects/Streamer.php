@@ -92,6 +92,7 @@ class Streamer extends Object {
                     $value .= "/";
                 }
                 //var_dump($siteURL,$value);
+                error_log("$siteURL == $value");
                 if ($siteURL == $value) {
                     $return = true;
                     break;
