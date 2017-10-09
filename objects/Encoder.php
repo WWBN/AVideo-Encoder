@@ -738,6 +738,35 @@ class Encoder extends Object {
 
         return "{$hours}:{$minutes}:{$seconds}";
     }
+    
+    static function getTitleFromLink($link){
+        $cmd = "youtube-dl -e {$link}";
+        exec($cmd . "  2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            return false;            
+        } else {
+            return end($output);
+        }
+    }
+    static function getDurationFromLink($link){
+        $cmd = "youtube-dl --get-duration  {$link}";
+        exec($cmd . "  2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            return false;            
+        } else {
+            return end($output);
+        }
+    }
+    static function getThumbsFromLink($link){
+        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs'); 
+        $cmd = "youtube-dl  --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        exec($cmd . "  2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            return false;            
+        } else {
+            return file_get_contents($tmpfname.".jpg");
+        }
+    }
 
 }
 

@@ -92,8 +92,8 @@ if ($mysqli->query($sql) !== TRUE) {
 }
 
 $sql = "INSERT INTO `formats` VALUES "
-        . "(1,'MP4','ffmpeg -i {\$pathFileName} -vf scale=-2:480 -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp4'),"
-        . "(2,'Webm','ffmpeg -i {\$pathFileName} -vf scale=-2:360 -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {\$destinationFile}','2017-07-11 12:56:26','2017-07-24 16:07:03','webm','mp4'),"
+        . "(1,'MP4','ffmpeg -i {\$pathFileName} -vf scale=-2:480 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp4'),"
+        . "(2,'Webm','ffmpeg -i {\$pathFileName} -vf scale=-2:360 -movflags faststart -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {\$destinationFile}','2017-07-11 12:56:26','2017-07-24 16:07:03','webm','mp4'),"
         . "(3,'MP3','ffmpeg -i {\$pathFileName} -acodec libmp3lame -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp3','mp3'),"
         . "(4,'OGG','ffmpeg -i {\$pathFileName} -acodec libvorbis -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','ogg','mp3'),"
         . "(5,'MP3 to Spectrum.MP4','ffmpeg -i {\$pathFileName} -filter_complex \'[0:a]showwaves=s=640x360:mode=line,format=yuv420p[v]\' -map \'[v]\' -map 0:a -c:v libx264 -c:a copy {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp3'),"

@@ -3,7 +3,7 @@ $config = dirname(__FILE__) . '/../videos/configuration.php';
 if (!file_exists($config)) {
     header("Location: install/index.php");
 }
-header('Access-Control-Allow-Origin: *');
+//header('Access-Control-Allow-Origin: *');
 require_once $config;
 require_once '../objects/Encoder.php';
 require_once '../objects/Configuration.php';
@@ -17,6 +17,9 @@ if (empty($streamerURL)) {
     $streamerURL = Streamer::getFirstURL();
 }
 $config = new Configuration();
+
+$ffmpegArray = array(1,2,3,4,5,6);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -215,8 +218,8 @@ $config = new Configuration();
                                 <div id="config" class="tab-pane fade">
                                     <?php
                                     foreach ($frows as $value) {
-                                        if ($value['id'] >= 7) {
-                                            break;
+                                        if (!in_array($value['id'], $ffmpegArray)) {
+                                            continue;
                                         }
                                         ?>
                                         <div class="input-group input-group-lg">
