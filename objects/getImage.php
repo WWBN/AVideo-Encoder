@@ -4,6 +4,7 @@ $url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
 $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
 $cache_life = '120'; //caching time, in seconds
+$ob_flush = false;
 
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
@@ -26,11 +27,19 @@ if($_GET['format'] === 'png'){
     die();
 }
 
+// flush old image then encode
+if(file_exists($destination)){
+    echo file_get_contents($destination);
+    ob_flush();
+    $ob_flush = true;
+}
 $filemtime = @filemtime($destination);  // returns FALSE if file does not exist
 if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])){
     error_log("Exec get Image: {$exec}");
     shell_exec($exec);
 }
 error_log("Destination get Image {$_GET['format']}: {$destination}");
-echo file_get_contents($destination);
+if(!$ob_flush){
+    echo file_get_contents($destination);
+}
 die();
