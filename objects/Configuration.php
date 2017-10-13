@@ -3,11 +3,11 @@ class Configuration extends Object {
     
     protected $allowedStreamersURL, $defaultPriority; 
     
-    protected static function getSearchFieldsNames() {
+    static function getSearchFieldsNames() {
         return array('allowedStreamersURL');
     }
 
-    protected static function getTableName() {
+    static function getTableName() {
         return 'configurations';
     }
 
