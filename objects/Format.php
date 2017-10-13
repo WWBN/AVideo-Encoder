@@ -4,11 +4,11 @@ class Format extends Object {
 
     protected $id, $name, $code, $created, $modified, $extension, $extension_from;
 
-    protected static function getSearchFieldsNames() {
+    static function getSearchFieldsNames() {
         return array('name');
     }
 
-    protected static function getTableName() {
+    static function getTableName() {
         return 'formats';
     }
 

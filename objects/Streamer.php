@@ -6,11 +6,11 @@ class Streamer extends Object {
 
     protected $id, $siteURL, $user, $pass, $priority, $isAdmin, $created, $modified;
 
-    protected static function getSearchFieldsNames() {
+    static function getSearchFieldsNames() {
         return array('siteURL');
     }
 
-    protected static function getTableName() {
+    static function getTableName() {
         return 'streamers';
     }
 

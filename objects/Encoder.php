@@ -9,11 +9,11 @@ class Encoder extends Object {
 
     protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
 
-    protected static function getSearchFieldsNames() {
+    static function getSearchFieldsNames() {
         return array('filename');
     }
 
-    protected static function getTableName() {
+    static function getTableName() {
         return 'encoder_queue';
     }
 
