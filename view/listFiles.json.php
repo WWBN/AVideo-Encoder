@@ -21,8 +21,8 @@ if(empty($global['disableBulkEncode'])){
                 $path_parts = pathinfo($value);
                 $obj = new stdClass();
                 $obj->id = $id++;
-                $obj->path = addslashes($value);
-                $obj->name = addslashes($path_parts['basename']);
+                $obj->path = utf8_encode($value);
+                $obj->name = utf8_encode($path_parts['basename']);
                 $files[] = $obj;
             }
         }
