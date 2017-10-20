@@ -10,39 +10,39 @@ if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
+    $destinationTmpFile = "../view/img/OnAir.png";
 }else if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
+    $destinationTmpFile = "../view/img/OnAir.jpg";
 }else if($_GET['format'] === 'gif'){
     header('Content-Type: image/gif');
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
-    $ffmpeg ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destination}palette.png";
+    $ffmpegPallet ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destination}palette.png";
     error_log("Exec get Image palette: {$ffmpeg}");
-    // flush old image then encode
-    if(!$ob_flush && file_exists($destination)){
-        echo file_get_contents($destination);
-        ob_flush();
-        $ob_flush = true;
-    }
-    exec($ffmpeg);
     $exec ="ffmpeg -y -t 3 -i {$url} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+    $destinationTmpFile = "../view/img/notfound.gif";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
 }
-
-// flush old image then encode
-if(!$ob_flush && file_exists($destination)){
-    echo file_get_contents($destination);
-    ob_flush();
-    $ob_flush = true;
+if(!file_exists($destination)){
+    $destination = $destinationTmpFile;
 }
+// flush old image then encode
+echo file_get_contents($destination);
+ob_flush();
+$ob_flush = true;
+
 $filemtime = @filemtime($destination);  // returns FALSE if file does not exist
 if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])){
+    if(!empty($ffmpegPallet)){
+        shell_exec($ffmpegPallet);
+    }
     error_log("Exec get Image: {$exec}");
-    shell_exec($exec);
+    exec($exec."   2>&1");
 }
 error_log("Destination get Image {$_GET['format']}: {$destination}");
 if(!$ob_flush){
