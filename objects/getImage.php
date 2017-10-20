@@ -22,7 +22,6 @@ if($_GET['format'] === 'png'){
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
     $ffmpegPallet ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destination}palette.png";
-    error_log("Exec get Image palette: {$ffmpeg}");
     $exec ="ffmpeg -y -t 3 -i {$url} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 }else{
@@ -43,6 +42,7 @@ if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])
     }
     if(!empty($ffmpegPallet)){
         exec($ffmpegPallet."   2>&1");
+        error_log("Exec get Image palette: {$ffmpegPallet}");
     }
     error_log("Exec get Image: {$exec}");
     exec($exec."   2>&1");
