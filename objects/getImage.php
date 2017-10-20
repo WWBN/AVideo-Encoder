@@ -38,7 +38,7 @@ ob_flush();
 
 $filemtime = @filemtime($destination);  // returns FALSE if file does not exist
 if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])){
-    if((time() - $filemtime >= ($cache_life*3))){
+    if($destination !== $destinationTmpFile && (time() - $filemtime >= ($cache_life*3))){
         unlink($destination) ;
     }
     if(!empty($ffmpegPallet)){
