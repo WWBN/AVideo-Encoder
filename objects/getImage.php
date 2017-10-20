@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__FILE__) . '/../videos/configuration.php';
 header('Access-Control-Allow-Origin: *');
 $url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
@@ -10,12 +11,12 @@ if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
-    $destinationTmpFile = "../view/img/OnAir.png";
+    $destinationTmpFile = "{$global['systemRootPath']}/view/img/OnAir.png";
 }else if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
-    $destinationTmpFile = "../view/img/OnAir.jpg";
+    $destinationTmpFile = "{$global['systemRootPath']}/view/img/OnAir.jpg";
 }else if($_GET['format'] === 'gif'){
     header('Content-Type: image/gif');
     $destination .= ".".$_GET['format'];    
@@ -23,7 +24,7 @@ if($_GET['format'] === 'png'){
     $ffmpegPallet ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destination}palette.png";
     error_log("Exec get Image palette: {$ffmpeg}");
     $exec ="ffmpeg -y -t 3 -i {$url} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
-    $destinationTmpFile = "../view/img/notfound.gif";
+    $destinationTmpFile = "{$global['systemRootPath']}/view/img/notfound.gif";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
