@@ -34,18 +34,15 @@ if(!file_exists($destination)){
 // flush old image then encode
 echo file_get_contents($destination);
 ob_flush();
-$ob_flush = true;
 
 $filemtime = @filemtime($destination);  // returns FALSE if file does not exist
 if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])){
     if(!empty($ffmpegPallet)){
-        shell_exec($ffmpegPallet);
+        exec($ffmpegPallet."   2>&1");
     }
     error_log("Exec get Image: {$exec}");
     exec($exec."   2>&1");
 }
 error_log("Destination get Image {$_GET['format']}: {$destination}");
-if(!$ob_flush){
-    echo file_get_contents($destination);
-}
+
 die();
