@@ -55,7 +55,7 @@ if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !em
         $cmd = "{$exec} &> /dev/null &";
     }
     exec($cmd);
-    error_log("Exec get Image: {$exec}");
+    error_log("Exec get Image: {$cmd}");
 }else{
     
 }
