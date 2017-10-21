@@ -1,4 +1,14 @@
 <?php
+global $time_start;
+$time_start = microtime(true);
+function testTime($line){
+    $time_end = microtime(true);
+    $time = $time_end - $time_start;
+    if ($time > 1) {
+        error_log(__FILE__." ".$line . 'Execution time : ' . $time . ' seconds');
+    }
+    $time_start = microtime(true);
+}
 function fileOlderThen($file, $ageInSeconds){
     $filemtime = @filemtime($file);  // returns FALSE if file does not exist
     if(!$filemtime || (time() - $filemtime >= $ageInSeconds)){
@@ -6,6 +16,8 @@ function fileOlderThen($file, $ageInSeconds){
     }
     return false;
 }
+
+testTime(__LINE__);
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 header('Access-Control-Allow-Origin: *');
@@ -15,6 +27,8 @@ $destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
 $destinationPallet = "{$destination}palette.png";
 $cache_life = '600'; //caching time, in seconds
 $ob_flush = false;
+
+testTime(__LINE__);
 
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
@@ -38,6 +52,8 @@ if($_GET['format'] === 'png'){
     die();
 }
 
+testTime(__LINE__);
+
 if(!is_readable($destination)){
     echo file_get_contents($destinationTmpFile);
     error_log("Destination get Temp Image {$_GET['format']}: {$destinationTmpFile}");
@@ -46,6 +62,9 @@ if(!is_readable($destination)){
     echo file_get_contents($destination);
     error_log("Destination get Image {$_GET['format']}: {$destination}");
 }
+
+testTime(__LINE__);
+
 ob_flush();
 
 if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !empty($_GET['renew'])){
@@ -59,5 +78,5 @@ if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !em
 }else{
     
 }
-
+testTime(__LINE__);
 die();
