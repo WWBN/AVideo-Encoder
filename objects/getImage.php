@@ -31,7 +31,7 @@ if($_GET['format'] === 'png'){
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
     $ffmpegPallet ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
-    $exec ="ffmpeg -y -t 3 -i {$url} -i {$destination}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+    $exec ="ffmpeg -y -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
@@ -50,7 +50,7 @@ ob_flush();
 
 if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !empty($_GET['renew'])){
     if(!empty($ffmpegPallet) && (!file_exists($destinationPallet) || is_readable($destinationPallet))){
-        $cmd = "{$ffmpegPallet} && {$exec} &> /dev/null &";
+        $cmd = "{$ffmpegPallet} &> /dev/null && {$exec} &> /dev/null &";
     }else{
         $cmd = "{$exec} &> /dev/null &";
     }
