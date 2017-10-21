@@ -41,11 +41,11 @@ if(!$filemtime || (time() - $filemtime >= $cache_life) || !empty($_GET['renew'])
         unlink($destination) ;
     }
     if(!empty($ffmpegPallet)){
-        exec($ffmpegPallet."   2>&1");
+        exec($ffmpegPallet."   &> /dev/null &");
         error_log("Exec get Image palette: {$ffmpegPallet}");
     }
     error_log("Exec get Image: {$exec}");
-    exec($exec."   2>&1");
+    exec($exec."   &> /dev/null &");
 }
 error_log("Destination get Image {$_GET['format']}: {$destination}");
 
