@@ -28,7 +28,7 @@ if($_GET['format'] === 'png'){
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
 }
-if(!file_exists($destination)){
+if(!is_readable($destination)){
     $destination = $destinationTmpFile;
 }
 // flush old image then encode
