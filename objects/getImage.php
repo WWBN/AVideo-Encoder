@@ -50,12 +50,14 @@ ob_flush();
 
 if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !empty($_GET['renew'])){
     if(!empty($ffmpegPallet) && (!file_exists($destinationPallet) || is_readable($destinationPallet))){
-        $cmd = "{$ffmpegPallet} &> /dev/null && {$exec} &> /dev/null &";
+        $cmd = "{$ffmpegPallet} && {$exec} &> /dev/null &";
     }else{
         $cmd = "{$exec} &> /dev/null &";
     }
     exec($cmd);
     error_log("Exec get Image: {$exec}");
+}else{
+    
 }
 
 die();
