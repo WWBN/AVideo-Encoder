@@ -42,6 +42,8 @@ if($_GET['format'] === 'png'){
     $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.jpg";
 }else if($_GET['format'] === 'gif'){
+    // gif image has the double lifetime
+    $cache_life*=2;
     header('Content-Type: image/gif');
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
