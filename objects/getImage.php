@@ -2,6 +2,7 @@
 global $time_start;
 $time_start = microtime(true);
 function testTime($line){
+    global $time_start;
     $time_end = microtime(true);
     $time = $time_end - $time_start;
     if ($time > 1) {
