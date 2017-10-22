@@ -71,13 +71,24 @@ testTime(__LINE__);
 ob_flush();
 
 if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !empty($_GET['renew'])){
-    if(!empty($ffmpegPallet) && (!file_exists($destinationPallet) || is_readable($destinationPallet))){
-        $cmd = "{$ffmpegPallet} &> /dev/null && {$exec} &> /dev/null &";
+    if(!empty($ffmpegPallet)){        
+        $cmd = "{$ffmpegPallet} &> /dev/null &";        
+        exec($cmd);
+        error_log("Create Gif Pallet: {$cmd}");        
+        if(is_readable($destinationPallet)){
+            $cmdGif = "{$exec} &> /dev/null &";
+            exec($cmdGif);
+            error_log("Create Gif with Ppallet: {$cmd}");
+        }else{
+            $cmdGif = "ffmpeg  -y -t 3 -i {$url} -vf fps=10,scale=320:-1 {$destination} &> /dev/null &";
+            exec($cmdGif);
+            error_log("Create Gif no Pallet: {$cmd}");
+        }
     }else{
         $cmd = "{$exec} &> /dev/null &";
+        exec($cmd);
+        error_log("Exec get Image: {$cmd}");
     }
-    exec($cmd);
-    error_log("Exec get Image: {$cmd}");
 }else{
     
 }
