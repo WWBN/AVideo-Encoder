@@ -66,21 +66,21 @@ class Format extends Object {
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
         
         if(in_array($formatId, $global['hasHDIds'])){
-            $obj = static::exec(16, $obj->destinationFile, $destinationFile . "_HD.mp4", $encoder_queue_id);
+            $obj = static::exec(16, $pathFileName, $destinationFile . "_HD.mp4", $encoder_queue_id);
             if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(18, $obj->destinationFile, $destinationFile . "_HD.webm", $encoder_queue_id);
+                $obj = static::exec(18, $pathFileName, $destinationFile . "_HD.webm", $encoder_queue_id);
             }
         }
         if(in_array($formatId, $global['hasSDIds'])){
-            $obj = static::exec(11, $obj->destinationFile, $destinationFile . "_SD.mp4", $encoder_queue_id);
+            $obj = static::exec(11, $pathFileName, $destinationFile . "_SD.mp4", $encoder_queue_id);
             if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(13, $obj->destinationFile, $destinationFile . "_SD.webm", $encoder_queue_id);
+                $obj = static::exec(13, $pathFileName, $destinationFile . "_SD.webm", $encoder_queue_id);
             }
         }
         if(in_array($formatId, $global['hasLowIds'])){
-            $obj = static::exec(1, $obj->destinationFile, $destinationFile . "_Low.mp4", $encoder_queue_id);
+            $obj = static::exec(1, $pathFileName, $destinationFile . "_Low.mp4", $encoder_queue_id);
             if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(2, $obj->destinationFile, $destinationFile . "_Low.webm", $encoder_queue_id);
+                $obj = static::exec(2, $pathFileName, $destinationFile . "_Low.webm", $encoder_queue_id);
             }
         }
         
