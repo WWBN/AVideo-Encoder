@@ -52,7 +52,7 @@ class Format extends Object {
         } else if ($this->id == 10) {
             $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
         }else if (in_array($this->id, $global['multiResolutionIds'])) {
-            $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id);
+            $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id,$this->id);
         } else {
             $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted." . $path_parts['extension'];
             $obj = static::exec($this->id, $pathFileName, $destinationFile, $encoder_queue_id);
