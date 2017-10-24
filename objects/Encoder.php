@@ -447,7 +447,8 @@ class Encoder extends Object {
     
     function send() {
         global $global;
-        $f = new Format($this->getFormats_id());
+        $formatId = $this->getFormats_id();
+        $f = new Format($formatId);
         $return_vars = json_decode($this->getReturn_vars());
         $videos_id = (!empty($return_vars->videos_id) ? $return_vars->videos_id : 0);
         $return = new stdClass();
