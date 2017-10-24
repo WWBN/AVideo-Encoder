@@ -452,7 +452,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 15, 16, 17, 18);
                                     if (response.download_status && !response.encoding_status.progress) {
                                         $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [Downloading ...] </strong> " + response.download_status.progress + '%');
                                     } else {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + "[" + response.encoding_status.from + " to " + response.encoding_status.to + "] </strong> " + response.encoding_status.progress + '%');
+                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [" + response.encoding_status.from + " to " + response.encoding_status.to + "] </strong> " + response.encoding_status.progress + '%');
                                         $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status.progress + '%'});
                                     }
                                     if (response.download_status) {
