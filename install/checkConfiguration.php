@@ -1,6 +1,6 @@
 <?php
 
-$installationVersion = "1.0";
+$installationVersion = "2.0";
 
 header('Content-Type: application/json');
 
@@ -87,22 +87,6 @@ if ($mysqli->query($sql) !== TRUE) {
 $sql = "INSERT INTO configurations (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
 if ($mysqli->query($sql) !== TRUE) {
     $obj->error = "Error creating streamer: " . $mysqli->error;
-    echo json_encode($obj);
-    exit;
-}
-
-$sql = "INSERT INTO `formats` VALUES "
-        . "(1,'MP4','ffmpeg -i {\$pathFileName} -vf scale=-2:480 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp4'),"
-        . "(2,'Webm','ffmpeg -i {\$pathFileName} -vf scale=-2:360 -movflags faststart -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {\$destinationFile}','2017-07-11 12:56:26','2017-07-24 16:07:03','webm','mp4'),"
-        . "(3,'MP3','ffmpeg -i {\$pathFileName} -acodec libmp3lame -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp3','mp3'),"
-        . "(4,'OGG','ffmpeg -i {\$pathFileName} -acodec libvorbis -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','ogg','mp3'),"
-        . "(5,'MP3 to Spectrum.MP4','ffmpeg -i {\$pathFileName} -filter_complex \'[0:a]showwaves=s=640x360:mode=line,format=yuv420p[v]\' -map \'[v]\' -map 0:a -c:v libx264 -c:a copy {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp4','mp3'),"
-        . "(6,'Video.MP4 to Audio.MP3','ffmpeg -i {\$pathFileName} -y {\$destinationFile}','2017-01-01 00:00:00','2017-07-24 16:07:03','mp3','mp4'),"
-        . "(7,'Video to Spectrum','6-5-2','2017-01-01 00:00:00','2017-01-01 00:00:00','mp4','mp4'),"
-        . "(8,'Video to Audio','6-4','2017-01-01 00:00:00','2017-01-01 00:00:00','mp3','mp4'),"
-        . "(9,'Both Video','1-2','2017-01-01 00:00:00','2017-01-01 00:00:00','mp4','mp4'),(10,'Both Audio','3-4','2017-01-01 00:00:00','2017-01-01 00:00:00','mp3','mp3');";
-if ($mysqli->query($sql) !== TRUE) {
-    $obj->error = "Error creating Formats: " . $mysqli->error;
     echo json_encode($obj);
     exit;
 }

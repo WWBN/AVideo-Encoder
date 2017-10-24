@@ -1,5 +1,6 @@
 <?php
-
+global $sentImage;
+$sentImage = array();
 require_once $global['systemRootPath'] . 'objects/Format.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
@@ -440,7 +441,7 @@ class Encoder extends Object {
     private function multiResolutionSend($resolution, $format, $videos_id) {
         global $global;
         $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$format}.{$resolution}";
-        $r = static::sendFile($file, $videos_id, "mp4", $this);
+        $r = static::sendFile($file, $videos_id, "mp4", $this, $resolution);
         return $r;
     }
     
@@ -502,13 +503,15 @@ class Encoder extends Object {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null) {
+    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution="") {
         global $global;
+        global $sentImage;
 
         $obj = new stdClass();
         $obj->error = true;
         $obj->format = $format;
         $obj->file = $file;
+        $obj->resolution = $resolution;
 
         $duration = static::getDurationFromFile($file);
         $title = $encoder->getTitle();
@@ -528,6 +531,7 @@ class Encoder extends Object {
             'title' => $title,
             'videos_id' => $videos_id,
             'format' => $format,
+            'resolution' => $resolution,
             'videoDownloadedLink' => $videoDownloadedLink,
             'user' => $user,
             'password' => $pass
@@ -536,7 +540,9 @@ class Encoder extends Object {
 
         if (!empty($file)) {
             $postFields['video'] = new CURLFile($file);
-            if ($format == "mp4") {
+            if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
+                // do not send image twice
+                $sentImage[] = $videos_id;
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
