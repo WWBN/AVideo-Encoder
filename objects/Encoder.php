@@ -441,7 +441,7 @@ class Encoder extends Object {
     private function multiResolutionSend($resolution, $format, $videos_id) {
         global $global;
         $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$resolution}.{$format}";
-        $r = static::sendFile($file, $videos_id, "mp4", $this, $resolution);
+        $r = static::sendFile($file, $videos_id, $format, $this, $resolution);
         return $r;
     }
     
