@@ -312,31 +312,38 @@ function decideFormatId(){
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ // all resolutions
+                    error_log("MP4 All");
             return (29);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
+                    error_log("MP4 Low - HD");
             return (28);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
+                    error_log("MP4 SD - HD");
             return (27);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
                 ){ 
+                    error_log("MP4 Low SD");
             return (26);
         }else if(
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
+                    error_log("MP4 HD");
             return (25);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
                 ){ 
+                    error_log("MP4 SD");
             return (24);
         }else{ 
+                    error_log("MP4 LOW");
             return (23);
         }
     }else{
