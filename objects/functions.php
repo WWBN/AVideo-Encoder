@@ -302,3 +302,77 @@ function setSiteSendMessage(&$mail) {
         $mail->isSendmail();
     }
 }
+
+
+function decideFormatId(){
+    if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
+        // mp4 only
+        if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ // all resolutions
+            return (29);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (28);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (27);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
+                ){ 
+            return (26);
+        }else if(
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (25);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
+                ){ 
+            return (24);
+        }else{ 
+            return (23);
+        }
+    }else{
+        // mp4 and webm
+        if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ // all resolutions
+            return (36);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (35);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (34);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
+                ){ 
+            return (33);
+        }else if(
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            return (32);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
+                ){ 
+            return (31);
+        }else{ 
+            return (30);
+        }
+    }
+    return 1;
+}
