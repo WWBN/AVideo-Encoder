@@ -696,8 +696,24 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 15, 16, 17, 18);
                                     var l = getLocation(row.streamer);
                                     var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format + '</span>';
-                                    title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize + '">MP4 Size: ' + row.mp4_filesize_human + '</span>';
-                                    title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize + '">WEBM Size: ' + row.webm_filesize_human + '</span>';
+                                    if(row.mp4_filesize_Low){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_Low + '">MP4 Low Size: ' + row.mp4_filesize_human_Low + '</span>';
+                                    }
+                                    if(row.mp4_filesize_SD){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_SD + '">MP4 SD Size: ' + row.mp4_filesize_human_SD + '</span>';
+                                    }
+                                    if(row.mp4_filesize_HD){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_HD + '">MP4 HD Size: ' + row.mp4_filesize_human_HD + '</span>';
+                                    }
+                                    if(row.webm_filesize_Low){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_Low + '">WEBM Low Size: ' + row.webm_filesize_human_Low + '</span>';
+                                    }
+                                    if(row.webm_filesize_SD){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_SD + '">WEBM SD Size: ' + row.webm_filesize_human_SD + '</span>';
+                                    }
+                                    if(row.webm_filesize_HD){
+                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_HD + '">WEBM HD Size: ' + row.webm_filesize_human_HD + '</span>';
+                                    }
                                     title += '<br>' + row.title;
                                     return title;
                                 }
