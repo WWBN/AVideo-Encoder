@@ -31,10 +31,10 @@ class Encoder extends Object {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
         if ($onlyMine && !Login::isAdmin()) {
-            $sql .= " AND streamers_id = ".Login::getStreamerId()." ";
+            $sql .= " AND streamers_id = " . Login::getStreamerId() . " ";
         }
         $sql .= self::getSqlFromPost();
-        
+
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
         $rows = array();
@@ -47,15 +47,14 @@ class Encoder extends Object {
         }
         return $rows;
     }
-    
-    
+
     static function getTotal($onlyMine = false) {
         //will receive 
         //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
         global $global;
-        $sql = "SELECT id FROM  ".static::getTableName()." WHERE 1=1  ";
+        $sql = "SELECT id FROM  " . static::getTableName() . " WHERE 1=1  ";
         if ($onlyMine && !Login::isAdmin()) {
-            $sql .= " AND streamers_id = ".Login::getStreamerId()." ";
+            $sql .= " AND streamers_id = " . Login::getStreamerId() . " ";
         }
         $sql .= self::getSqlSearchFromPost();
 
@@ -437,7 +436,14 @@ class Encoder extends Object {
 
         return $obj;
     }
-
+    
+    private function multiResolutionSend($resolution, $format, $videos_id) {
+        global $global;
+        $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$format}.{$resolution}";
+        $r = static::sendFile($file, $videos_id, "mp4", $this);
+        return $r;
+    }
+    
     function send() {
         global $global;
         $f = new Format($this->getFormats_id());
@@ -447,11 +453,30 @@ class Encoder extends Object {
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
-        // if is a bulk encode id >= 7 send multiple files 
-        if ($f->getId() >= 7) {
+        if (in_array($f->getId(), $global['multiResolutionIds'])) {
+            if (in_array($formatId, $global['hasHDIds'])) {                
+                $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);                
+                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                    $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
+                }
+            }
+            if (in_array($formatId, $global['hasSDIds'])) {            
+                $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);                
+                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                    $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
+                }
+            }
+            if (in_array($formatId, $global['hasLowIds'])) {            
+                $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);                
+                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                    $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
+                }
+            }
+        } else if ($f->getId() >= 7) {
             $codes = explode("-", $f->getCode());
             foreach ($codes as $value) {
-                $f = new Format($value);
+                $f = new Format(0);
+                $f->loadFromOrder($value);
                 $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
                 $format = $f->getExtension();
                 $r = static::sendFile($file, $videos_id, $format, $this);
@@ -738,33 +763,35 @@ class Encoder extends Object {
 
         return "{$hours}:{$minutes}:{$seconds}";
     }
-    
-    static function getTitleFromLink($link){
+
+    static function getTitleFromLink($link) {
         $cmd = "youtube-dl -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            return false;            
+            return false;
         } else {
             return end($output);
         }
     }
-    static function getDurationFromLink($link){
+
+    static function getDurationFromLink($link) {
         $cmd = "youtube-dl --get-duration  {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            return false;            
+            return false;
         } else {
             return end($output);
         }
     }
-    static function getThumbsFromLink($link){
-        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs'); 
+
+    static function getThumbsFromLink($link) {
+        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = "youtube-dl  --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            return false;            
+            return false;
         } else {
-            return file_get_contents($tmpfname.".jpg");
+            return file_get_contents($tmpfname . ".jpg");
         }
     }
 

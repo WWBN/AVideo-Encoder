@@ -11,6 +11,9 @@ require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 $rows = Encoder::getAllQueue();
+if (empty($_POST['sort'])) {
+    $_POST['sort']['`order`'] = 'asc';
+}
 $frows = Format::getAll();
 $streamerURL = @$_GET['webSiteRootURL'];
 if (empty($streamerURL)) {
@@ -18,8 +21,7 @@ if (empty($streamerURL)) {
 }
 $config = new Configuration();
 
-$ffmpegArray = array(1,2,3,4,5,6);
-
+$ffmpegArray = array(1, 2, 3, 4, 5, 6, 15, 16, 17, 18);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,7 +181,7 @@ $ffmpegArray = array(1,2,3,4,5,6);
                 <div class="col-md-8">
 
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Encoding Queue</a></li>
+                        <li <?php if (empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Encoding Queue</a></li>
                         <li><a data-toggle="tab" href="#log"><span class="glyphicon glyphicon-cog"></span> Queue Log</a></li>
 
                         <?php
@@ -187,6 +189,7 @@ $ffmpegArray = array(1,2,3,4,5,6);
                             if (empty($global['disableConfigurations'])) {
                                 ?>
                                 <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
+                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update</a></li>
                                 <?php
                             }
                             ?>
@@ -197,7 +200,7 @@ $ffmpegArray = array(1,2,3,4,5,6);
                     </ul>
 
                     <div class="tab-content">
-                        <div id="encoding" class="tab-pane fade in active">
+                        <div id="encoding" class="tab-pane fade <?php if (empty($_POST['updateFile'])) { ?> in active<?php } ?>">
                         </div>
                         <div id="log" class="tab-pane fade">
                             <table id="grid" class="table table-condensed table-hover table-striped">
@@ -222,9 +225,9 @@ $ffmpegArray = array(1,2,3,4,5,6);
                                             continue;
                                         }
                                         ?>
-                                        <div class="input-group input-group-lg">
+                                        <div class="input-group input-group-sm">
                                             <span class="input-group-addon"><?php echo $value['id']; ?> - <?php echo $value['name']; ?></span>
-                                            <input type="text" class="form-control" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo $value['code']; ?>">
+                                            <input type="text" class="form-control formats" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo $value['code']; ?>">
                                         </div>    
                                         <?php
                                     }
@@ -248,6 +251,11 @@ $ffmpegArray = array(1,2,3,4,5,6);
                                     </div>
 
                                     <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
+                                </div>
+                                <div id="update" class="tab-pane fade <?php if (!empty($_POST['updateFile'])) { ?>in active<?php } ?>">
+                                    <?php
+                                    include '../update/update.php';
+                                    ?>
                                 </div>
                                 <?php
                             }
@@ -285,16 +293,27 @@ $ffmpegArray = array(1,2,3,4,5,6);
                         <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
                         <span class="label label-danger">The Streamer Current Video Storage is: <strong id="currentStorageUsage">Loading ...</strong></span>
                     </div>
-
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
-                        <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
-                        <?php
-                        if (empty($global['disableBulkEncode'])) {
-                            ?>
-                            <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
-                        <?php } ?>
-                        <li class="pull-right">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Resolutions</div>
+                        <div class="panel-body">
+                            <label style="" id="">
+                                <input type="checkbox" id="inputLow" checked="checked"> Low
+                            </label>
+                            <label  id="">
+                                <input type="checkbox" id="inputSD" checked="checked"> SD
+                            </label>
+                            <label>
+                                <input type="checkbox" id="inputHD" checked="checked"> HD
+                            </label>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Advanced</div>
+                        <div class="panel-body">
+                            <label>
+                                <input type="checkbox" id="inputAudioOnly">
+                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                            </label><br>
                             <label style="display: none;" id="spectrum">
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
@@ -303,14 +322,19 @@ $ffmpegArray = array(1,2,3,4,5,6);
                                 <input type="checkbox" id="inputWebM">
                                 <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
                                 <small class="label label-warning">
-                                     For Chrome Browsers
+                                    For Chrome Browsers
                                 </small>
                             </label>
-                            <label>
-                                <input type="checkbox" id="inputAudioOnly">
-                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                            </label>
-                        </li>
+                        </div>
+                    </div>
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
+                        <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
+                        <?php
+                        if (empty($global['disableBulkEncode'])) {
+                            ?>
+                            <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
+                        <?php } ?>
                     </ul>
 
                     <div class="tab-content">
@@ -537,7 +561,15 @@ $ffmpegArray = array(1,2,3,4,5,6);
                                     var id = $(this).attr('id');
                                     $.ajax({
                                         url: 'queue',
-                                        data: {"fileURI": $(this).attr('path'), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked"), "webm": $('#inputWebM').is(":checked")},
+                                        data: {
+                                            "fileURI": $(this).attr('path'), 
+                                            "audioOnly": $('#inputAudioOnly').is(":checked"), 
+                                            "spectrum": $('#inputAudioSpectrum').is(":checked"), 
+                                            "webm": $('#inputWebM').is(":checked"),
+                                            "inputLow": $('#inputLow').is(":checked"),
+                                            "inputSD": $('#inputSD').is(":checked"),
+                                            "inputHD": $('#inputHD').is(":checked")                                            
+                                        },
                                         type: 'post',
                                         success: function (response) {
                                             $('#' + id).find('.label').fadeIn();
@@ -555,10 +587,18 @@ $ffmpegArray = array(1,2,3,4,5,6);
 
                         $('#saveConfig').click(function () {
                             modal.showPleaseWait();
+                            var formats = new Array();
+                            var count = 0;
+                            $(".formats").each(function (index) {
+                                var id = $(this).attr('id');
+                                var parts = id.split("_");
+                                formats[count++] = [parts[1], $(this).val()];
+                            });
+
                             $.ajax({
                                 url: 'saveConfig',
                                 data: {
-                                    "formats": [[1, $("#format_1").val()], [2, $("#format_2").val()], [3, $("#format_3").val()], [4, $("#format_4").val()], [5, $("#format_5").val()], [6, $("#format_6").val()]],
+                                    "formats": formats,
                                     "allowedStreamers": $("#allowedStreamers").val(),
                                     "defaultPriority": $("#defaultPriority").val(),
                                 },
@@ -577,7 +617,15 @@ $ffmpegArray = array(1,2,3,4,5,6);
                             evt.preventDefault();
                             $.ajax({
                                 url: 'youtubeDl.json',
-                                data: {"videoURL": $('#inputVideoURL').val(), "audioOnly": $('#inputAudioOnly').is(":checked"), "spectrum": $('#inputAudioSpectrum').is(":checked"), "webm": $('#inputWebM').is(":checked")},
+                                data: {
+                                    "videoURL": $('#inputVideoURL').val(), 
+                                    "audioOnly": $('#inputAudioOnly').is(":checked"), 
+                                    "spectrum": $('#inputAudioSpectrum').is(":checked"), 
+                                    "webm": $('#inputWebM').is(":checked"),
+                                    "inputLow": $('#inputLow').is(":checked"),
+                                    "inputSD": $('#inputSD').is(":checked"),
+                                    "inputHD": $('#inputHD').is(":checked")
+                                },
                                 type: 'post',
                                 success: function (response) {
                                     if (response.text) {

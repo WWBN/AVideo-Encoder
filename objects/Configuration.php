@@ -1,7 +1,7 @@
 <?php
 class Configuration extends Object {
     
-    protected $allowedStreamersURL, $defaultPriority; 
+    protected $allowedStreamersURL, $defaultPriority, $version; 
     
     static function getSearchFieldsNames() {
         return array('allowedStreamersURL');
@@ -29,6 +29,26 @@ class Configuration extends Object {
 
     function setDefaultPriority($defaultPriority) {
         $this->defaultPriority = $defaultPriority;
+    }
+
+    function getVersion() {
+        return $this->version;
+    }
+
+    function setVersion($version) {
+        $this->version = $version;
+    }
+    
+    function currentVersionLowerThen($version) {
+        return version_compare($version, $this->getVersion()) > 0;
+    }
+
+    function currentVersionGreaterThen($version) {
+        return version_compare($version, $this->getVersion()) < 0;
+    }
+
+    function currentVersionEqual($version) {
+        return version_compare($version, $this->getVersion()) == 0;
     }
 
 

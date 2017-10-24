@@ -143,14 +143,14 @@ abstract class Object implements ObjectInterface{
                 }else if(strtolower($value) == 'modified' ){
                     $fields[] = " {$value} = now() ";
                 }else {
-                    $fields[] = " {$value} = '{$this->$value}' ";
+                    $fields[] = " `{$value}` = '{$this->$value}' ";
                 }                
             }
             $sql .= implode(", ", $fields);
             $sql .= " WHERE id = {$this->id}";
         } else {
             $sql = "INSERT INTO ".static::getTableName()." ( ";
-            $sql .= implode(",", $fieldsName). " )";            
+            $sql .= "`".implode("`,`", $fieldsName). "` )";            
             $fields = array();
             foreach ($fieldsName as $value) {
                 if(strtolower($value) == 'created' || strtolower($value) == 'modified' ){

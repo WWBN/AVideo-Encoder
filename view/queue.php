@@ -39,10 +39,72 @@ if(empty($e->getId())){
         $e->setFormats_id($_POST['format']);
     } else if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
-        $e->setFormats_id(1);
+        if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ // all resolutions
+            $e->setFormats_id(29);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(28);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(27);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
+                ){ 
+            $e->setFormats_id(26);
+        }else if(
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(25);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
+                ){ 
+            $e->setFormats_id(24);
+        }else{ 
+            $e->setFormats_id(23);
+        }
     }else{
         // mp4 and webm
-        $e->setFormats_id(9);
+        if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ // all resolutions
+            $e->setFormats_id(36);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(35);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(34);
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
+                ){ 
+            $e->setFormats_id(33);
+        }else if(
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
+                ){ 
+            $e->setFormats_id(32);
+        }else if(
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
+                ){ 
+            $e->setFormats_id(31);
+        }else{ 
+            $e->setFormats_id(30);
+        }
     }
     $obj = new stdClass();
     $obj->videos_id = @$_POST['videos_id'];

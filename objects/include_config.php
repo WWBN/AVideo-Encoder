@@ -20,3 +20,10 @@ session_start();
 
 require_once $global['systemRootPath'].'objects/functions.php';
 require_once $global['systemRootPath'].'objects/Object.php';
+
+
+$global['multiResolutionIds']   = array(23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36);
+$global['hasHDIds']             = array(36, 35, 34, 32, 29, 28, 27, 25); 
+$global['hasSDIds']             = array(36, 34, 33, 31, 29, 27, 26, 24); 
+$global['hasLowIds']            = array(36, 35, 33, 30, 29, 28, 26, 23); 
+$global['bothVideosIds']        = array(36,35,34,33,32,31,30); // MP4 and Webm

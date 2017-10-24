@@ -11,6 +11,30 @@ class Format extends Object {
     static function getTableName() {
         return 'formats';
     }
+    
+    function loadFromOrder($order) {
+        $row = self::getFromOrder($order);
+        if (empty($row))
+            return false;
+        foreach ($row as $key => $value) {
+            $this->$key = $value;
+        }
+        return true;
+    }
+   
+    static protected function getFromOrder($order) {
+        global $global;
+        $id = intval($id);
+        $sql = "SELECT * FROM ".static::getTableName()." WHERE  `order` = $order LIMIT 1";
+        $global['lastQuery'] = $sql;
+        $res = $global['mysqli']->query($sql);
+        if ($res) {
+            $row = $res->fetch_assoc();
+        } else {
+            $row = false;
+        }
+        return $row;
+    }
 
     // ffmpeg -i {$pathFileName} -vf scale=352:240 -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}
     function run($pathFileName, $encoder_queue_id) {
@@ -18,7 +42,7 @@ class Format extends Object {
         $obj = new stdClass();
         $obj->error = true;
         $path_parts = pathinfo($pathFileName);
-        $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted." . $path_parts['extension'];
+        
         if ($this->id == 7) {
             $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
         } else if ($this->id == 8) {
@@ -26,13 +50,43 @@ class Format extends Object {
         } elseif ($this->id == 9) {
             $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
         } else if ($this->id == 10) {
-            $obj = $this->runBothAudio($pathFileName, $encoder_queue_id);
+            $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
+        }else if (in_array($this->id, $global['multiResolutionIds'])) {
+            $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id);
         } else {
+            $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted." . $path_parts['extension'];
             $obj = static::exec($this->id, $pathFileName, $destinationFile, $encoder_queue_id);
         }
         return $obj;
     }
 
+    private function runMultiResolution($pathFileName, $encoder_queue_id, $formatId) {
+        global $global;
+        $path_parts = pathinfo($pathFileName);
+        $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
+        
+        if(in_array($formatId, $global['hasHDIds'])){
+            $obj = static::exec(16, $obj->destinationFile, $destinationFile . "_HD.mp4", $encoder_queue_id);
+            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
+                $obj = static::exec(18, $obj->destinationFile, $destinationFile . "_HD.webm", $encoder_queue_id);
+            }
+        }
+        if(in_array($formatId, $global['hasSDIds'])){
+            $obj = static::exec(11, $obj->destinationFile, $destinationFile . "_SD.mp4", $encoder_queue_id);
+            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
+                $obj = static::exec(13, $obj->destinationFile, $destinationFile . "_SD.webm", $encoder_queue_id);
+            }
+        }
+        if(in_array($formatId, $global['hasLowIds'])){
+            $obj = static::exec(1, $obj->destinationFile, $destinationFile . "_Low.mp4", $encoder_queue_id);
+            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
+                $obj = static::exec(2, $obj->destinationFile, $destinationFile . "_Low.webm", $encoder_queue_id);
+            }
+        }
+        
+        return $obj;
+    }
+    
     private function runVideoToSpectrum($pathFileName, $encoder_queue_id) {
         global $global;
         $path_parts = pathinfo($pathFileName);
