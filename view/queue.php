@@ -31,14 +31,12 @@ if(empty($e->getId())){
     
     if (!empty($_POST['audioOnly']) && $_POST['audioOnly']!=='false') {
         if (!empty($_POST['spectrum']) && $_POST['spectrum']!=='false') {
-            $e->setFormats_id(7); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
+            $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
         } else {
-            $e->setFormats_id(8);
+            $e->setFormats_idFromOrder(71);
         }
-    } else if(!empty($_POST['format'])){
-        $e->setFormats_id($_POST['format']);
     } else {
-        $e->setFormats_id(decideFormatId());
+        $e->setFormats_idFromOrder(decideFormatOrder());
     }
     $obj = new stdClass();
     $obj->videos_id = @$_POST['videos_id'];

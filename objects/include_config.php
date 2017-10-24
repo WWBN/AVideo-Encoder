@@ -22,8 +22,8 @@ require_once $global['systemRootPath'].'objects/functions.php';
 require_once $global['systemRootPath'].'objects/Object.php';
 
 
-$global['multiResolutionIds']   = array(23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36);
-$global['hasHDIds']             = array(36, 35, 34, 32, 29, 28, 27, 25); 
-$global['hasSDIds']             = array(36, 34, 33, 31, 29, 27, 26, 24); 
-$global['hasLowIds']            = array(36, 35, 33, 30, 29, 28, 26, 23); 
-$global['bothVideosIds']        = array(36,35,34,33,32,31,30); // MP4 and Webm
+$global['multiResolutionOrder']     = array(74,75,76,77,78,79,80,81,82,83,84,85,86,87);
+$global['hasHDOrder']                 = array(87,86,85,83,80,79,78,76); 
+$global['hasSDOrder']                 = array(87,85,84,82,80,78,77,75); 
+$global['hasLowOrder']                = array(87,86,84,81,80,79,77,74); 
+$global['bothVideosOrder']            = array(81,82,83,84,85,86,87); // MP4 and Webm

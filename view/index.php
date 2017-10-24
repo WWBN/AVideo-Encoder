@@ -11,7 +11,8 @@ require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 $rows = Encoder::getAllQueue();
-if (empty($_POST['sort'])) {
+$config = new Configuration();
+if (empty($_POST['sort']) && $config->currentVersionGreaterThen("1.0")) {
     $_POST['sort']['`order`'] = 'asc';
 }
 $frows = Format::getAll();

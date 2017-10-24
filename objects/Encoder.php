@@ -176,6 +176,13 @@ class Encoder extends Object {
         }
         $this->formats_id = $formats_id;
     }
+    
+    
+    function setFormats_idFromOrder($order) {
+        $o = new Format(0);
+        $o->loadFromOrder($order);
+        $this->setFormats_id($o->getId());
+    }
 
     static function getNext() {
         global $global;
@@ -449,49 +456,33 @@ class Encoder extends Object {
         global $global;
         $formatId = $this->getFormats_id();
         $f = new Format($formatId);
+        $order_id = $f->getOrder();
         $return_vars = json_decode($this->getReturn_vars());
         $videos_id = (!empty($return_vars->videos_id) ? $return_vars->videos_id : 0);
         $return = new stdClass();
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
-        if (in_array($f->getId(), $global['multiResolutionIds'])) {
-            if (in_array($formatId, $global['hasHDIds'])) {                
+        if (in_array($order_id, $global['multiResolutionOrder'])) {
+            if (in_array($order_id, $global['hasHDOrder'])) {                
                 $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);                
-                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
                 }
             }
-            if (in_array($formatId, $global['hasSDIds'])) {            
+            if (in_array($order_id, $global['hasSDOrder'])) {            
                 $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);                
-                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
                 }
             }
-            if (in_array($formatId, $global['hasLowIds'])) {            
+            if (in_array($order_id, $global['hasLowOrder'])) {            
                 $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);                
-                if (in_array($formatId, $global['bothVideosIds'])) { // make the webm too
+                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
                 }
             }
-        } else if ($f->getId() >= 7) {
-            $codes = explode("-", $f->getCode());
-            foreach ($codes as $value) {
-                $f = new Format(0);
-                $f->loadFromOrder($value);
-                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
-                $format = $f->getExtension();
-                $r = static::sendFile($file, $videos_id, $format, $this);
-                if (!empty($r->response->video_id)) {
-                    $videos_id = $r->response->video_id;
-                }
-                if ($r->error) {
-                    $return->error = true;
-                    $return->msg = $r->msg;
-                }
-                $return->sends[] = $r;
-            }
-        } else {
+        }else{
             $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
             $format = $f->getExtension();
             $r = static::sendFile($file, $videos_id, $format, $this);

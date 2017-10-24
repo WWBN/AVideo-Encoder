@@ -304,7 +304,7 @@ function setSiteSendMessage(&$mail) {
 }
 
 
-function decideFormatId(){
+function decideFormatOrder(){
     if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
         if(
@@ -313,38 +313,38 @@ function decideFormatId(){
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ // all resolutions
                     error_log("MP4 All");
-            return (29);
+            return (80);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
                     error_log("MP4 Low - HD");
-            return (28);
+            return (79);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
                     error_log("MP4 SD - HD");
-            return (27);
+            return (78);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
                 ){ 
                     error_log("MP4 Low SD");
-            return (26);
+            return (77);
         }else if(
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
                     error_log("MP4 HD");
-            return (25);
+            return (76);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
                 ){ 
                     error_log("MP4 SD");
-            return (24);
+            return (75);
         }else{ 
                     error_log("MP4 LOW");
-            return (23);
+            return (74);
         }
     }else{
         // mp4 and webm
@@ -353,32 +353,32 @@ function decideFormatId(){
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ // all resolutions
-            return (36);
+            return (87);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
-            return (35);
+            return (86);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
-            return (34);
+            return (85);
         }else if(
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
                 ){ 
-            return (33);
+            return (84);
         }else if(
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
                 ){ 
-            return (32);
+            return (83);
         }else if(
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
                 ){ 
-            return (31);
+            return (82);
         }else{ 
-            return (30);
+            return (81);
         }
     }
     return 1;

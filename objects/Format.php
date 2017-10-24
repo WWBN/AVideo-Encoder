@@ -2,7 +2,7 @@
 
 class Format extends Object {
 
-    protected $id, $name, $code, $created, $modified, $extension, $extension_from;
+    protected $id, $name, $code, $created, $modified, $extension, $extension_from, $order;
 
     static function getSearchFieldsNames() {
         return array('name');
@@ -24,7 +24,6 @@ class Format extends Object {
    
     static protected function getFromOrder($order) {
         global $global;
-        $id = intval($id);
         $sql = "SELECT * FROM ".static::getTableName()." WHERE  `order` = $order LIMIT 1";
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
@@ -42,45 +41,50 @@ class Format extends Object {
         $obj = new stdClass();
         $obj->error = true;
         $path_parts = pathinfo($pathFileName);
-        
-        if ($this->id == 7) {
+        if ($this->order == 70) {
+            error_log("runVideoToSpectrum");
             $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
-        } else if ($this->id == 8) {
+        } else if ($this->order == 71) {
+            error_log("runVideoToAudio");
             $obj = $this->runVideoToAudio($pathFileName, $encoder_queue_id);
-        } elseif ($this->id == 9) {
+        } elseif ($this->order == 72) {
+            error_log("runBothVideo");
             $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
-        } else if ($this->id == 10) {
+        } else if ($this->order == 73) {
+            error_log("runBothAudio");
             $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
-        }else if (in_array($this->id, $global['multiResolutionIds'])) {
-            $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id,$this->id);
+        }else if (in_array($this->order, $global['multiResolutionOrder'])) {
+            error_log("runMultiResolution");
+            $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id,$this->order);
         } else {
+            error_log("execOrder {$this->order}");
             $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted." . $path_parts['extension'];
-            $obj = static::exec($this->id, $pathFileName, $destinationFile, $encoder_queue_id);
+            $obj = static::execOrder($this->order, $pathFileName, $destinationFile, $encoder_queue_id);
         }
         return $obj;
     }
 
-    private function runMultiResolution($pathFileName, $encoder_queue_id, $formatId) {
+    private function runMultiResolution($pathFileName, $encoder_queue_id, $order) {
         global $global;
         $path_parts = pathinfo($pathFileName);
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
         
-        if(in_array($formatId, $global['hasHDIds'])){
-            $obj = static::exec(16, $pathFileName, $destinationFile . "_HD.mp4", $encoder_queue_id);
-            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(18, $pathFileName, $destinationFile . "_HD.webm", $encoder_queue_id);
+        if(in_array($order, $global['hasHDOrder'])){
+            $obj = static::execOrder(12, $pathFileName, $destinationFile . "_HD.mp4", $encoder_queue_id);
+            if(in_array($order, $global['bothVideosOrder'])){ // make the webm too
+                $obj = static::execOrder(22, $pathFileName, $destinationFile . "_HD.webm", $encoder_queue_id);
             }
         }
-        if(in_array($formatId, $global['hasSDIds'])){
-            $obj = static::exec(11, $pathFileName, $destinationFile . "_SD.mp4", $encoder_queue_id);
-            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(13, $pathFileName, $destinationFile . "_SD.webm", $encoder_queue_id);
+        if(in_array($order, $global['hasSDOrder'])){
+            $obj = static::execOrder(11, $pathFileName, $destinationFile . "_SD.mp4", $encoder_queue_id);
+            if(in_array($order, $global['bothVideosOrder'])){ // make the webm too
+                $obj = static::execOrder(21, $pathFileName, $destinationFile . "_SD.webm", $encoder_queue_id);
             }
         }
-        if(in_array($formatId, $global['hasLowIds'])){
-            $obj = static::exec(1, $pathFileName, $destinationFile . "_Low.mp4", $encoder_queue_id);
-            if(in_array($formatId, $global['bothVideosIds'])){ // make the webm too
-                $obj = static::exec(2, $pathFileName, $destinationFile . "_Low.webm", $encoder_queue_id);
+        if(in_array($order, $global['hasLowOrder'])){
+            $obj = static::execOrder(10, $pathFileName, $destinationFile . "_Low.mp4", $encoder_queue_id);
+            if(in_array($order, $global['bothVideosOrder'])){ // make the webm too
+                $obj = static::execOrder(20, $pathFileName, $destinationFile . "_Low.webm", $encoder_queue_id);
             }
         }
         
@@ -93,13 +97,13 @@ class Format extends Object {
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
         // MP4 to MP3
-        $obj = static::exec(6, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
+        $obj = static::execOrder(60, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
         if (!$obj->error) {
             //MP3 to Spectrum.MP4
-            $obj = static::exec(5, $obj->destinationFile, $destinationFile . ".mp4", $encoder_queue_id);
+            $obj = static::execOrder(50, $obj->destinationFile, $destinationFile . ".mp4", $encoder_queue_id);
             if (!$obj->error) {
                 // Spectrum.MP4 to WEBM
-                $obj = static::exec(2, $obj->destinationFile, $destinationFile . ".webm", $encoder_queue_id);
+                $obj = static::execOrder(21, $obj->destinationFile, $destinationFile . ".webm", $encoder_queue_id);
             }
         }
         return $obj;
@@ -110,10 +114,10 @@ class Format extends Object {
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
         // MP4 to MP3
-        $obj = static::exec(6, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
+        $obj = static::execOrder(60, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
         if (!$obj->error) {
             //MP4 to OGG
-            $obj = static::exec(4, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
+            $obj = static::execOrder(40, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
         }
         return $obj;
     }
@@ -123,10 +127,10 @@ class Format extends Object {
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
         // Video to MP4
-        $obj = static::exec(1, $pathFileName, $destinationFile . ".mp4", $encoder_queue_id);
+        $obj = static::execOrder(11, $pathFileName, $destinationFile . ".mp4", $encoder_queue_id);
         if (!$obj->error) {
             //MP4 to WEBM
-            $obj = static::exec(2, $pathFileName, $destinationFile . ".webm", $encoder_queue_id);
+            $obj = static::execOrder(21, $pathFileName, $destinationFile . ".webm", $encoder_queue_id);
         }
         return $obj;
     }
@@ -136,10 +140,10 @@ class Format extends Object {
         $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
         // Audio to MP3
-        $obj = static::exec(3, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
+        $obj = static::execOrder(30, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
         if (!$obj->error) {
             //MP3 to OGG
-            $obj = static::exec(4, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
+            $obj = static::execOrder(40, $pathFileName, $destinationFile . ".ogg", $encoder_queue_id);
         }
         return $obj;
     }
@@ -166,6 +170,12 @@ class Format extends Object {
             }
         }
         return $obj;
+    }
+    
+    static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {
+        $o = new Format(0);
+        $o->loadFromOrder($format_order);
+        return self::exec($o->getId(), $pathFileName, $destinationFile, $encoder_queue_id);
     }
 
     static function getFromName($name) {
@@ -251,4 +261,14 @@ class Format extends Object {
         $this->extension_from = $extension_from;
     }
 
+    function getOrder() {
+        return $this->order;
+    }
+
+    function setOrder($order) {
+        $this->order = $order;
+    }
+
+
+    
 }

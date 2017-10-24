@@ -34,12 +34,12 @@ testTime(__LINE__);
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
+    $exec = "ffmpeg -i {$url} -f image2  -s 400x225 -vframes 1 -y {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.png";
 }else if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i {$url} -f image2 -vframes 1 -y {$destination}";
+    $exec = "ffmpeg -i {$url} -f image2  -s 400x225 -vframes 1 -y {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.jpg";
 }else if($_GET['format'] === 'gif'){
     // gif image has the double lifetime

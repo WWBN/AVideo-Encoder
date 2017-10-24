@@ -51,15 +51,15 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         if ($type == "video") {
             if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
                 if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
-                    $e->setFormats_id(7); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
+                    $e->setFormats_id(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
                 } else {
-                    $e->setFormats_id(8);
+                    $e->setFormats_id(71);
                 }
             } else{
-                $e->setFormats_id(decideFormatId());
+                $e->setFormats_idFromOrder(decideFormatOrder());
             }
         } else {       
-            $e->setFormats_id(10);
+            $e->setFormats_id(73);
         }
         
         
