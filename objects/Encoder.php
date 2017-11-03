@@ -744,6 +744,20 @@ class Encoder extends Object {
         $minutes = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
         return intval($durationParts[2]) + ($minutes * 60);
     }
+    
+    static function formatDuration($str){
+        $seconds = 0;
+        if(preg_match('/^[0-9]+$/', $str)){// seconds only
+            $seconds = $str;
+        }else if(preg_match('/^[0-9]+:[0-9]+$/', $str)){// seconds and minutes
+            $durationParts = explode(":", $str);        
+            $seconds = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
+        }else if(preg_match('/^[0-9]+:[0-9]+:[0-9]+$/', $str)){// seconds and minutes
+            $durationParts = explode(":", $str);        
+            $seconds = intval(($durationParts[0]) * 60 * 60) + (($durationParts[1]) * 60) + intval($durationParts[2]);
+        }
+        return self::parseSecondsToDuration($seconds);
+    }
 
     static function parseSecondsToDuration($int) {
         $seconds = $int % 60;
@@ -780,7 +794,7 @@ class Encoder extends Object {
         } else {
             $line = end($output);
             if(preg_match('/^[0-9:]+$/', $line)){
-                return $line;
+                return self::formatDuration($line);
             }else{
                 error_log("Could not get duration ".print_r($output, true));
                 return "EE:EE:EE";
