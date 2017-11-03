@@ -778,7 +778,12 @@ class Encoder extends Object {
         if ($return_val !== 0) {
             return false;
         } else {
-            return end($output);
+            $line = end($output);
+            if(preg_match('/[0-9]+:[0-9]+:[0-9]+/', $line)){
+                return $line;
+            }else{
+                return "EE:EE:EE";
+            }
         }
     }
 
