@@ -782,6 +782,7 @@ class Encoder extends Object {
             if(preg_match('/[0-9]+:[0-9]+:[0-9]+/', $line)){
                 return $line;
             }else{
+                error_log("Could not get duration ".print_r($output, true));
                 return "EE:EE:EE";
             }
         }
