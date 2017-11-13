@@ -1,4 +1,5 @@
 <?php
+
 global $sentImage;
 $sentImage = array();
 require_once $global['systemRootPath'] . 'objects/Format.php';
@@ -176,8 +177,7 @@ class Encoder extends Object {
         }
         $this->formats_id = $formats_id;
     }
-    
-    
+
     function setFormats_idFromOrder($order) {
         $o = new Format(0);
         $o->loadFromOrder($order);
@@ -444,14 +444,14 @@ class Encoder extends Object {
 
         return $obj;
     }
-    
+
     private function multiResolutionSend($resolution, $format, $videos_id) {
         global $global;
         $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$resolution}.{$format}";
         $r = static::sendFile($file, $videos_id, $format, $this, $resolution);
         return $r;
     }
-    
+
     function send() {
         global $global;
         $formatId = $this->getFormats_id();
@@ -464,25 +464,25 @@ class Encoder extends Object {
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
         if (in_array($order_id, $global['multiResolutionOrder'])) {
-            if (in_array($order_id, $global['hasHDOrder'])) {                
-                $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);                
+            if (in_array($order_id, $global['hasHDOrder'])) {
+                $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
                 if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
                 }
             }
-            if (in_array($order_id, $global['hasSDOrder'])) {            
-                $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);                
+            if (in_array($order_id, $global['hasSDOrder'])) {
+                $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);
                 if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
                 }
             }
-            if (in_array($order_id, $global['hasLowOrder'])) {            
-                $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);                
+            if (in_array($order_id, $global['hasLowOrder'])) {
+                $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);
                 if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
                     $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
                 }
             }
-        }else{
+        } else {
             $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
             $format = $f->getExtension();
             $r = static::sendFile($file, $videos_id, $format, $this);
@@ -495,7 +495,7 @@ class Encoder extends Object {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution="") {
+    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "") {
         global $global;
         global $sentImage;
 
@@ -654,8 +654,11 @@ class Encoder extends Object {
         global $config;
         // get movie duration HOURS:MM:SS.MICROSECONDS
         if (!file_exists($file)) {
-            error_log('{"status":"error", "msg":"getDurationFromFile ERROR, File (' . $file . ') Not Found"}');
-            return "EE:EE:EE";
+            $file_headers = @get_headers($file);
+            if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {                
+                error_log('{"status":"error", "msg":"getDurationFromFile ERROR, File (' . $file . ') Not Found"}');
+                return "EE:EE:EE";
+            }
         }
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
         eval('$cmd="ffprobe -i {$file} -sexagesimal -show_entries  format=duration -v quiet -of csv=\'p=0\'";');
@@ -744,16 +747,16 @@ class Encoder extends Object {
         $minutes = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
         return intval($durationParts[2]) + ($minutes * 60);
     }
-    
-    static function formatDuration($str){
+
+    static function formatDuration($str) {
         $seconds = 0;
-        if(preg_match('/^[0-9]+$/', $str)){// seconds only
+        if (preg_match('/^[0-9]+$/', $str)) {// seconds only
             $seconds = $str;
-        }else if(preg_match('/^[0-9]+:[0-9]+$/', $str)){// seconds and minutes
-            $durationParts = explode(":", $str);        
+        } else if (preg_match('/^[0-9]+:[0-9]+$/', $str)) {// seconds and minutes
+            $durationParts = explode(":", $str);
             $seconds = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
-        }else if(preg_match('/^[0-9]+:[0-9]+:[0-9]+$/', $str)){// seconds and minutes
-            $durationParts = explode(":", $str);        
+        } else if (preg_match('/^[0-9]+:[0-9]+:[0-9]+$/', $str)) {// seconds and minutes
+            $durationParts = explode(":", $str);
             $seconds = intval(($durationParts[0]) * 60 * 60) + (($durationParts[1]) * 60) + intval($durationParts[2]);
         }
         return self::parseSecondsToDuration($seconds);
@@ -764,7 +767,7 @@ class Encoder extends Object {
         if ($seconds < 10) {
             $seconds = "0{$seconds}";
         }
-        $minutes = floor(($int / 60)%60);
+        $minutes = floor(($int / 60) % 60);
         if ($minutes < 10) {
             $minutes = "0{$minutes}";
         }
@@ -793,10 +796,10 @@ class Encoder extends Object {
             return false;
         } else {
             $line = end($output);
-            if(preg_match('/^[0-9:]+$/', $line)){
+            if (preg_match('/^[0-9:]+$/', $line)) {
                 return self::formatDuration($line);
-            }else{
-                error_log("Could not get duration ".print_r($output, true));
+            } else {
+                error_log("Could not get duration " . print_r($output, true));
                 return "EE:EE:EE";
             }
         }
