@@ -385,6 +385,16 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
                                             <span class="glyphicon glyphicon-list"></span> List Files
                                         </button>
                                     </span>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-secondary" id="checkBtn">
+                                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-secondary" id="uncheckBtn">
+                                            <i class="fa fa-square-o" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
                                 </div>
                                 <ul class="list-group" id="files">
                                 </ul>
@@ -584,6 +594,13 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
 
                         $("#pathBtn").click(function () {
                             checkFiles();
+                        });
+
+                        $("#checkBtn").click(function () {
+                            $('#files').find('input:checkbox').prop('checked', true);
+                        });
+                        $("#uncheckBtn").click(function () {
+                            $('#files').find('input:checkbox').prop('checked', false);
                         });
 
                         $('#saveConfig').click(function () {
