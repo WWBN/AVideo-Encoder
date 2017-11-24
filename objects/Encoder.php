@@ -310,10 +310,14 @@ class Encoder extends Object {
         error_log("Getting Video File {$videoURL}");
         $return = file_get_contents($videoURL, false, $ctx);
         if(!$return){
-            $encodedUrl = urlencode($videoURL);
-            $fixedEncodedUrl = str_replace(['%2F', '%3A'], ['/', ':'], $encodedUrl);
+            $fixedEncodedUrl = utf8_encode($videoURL);
             error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
             $return = file_get_contents($videoURL, false, $ctx);
+            if(!$return){
+                $fixedEncodedUrl = utf8_decode($videoURL);
+                error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
+                $return = file_get_contents($videoURL, false, $ctx);
+            }
         }
         return $return;
     }
