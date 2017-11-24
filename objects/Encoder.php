@@ -308,7 +308,14 @@ class Encoder extends Object {
         $ctx = stream_context_create($arrContextOptions);
         stream_context_set_params($ctx, array("notification" => "stream_notification_callback"));
         error_log("Getting Video File {$videoURL}");
-        return file_get_contents($videoURL, false, $ctx);
+        $return = file_get_contents($videoURL, false, $ctx);
+        if(!$return){
+            $encodedUrl = urlencode($videoURL);
+            $fixedEncodedUrl = str_replace(['%2F', '%3A'], ['/', ':'], $encodedUrl);
+            error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
+            $return = file_get_contents($videoURL, false, $ctx);
+        }
+        return $return;
     }
 
     static function isEncoding() {
