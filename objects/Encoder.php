@@ -265,7 +265,6 @@ class Encoder extends Object {
                 $dl = static::getYoutubeDlProgress($queue_id);
                 $file = $dl->filename;
             }
-
             return file_get_contents($file);
         }
     }

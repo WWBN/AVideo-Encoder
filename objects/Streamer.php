@@ -73,6 +73,9 @@ class Streamer extends Object {
     }
 
     static function isURLAllowed($siteURL) {
+        if (substr($siteURL, -1) !== '/') {
+            $siteURL .= "/";
+        }
         $config = new Configuration();
         $urls = $config->getAllowedStreamersURL();
         if (empty($urls)) {
