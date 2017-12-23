@@ -23,11 +23,6 @@ if (empty($streamerURL)) {
 $config = new Configuration();
 
 $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
-
-
-$json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
-// convert the string to a json object
-$advancedCustom = json_decode($json_file);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -178,6 +173,9 @@ $advancedCustom = json_decode($json_file);
                 </script>    
                 <?php
             } else {
+                $json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+                // convert the string to a json object
+                $advancedCustom = json_decode($json_file);
                 ?>
 
                 <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
