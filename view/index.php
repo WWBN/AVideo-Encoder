@@ -23,6 +23,11 @@ if (empty($streamerURL)) {
 $config = new Configuration();
 
 $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
+
+
+$json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+// convert the string to a json object
+$advancedCustom = json_decode($json_file);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -297,15 +302,29 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
                     <div class="panel panel-default">
                         <div class="panel-heading">Resolutions</div>
                         <div class="panel-body">
-                            <label style="" id="">
-                                <input type="checkbox" id="inputLow" checked="checked"> Low
-                            </label>
-                            <label  id="">
-                                <input type="checkbox" id="inputSD" checked="checked"> SD
-                            </label>
-                            <label>
-                                <input type="checkbox" id="inputHD" checked="checked"> HD
-                            </label>
+                            <?php
+                            if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
+                                ?> 
+                                <label style="" id="">
+                                    <input type="checkbox" id="inputLow" checked="checked"> Low
+                                </label>
+                                <?php
+                            }
+                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+                                ?> 
+                                <label id="">
+                                    <input type="checkbox" id="inputSD" checked="checked"> SD
+                                </label>
+                                <?php
+                            }
+                            if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+                                ?> 
+                                <label>
+                                    <input type="checkbox" id="inputHD" checked="checked"> HD
+                                </label>
+                                <?php
+                            }
+                            ?> 
                         </div>
                     </div>
                     <div class="panel panel-default">
@@ -573,13 +592,13 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
                                     $.ajax({
                                         url: 'queue',
                                         data: {
-                                            "fileURI": $(this).attr('path'), 
-                                            "audioOnly": $('#inputAudioOnly').is(":checked"), 
-                                            "spectrum": $('#inputAudioSpectrum').is(":checked"), 
+                                            "fileURI": $(this).attr('path'),
+                                            "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                            "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                             "webm": $('#inputWebM').is(":checked"),
                                             "inputLow": $('#inputLow').is(":checked"),
                                             "inputSD": $('#inputSD').is(":checked"),
-                                            "inputHD": $('#inputHD').is(":checked")                                            
+                                            "inputHD": $('#inputHD').is(":checked")
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -636,9 +655,9 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
                             $.ajax({
                                 url: 'youtubeDl.json',
                                 data: {
-                                    "videoURL": $('#inputVideoURL').val(), 
-                                    "audioOnly": $('#inputAudioOnly').is(":checked"), 
-                                    "spectrum": $('#inputAudioSpectrum').is(":checked"), 
+                                    "videoURL": $('#inputVideoURL').val(),
+                                    "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                    "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                     "webm": $('#inputWebM').is(":checked"),
                                     "inputLow": $('#inputLow').is(":checked"),
                                     "inputSD": $('#inputSD').is(":checked"),
@@ -714,22 +733,22 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
                                     var l = getLocation(row.streamer);
                                     var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format + '</span>';
-                                    if(row.mp4_filesize_Low){
+                                    if (row.mp4_filesize_Low) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_Low + '">MP4 Low Size: ' + row.mp4_filesize_human_Low + '</span>';
                                     }
-                                    if(row.mp4_filesize_SD){
+                                    if (row.mp4_filesize_SD) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_SD + '">MP4 SD Size: ' + row.mp4_filesize_human_SD + '</span>';
                                     }
-                                    if(row.mp4_filesize_HD){
+                                    if (row.mp4_filesize_HD) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_HD + '">MP4 HD Size: ' + row.mp4_filesize_human_HD + '</span>';
                                     }
-                                    if(row.webm_filesize_Low){
+                                    if (row.webm_filesize_Low) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_Low + '">WEBM Low Size: ' + row.webm_filesize_human_Low + '</span>';
                                     }
-                                    if(row.webm_filesize_SD){
+                                    if (row.webm_filesize_SD) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_SD + '">WEBM SD Size: ' + row.webm_filesize_human_SD + '</span>';
                                     }
-                                    if(row.webm_filesize_HD){
+                                    if (row.webm_filesize_HD) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_HD + '">WEBM HD Size: ' + row.webm_filesize_human_HD + '</span>';
                                     }
                                     title += '<br>' + row.title;
