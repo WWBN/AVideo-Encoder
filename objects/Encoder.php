@@ -793,6 +793,7 @@ class Encoder extends Object {
         $cmd = "youtube-dl -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
+            error_log("Get Title Error: $cmd \n".print_r($output, true));
             return false;
         } else {
             return end($output);
