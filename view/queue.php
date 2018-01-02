@@ -8,13 +8,20 @@ if(empty($_POST['fileURI'])){
     die("File URI Not found");
 }
 
+if(!empty($_POST['user']) && !empty($_POST['pass']) && !empty($_POST['notifyURL'])){
+    error_log("Sent Login variables try to login");
+    Login::run($_POST['user'], $_POST['pass'], $_POST['notifyURL'], true);
+}
+
 $e = new Encoder(@$_POST['id']);
 if(empty($e->getId())){
     if(!Login::canUpload()){
-        die("This user can not upload files");
+        error_log("This user can not upload files");
+        exit;
     }
    if (!($streamers_id = Login::getStreamerId())) {
-        die("There is no streamer site");
+        error_log("There is no streamer site");
+        exit;
     }
     $e->setStreamers_id($streamers_id);
     $s = new Streamer($streamers_id);

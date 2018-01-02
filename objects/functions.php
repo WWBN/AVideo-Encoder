@@ -342,9 +342,14 @@ function decideFormatOrder(){
                 ){ 
                     error_log("MP4 SD");
             return (75);
-        }else{ 
+        }else if(
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'             
+                ){ 
                     error_log("MP4 LOW");
             return (74);
+        }else{ // all resolutions
+                    error_log("MP4 All");
+            return (80);
         }
     }else{
         // mp4 and webm
