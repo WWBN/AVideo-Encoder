@@ -303,87 +303,124 @@ function setSiteSendMessage(&$mail) {
     }
 }
 
+function decideFromPlugin() {
+    $json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+    // convert the string to a json object
+    $advancedCustom = json_decode($json_file);
+    if (
+            empty($advancedCustom->doNotShowEncoderResolutionLow)
+            && empty($advancedCustom->doNotShowEncoderResolutionSD)
+            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4"=>80, "webm"=>87);
+    }
+    if (
+            empty($advancedCustom->doNotShowEncoderResolutionLow)
+            && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+        return array("mp4"=>77, "webm"=>84);
+    }
+    if (
+            empty($advancedCustom->doNotShowEncoderResolutionLow)
+            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4"=>79, "webm"=>86);
+    }
+    if (
+            empty($advancedCustom->doNotShowEncoderResolutionSD)
+            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4"=>78, "webm"=>85);
+    }
+    if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
+        return array("mp4"=>74, "webm"=>81);
+    }
+    if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+        return array("mp4"=>75, "webm"=>82);
+    }
+    if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4"=>76, "webm"=>83);
+    }
+    return array("mp4"=>80, "webm"=>87);
+}
 
-function decideFormatOrder(){
+function decideFormatOrder() {
     if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
-        if(
+        if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ // all resolutions
-                    error_log("MP4 All");
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) { // all resolutions
+            error_log("MP4 All");
             return (80);
-        }else if(
+        } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
-                    error_log("MP4 Low - HD");
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
+            error_log("MP4 Low - HD");
             return (79);
-        }else if(
+        } else if (
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
-                    error_log("MP4 SD - HD");
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
+            error_log("MP4 SD - HD");
             return (78);
-        }else if(
+        } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
-                ){ 
-                    error_log("MP4 Low SD");
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        ) {
+            error_log("MP4 Low SD");
             return (77);
-        }else if(
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
-                    error_log("MP4 HD");
+        } else if (
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
+            error_log("MP4 HD");
             return (76);
-        }else if(
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
-                ){ 
-                    error_log("MP4 SD");
+        } else if (
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        ) {
+            error_log("MP4 SD");
             return (75);
-        }else if(
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'             
-                ){ 
-                    error_log("MP4 LOW");
+        } else if (
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+        ) {
+            error_log("MP4 LOW");
             return (74);
-        }else{ // all resolutions
-                    error_log("MP4 All");
-            return (80);
+        } else { 
+            $decide = decideFromPlugin();
+            return $decide['mp4'];
         }
-    }else{
+    } else {
         // mp4 and webm
-        if(
+        if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ // all resolutions
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) { // all resolutions
             return (87);
-        }else if(
+        } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
             return (86);
-        }else if(
+        } else if (
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
             return (85);
-        }else if(
+        } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'              
-                ){ 
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        ) {
             return (84);
-        }else if(
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'                
-                ){ 
+        } else if (
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        ) {
             return (83);
-        }else if(
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'             
-                ){ 
+        } else if (
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        ) {
             return (82);
-        }else{ 
-            return (81);
+        } else {
+            $decide = decideFromPlugin();
+            return $decide['webm'];
         }
     }
     return 1;
