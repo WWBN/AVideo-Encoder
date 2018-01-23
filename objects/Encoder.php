@@ -199,6 +199,7 @@ class Encoder extends Object {
     }
 
     static function downloadFile($queue_id) {
+        ini_set('memory_limit', '-1');
         global $global;
         $obj = new stdClass();
         $q = new Encoder($queue_id);
@@ -248,6 +249,7 @@ class Encoder extends Object {
     }
 
     static function getYoutubeDl($videoURL, $queue_id) {
+        ini_set('memory_limit', '-1');
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
@@ -296,6 +298,7 @@ class Encoder extends Object {
     }
 
     static function getVideoFile($videoURL, $queue_id) {
+        ini_set('memory_limit', '-1');
         global $global;
         $arrContextOptions = array(
             "ssl" => array(
@@ -396,6 +399,7 @@ class Encoder extends Object {
     }
 
     static function run() {
+        ini_set('memory_limit', '-1');
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
@@ -463,6 +467,7 @@ class Encoder extends Object {
     }
 
     function send() {
+        ini_set('memory_limit', '-1');
         global $global;
         $formatId = $this->getFormats_id();
         $f = new Format($formatId);
