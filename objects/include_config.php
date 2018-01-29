@@ -18,6 +18,7 @@ $global['mysqli']->query("SET time_zone='$offset';");
 
 session_set_cookie_params(86400);
 ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.cookie_lifetime',86400);
 session_start();
 
 require_once $global['systemRootPath'].'objects/functions.php';
