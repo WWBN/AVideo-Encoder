@@ -1,6 +1,6 @@
 <?php
 
-class Format extends Object {
+class Format extends ObjectYPT {
 
     protected $id, $name, $code, $created, $modified, $extension, $extension_from, $order;
 

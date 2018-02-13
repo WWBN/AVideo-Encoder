@@ -5,7 +5,7 @@ interface ObjectInterface{
     static function getTableName();
     static function getSearchFieldsNames();
 }
-abstract class Object implements ObjectInterface{
+abstract class ObjectYPT implements ObjectInterface{
     
     private $fieldsName = array();
 

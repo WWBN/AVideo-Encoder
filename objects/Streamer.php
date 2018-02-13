@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__) . '/Configuration.php';
 
-class Streamer extends Object {
+class Streamer extends ObjectYPT {
 
     protected $id, $siteURL, $user, $pass, $priority, $isAdmin, $created, $modified;
 

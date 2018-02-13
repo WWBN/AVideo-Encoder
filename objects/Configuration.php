@@ -1,5 +1,5 @@
 <?php
-class Configuration extends Object {
+class Configuration extends ObjectYPT {
     
     protected $allowedStreamersURL, $defaultPriority, $version; 
     

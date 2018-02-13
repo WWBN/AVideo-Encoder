@@ -7,7 +7,7 @@ require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 require_once $global['systemRootPath'] . 'objects/functions.php';
 
-class Encoder extends Object {
+class Encoder extends ObjectYPT {
 
     protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
 
