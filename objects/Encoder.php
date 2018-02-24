@@ -552,6 +552,7 @@ class Encoder extends ObjectYPT {
                 $sentImage[] = $videos_id;
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+                $postFields['description'] = $encoder->getDescriptionFromLink($videoDownloadedLink);
             }
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
@@ -831,6 +832,17 @@ class Encoder extends ObjectYPT {
             return false;
         } else {
             return file_get_contents($tmpfname . ".jpg");
+        }
+    }
+    
+    static function getDescriptionFromLink($link) {
+        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
+        $cmd = "youtube-dl --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        exec($cmd . "  2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            return false;
+        } else {
+            return file_get_contents($tmpfname . ".description");
         }
     }
 
