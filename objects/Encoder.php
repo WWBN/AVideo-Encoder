@@ -540,6 +540,7 @@ class Encoder extends ObjectYPT {
             'format' => $format,
             'resolution' => $resolution,
             'videoDownloadedLink' => $videoDownloadedLink,
+            'description' => $encoder->getDescriptionFromLink($videoDownloadedLink),
             'user' => $user,
             'password' => $pass
         );
@@ -552,7 +553,7 @@ class Encoder extends ObjectYPT {
                 $sentImage[] = $videos_id;
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
-                $postFields['description'] = $encoder->getDescriptionFromLink($videoDownloadedLink);
+                
             }
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
