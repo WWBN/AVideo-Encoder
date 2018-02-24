@@ -837,6 +837,9 @@ class Encoder extends ObjectYPT {
     }
     
     static function getDescriptionFromLink($link) {
+        if(empty($link)){
+            return '';
+        }
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = "youtube-dl --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
