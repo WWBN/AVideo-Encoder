@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fileURI` VARCHAR(255) NOT NULL,
   `filename` VARCHAR(400) NOT NULL,
-  `status` ENUM('queue', 'encoding', 'error', 'done', 'downloading') NULL,
+  `status` ENUM('queue', 'encoding', 'error', 'done', 'downloading', 'transferring') NULL,
   `status_obs` VARCHAR(255) NULL,
   `return_vars` VARCHAR(45) NULL,
   `priority` INT(1) NULL,

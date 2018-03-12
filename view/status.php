@@ -15,6 +15,7 @@ $obj->cmd = "";
 $obj->encoding_status = "";
 
 $obj->encoding = Encoder::isEncoding();
+//$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
 $obj->queue_size = count($obj->queue_list);
 

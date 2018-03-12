@@ -349,6 +349,34 @@ class Encoder extends ObjectYPT {
         }
         return false;
     }
+    /*
+    static function isTransferring() {
+        global $global;
+        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
+
+        $res = $global['mysqli']->query($sql);
+
+        $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
+
+        if ($res) {
+            $result = $res->fetch_assoc();
+            if (!empty($result)) {
+                $result['return_vars'] = json_decode($result['return_vars']);
+                $s = new Streamer($result['streamers_id']);
+                $result['streamer_site'] = $s->getSiteURL();
+                $result['streamer_priority'] = $s->getPriority();
+                return $result;
+            } else {
+                return false;
+            }
+        } else {
+            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+        }
+        return false;
+    }
+     * 
+     */
 
     static function getAllQueue() {
         global $global;
@@ -478,6 +506,10 @@ class Encoder extends ObjectYPT {
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
+                
+        $this->setStatus("transferring");
+        $this->save();
+        
         if (in_array($order_id, $global['multiResolutionOrder'])) {
             if (in_array($order_id, $global['hasHDOrder'])) {
                 $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
@@ -507,6 +539,8 @@ class Encoder extends ObjectYPT {
             }
             $return->sends[] = $r;
         }
+        $this->setStatus("done");
+        $this->save();
         return $return;
     }
 

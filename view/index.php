@@ -22,7 +22,7 @@ if (empty($streamerURL)) {
 }
 $config = new Configuration();
 
-$ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 18, 10);
+$ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 ?>
 <!DOCTYPE html>
 <html lang="en">
