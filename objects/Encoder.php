@@ -445,6 +445,9 @@ class Encoder extends ObjectYPT {
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
                     $obj->msg = $objFile->msg;
+                    $encoder->setStatus("error");
+                    $encoder->setStatus_obs("Could not download the file ");
+                    $encoder->save();
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
@@ -476,9 +479,10 @@ class Encoder extends ObjectYPT {
                         $encoder->save();
                         // TODO remove file
                         // run again
-                        static::run();
                     }
                 }
+                
+                static::run();
             }
         } else {
             $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
