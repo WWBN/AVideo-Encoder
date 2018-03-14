@@ -9,6 +9,11 @@ I would humbly like to thank God for giving me the necessary knowledge, motivati
 
 # Now you can read the rest...
 
+## Important Information
+
+> This app may work with any Linux distribution. But it works better with Ubuntu 16 or 17, without any kind of controll panel.
+> The problem with cPanel, Plesk, Webmin, VestaCP, etc.
+
 I don´t want to read I just want you to show me how to install!!
 
 Ok, check this out! https://tutorials.youphptube.com/video/streamer-and-encoder
