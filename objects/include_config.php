@@ -30,3 +30,6 @@ $global['hasHDOrder']                 = array(87,86,85,83,80,79,78,76);
 $global['hasSDOrder']                 = array(87,85,84,82,80,78,77,75); 
 $global['hasLowOrder']                = array(87,86,84,81,80,79,77,74); 
 $global['bothVideosOrder']            = array(81,82,83,84,85,86,87); // MP4 and Webm
+
+// in case of PHP - youtube-dl: command not found
+putenv('PATH=/usr/local/bin:/usr/bin');
