@@ -253,7 +253,7 @@ class Encoder extends ObjectYPT {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = "youtube-dl  --force-ipv4 --no-check-certificate -k -o {$tmpfname}.mp4 -f 'mp4' {$videoURL}";
+        $cmd = self::getYouTubeDLCommand()."  --force-ipv4 --no-check-certificate -k -o {$tmpfname}.mp4 -f 'mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -837,7 +837,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTitleFromLink($link) {
-        $cmd = "youtube-dl  --force-ipv4  -e {$link}";
+        $cmd = self::getYouTubeDLCommand()."  --force-ipv4  -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get Title Error: $cmd \n".print_r($output, true));
@@ -848,7 +848,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getDurationFromLink($link) {
-        $cmd = "youtube-dl --force-ipv4 --get-duration  {$link}";
+        $cmd = self::getYouTubeDLCommand()." --force-ipv4 --get-duration  {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -865,7 +865,7 @@ class Encoder extends ObjectYPT {
 
     static function getThumbsFromLink($link) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = "youtube-dl --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        $cmd = self::getYouTubeDLCommand()." --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -879,12 +879,20 @@ class Encoder extends ObjectYPT {
             return '';
         }
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = "youtube-dl --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        $cmd = self::getYouTubeDLCommand(). " --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
         } else {
             return file_get_contents($tmpfname . ".description");
+        }
+    }
+    
+    static function getYouTubeDLCommand(){
+        if(file_exists("/usr/local/bin/youtube-dl")){
+            return "/usr/local/bin/youtube-dl";
+        }else{
+            return "youtube-dl";
         }
     }
 
