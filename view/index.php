@@ -32,7 +32,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         <meta name="description" content="">
         <meta name="author" content="">
 
-        <title>YouPHPTube Encoder</title>
+        <title>Encoder</title>
         <link rel="icon" href="view/img/favicon.png">
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <script src="view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
