@@ -287,64 +287,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                     </div>
                 </div>
                 <div class="col-md-4" >
-
-                    <div class="alert alert-success">
-                        <span class="glyphicon glyphicon-send"></span>  
-                        All converted files will be submited to the streamer site 
-                        <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                        <span class="label label-danger">The encoder Max File Size is: <strong><?php echo get_max_file_size(); ?></strong></span>
-                        <span class="label label-danger">The Streamer Max File Size is: <strong id="max_file_size">Loading ...</strong></span>
-                        <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
-                        <span class="label label-danger">The Streamer Current Video Storage is: <strong id="currentStorageUsage">Loading ...</strong></span>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Resolutions</div>
-                        <div class="panel-body">
-                            <?php
-                            if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
-                                ?> 
-                                <label style="" id="">
-                                    <input type="checkbox" id="inputLow" checked="checked"> Low
-                                </label>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-                                ?> 
-                                <label id="">
-                                    <input type="checkbox" id="inputSD" checked="checked"> SD
-                                </label>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-                                ?> 
-                                <label>
-                                    <input type="checkbox" id="inputHD" checked="checked"> HD
-                                </label>
-                                <?php
-                            }
-                            ?> 
-                        </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">Advanced</div>
-                        <div class="panel-body">
-                            <label>
-                                <input type="checkbox" id="inputAudioOnly">
-                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                            </label><br>
-                            <label style="display: none;" id="spectrum">
-                                <input type="checkbox" id="inputAudioSpectrum">
-                                <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                            </label>
-                            <label  id="webm">
-                                <input type="checkbox" id="inputWebM">
-                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
-                                <small class="label label-warning">
-                                    For Chrome Browsers
-                                </small>
-                            </label>
-                        </div>
-                    </div>
+                    
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
@@ -418,6 +361,64 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                                 <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
                             </div>
                         <?php } ?>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Resolutions</div>
+                        <div class="panel-body">
+                            <?php
+                            if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
+                                ?> 
+                                <label style="" id="">
+                                    <input type="checkbox" id="inputLow" checked="checked"> Low
+                                </label>
+                                <?php
+                            }
+                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+                                ?> 
+                                <label id="">
+                                    <input type="checkbox" id="inputSD" checked="checked"> SD
+                                </label>
+                                <?php
+                            }
+                            if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+                                ?> 
+                                <label>
+                                    <input type="checkbox" id="inputHD" checked="checked"> HD
+                                </label>
+                                <?php
+                            }
+                            ?> 
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Advanced</div>
+                        <div class="panel-body">
+                            <label>
+                                <input type="checkbox" id="inputAudioOnly">
+                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                            </label><br>
+                            <label style="display: none;" id="spectrum">
+                                <input type="checkbox" id="inputAudioSpectrum">
+                                <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                            </label>
+                            <label  id="webm">
+                                <input type="checkbox" id="inputWebM">
+                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
+                                <small class="label label-warning">
+                                    For Chrome Browsers
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <span class="glyphicon glyphicon-send"></span>  
+                        All converted files will be submited to the streamer site 
+                        <strong><?php echo Login::getStreamerURL(); ?></strong><br>
+                        <span class="label label-danger">The encoder Max File Size is: <strong><?php echo get_max_file_size(); ?></strong></span>
+                        <span class="label label-danger">The Streamer Max File Size is: <strong id="max_file_size">Loading ...</strong></span>
+                        <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
+                        <span class="label label-danger">The Streamer Current Video Storage is: <strong id="currentStorageUsage">Loading ...</strong></span>
                     </div>
                 </div>
 
