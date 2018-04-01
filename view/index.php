@@ -289,8 +289,8 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                 <div class="col-md-4" >
                     
                     <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
-                        <li><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
+                        <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
+                        <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
                         <?php
                         if (empty($global['disableBulkEncode'])) {
                             ?>
@@ -299,7 +299,22 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                     </ul>
 
                     <div class="tab-content">
-                        <div id="download" class="tab-pane fade in active">
+                        <div id="upload" class="tab-pane fade in active">
+                            <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
+                                <div id="drop">
+                                    Drop Your Files Here
+
+                                    <a>Browse</a>
+                                    <input type="file" name="upl" multiple />
+                                </div>
+
+                                <ul>
+                                    <!-- The file uploads will be shown here -->
+                                </ul>
+
+                            </form>
+                        </div>
+                        <div id="download" class="tab-pane fade">
                             <div class="alert alert-info">
                                 <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
                             </div>
@@ -315,21 +330,6 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                             </form>
                         </div>
 
-                        <div id="upload" class="tab-pane fade">
-                            <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
-                                <div id="drop">
-                                    Drop Your Files Here
-
-                                    <a>Browse</a>
-                                    <input type="file" name="upl" multiple />
-                                </div>
-
-                                <ul>
-                                    <!-- The file uploads will be shown here -->
-                                </ul>
-
-                            </form>
-                        </div>
                         <?php
                         if (empty($global['disableBulkEncode'])) {
                             ?>
