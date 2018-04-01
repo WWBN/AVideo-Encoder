@@ -287,81 +287,87 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                     </div>
                 </div>
                 <div class="col-md-4" >
-                    
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
-                        <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
-                        <?php
-                        if (empty($global['disableBulkEncode'])) {
-                            ?>
-                            <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
-                        <?php } ?>
-                    </ul>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Submit Files</div>
+                        <div class="panel-body">
 
-                    <div class="tab-content">
-                        <div id="upload" class="tab-pane fade in active">
-                            <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
-                                <div id="drop">
-                                    Drop Your Files Here
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
+                                <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
+                                <?php
+                                if (empty($global['disableBulkEncode'])) {
+                                    ?>
+                                    <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
+                                <?php } ?>
+                            </ul>
 
-                                    <a>Browse</a>
-                                    <input type="file" name="upl" multiple />
+                            <div class="tab-content">
+                                <div id="upload" class="tab-pane fade in active">
+                                    <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
+                                        <div id="drop">
+                                            Drop Your Files Here
+
+                                            <a>Browse</a>
+                                            <input type="file" name="upl" multiple />
+                                        </div>
+
+                                        <ul>
+                                            <!-- The file uploads will be shown here -->
+                                        </ul>
+
+                                    </form>
+                                </div>
+                                <div id="download" class="tab-pane fade">
+                                    <div class="alert alert-info">
+                                        <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
+                                    </div>
+                                    <form id="downloadForm" onsubmit="">
+                                        <div class="input-group">
+                                            <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-secondary" type="submit">
+                                                    <span class="glyphicon glyphicon-download"></span> Download
+                                                </button>
+                                            </span>
+                                        </div>
+                                    </form>
                                 </div>
 
-                                <ul>
-                                    <!-- The file uploads will be shown here -->
-                                </ul>
+                                <?php
+                                if (empty($global['disableBulkEncode'])) {
+                                    ?>
 
-                            </form>
+                                    <div id="bulk" class="tab-pane fade">
+                                        <div class="alert alert-info">
+                                            <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
+                                        </div>
+                                        <div class="input-group">
+                                            <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-secondary" id="pathBtn">
+                                                    <span class="glyphicon glyphicon-list"></span> List Files
+                                                </button>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-secondary" id="checkBtn">
+                                                    <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-secondary" id="uncheckBtn">
+                                                    <i class="fa fa-square-o" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                                        <ul class="list-group" id="files">
+                                        </ul>
+                                        <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
+                                    </div>
+                                <?php } ?>
+                            </div> 
                         </div>
-                        <div id="download" class="tab-pane fade">
-                            <div class="alert alert-info">
-                                <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
-                            </div>
-                            <form id="downloadForm" onsubmit="">
-                                <div class="input-group">
-                                    <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-secondary" type="submit">
-                                            <span class="glyphicon glyphicon-download"></span> Download
-                                        </button>
-                                    </span>
-                                </div>
-                            </form>
-                        </div>
-
-                        <?php
-                        if (empty($global['disableBulkEncode'])) {
-                            ?>
-
-                            <div id="bulk" class="tab-pane fade">
-                                <div class="alert alert-info">
-                                    <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
-                                </div>
-                                <div class="input-group">
-                                    <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-secondary" id="pathBtn">
-                                            <span class="glyphicon glyphicon-list"></span> List Files
-                                        </button>
-                                    </span>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-secondary" id="checkBtn">
-                                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-secondary" id="uncheckBtn">
-                                            <i class="fa fa-square-o" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-                                </div>
-                                <ul class="list-group" id="files">
-                                </ul>
-                                <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
-                            </div>
-                        <?php } ?>
                     </div>
+
                     <div class="panel panel-default">
                         <div class="panel-heading">Resolutions</div>
                         <div class="panel-body">
@@ -410,7 +416,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                             </label>
                         </div>
                     </div>
-                    
+
                     <div class="alert alert-success">
                         <span class="glyphicon glyphicon-send"></span>  
                         All converted files will be submited to the streamer site 
