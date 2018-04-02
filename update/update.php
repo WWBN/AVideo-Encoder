@@ -2,16 +2,7 @@
             <div class="alert alert-success"><?php printf("You are running YouPHPTube Encoder version %s!", $config->getVersion()); ?></div>
             <?php
             if (empty($_POST['updateFile'])) {
-                $files1 = scandir($global['systemRootPath']."update");
-                $updateFiles = array();
-                foreach ($files1 as $value) {
-                    preg_match("/updateDb.v([0-9.]*).sql/", $value, $match);
-                    if (!empty($match)) {
-                        if ($config->currentVersionLowerThen($match[1])) {
-                            $updateFiles[] = array('filename' => $match[0], 'version' => $match[1]);
-                        }
-                    }
-                }
+                $updateFiles = getUpdatesFiles();
                 if (!empty($updateFiles)) {
                     ?>
                     <div class="alert alert-warning">

@@ -425,3 +425,19 @@ function decideFormatOrder() {
     }
     return 1;
 }
+
+
+function getUpdatesFiles(){
+    global $config, $global;
+    $files1 = scandir($global['systemRootPath']."update");
+    $updateFiles = array();
+    foreach ($files1 as $value) {
+        preg_match("/updateDb.v([0-9.]*).sql/", $value, $match);
+        if (!empty($match)) {
+            if ($config->currentVersionLowerThen($match[1])) {
+                $updateFiles[] = array('filename' => $match[0], 'version' => $match[1]);
+            }
+        }
+    }
+    return $updateFiles;
+}

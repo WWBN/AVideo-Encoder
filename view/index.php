@@ -23,6 +23,11 @@ if (empty($streamerURL)) {
 $config = new Configuration();
 
 $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+$updateFiles = getUpdatesFiles();
+
+$ad = $config->getAutodelete(); 
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -193,7 +198,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                             if (empty($global['disableConfigurations'])) {
                                 ?>
                                 <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
-                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update</a></li>
+                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update <?php if(!empty($updateFiles)){ ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
                                 <?php
                             }
                             ?>
@@ -252,6 +257,12 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                                             }
                                             ?>
                                         </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="defaultPriority">Auto remove</label>
+                                        <input type="checkbox" class="" id="autodelete" value="1" <?php if(!empty($ad)){ ?>checked="true"<?php } ?>>
+                                        <small>Will remove queue and the files when the encoder process is done</small>
                                     </div>
 
                                     <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
@@ -643,6 +654,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
                                     "formats": formats,
                                     "allowedStreamers": $("#allowedStreamers").val(),
                                     "defaultPriority": $("#defaultPriority").val(),
+                                    "autodelete": $("#autodelete").is(":checked"),
                                 },
                                 type: 'post',
                                 success: function (response) {

@@ -4,9 +4,16 @@ header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Configuration.php';
+require_once '../objects/Login.php';
 
 $obj = new stdClass();
 $obj->error = true;
+
+if(!Login::isAdmin()){
+    $obj->msg = "You are not admin";
+    die(json_encode($obj));
+}
+
 if (empty($global['disableConfigurations'])) {
     if (!empty($_POST['formats'])) {
         foreach ($_POST['formats'] as $value) {
@@ -26,6 +33,7 @@ if (empty($global['disableConfigurations'])) {
         $config = new Configuration();
         $config->setAllowedStreamersURL($_POST['allowedStreamers']);
         $config->setDefaultPriority($_POST['defaultPriority']);
+        $config->setAutodelete($_POST['autodelete']);
         $config->save();
     } else {
         $obj->msg = "formats not found";

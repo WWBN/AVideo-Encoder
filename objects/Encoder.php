@@ -472,6 +472,12 @@ class Encoder extends ObjectYPT {
                         if (!$response->error) {
                             // update queue status
                             $encoder->setStatus("done");
+                            $config = new Configuration();
+                            if(!empty($config->getAutodelete())){
+                                $encoder->delete();
+                            }else{
+                                error_log("Autodelete Not active");
+                            }
                         } else {
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs("Send message error = " . $response->msg);
@@ -544,6 +550,13 @@ class Encoder extends ObjectYPT {
             $return->sends[] = $r;
         }
         $this->setStatus("done");
+        // check if autodelete is enabled
+        $config = new Configuration();
+        if(!empty($config->getAutodelete())){
+            $this->delete();
+        }else{
+            error_log("Autodelete Not active");
+        }
         $this->save();
         return $return;
     }
@@ -786,11 +799,28 @@ class Encoder extends ObjectYPT {
 
     function delete() {
         global $global;
+        if(empty($this->id)){
+            return false;
+        }
         exec("rm {$global['systemRootPath']}videos/{$this->id}_tmpFile* < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
+            $this->deleteOriginal();
             error_log("Could not remove files from disk {$this->id}_tmpFile*");
         }
         return parent::delete();
+    }
+    
+    private function deleteOriginal() {
+        global $global;
+        if(empty($this->id)){
+            return false;
+        }
+        $destinationFile = "{$global['systemRootPath']}videos/original_" . $this->getFilename();
+        exec("rm {$destinationFile} < /dev/null 2>&1", $output, $return_val);
+        if ($return_val !== 0) {
+            error_log("Could not remove original files from disk {$destinationFile}");
+        }
+        return true;
     }
 
     static function checkList() {

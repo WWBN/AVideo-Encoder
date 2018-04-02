@@ -1,7 +1,7 @@
 <?php
 class Configuration extends ObjectYPT {
     
-    protected $allowedStreamersURL, $defaultPriority, $version; 
+    protected $allowedStreamersURL, $defaultPriority, $version, $autodelete; 
     
     static function getSearchFieldsNames() {
         return array('allowedStreamersURL');
@@ -39,6 +39,19 @@ class Configuration extends ObjectYPT {
         $this->version = $version;
     }
     
+    function getAutodelete() {
+        return $this->autodelete;
+    }
+
+    function setAutodelete($autodelete) {
+        if(empty($autodelete) || strtolower($autodelete) === 'false'){
+            $autodelete = 0;
+        }else{
+            $autodelete = 1;
+        }
+        $this->autodelete = $autodelete;
+    }
+        
     function currentVersionLowerThen($version) {
         return version_compare($version, $this->getVersion()) > 0;
     }
