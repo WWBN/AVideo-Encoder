@@ -38,8 +38,8 @@ $videoLength = parseDurationToSeconds($duration);
 $width = $tileWidth+$pxBetweenTiles;
 $height = $tileHeight+$pxBetweenTiles;
 $step = $videoLength / $numberOfTiles;
-$mapWidth = ($tileWidth + $pxBetweenTiles) * $numberOfTiles;
-$mapHeight = $tileHeight;
+$mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
+$mapHeight = $tileHeight * (ceil($numberOfTiles/10));
 
 $id = uniqid();
 $dirname = $global['systemRootPath']."videos/tail{$id}/";
