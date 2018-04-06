@@ -17,14 +17,16 @@ function tempdir() {
     if (is_dir($tempfile)) { return $tempfile; }
 }
 
-
+if(empty($_GET['totalClips'])){
+    $_GET['totalClips'] = 100;
+}
 
 $url = base64_decode($_GET['base64Url']);
 
 //$url = "http://127.0.0.1/YouPHPTube/videos/_YPTuniqid_5a01ef79b04ec6.24051213_HD.mp4";
 
 $tileWidth = $_GET['tileWidth'];
-$numberOfTiles = 20;
+$numberOfTiles = $_GET['totalClips'];
 
 $tileHeight = intval($tileWidth/16*9);
 $pxBetweenTiles = 0;
@@ -34,6 +36,7 @@ $videoLength = parseDurationToSeconds($duration);
 
 
 $width = $tileWidth+$pxBetweenTiles;
+$height = $tileHeight+$pxBetweenTiles;
 $step = $videoLength / $numberOfTiles;
 $mapWidth = ($tileWidth + $pxBetweenTiles) * $numberOfTiles;
 $mapHeight = $tileHeight;
@@ -64,7 +67,7 @@ imagefill($mapImage, 0, 0, $bgColor);
 /* * COPY SOURCE IMAGES TO MAP */
 foreach ($srcImagePaths as $index => $srcImagePath) {
     $tileImg = imagecreatefrompng($srcImagePath);
-    imagecopy($mapImage, $tileImg, $width*($index), 0, 0, 0, $tileWidth, $tileHeight);
+    imagecopy($mapImage, $tileImg, $width*($index), $height*(floor($index/10)), 0, 0, $tileWidth, $tileHeight);
     imagedestroy($tileImg);
 }
 
