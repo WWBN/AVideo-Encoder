@@ -67,7 +67,7 @@ imagefill($mapImage, 0, 0, $bgColor);
 /* * COPY SOURCE IMAGES TO MAP */
 foreach ($srcImagePaths as $index => $srcImagePath) {
     $tileImg = imagecreatefrompng($srcImagePath);
-    imagecopy($mapImage, $tileImg, $width*($index), $height*(floor($index/10)), 0, 0, $tileWidth, $tileHeight);
+    imagecopy($mapImage, $tileImg, $width*($index%10), $height*(floor($index/10)), 0, 0, $tileWidth, $tileHeight);
     imagedestroy($tileImg);
 }
 
