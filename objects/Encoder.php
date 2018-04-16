@@ -253,7 +253,7 @@ class Encoder extends ObjectYPT {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand()."  --force-ipv4 --no-check-certificate -k -o {$tmpfname}.mp4 -f 'mp4' {$videoURL}";
+        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --no-check-certificate -k -o {$tmpfname}.mp4 -f 'mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -311,11 +311,11 @@ class Encoder extends ObjectYPT {
         stream_context_set_params($ctx, array("notification" => "stream_notification_callback"));
         error_log("Getting Video File {$videoURL}");
         $return = file_get_contents($videoURL, false, $ctx);
-        if(!$return){
+        if (!$return) {
             $fixedEncodedUrl = utf8_encode($videoURL);
             error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
             $return = file_get_contents($videoURL, false, $ctx);
-            if(!$return){
+            if (!$return) {
                 $fixedEncodedUrl = utf8_decode($videoURL);
                 error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
                 $return = file_get_contents($videoURL, false, $ctx);
@@ -349,32 +349,33 @@ class Encoder extends ObjectYPT {
         }
         return false;
     }
+
     /*
-    static function isTransferring() {
-        global $global;
-        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
+      static function isTransferring() {
+      global $global;
+      $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+      . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
 
-        $res = $global['mysqli']->query($sql);
+      $res = $global['mysqli']->query($sql);
 
-        $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
+      $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
 
-        if ($res) {
-            $result = $res->fetch_assoc();
-            if (!empty($result)) {
-                $result['return_vars'] = json_decode($result['return_vars']);
-                $s = new Streamer($result['streamers_id']);
-                $result['streamer_site'] = $s->getSiteURL();
-                $result['streamer_priority'] = $s->getPriority();
-                return $result;
-            } else {
-                return false;
-            }
-        } else {
-            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
-        }
-        return false;
-    }
+      if ($res) {
+      $result = $res->fetch_assoc();
+      if (!empty($result)) {
+      $result['return_vars'] = json_decode($result['return_vars']);
+      $s = new Streamer($result['streamers_id']);
+      $result['streamer_site'] = $s->getSiteURL();
+      $result['streamer_priority'] = $s->getPriority();
+      return $result;
+      } else {
+      return false;
+      }
+      } else {
+      die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+      }
+      return false;
+      }
      * 
      */
 
@@ -473,9 +474,9 @@ class Encoder extends ObjectYPT {
                             // update queue status
                             $encoder->setStatus("done");
                             $config = new Configuration();
-                            if(!empty($config->getAutodelete())){
+                            if (!empty($config->getAutodelete())) {
                                 $encoder->delete();
-                            }else{
+                            } else {
                                 error_log("Autodelete Not active");
                             }
                         } else {
@@ -487,7 +488,7 @@ class Encoder extends ObjectYPT {
                         // run again
                     }
                 }
-                
+
                 static::run();
             }
         } else {
@@ -516,10 +517,10 @@ class Encoder extends ObjectYPT {
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
-                
+
         $this->setStatus("transferring");
         $this->save();
-        
+
         if (in_array($order_id, $global['multiResolutionOrder'])) {
             if (in_array($order_id, $global['hasHDOrder'])) {
                 $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
@@ -552,9 +553,9 @@ class Encoder extends ObjectYPT {
         $this->setStatus("done");
         // check if autodelete is enabled
         $config = new Configuration();
-        if(!empty($config->getAutodelete())){
+        if (!empty($config->getAutodelete())) {
             $this->delete();
-        }else{
+        } else {
             error_log("Autodelete Not active");
         }
         $this->save();
@@ -604,7 +605,6 @@ class Encoder extends ObjectYPT {
                 $sentImage[] = $videos_id;
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
-                
             }
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
@@ -725,7 +725,7 @@ class Encoder extends ObjectYPT {
         // get movie duration HOURS:MM:SS.MICROSECONDS
         if (!file_exists($file)) {
             $file_headers = @get_headers($file);
-            if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {                
+            if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
                 error_log('{"status":"error", "msg":"getDurationFromFile ERROR, File (' . $file . ') Not Found"}');
                 return "EE:EE:EE";
             }
@@ -799,26 +799,27 @@ class Encoder extends ObjectYPT {
 
     function delete() {
         global $global;
-        if(empty($this->id)){
+        if (empty($this->id)) {
             return false;
         }
-        exec("rm {$global['systemRootPath']}videos/{$this->id}_tmpFile* < /dev/null 2>&1", $output, $return_val);
-        if ($return_val !== 0) {
-            $this->deleteOriginal();
-            error_log("Could not remove files from disk {$this->id}_tmpFile*");
+        $files = glob("{$global['systemRootPath']}videos/{$this->id}_tmpFile*"); // get all file names
+        foreach ($files as $file) { // iterate files
+            if (is_file($file))
+                unlink($file); // delete file
         }
+        $this->deleteOriginal();
         return parent::delete();
     }
-    
+
     private function deleteOriginal() {
         global $global;
-        if(empty($this->id)){
+        if (empty($this->id)) {
             return false;
         }
-        $destinationFile = "{$global['systemRootPath']}videos/original_" . $this->getFilename();
-        exec("rm {$destinationFile} < /dev/null 2>&1", $output, $return_val);
-        if ($return_val !== 0) {
-            error_log("Could not remove original files from disk {$destinationFile}");
+        $files = glob("{$global['systemRootPath']}videos/original_" . $this->getFilename()); // get all file names
+        foreach ($files as $file) { // iterate files
+            if (is_file($file))
+                unlink($file); // delete file
         }
         return true;
     }
@@ -867,10 +868,10 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTitleFromLink($link) {
-        $cmd = self::getYouTubeDLCommand()."  --force-ipv4  -e {$link}";
+        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4  -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            error_log("Get Title Error: $cmd \n".print_r($output, true));
+            error_log("Get Title Error: $cmd \n" . print_r($output, true));
             return false;
         } else {
             return end($output);
@@ -878,7 +879,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getDurationFromLink($link) {
-        $cmd = self::getYouTubeDLCommand()." --force-ipv4 --get-duration  {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --get-duration  {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -895,7 +896,7 @@ class Encoder extends ObjectYPT {
 
     static function getThumbsFromLink($link) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand()." --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -903,13 +904,13 @@ class Encoder extends ObjectYPT {
             return file_get_contents($tmpfname . ".jpg");
         }
     }
-    
+
     static function getDescriptionFromLink($link) {
-        if(empty($link)){
+        if (empty($link)) {
             return '';
         }
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand(). " --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -917,11 +918,11 @@ class Encoder extends ObjectYPT {
             return file_get_contents($tmpfname . ".description");
         }
     }
-    
-    static function getYouTubeDLCommand(){
-        if(file_exists("/usr/local/bin/youtube-dl")){
+
+    static function getYouTubeDLCommand() {
+        if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl";
-        }else{
+        } else {
             return "youtube-dl";
         }
     }
