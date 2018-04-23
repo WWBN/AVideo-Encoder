@@ -452,6 +452,8 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
+                    
+                    self::sendImages($objFile->pathFileName,$return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
@@ -661,8 +663,8 @@ class Encoder extends ObjectYPT {
             if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
                 // do not send image twice
                 $sentImage[] = $videos_id;
-                $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
-                $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+                //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+                //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
@@ -677,6 +679,67 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = curl_exec($curl);
         error_log("YouPHPTube-Streamer answer {$r}");
+        $obj->postFields = count($postFields);
+        $obj->response_raw = $r;
+        $obj->response = json_decode($r);
+        if ($errno = curl_errno($curl)) {
+            $error_message = curl_strerror($errno);
+            //echo "cURL error ({$errno}):\n {$error_message}";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+        } else {
+            $obj->error = false;
+        }
+        curl_close($curl);
+        error_log(json_encode($obj));
+        //var_dump($obj);exit;
+        return $obj;
+    }
+    
+    static function sendImages($file,$videos_id, $encoder){
+        global $global;
+
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->file = $file;
+        error_log("sendImages: Sending image to [$videos_id]");
+        $duration = static::getDurationFromFile($file);
+        $streamers_id = $encoder->getStreamers_id();
+        $s = new Streamer($streamers_id);
+        $youPHPTubeURL = $s->getSiteURL();
+        $user = $s->getUser();
+        $pass = $s->getPass();
+
+        $target = $youPHPTubeURL . "objects/youPHPTubeEncoderReceiveImage.json.php";
+        $obj->target = $target;
+        error_log("sendImages: YouPHPTube-Encoder sending file to {$target}");
+        error_log("sendImages: YouPHPTube-Encoder reading file from {$file}");
+        $postFields = array(
+            'duration' => $duration,
+            'videos_id' => $videos_id,
+            'user' => $user,
+            'password' => $pass
+        );
+        $obj->postFields = $postFields;
+
+        if (!empty($file)) {
+            $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+        }else{
+            $obj->msg = "sendImages: File is empty {$file} ";
+            error_log(json_encode($obj));
+            return $obj;
+        }
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $target);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        $r = curl_exec($curl);
+        error_log("sendImages: YouPHPTube-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
