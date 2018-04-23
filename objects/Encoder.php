@@ -479,9 +479,11 @@ class Encoder extends ObjectYPT {
                             } else {
                                 error_log("Autodelete Not active");
                             }
+                            $encoder->notifyVideoIsDone();
                         } else {
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs("Send message error = " . $response->msg);
+                            $encoder->notifyVideoIsDone(1);
                         }
                         $encoder->save();
                         // TODO remove file
@@ -495,6 +497,62 @@ class Encoder extends ObjectYPT {
             $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
         }
 
+        return $obj;
+    }
+    
+    private function notifyVideoIsDone($fail=0) {
+        global $global;
+        
+        $return_vars = json_decode($this->getReturn_vars());
+        if (!empty($return_vars->videos_id)) {
+            $videos_id = $return_vars->videos_id;
+            $obj = new stdClass();
+            $obj->error = true;
+
+            $streamers_id = $this->getStreamers_id();
+            $s = new Streamer($streamers_id);
+            $user = $s->getUser();
+            $pass = $s->getPass();
+
+            $s = new Streamer($streamers_id);
+            $youPHPTubeURL = $s->getSiteURL();
+            
+            $target = $youPHPTubeURL . "objects/youPHPTubeEncoderNotifyIsDone.json.php";
+            $obj->target = $target;
+            error_log("YouPHPTube-Encoder sending confirmation to {$target}");
+            $postFields = array(
+                'videos_id' => $videos_id,
+                'user' => $user,
+                'password' => $pass,
+                'fail' => $fail
+            );
+            $obj->postFields = $postFields;
+
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $target);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+            curl_setopt($curl, CURLOPT_POST, 1);
+            curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+            $r = curl_exec($curl);
+            error_log("YouPHPTube-Streamer confirmation answer {$r}");
+            $obj->response_raw = $r;
+            $obj->response = json_decode($r);
+            if ($errno = curl_errno($curl)) {
+                $error_message = curl_strerror($errno);
+                //echo "cURL error ({$errno}):\n {$error_message}";
+                $obj->msg = "cURL error ({$errno}):\n {$error_message} ";
+            } else {
+                $obj->error = false;
+            }
+            curl_close($curl);
+        }
+        
+        
+        error_log(json_encode($obj));
         return $obj;
     }
 
