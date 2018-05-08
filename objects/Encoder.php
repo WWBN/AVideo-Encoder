@@ -267,7 +267,7 @@ class Encoder extends ObjectYPT {
                 $dl = static::getYoutubeDlProgress($queue_id);
                 $file = $dl->filename;
             }
-            return file_get_contents($file);
+            return url_get_contents($file);
         }
     }
 
@@ -280,7 +280,7 @@ class Encoder extends ObjectYPT {
         if (!file_exists($file)) {
             return $obj;
         }
-        $text = file_get_contents($file);
+        $text = url_get_contents($file);
         preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
         if (!empty($matches[1])) {
             $obj->filename = $matches[1];
@@ -310,15 +310,15 @@ class Encoder extends ObjectYPT {
         $ctx = stream_context_create($arrContextOptions);
         stream_context_set_params($ctx, array("notification" => "stream_notification_callback"));
         error_log("Getting Video File {$videoURL}");
-        $return = file_get_contents($videoURL, false, $ctx);
+        $return = url_get_contents($videoURL, $ctx);
         if (!$return) {
             $fixedEncodedUrl = utf8_encode($videoURL);
             error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
-            $return = file_get_contents($videoURL, false, $ctx);
+            $return = url_get_contents($videoURL, $ctx);
             if (!$return) {
                 $fixedEncodedUrl = utf8_decode($videoURL);
                 error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
-                $return = file_get_contents($videoURL, false, $ctx);
+                $return = url_get_contents($videoURL, $ctx);
             }
         }
         return $return;
@@ -759,7 +759,7 @@ class Encoder extends ObjectYPT {
     static function getVideoConversionStatus($encoder_queue_id) {
         global $global;
         $progressFilename = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
-        $content = @file_get_contents($progressFilename);
+        $content = url_get_contents($progressFilename);
         if (!empty($content)) {
             return self::parseProgress($content);
         }
@@ -1022,7 +1022,7 @@ class Encoder extends ObjectYPT {
         if ($return_val !== 0) {
             return false;
         } else {
-            return file_get_contents($tmpfname . ".jpg");
+            return url_get_contents($tmpfname . ".jpg");
         }
     }
 
@@ -1036,7 +1036,7 @@ class Encoder extends ObjectYPT {
         if ($return_val !== 0) {
             return false;
         } else {
-            return file_get_contents($tmpfname . ".description");
+            return url_get_contents($tmpfname . ".description");
         }
     }
 
