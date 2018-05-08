@@ -63,7 +63,7 @@ if(!empty($ffmpegPallet)){
 }
 
 
-echo file_get_contents($destination);
+echo url_get_contents($destination);
 
 testTime(__LINE__);
 die();

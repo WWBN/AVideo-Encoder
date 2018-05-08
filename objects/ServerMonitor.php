@@ -92,7 +92,7 @@ class ServerMonitor {
 
     static private function _getServerLoadLinuxData() {
         if (is_readable("/proc/stat")) {
-            $stats = @file_get_contents("/proc/stat");
+            $stats = local_get_contents("/proc/stat");
 
             if ($stats !== false) {
                 // Remove double spaces to make it easier to extract values with explode()

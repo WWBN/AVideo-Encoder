@@ -178,7 +178,7 @@ $ad = $config->getAutodelete();
                 </script>    
                 <?php
             } else {
-                $json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+                $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
                 // convert the string to a json object
                 $advancedCustom = json_decode($json_file);
                 ?>

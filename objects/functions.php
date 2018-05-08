@@ -1,5 +1,48 @@
 <?php
 
+function local_get_contents($path){
+    if (function_exists('fopen')){
+        $myfile = fopen($path, "r") or die("Unable to open file!");
+        $text = fread($myfile,filesize($path));
+        fclose($myfile);
+        return $text;
+    }
+    return @file_get_contents($path);
+}
+
+function url_get_contents($Url, $ctx="") { 
+    if(empty($ctx)){
+        $opts = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+                "allow_self_signed" => true 
+            )
+        );
+        $context = stream_context_create($opts);
+    } else {
+        $context = $ctx;
+    }
+    if (ini_get('allow_url_fopen')) {
+        try{
+            $tmp = @file_get_contents($Url, false,$context);
+            if($tmp!=false){
+                return $tmp;
+            }
+        } catch(ErrorException $e){
+            
+        }
+    } else  if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $Url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
+    }
+    return @file_get_contents($Url, false,$context);
+}
+
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
 // and post_max_size
 function file_upload_max_size() {

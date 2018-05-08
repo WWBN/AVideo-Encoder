@@ -58,11 +58,11 @@ if($_GET['format'] === 'png'){
 testTime(__LINE__);
 
 if(!is_readable($destination)){
-    echo file_get_contents($destinationTmpFile);
+    echo url_get_contents($destinationTmpFile);
     error_log("Destination get Temp Image {$_GET['format']}: {$destinationTmpFile}");
 }else{
     // flush old image then encode
-    echo file_get_contents($destination);
+    echo url_get_contents($destination);
     error_log("Destination get Image {$_GET['format']}: {$destination}");
 }
 

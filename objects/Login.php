@@ -23,6 +23,7 @@ class Login {
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
+                "allow_self_signed" => true 
             ),
             'http' => array(
                 'method' => 'POST',
@@ -33,7 +34,7 @@ class Login {
 
         $context = stream_context_create($opts);
         $url = $youPHPTubeURL . 'login';
-        $result = @file_get_contents($url, false, $context);
+        $result = url_get_contents($url, $context);
         if (empty($result)) {
             $object = new stdClass();
             $object->streamer = false;
