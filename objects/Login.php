@@ -42,6 +42,7 @@ class Login {
             $object->isAdmin = false;
             $object->canUpload = false;
             $object->canComment = false;
+            $object->categories = array();
         } else {
             $object = json_decode($result);
             $object->streamer = $youPHPTubeURL;

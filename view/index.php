@@ -26,8 +26,7 @@ $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 $updateFiles = getUpdatesFiles();
 
-$ad = $config->getAutodelete(); 
-
+$ad = $config->getAutodelete();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -198,7 +197,7 @@ $ad = $config->getAutodelete();
                             if (empty($global['disableConfigurations'])) {
                                 ?>
                                 <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
-                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update <?php if(!empty($updateFiles)){ ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
+                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
                                 <?php
                             }
                             ?>
@@ -258,10 +257,10 @@ $ad = $config->getAutodelete();
                                             ?>
                                         </select>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <label for="defaultPriority">Auto remove</label>
-                                        <input type="checkbox" class="" id="autodelete" value="1" <?php if(!empty($ad)){ ?>checked="true"<?php } ?>>
+                                        <input type="checkbox" class="" id="autodelete" value="1" <?php if (!empty($ad)) { ?>checked="true"<?php } ?>>
                                         <small>Will remove queue and the files when the encoder process is done</small>
                                     </div>
 
@@ -315,6 +314,26 @@ $ad = $config->getAutodelete();
                             <div class="tab-content">
                                 <div id="upload" class="tab-pane fade in active">
                                     <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
+
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+                                        </div>
+                                        <div class="form-group">
+                                            <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <select class="form-control" id="categories_id" name="categories_id">
+
+                                                <option value="0">Category - Use site default</option>
+                                                <?php
+                                                foreach ($_SESSION['login']->categories as $key => $value) {
+                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div> 
+
+                                        <hr>
                                         <div id="drop">
                                             Drop Your Files Here
 
@@ -333,14 +352,28 @@ $ad = $config->getAutodelete();
                                         <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
                                     </div>
                                     <form id="downloadForm" onsubmit="">
-                                        <div class="input-group">
-                                            <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-secondary" type="submit">
-                                                    <span class="glyphicon glyphicon-download"></span> Download
-                                                </button>
-                                            </span>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-secondary" type="submit">
+                                                        <span class="glyphicon glyphicon-download"></span> Download
+                                                    </button>
+                                                </span>
+                                            </div>
                                         </div>
+
+                                        <div class="form-group">
+                                            <select class="form-control" id="download_categories_id" name="download_categories_id">
+
+                                                <option value="0">Category - Use site default</option>
+                                                <?php
+                                                foreach ($_SESSION['login']->categories as $key => $value) {
+                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div> 
                                     </form>
                                 </div>
 
@@ -352,24 +385,39 @@ $ad = $config->getAutodelete();
                                         <div class="alert alert-info">
                                             <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
                                         </div>
-                                        <div class="input-group">
-                                            <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-secondary" id="pathBtn">
-                                                    <span class="glyphicon glyphicon-list"></span> List Files
-                                                </button>
-                                            </span>
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-secondary" id="checkBtn">
-                                                    <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                                </button>
-                                            </span>
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-secondary" id="uncheckBtn">
-                                                    <i class="fa fa-square-o" aria-hidden="true"></i>
-                                                </button>
-                                            </span>
+
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-secondary" id="pathBtn">
+                                                        <span class="glyphicon glyphicon-list"></span> List Files
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-secondary" id="checkBtn">
+                                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-secondary" id="uncheckBtn">
+                                                        <i class="fa fa-square-o" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
                                         </div>
+
+                                        <div class="form-group">
+                                            <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
+
+                                                <option value="0">Category - Use site default</option>
+                                                <?php
+                                                foreach ($_SESSION['login']->categories as $key => $value) {
+                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div> 
                                         <ul class="list-group" id="files">
                                         </ul>
                                         <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
@@ -614,7 +662,8 @@ $ad = $config->getAutodelete();
                                             "webm": $('#inputWebM').is(":checked"),
                                             "inputLow": $('#inputLow').is(":checked"),
                                             "inputSD": $('#inputSD').is(":checked"),
-                                            "inputHD": $('#inputHD').is(":checked")
+                                            "inputHD": $('#inputHD').is(":checked"),
+                                            "categories_id": $('#bulk_categories_id').val()
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -678,7 +727,8 @@ $ad = $config->getAutodelete();
                                     "webm": $('#inputWebM').is(":checked"),
                                     "inputLow": $('#inputLow').is(":checked"),
                                     "inputSD": $('#inputSD').is(":checked"),
-                                    "inputHD": $('#inputHD').is(":checked")
+                                    "inputHD": $('#inputHD').is(":checked"),
+                                    "categories_id": $('#download_categories_id').val()
                                 },
                                 type: 'post',
                                 success: function (response) {
