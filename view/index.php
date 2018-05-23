@@ -59,7 +59,13 @@ $ad = $config->getAutodelete();
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="<?php echo $global['webSiteRootURL']; ?>" >
-                        <img src="<?php echo $global['webSiteRootURL']; ?>view/img/logo.png" class="img-responsive ">
+                        <?php
+                        if(!empty($_SESSION['login']->siteLogo)){
+                            ?>
+                            <img src="<?php echo $_SESSION['login']->siteLogo; ?>" class="img-responsive ">    
+                            <?php
+                        }
+                        ?>
                     </a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
