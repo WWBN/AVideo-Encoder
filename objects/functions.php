@@ -40,7 +40,7 @@ function url_get_contents($Url, $ctx="") {
         curl_close($ch);
         return $output;
     }
-    return @file_get_contents($Url, false,$context);
+    return file_get_contents($Url, false,$context);
 }
 
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
