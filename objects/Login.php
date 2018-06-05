@@ -35,6 +35,10 @@ class Login {
         $context = stream_context_create($opts);
         $url = $youPHPTubeURL . 'login';
         $result = url_get_contents($url, $context);
+        if(empty($result)){
+            error_log("Get Login fail, try again");
+            $result = file_get_contents($url, false, $context);
+        }
         if (empty($result)) {
             $object = new stdClass();
             $object->streamer = false;
