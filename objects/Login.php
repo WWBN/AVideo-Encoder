@@ -45,7 +45,8 @@ class Login {
             $object->canComment = false;
             $object->categories = array();
             error_log("Error on Login context");
-            error_log($context);
+            error_log($url);
+            error_log($result);
         } else {
             $object = json_decode($result);
             $object->streamer = $youPHPTubeURL;
