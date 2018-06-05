@@ -30,7 +30,7 @@ function url_get_contents($Url, $ctx="") {
                 return $tmp;
             }
         } catch(ErrorException $e){
-            
+            error_log("Error on get Content");
         }
     } else  if (function_exists('curl_init')) {
         $ch = curl_init();
