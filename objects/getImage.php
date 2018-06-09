@@ -80,7 +80,7 @@ if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !em
             exec($cmdGif);
             error_log("Create Gif with Ppallet: {$cmd}");
         }else{
-            $cmdGif = "ffmpeg  -y -t 3 -i {$url} -vf fps=10,scale=320:-1 {$destination} &> /dev/null &";
+            $cmdGif = "ffmpeg  -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1 {$destination} &> /dev/null &";
             exec($cmdGif);
             error_log("Create Gif no Pallet: {$cmd}");
         }

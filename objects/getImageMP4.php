@@ -28,15 +28,15 @@ $duration = Encoder::parseSecondsToDuration($_GET['time']);
 if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i {$url} -ss {$duration} -f image2  -s 400x225 -vframes 1 -y {$destination}";
+    $exec = "ffmpeg -i \"{$url}\" -ss {$duration} -f image2  -s 400x225 -vframes 1 -y {$destination}";
 }else if($_GET['format'] === 'gif'){
     // gif image has the double lifetime
     $cache_life*=2;
     header('Content-Type: image/gif');
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
-    $ffmpegPallet ="ffmpeg -y  -ss {$duration} -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
-    $exec ="ffmpeg -y  -ss {$duration} -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+    $ffmpegPallet ="ffmpeg -y  -ss {$duration} -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
+    $exec ="ffmpeg -y  -ss {$duration} -t 3 -i \"{$url}\" -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
@@ -52,9 +52,9 @@ if(!empty($ffmpegPallet)){
         exec($cmdGif);
         error_log("Create Gif with Pallet: {$cmd}");
     }else{
-        $cmdGif = "ffmpeg -ss {$duration} -y -t 3 -i {$url} -vf fps=10,scale=320:-1 {$destination}";
+        $cmdGif = "ffmpeg -ss {$duration} -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1 {$destination}";
         exec($cmdGif);
-        error_log("Create Gif no Pallet: {$cmd}");
+        error_log("Create Gif no Pallet: {$cmdGif}");
     }
 }else{
     $cmd = "{$exec}";
