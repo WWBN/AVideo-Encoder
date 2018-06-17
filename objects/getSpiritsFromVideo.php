@@ -46,7 +46,7 @@ $dirname = $global['systemRootPath']."videos/tail{$id}/";
 
 mkdir($dirname);
 
-$cmd = "ffmpeg -i {$url} -vf fps=1/{$step}  -s {$tileWidth}x{$tileHeight} {$dirname}out%03d.png";
+$cmd = "ffmpeg -i \"{$url}\" -vf fps=1/{$step}  -s {$tileWidth}x{$tileHeight} {$dirname}out%03d.png";
 
 //var_dump($duration, $videoLength);echo $cmd;exit;
 exec($cmd);
