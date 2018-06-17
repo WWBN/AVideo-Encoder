@@ -873,7 +873,7 @@ class Encoder extends ObjectYPT {
             }
         }
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
-        eval('$cmd="ffprobe -i {$file} -sexagesimal -show_entries  format=duration -v quiet -of csv=\'p=0\'";');
+        eval('$cmd="ffprobe -i \"{$file}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\'p=0\'";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
             error_log('{"status":"error", "msg":' . json_encode($output) . ' ,"return_val":' . json_encode($return_val) . ', "where":"getDuration", "cmd":"' . $cmd . '"}');
