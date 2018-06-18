@@ -58,7 +58,7 @@ $ad = $config->getAutodelete();
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="<?php echo $global['webSiteRootURL']; ?>" >
+                    <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>" >
                         <?php
                         if(!empty($_SESSION['login']->siteLogo)){
                             ?>
@@ -73,7 +73,9 @@ $ad = $config->getAutodelete();
                         <?php
                         if (Login::isLogged()) {
                             ?>
+                        <!--
                             <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
+                        -->
                             <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
                             <?php
                         }
