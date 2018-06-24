@@ -775,13 +775,11 @@ $ad = $config->getAutodelete();
                                                         }
                                                     });
                                                     modal.hidePleaseWait();
-                                                    if (response.text) {
-                                                        swal({
-                                                            title: "Channel Import is on queue",
-                                                            text: "All your videos channel will be process, this may take a while to be complete",
-                                                            type: "success",
-                                                            html: true});
-                                                    }
+                                                    swal({
+                                                        title: "Channel Import is on queue",
+                                                        text: "All your videos channel will be process, this may take a while to be complete",
+                                                        type: "success",
+                                                        html: true});
                                                 } else {
 
                                                 }
