@@ -648,7 +648,6 @@ class Encoder extends ObjectYPT {
         }else{
             $description = $_POST['description'];
         }
-        var_dump($description);exit;
         if(empty($_POST['categories_id'])){
             $categories_id = 0;
         }else{
