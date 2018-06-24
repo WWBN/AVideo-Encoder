@@ -60,7 +60,7 @@ $ad = $config->getAutodelete();
                     </button>
                     <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>" >
                         <?php
-                        if(!empty($_SESSION['login']->siteLogo)){
+                        if (!empty($_SESSION['login']->siteLogo)) {
                             ?>
                             <img src="<?php echo $_SESSION['login']->siteLogo; ?>" class="img-responsive ">    
                             <?php
@@ -73,9 +73,9 @@ $ad = $config->getAutodelete();
                         <?php
                         if (Login::isLogged()) {
                             ?>
-                        <!--
-                            <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
-                        -->
+                            <!--
+                                <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
+                            -->
                             <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
                             <?php
                         }
@@ -528,6 +528,11 @@ $ad = $config->getAutodelete();
                             }
                         });
                     }
+
+                    function isAChannel() {
+                        return /^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/gm.test($('#inputVideoURL').val());
+                    }
+
                     function checkProgress() {
                         $.ajax({
                             url: 'status',
@@ -724,33 +729,61 @@ $ad = $config->getAutodelete();
 
 
                         $('#downloadForm').submit(function (evt) {
-                            modal.showPleaseWait();
                             evt.preventDefault();
-                            $.ajax({
-                                url: 'youtubeDl.json',
-                                data: {
-                                    "videoURL": $('#inputVideoURL').val(),
-                                    "audioOnly": $('#inputAudioOnly').is(":checked"),
-                                    "spectrum": $('#inputAudioSpectrum').is(":checked"),
-                                    "webm": $('#inputWebM').is(":checked"),
-                                    "inputLow": $('#inputLow').is(":checked"),
-                                    "inputSD": $('#inputSD').is(":checked"),
-                                    "inputHD": $('#inputHD').is(":checked"),
-                                    "categories_id": $('#download_categories_id').val()
+                            if (isAChannel()) {
+                                swal({
+                                    title: "Are you sure?",
+                                    text: "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete",
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#DD6B55',
+                                    confirmButtonText: 'Yes, I am sure!',
+                                    cancelButtonText: "No, cancel it!",
+                                    closeOnConfirm: true,
+                                    closeOnCancel: true,
+                                    html: true,
+                                    dangerMode: true
                                 },
-                                type: 'post',
-                                success: function (response) {
-                                    if (response.text) {
-                                        swal({
-                                            title: response.title,
-                                            text: response.text,
-                                            type: response.type,
-                                            html: true});
-                                    }
-                                    console.log(response);
-                                    modal.hidePleaseWait();
-                                }
-                            });
+                                        function (isConfirm) {
+
+                                            if (isConfirm) {
+                                                modal.showPleaseWait();
+                                                $.ajax({
+                                                    url: 'youtubeDl.json',
+                                                    data: {
+                                                        "videoURL": $('#inputVideoURL').val(),
+                                                        "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                                        "spectrum": $('#inputAudioSpectrum').is(":checked"),
+                                                        "webm": $('#inputWebM').is(":checked"),
+                                                        "inputLow": $('#inputLow').is(":checked"),
+                                                        "inputSD": $('#inputSD').is(":checked"),
+                                                        "inputHD": $('#inputHD').is(":checked"),
+                                                        "categories_id": $('#download_categories_id').val()
+                                                    },
+                                                    type: 'post',
+                                                    success: function (response) {
+                                                        if (response.text) {
+                                                            swal({
+                                                                title: "Channel Import is complete",
+                                                                text: "All your videos were imported",
+                                                                type: "Success",
+                                                                html: true});
+                                                        }
+                                                        console.log(response);
+                                                    }
+                                                });
+                                                modal.hidePleaseWait();
+                                                if (response.text) {
+                                                    swal({
+                                                        title: "Channel Import is on queue",
+                                                        text: "All your videos channel will be process, this may take a while to be complete",
+                                                        type: "Success",
+                                                        html: true});
+                                                }
+                                            } else {
+                                                
+                                            }
+                                        });
+                            }
                             return false;
                         });
 

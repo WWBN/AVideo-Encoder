@@ -7,21 +7,18 @@ require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
+session_write_close();
 
-if (!Login::canUpload()) {
-    $obj->msg = "This user can not upload files";
-} else
-if (!($streamers_id = Login::getStreamerId())) {
-    $obj->msg = "There is no streamer site";
-} else {
+function addVideo($link, $streamers_id) {
+    $obj = new stdClass();
     // remove list parameter from
-    $_POST['videoURL'] = preg_replace('~(\?|&)list=[^&]*~', '$1', $_POST['videoURL']);
-    $_POST['videoURL'] = str_replace("?&", "?", $_POST['videoURL']);
-    if (substr($_POST['videoURL'], -1) == '&') {
-        $_POST['videoURL'] = substr($_POST['videoURL'], 0, -1);
+    $link = preg_replace('~(\?|&)list=[^&]*~', '$1', $link);
+    $link = str_replace("?&", "?", $link);
+    if (substr($link, -1) == '&') {
+        $link = substr($link, 0, -1);
     }
 
-    $title = Encoder::getTitleFromLink($_POST['videoURL']);
+    $title = Encoder::getTitleFromLink($link);
     if (!$title) {
         $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($output, true);
         $obj->type = "warning";
@@ -40,8 +37,8 @@ if (!($streamers_id = Login::getStreamerId())) {
         $e = new Encoder("");
         $e->setStreamers_id($streamers_id);
         $e->setTitle($title);
-        $e->setFileURI($_POST['videoURL']);
-        $e->setVideoDownloadedLink($_POST['videoURL']);
+        $e->setFileURI($link);
+        $e->setVideoDownloadedLink($link);
         $e->setFilename($filename);
         $e->setStatus('queue');
         $e->setPriority($s->getPriority());
@@ -55,7 +52,7 @@ if (!($streamers_id = Login::getStreamerId())) {
             } else {
                 $e->setFormats_idFromOrder(71);
             }
-        }  else {
+        } else {
             $e->setFormats_idFromOrder(decideFormatOrder());
         }
         $obj = new stdClass();
@@ -68,6 +65,36 @@ if (!($streamers_id = Login::getStreamerId())) {
         }
         $e->setReturn_vars(json_encode($obj));
         $encoders_ids[] = $e->save();
+    }
+    return $obj;
+}
+
+if (!Login::canUpload()) {
+    $obj->msg = "This user can not upload files";
+} else {
+    if (!($streamers_id = Login::getStreamerId())) {
+        $obj->msg = "There is no streamer site";
+    } else {
+        // if it is a channel
+        $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
+        if (preg_match($rexexp, $_POST['videoURL'])) {
+            $current = 0;
+            $count = 0;
+            $step = 5;
+            // make 5 each time
+            while (empty($current) || !empty($list)){
+                error_log("Processing Channel ".$current." to ".($current+$step));
+                $list = Encoder::getVideosIdListFromLink($_POST['videoURL'], $current, $current+$step);
+                $current += $step;
+                foreach ($list as $value) {
+                    $count++;   
+                    error_log("{$count} Process Video {$value}");
+                    $obj = addVideo($value, $streamers_id);
+                }
+            }
+        } else {
+            $obj = addVideo($_POST['videoURL'], $streamers_id);
+        }
     }
 }
 die(json_encode($obj));
