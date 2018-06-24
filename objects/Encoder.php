@@ -631,6 +631,7 @@ class Encoder extends ObjectYPT {
         $obj->format = $format;
         $obj->file = $file;
         $obj->resolution = $resolution;
+        $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
 
         $duration = static::getDurationFromFile($file);
         if(empty($_POST['title'])){
@@ -638,23 +639,22 @@ class Encoder extends ObjectYPT {
         }else{
             $title = $_POST['title'];
         }
-        if(empty($_POST['description'])){
-            if(!empty($videoDownloadedLink)){
-                $description = $encoder->getDescriptionFromLink($videoDownloadedLink);
+        if(empty(trim($_POST['description']))){
+            if(!empty($obj->videoDownloadedLink)){
+                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
             }else{
                 $description = "";
             }
         }else{
             $description = $_POST['description'];
         }
-        
+        var_dump($description);exit;
         if(empty($_POST['categories_id'])){
             $categories_id = 0;
         }else{
             $categories_id = $_POST['categories_id'];
         }
         
-        $videoDownloadedLink = $encoder->getVideoDownloadedLink();
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $youPHPTubeURL = $s->getSiteURL();
@@ -672,7 +672,7 @@ class Encoder extends ObjectYPT {
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,
-            'videoDownloadedLink' => $videoDownloadedLink,
+            'videoDownloadedLink' => $obj->videoDownloadedLink,
             'description' => $description,
             'user' => $user,
             'password' => $pass
