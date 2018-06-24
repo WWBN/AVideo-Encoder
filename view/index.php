@@ -774,13 +774,13 @@ $ad = $config->getAutodelete();
                                                             console.log(response);
                                                         }
                                                     });
-                                                    setTimeout(function(){
+                                                    setTimeout(function () {
                                                         swal({
                                                             title: "Channel Import is on queue",
                                                             text: "All your videos channel will be process, this may take a while to be complete",
                                                             type: "success",
                                                             html: true});
-                                                    },500);
+                                                    }, 500);
                                                     modal.hidePleaseWait();
                                                 } else {
 
@@ -797,6 +797,33 @@ $ad = $config->getAutodelete();
         <?php
     }
     ?>
+                            } else {
+                                modal.showPleaseWait();
+                                $.ajax({
+                                    url: 'youtubeDl.json',
+                                    data: {
+                                        "videoURL": $('#inputVideoURL').val(),
+                                        "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                        "spectrum": $('#inputAudioSpectrum').is(":checked"),
+                                        "webm": $('#inputWebM').is(":checked"),
+                                        "inputLow": $('#inputLow').is(":checked"),
+                                        "inputSD": $('#inputSD').is(":checked"),
+                                        "inputHD": $('#inputHD').is(":checked"),
+                                        "categories_id": $('#download_categories_id').val()
+                                    },
+                                    type: 'post',
+                                    success: function (response) {
+                                        if (response.text) {
+                                            swal({
+                                                title: response.title,
+                                                text: response.text,
+                                                type: response.type,
+                                                html: true});
+                                        }
+                                        console.log(response);
+                                        modal.hidePleaseWait();
+                                    }
+                                });
                             }
                             return false;
                         });
