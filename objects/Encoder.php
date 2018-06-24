@@ -639,7 +639,7 @@ class Encoder extends ObjectYPT {
         }else{
             $title = $_POST['title'];
         }
-        if(empty(trim($_POST['description']))){
+        if(empty($_POST['description'])){
             if(!empty($obj->videoDownloadedLink)){
                 $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
             }else{

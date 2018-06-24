@@ -89,7 +89,7 @@ if (!Login::canUpload()) {
             while (empty($current) || !empty($list)){
                 error_log("Processing Channel ".$current." to ".($current+$step));
                 $list = Encoder::getVideosIdListFromLink($_POST['videoURL'], $current, $current+$step);
-                $current += $step;
+                $current += ($step+1);
                 foreach ($list as $value) {
                     $count++;   
                     error_log("{$count} Process Video {$value}");
