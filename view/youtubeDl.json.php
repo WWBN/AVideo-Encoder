@@ -78,6 +78,10 @@ if (!Login::canUpload()) {
         // if it is a channel
         $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
         if (preg_match($rexexp, $_POST['videoURL'])) {
+            if (!empty($global['disableBulkEncode'])){
+                $obj->msg = "Channel Import is disabled";
+                die(json_encode($obj));
+            }
             $current = 0;
             $count = 0;
             $step = 5;
