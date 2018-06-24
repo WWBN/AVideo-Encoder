@@ -82,20 +82,35 @@ if (!Login::canUpload()) {
                 $obj->msg = "Channel Import is disabled";
                 die(json_encode($obj));
             }
-            $current = 0;
+            $start = $current = 0;
+            $end = 100;
             $count = 0;
             $step = 5;
-            // make 5 each time
-            while (empty($current) || !empty($list)){
-                error_log("Processing Channel ".$current." to ".($current+$step));
-                $list = Encoder::getVideosIdListFromLink($_POST['videoURL'], $current, $current+$step);
-                $current += ($step+1);
+            if(!empty($_POST['startIndex'])){
+                $start = $current = intval($_POST['startIndex']);                
+            }
+            if(!empty($_POST['endIndex'])){
+                $end = intval($_POST['endIndex']);
+            }            
+            error_log("Process Start From ".($start)." to ".($end));
+            while (empty($count) || !empty($list)){
+                $next = $current+$step;
+                error_log("Processing Channel {$current} to {$next}");
+                $list = Encoder::getVideosIdListFromLink($_POST['videoURL'], $current, $next);
+                $current = ($next+1);
                 foreach ($list as $value) {
-                    $count++;   
-                    error_log("{$count} Process Video {$value}");
+                    error_log(($start+$count)." Process Video {$value}");
                     $obj = addVideo($value, $streamers_id);
+                    $count++;   
+                    if(($start+$count)>$end){
+                        break;
+                    }
+                }
+                if(($start+$count)>$end){
+                    break;
                 }
             }
+            error_log("Process Done Total {$count} From {$start} to {$end}");
         } else {
             $obj = addVideo($_POST['videoURL'], $streamers_id);
         }

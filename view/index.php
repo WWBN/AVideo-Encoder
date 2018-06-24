@@ -736,7 +736,7 @@ $ad = $config->getAutodelete();
         ?>
                                     swal({
                                         title: "Are you sure?",
-                                        text: "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete",
+                                        text: "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>",
                                         showCancelButton: true,
                                         confirmButtonColor: '#DD6B55',
                                         confirmButtonText: 'Yes, I am sure!',
@@ -760,7 +760,9 @@ $ad = $config->getAutodelete();
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
                                                             "inputHD": $('#inputHD').is(":checked"),
-                                                            "categories_id": $('#download_categories_id').val()
+                                                            "categories_id": $('#download_categories_id').val(),
+                                                            "startIndex": $('#startIndex').val(),
+                                                            "endIndex": $('#endIndex').val()
                                                         },
                                                         type: 'post',
                                                         success: function (response) {
