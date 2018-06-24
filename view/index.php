@@ -774,12 +774,14 @@ $ad = $config->getAutodelete();
                                                             console.log(response);
                                                         }
                                                     });
+                                                    setTimeout(function(){
+                                                        swal({
+                                                            title: "Channel Import is on queue",
+                                                            text: "All your videos channel will be process, this may take a while to be complete",
+                                                            type: "success",
+                                                            html: true});
+                                                    },500);
                                                     modal.hidePleaseWait();
-                                                    swal({
-                                                        title: "Channel Import is on queue",
-                                                        text: "All your videos channel will be process, this may take a while to be complete",
-                                                        type: "success",
-                                                        html: true});
                                                 } else {
 
                                                 }
