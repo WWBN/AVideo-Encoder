@@ -106,7 +106,7 @@ if (!Login::canUpload()) {
                         break;
                     }
                 }
-                if(($start+$count)>$end){
+                if(empty($list) || ($start+$count)>$end){
                     break;
                 }
             }
