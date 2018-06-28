@@ -95,6 +95,9 @@ if (!Login::canUpload()) {
             $list = Encoder::getReverseVideosJsonListFromLink($_POST['videoURL']);
             $i=$start;
             for(; $i<=$end;$i++){
+                if(is_object($list[$i]) && empty($list[$i]->id)){
+                    continue;
+                }
                 error_log(($i)." Process Video {$list[$i]->id}");
                 $url = "https://www.youtube.com/watch?v={$list[$i]->url}";
                 $obj = addVideo($url, $streamers_id, $list[$i]->title);
