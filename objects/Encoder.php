@@ -1015,7 +1015,7 @@ class Encoder extends ObjectYPT {
      * @return Array List of the links to the videos
      */
     static function getVideosIdListFromLink($link, $start, $end) {
-        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download --playlist-items {$start}-{$end} --get-id  {$link}";
+        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download --playlist-items {$start}-{$end} --get-id  \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get Video List Error: $cmd \n" . print_r($output, true));
@@ -1032,7 +1032,7 @@ class Encoder extends ObjectYPT {
     }
     
     static function getTitleFromLink($link) {
-        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download -e {$link}";
+        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get Title Error: $cmd \n" . print_r($output, true));
@@ -1043,7 +1043,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getDurationFromLink($link) {
-        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --get-duration --skip-download   {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --get-duration --skip-download \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -1060,7 +1060,7 @@ class Encoder extends ObjectYPT {
 
     static function getThumbsFromLink($link) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -1074,7 +1074,7 @@ class Encoder extends ObjectYPT {
             return '';
         }
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
