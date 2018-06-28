@@ -20,10 +20,10 @@ function addVideo($link, $streamers_id) {
 
     $title = Encoder::getTitleFromLink($link);
     if (!$title) {
-        $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($output, true);
+        $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($link, true);
         $obj->type = "warning";
         $obj->title = "Sorry!";
-        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $output[0], "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature</a>");
+        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youdtube-dl-failed-to-extract-signature</a>");
     } else {
         $obj->type = "success";
         $obj->title = "Congratulations!";
