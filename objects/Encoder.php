@@ -1010,26 +1010,22 @@ class Encoder extends ObjectYPT {
     /**
      * 
      * @param type $link channel link
-     * @param type $start index to start
-     * @param type $end index to finish
-     * @return Array List of the links to the videos
-     */
-    static function getVideosIdListFromLink($link, $start, $end) {
-        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download --playlist-items {$start}-{$end} --get-id  \"{$link}\"";
+     * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
+     */    
+    static function getReverseVideosJsonListFromLink($link) {
+        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            error_log("Get Video List Error: $cmd \n" . print_r($output, true));
+            error_log("Get ReverseVideosJsonListFromLink List Error: $cmd \n" . print_r($output, true));
             return false;
         } else {
             $list = array();
             foreach($output as $value){
-                if(strlen($value)===11){
-                    $list[] = "https://www.youtube.com/watch?v={$value}";
-                }
+                $list[] = json_decode($value);
             }
             return $list; 
         }
-    }
+    } 
     
     static function getTitleFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download -e \"{$link}\"";

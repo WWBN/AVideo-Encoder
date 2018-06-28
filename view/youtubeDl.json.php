@@ -9,7 +9,7 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 session_write_close();
 
-function addVideo($link, $streamers_id) {
+function addVideo($link, $streamers_id, $title = "") {
     $obj = new stdClass();
     // remove list parameter from
     $link = preg_replace('~(\?|&)list=[^&]*~', '$1', $link);
@@ -17,8 +17,9 @@ function addVideo($link, $streamers_id) {
     if (substr($link, -1) == '&') {
         $link = substr($link, 0, -1);
     }
-
-    $title = Encoder::getTitleFromLink($link);
+    if(empty($title)){
+        $title = Encoder::getTitleFromLink($link);
+    }
     if (!$title) {
         $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($link, true);
         $obj->type = "warning";
@@ -82,35 +83,23 @@ if (!Login::canUpload()) {
                 $obj->msg = "Channel Import is disabled";
                 die(json_encode($obj));
             }
-            $start = $current = 0;
+            $start = 0;
             $end = 100;
-            $count = 0;
-            $step = 5;
             if(!empty($_POST['startIndex'])){
                 $start = $current = intval($_POST['startIndex']);                
             }
             if(!empty($_POST['endIndex'])){
                 $end = intval($_POST['endIndex']);
             }            
-            error_log("Process Start From ".($start)." to ".($end));
-            while (empty($count) || !empty($list)){
-                $next = $current+$step;
-                error_log("Processing Channel {$current} to {$next}");
-                $list = Encoder::getVideosIdListFromLink($_POST['videoURL'], $current, $next);
-                $current = ($next+1);
-                foreach ($list as $value) {
-                    error_log(($start+$count)." Process Video {$value}");
-                    $obj = addVideo($value, $streamers_id);
-                    $count++;   
-                    if(($start+$count)>$end){
-                        break;
-                    }
-                }
-                if(empty($list) || ($start+$count)>$end){
-                    break;
-                }
+            error_log("Processing Channel {$start} to {$end}");
+            $list = Encoder::getReverseVideosJsonListFromLink($_POST['videoURL']);
+            $i=$start;
+            for(; $i<=$end;$i++){
+                error_log(($i)." Process Video {$list[$i]->id}");
+                $url = "https://www.youtube.com/watch?v={$list[$i]->url}";
+                $obj = addVideo($url, $streamers_id, $list[$i]->title);
             }
-            error_log("Process Done Total {$count} From {$start} to {$end}");
+            error_log("Process Done Total {$i}");
         } else {
             $obj = addVideo($_POST['videoURL'], $streamers_id);
         }
