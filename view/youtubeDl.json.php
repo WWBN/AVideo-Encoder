@@ -96,6 +96,7 @@ if (!Login::canUpload()) {
             $i=$start;
             for(; $i<=$end;$i++){
                 if(is_object($list[$i]) && empty($list[$i]->id)){
+                    error_log(($i)." Not Object ".  print_r($list[$i], true));
                     continue;
                 }
                 error_log(($i)." Process Video {$list[$i]->id}");
