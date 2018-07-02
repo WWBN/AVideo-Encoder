@@ -3,6 +3,17 @@ $config = dirname(__FILE__) . '/../videos/configuration.php';
 if (!file_exists($config)) {
     header("Location: install/index.php");
 }
+
+if(!empty($_POST['webSiteRootURL'])){
+    $_GET['webSiteRootURL'] = $_POST['webSiteRootURL'];
+}
+if(!empty($_POST['user'])){
+    $_GET['user'] = $_POST['user'];
+}
+if(!empty($_POST['pass'])){
+    $_GET['pass'] = $_POST['pass'];
+}
+
 //header('Access-Control-Allow-Origin: *');
 require_once $config;
 require_once '../objects/Encoder.php';
