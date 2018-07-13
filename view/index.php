@@ -317,12 +317,12 @@ $ad = $config->getAutodelete();
                 </div>
                 <div class="col-md-4" >
                     <div class="panel panel-default">
-                        <div class="panel-heading">Submit Files</div>
+                        <div class="panel-heading">Share Videos</div>
                         <div class="panel-body">
 
                             <ul class="nav nav-tabs">
-                                <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> Upload</a></li>
-                                <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> Download</a></li>
+                                <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> From File</a></li>
+                                <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> From Web</a></li>
                                 <?php
                                 if (empty($global['disableBulkEncode'])) {
                                     ?>
