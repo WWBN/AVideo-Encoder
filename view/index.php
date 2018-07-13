@@ -321,8 +321,8 @@ $ad = $config->getAutodelete();
                         <div class="panel-body">
 
                             <ul class="nav nav-tabs">
-                                <li class="active"><a data-toggle="tab" href="#upload"><span class="glyphicon glyphicon-upload"></span> From File</a></li>
-                                <li ><a data-toggle="tab" href="#download"><span class="glyphicon glyphicon-download"></span> From Web</a></li>
+                                <li class="active"><a data-toggle="tab" href="#upload"><i class="fa fa-file" aria-hidden="true"></i> From File</a></li>
+                                <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> From Web</a></li>
                                 <?php
                                 if (empty($global['disableBulkEncode'])) {
                                     ?>
@@ -368,7 +368,7 @@ $ad = $config->getAutodelete();
                                 </div>
                                 <div id="download" class="tab-pane fade">
                                     <div class="alert alert-info">
-                                        <span class="glyphicon glyphicon-info-sign"></span> Download videos from YouTube.com and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
+                                        <span class="glyphicon glyphicon-info-sign"></span> Share videos from YouTube and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
                                     </div>
                                     <form id="downloadForm" onsubmit="">
                                         <div class="form-group">
@@ -376,7 +376,7 @@ $ad = $config->getAutodelete();
                                                 <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
                                                 <span class="input-group-btn">
                                                     <button class="btn btn-secondary" type="submit">
-                                                        <span class="glyphicon glyphicon-download"></span> Download
+                                                        <i class="fa fa-check" aria-hidden="true"></i> Share
                                                     </button>
                                                 </span>
                                             </div>
