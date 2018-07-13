@@ -208,7 +208,7 @@ $ad = $config->getAutodelete();
                 <div class="col-md-8">
 
                     <ul class="nav nav-tabs">
-                        <li <?php if (empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Encoding Queue</a></li>
+                        <li <?php if (empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a></li>
                         <li><a data-toggle="tab" href="#log"><span class="glyphicon glyphicon-cog"></span> Queue Log</a></li>
 
                         <?php
