@@ -23,8 +23,10 @@ session_start();
 
 $_SESSION['lastUpdate'] = time();
 
-require_once $global['systemRootPath'].'objects/functions.php';
-require_once $global['systemRootPath'].'objects/Object.php';
+if(!function_exists('local_get_contents')){
+    require_once $global['systemRootPath'].'objects/functions.php';
+    require_once $global['systemRootPath'].'objects/Object.php';
+}
 
 
 $global['multiResolutionOrder']     = array(74,75,76,77,78,79,80,81,82,83,84,85,86,87);
