@@ -19,6 +19,12 @@ body {
     font-weight: 800;
     padding: 3px 10px 2px;
 }
+.progress-bar {
+    -webkit-transition: width 2.5s ease;
+    -o-transition: width 2.5s ease;
+    transition: width 2.5s ease;
+}
+
 .main-container{
     margin-top: 60px;
 }
