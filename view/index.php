@@ -168,7 +168,7 @@ $ad = $config->getAutodelete();
                                     } else
                                     if (!response.streamer) {
                                         modal.hidePleaseWait();
-                                        swal("Sorry!", "We could not found your streamer site!", "error");
+                                        swal("Sorry!", "We could not find your streamer site!", "error");
                                     } else if (!response.isLogged) {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "Your user or password is wrong!", "error");
