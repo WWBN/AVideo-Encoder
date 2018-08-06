@@ -39,10 +39,7 @@ class Login {
             error_log("Get Login fail, try again");
             $result = file_get_contents($url, false, $context);
         }
-        if(empty($result)){
-            error_log("Get Login fail again, try ssl V3");
-            $result = getSSLPage($url);
-        }
+        
         if (empty($result)) {
             $object = new stdClass();
             $object->streamer = false;
