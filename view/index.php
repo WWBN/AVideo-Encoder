@@ -4,13 +4,13 @@ if (!file_exists($config)) {
     header("Location: install/index.php");
 }
 
-if(!empty($_POST['webSiteRootURL'])){
+if (!empty($_POST['webSiteRootURL'])) {
     $_GET['webSiteRootURL'] = $_POST['webSiteRootURL'];
 }
-if(!empty($_POST['user'])){
+if (!empty($_POST['user'])) {
     $_GET['user'] = $_POST['user'];
 }
-if(!empty($_POST['pass'])){
+if (!empty($_POST['pass'])) {
     $_GET['pass'] = $_POST['pass'];
 }
 
@@ -57,44 +57,62 @@ $ad = $config->getAutodelete();
         <script src="view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
         <script src="view/js/main.js" type="text/javascript"></script>
         <link href="view/css/style.css" rel="stylesheet" type="text/css"/>
+        <style>
+<?php
+if (!empty($_GET['noNavbar'])) {
+    ?>
+                .main-container {
+                    margin-top: 0;
+                }
+    <?php
+}
+?>
+        </style>
     </head>
 
-    <body>        
-        <nav class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>" >
-                        <?php
-                        if (!empty($_SESSION['login']->siteLogo)) {
-                            ?>
-                            <img src="<?php echo $_SESSION['login']->siteLogo; ?>" class="img-responsive ">    
+    <body>    
+        <?php
+        if (empty($_GET['noNavbar'])) {
+            ?>
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>" >
                             <?php
-                        }
-                        ?>
-                    </a>
+                            if (!empty($_SESSION['login']->siteLogo)) {
+                                ?>
+                                <img src="<?php echo $_SESSION['login']->siteLogo; ?>" class="img-responsive ">    
+                                <?php
+                            }
+                            ?>
+                        </a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            <?php
+                            if (Login::isLogged()) {
+                                ?>
+                                <!--
+                                    <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
+                                -->
+                                <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
+                                <?php
+                            }
+                            ?>
+                        </ul>
+                    </div><!--/.nav-collapse -->
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php
-                        if (Login::isLogged()) {
-                            ?>
-                            <!--
-                                <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
-                            -->
-                            <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
-                            <?php
-                        }
-                        ?>
-                    </ul>
-                </div><!--/.nav-collapse -->
-            </div>
-        </nav>
+            </nav>
+
+            <?php
+        }
+        ?>
         <div class="container-fluid main-container">
             <?php
             if (!Login::canUpload()) {
