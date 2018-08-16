@@ -504,11 +504,10 @@ class Encoder extends ObjectYPT {
     
     private function notifyVideoIsDone($fail=0) {
         global $global;
-        
+        $obj = new stdClass();
         $return_vars = json_decode($this->getReturn_vars());
         if (!empty($return_vars->videos_id)) {
             $videos_id = $return_vars->videos_id;
-            $obj = new stdClass();
             $obj->error = true;
 
             $streamers_id = $this->getStreamers_id();
