@@ -73,6 +73,9 @@ class Streamer extends ObjectYPT {
     }
     
     function verify(){
+        if(ip_is_private(getRealIpAddr())){
+            return false;
+        }
         $result = url_get_contents("https://search.youphptube.com/?url=". urlencode($this->getSiteURL()));
         return json_decode($result);
     }

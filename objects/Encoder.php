@@ -444,13 +444,15 @@ class Encoder extends ObjectYPT {
 
                 if (!empty($verify) && isset($verify->verified) && $verify->verified === false) {
                     $encoder->setStatus("error");
-                    if ($verify->verified === 'Ban') {
+                    if ($verify->status === 'Ban') {
                         $obj->msg = "This site is Banned from our platform";
+                        $encoder->setStatus_obs($obj->msg);
+                    }else{
+                        $obj->msg = "We could not verify your site";
                         $encoder->setStatus_obs($obj->msg);
                     }
                     $encoder->save();
                 } else {
-
                     $return_vars = json_decode($encoder->getReturn_vars());
                     $encoder->setStatus("downloading");
                     $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
