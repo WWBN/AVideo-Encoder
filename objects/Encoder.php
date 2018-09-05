@@ -439,10 +439,11 @@ class Encoder extends ObjectYPT {
                 $obj->msg = "There is no file on queue";
             } else {
                 $encoder = new Encoder($row['id']);
-
+                
                 $verify = $encoder->verify();
 
                 if (!empty($verify) && isset($verify->verified) && $verify->verified === false) {
+                    error_log("NOT Verified URL");
                     $encoder->setStatus("error");
                     if ($verify->status === 'Ban') {
                         $obj->msg = "This site is Banned from our platform";
@@ -453,6 +454,7 @@ class Encoder extends ObjectYPT {
                     }
                     $encoder->save();
                 } else {
+                    error_log("Verified URL");
                     $return_vars = json_decode($encoder->getReturn_vars());
                     $encoder->setStatus("downloading");
                     $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
