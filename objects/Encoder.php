@@ -442,13 +442,15 @@ class Encoder extends ObjectYPT {
                 
                 $verify = $encoder->verify();
 
-                if (!empty($verify) && isset($verify->verified) && $verify->verified === false) {
+                if (empty($verify) || (isset($verify->verified) && $verify->verified === false)) {
                     error_log("NOT Verified URL");
                     $encoder->setStatus("error");
                     if ($verify->status === 'Ban') {
+                        error_log("NOT Verified URL BANNED");
                         $obj->msg = "This site is Banned from our platform";
                         $encoder->setStatus_obs($obj->msg);
                     }else{
+                        error_log("NOT Verified URL no response");
                         $obj->msg = "We could not verify your site";
                         $encoder->setStatus_obs($obj->msg);
                     }
