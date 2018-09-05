@@ -440,7 +440,7 @@ class Encoder extends ObjectYPT {
             } else {
                 $encoder = new Encoder($row['id']);
 
-                $verify = $this->verify();
+                $verify = $encoder->verify();
 
                 if (!empty($verify) && isset($verify->verified) && $verify->verified === false) {
                     $encoder->setStatus("error");
