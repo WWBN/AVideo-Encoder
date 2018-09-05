@@ -74,10 +74,6 @@ class Streamer extends ObjectYPT {
     
     function verify(){
         error_log("Verification Start");
-        if(ip_is_private(getRealIpAddr())){
-            error_log("Verification no needed the IP is local");
-            return true;
-        }
         $result = url_get_contents("https://search.youphptube.com/?url=". urlencode($this->getSiteURL()));
         return json_decode($result);
     }
