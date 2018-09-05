@@ -71,6 +71,11 @@ class Streamer extends ObjectYPT {
             return false;
         }
     }
+    
+    function verify(){
+        $result = url_get_contents("https://search.youphptube.com/?url=". urlencode($this->getSiteURL()));
+        return json_decode($result);
+    }
 
     static function isURLAllowed($siteURL) {
         if (substr($siteURL, -1) !== '/') {

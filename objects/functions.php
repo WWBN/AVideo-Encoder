@@ -1,38 +1,46 @@
 <?php
 
-function local_get_contents($path){
-    if (function_exists('fopen')){
+function local_get_contents($path) {
+    if (function_exists('fopen')) {
         $myfile = fopen($path, "r") or die("Unable to open file!");
-        $text = fread($myfile,filesize($path));
+        $text = fread($myfile, filesize($path));
         fclose($myfile);
         return $text;
     }
     return @file_get_contents($path);
 }
 
-function url_get_contents($Url, $ctx="") { 
-    if(empty($ctx)){
+function url_get_contents($Url, $ctx = "") {
+    if (empty($ctx)) {
         $opts = array(
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
-                "allow_self_signed" => true 
+                "allow_self_signed" => true
             )
         );
         $context = stream_context_create($opts);
     } else {
         $context = $ctx;
     }
+
+    // some times the path has special chars
+    if (!filter_var($Url, FILTER_VALIDATE_URL)) {
+        if (!file_exists($Url)) {
+            $Url = utf8_decode($Url);
+        }
+    }
+
     if (ini_get('allow_url_fopen')) {
-        try{
-            $tmp = file_get_contents($Url, false,$context);
-            if($tmp!=false){
+        try {
+            $tmp = file_get_contents($Url, false, $context);
+            if ($tmp != false) {
                 return $tmp;
             }
-        } catch(ErrorException $e){
+        } catch (ErrorException $e) {
             error_log("Error on get Content");
         }
-    } else  if (function_exists('curl_init')) {
+    } else if (function_exists('curl_init')) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $Url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -40,7 +48,7 @@ function url_get_contents($Url, $ctx="") {
         curl_close($ch);
         return $output;
     }
-    return file_get_contents($Url, false,$context);
+    return file_get_contents($Url, false, $context);
 }
 
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
@@ -351,36 +359,31 @@ function decideFromPlugin() {
     // convert the string to a json object
     $advancedCustom = json_decode($json_file);
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow)
-            && empty($advancedCustom->doNotShowEncoderResolutionSD)
-            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-        return array("mp4"=>80, "webm"=>87);
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4" => 80, "webm" => 87);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow)
-            && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-        return array("mp4"=>77, "webm"=>84);
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+        return array("mp4" => 77, "webm" => 84);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow)
-            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-        return array("mp4"=>79, "webm"=>86);
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4" => 79, "webm" => 86);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionSD)
-            && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-        return array("mp4"=>78, "webm"=>85);
+            empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        return array("mp4" => 78, "webm" => 85);
     }
     if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
-        return array("mp4"=>74, "webm"=>81);
+        return array("mp4" => 74, "webm" => 81);
     }
     if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-        return array("mp4"=>75, "webm"=>82);
+        return array("mp4" => 75, "webm" => 82);
     }
     if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-        return array("mp4"=>76, "webm"=>83);
+        return array("mp4" => 76, "webm" => 83);
     }
-    return array("mp4"=>80, "webm"=>87);
+    return array("mp4" => 80, "webm" => 87);
 }
 
 function decideFormatOrder() {
@@ -426,7 +429,7 @@ function decideFormatOrder() {
         ) {
             error_log("MP4 LOW");
             return (74);
-        } else { 
+        } else {
             $decide = decideFromPlugin();
             return $decide['mp4'];
         }
@@ -469,10 +472,9 @@ function decideFormatOrder() {
     return 1;
 }
 
-
-function getUpdatesFiles(){
+function getUpdatesFiles() {
     global $config, $global;
-    $files1 = scandir($global['systemRootPath']."update");
+    $files1 = scandir($global['systemRootPath'] . "update");
     $updateFiles = array();
     foreach ($files1 as $value) {
         preg_match("/updateDb.v([0-9.]*).sql/", $value, $match);

@@ -439,61 +439,74 @@ class Encoder extends ObjectYPT {
                 $obj->msg = "There is no file on queue";
             } else {
                 $encoder = new Encoder($row['id']);
-                $return_vars = json_decode($encoder->getReturn_vars());
-                $encoder->setStatus("downloading");
-                $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
-                $encoder->save();
-                $objFile = static::downloadFile($encoder->getId());
-                if ($objFile->error) {
-                    $obj->msg = $objFile->msg;
+
+                $verify = $this->verify();
+
+                if (!empty($verify) && isset($verify->verified) && $verify->verified === false) {
                     $encoder->setStatus("error");
-                    $encoder->setStatus_obs("Could not download the file ");
+                    if ($verify->verified === 'Ban') {
+                        $obj->msg = "This site is Banned from our platform";
+                        $encoder->setStatus_obs($obj->msg);
+                    }
                     $encoder->save();
                 } else {
-                    $encoder->setStatus("encoding");
+
+                    $return_vars = json_decode($encoder->getReturn_vars());
+                    $encoder->setStatus("downloading");
+                    $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                     $encoder->save();
-                    
-                    self::sendImages($objFile->pathFileName,$return_vars->videos_id, $encoder);
-                    // get the encode code and convert it
-                    $code = new Format($encoder->getFormats_id());
-                    $resp = $code->run($objFile->pathFileName, $encoder->getId());
-                    if ($resp->error) {
-                        $obj->msg = "Execute code error " . print_r($resp->msg, true) . " \n Code: {$resp->code}";
-                        error_log(print_r($obj, true));
+                    $objFile = static::downloadFile($encoder->getId());
+                    if ($objFile->error) {
+                        $obj->msg = $objFile->msg;
                         $encoder->setStatus("error");
-                        $encoder->setStatus_obs($obj->msg);
+                        $encoder->setStatus_obs("Could not download the file ");
                         $encoder->save();
                     } else {
-                        $obj->error = false;
-                        $obj->msg = $resp->code;
-                        $videos_id = 0;
-                        if (!empty($return_vars->videos_id)) {
-                            $videos_id = $return_vars->videos_id;
-                        }
-                        // notify YouPHPTube it is done
-                        $response = $encoder->send();
-                        if (!$response->error) {
-                            // update queue status
-                            $encoder->setStatus("done");
-                            $config = new Configuration();
-                            if (!empty($config->getAutodelete())) {
-                                $encoder->delete();
-                            } else {
-                                error_log("Autodelete Not active");
-                            }
-                            $encoder->notifyVideoIsDone();
-                        } else {
-                            $encoder->setStatus("error");
-                            $encoder->setStatus_obs("Send message error = " . $response->msg);
-                            $encoder->notifyVideoIsDone(1);
-                        }
+                        $encoder->setStatus("encoding");
                         $encoder->save();
-                        // TODO remove file
-                        // run again
-                    }
-                }
 
-                static::run();
+                        self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
+                        // get the encode code and convert it
+                        $code = new Format($encoder->getFormats_id());
+                        $resp = $code->run($objFile->pathFileName, $encoder->getId());
+                        if ($resp->error) {
+                            $obj->msg = "Execute code error " . print_r($resp->msg, true) . " \n Code: {$resp->code}";
+                            error_log(print_r($obj, true));
+                            $encoder->setStatus("error");
+                            $encoder->setStatus_obs($obj->msg);
+                            $encoder->save();
+                        } else {
+                            $obj->error = false;
+                            $obj->msg = $resp->code;
+                            $videos_id = 0;
+                            if (!empty($return_vars->videos_id)) {
+                                $videos_id = $return_vars->videos_id;
+                            }
+                            // notify YouPHPTube it is done
+                            $response = $encoder->send();
+                            if (!$response->error) {
+                                // update queue status
+                                $encoder->setStatus("done");
+                                $config = new Configuration();
+                                if (!empty($config->getAutodelete())) {
+                                    $encoder->delete();
+                                } else {
+                                    error_log("Autodelete Not active");
+                                }
+                                $encoder->notifyVideoIsDone();
+                            } else {
+                                $encoder->setStatus("error");
+                                $encoder->setStatus_obs("Send message error = " . $response->msg);
+                                $encoder->notifyVideoIsDone(1);
+                            }
+                            $encoder->save();
+                            // TODO remove file
+                            // run again
+                        }
+                    }
+
+                    static::run();
+                }
             }
         } else {
             $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
@@ -501,8 +514,8 @@ class Encoder extends ObjectYPT {
 
         return $obj;
     }
-    
-    private function notifyVideoIsDone($fail=0) {
+
+    private function notifyVideoIsDone($fail = 0) {
         global $global;
         $obj = new stdClass();
         $return_vars = json_decode($this->getReturn_vars());
@@ -517,7 +530,7 @@ class Encoder extends ObjectYPT {
 
             $s = new Streamer($streamers_id);
             $youPHPTubeURL = $s->getSiteURL();
-            
+
             $target = $youPHPTubeURL . "objects/youPHPTubeEncoderNotifyIsDone.json.php";
             $obj->target = $target;
             error_log("YouPHPTube-Encoder sending confirmation to {$target}");
@@ -551,8 +564,8 @@ class Encoder extends ObjectYPT {
             }
             curl_close($curl);
         }
-        
-        
+
+
         error_log(json_encode($obj));
         return $obj;
     }
@@ -562,6 +575,11 @@ class Encoder extends ObjectYPT {
         $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$resolution}.{$format}";
         $r = static::sendFile($file, $videos_id, $format, $this, $resolution);
         return $r;
+    }
+
+    function verify() {
+        $streamer = new Streamer($this->getStreamers_id());
+        return $streamer->verify();
     }
 
     function send() {
@@ -633,26 +651,26 @@ class Encoder extends ObjectYPT {
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
 
         $duration = static::getDurationFromFile($file);
-        if(empty($_POST['title'])){
+        if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
-        }else{
+        } else {
             $title = $_POST['title'];
         }
-        if(empty($_POST['description'])){
-            if(!empty($obj->videoDownloadedLink)){
+        if (empty($_POST['description'])) {
+            if (!empty($obj->videoDownloadedLink)) {
                 $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
-            }else{
+            } else {
                 $description = "";
             }
-        }else{
+        } else {
             $description = $_POST['description'];
         }
-        if(empty($_POST['categories_id'])){
+        if (empty($_POST['categories_id'])) {
             $categories_id = 0;
-        }else{
+        } else {
             $categories_id = $_POST['categories_id'];
         }
-        
+
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $youPHPTubeURL = $s->getSiteURL();
@@ -713,8 +731,8 @@ class Encoder extends ObjectYPT {
         //var_dump($obj);exit;
         return $obj;
     }
-    
-    static function sendImages($file,$videos_id, $encoder){
+
+    static function sendImages($file, $videos_id, $encoder) {
         global $global;
 
         $obj = new stdClass();
@@ -743,7 +761,7 @@ class Encoder extends ObjectYPT {
         if (!empty($file)) {
             $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
             $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
-        }else{
+        } else {
             $obj->msg = "sendImages: File is empty {$file} ";
             error_log(json_encode($obj));
             return $obj;
@@ -1006,11 +1024,12 @@ class Encoder extends ObjectYPT {
 
         return "{$hours}:{$minutes}:{$seconds}";
     }
+
     /**
      * 
      * @param type $link channel link
      * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
-     */    
+     */
     static function getReverseVideosJsonListFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
@@ -1019,13 +1038,13 @@ class Encoder extends ObjectYPT {
             return false;
         } else {
             $list = array();
-            foreach($output as $value){
+            foreach ($output as $value) {
                 $list[] = json_decode($value);
             }
-            return $list; 
+            return $list;
         }
-    } 
-    
+    }
+
     static function getTitleFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
