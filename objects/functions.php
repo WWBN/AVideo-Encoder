@@ -33,7 +33,7 @@ function url_get_contents($Url, $ctx = "") {
 
     if (ini_get('allow_url_fopen')) {
         try {
-            $tmp = file_get_contents($Url, false, $context);
+            $tmp = @file_get_contents($Url, false, $context);
             if ($tmp != false) {
                 return $tmp;
             }
@@ -48,7 +48,7 @@ function url_get_contents($Url, $ctx = "") {
         curl_close($ch);
         return $output;
     }
-    return file_get_contents($Url, false, $context);
+    return @file_get_contents($Url, false, $context);
 }
 
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
