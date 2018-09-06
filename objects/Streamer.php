@@ -75,8 +75,8 @@ class Streamer extends ObjectYPT {
     function verify(){
         $url = $this->getSiteURL();
         error_log("Verification Start {$url}");
-        $verifyURL = "https://search.youphptube.com/?url=". urlencode($url);
-        $result = url_get_contents("https://search.youphptube.com/verify.php?url=". urlencode($url));
+        $verifyURL = "https://search.youphptube.com/verify.php?url=". urlencode($url);
+        $result = url_get_contents($verifyURL);
         error_log("Verification Response ($verifyURL): {$result}");
         return json_decode($result);
     }

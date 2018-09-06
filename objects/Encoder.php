@@ -441,8 +441,8 @@ class Encoder extends ObjectYPT {
                 $encoder = new Encoder($row['id']);
                 
                 $verify = $encoder->verify();
-
-                if (empty($verify) || (isset($verify->verified) && $verify->verified === false)) {
+                // in case it fail, let it go
+                if (!empty($verify) && (isset($verify->verified) && $verify->verified === false)) {
                     error_log("NOT Verified URL");
                     $encoder->setStatus("error");
                     if (!empty($verify) && is_object($verify) && $verify->status === 'Ban') {
@@ -456,7 +456,11 @@ class Encoder extends ObjectYPT {
                     }
                     $encoder->save();
                 } else {
-                    error_log("Verified URL");
+                    if(!empty($verify)){
+                        error_log("Verified URL");
+                    }else{
+                        error_log("NOT Verified we let it go");
+                    }
                     $return_vars = json_decode($encoder->getReturn_vars());
                     $encoder->setStatus("downloading");
                     $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
