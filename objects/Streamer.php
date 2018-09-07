@@ -76,6 +76,7 @@ class Streamer extends ObjectYPT {
         $url = $this->getSiteURL();
         error_log("Verification Start {$url}");
         if(!isset($_SESSION['responses'][$url])){
+            error_log("Verification Creating the Cache {$url}");
             $verifyURL = "https://search.youphptube.com/verify.php?url=". urlencode($url);
             $result = url_get_contents($verifyURL);
             $_SESSION['responses'][$url] = $result;
