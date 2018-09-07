@@ -74,15 +74,17 @@ class Streamer extends ObjectYPT {
     
     function verify(){
         $url = $this->getSiteURL();
+        $cacheFile = "/tmp/".md5($url)."_verify.log";
+        $lifetime = 3600;//1 hour
         error_log("Verification Start {$url}");
-        if(!isset($_SESSION['responses'][$url])){
+        if(!file_exists($cacheFile) || (((time() - $lifetime) <= filemtime($cacheFile)))){
             error_log("Verification Creating the Cache {$url}");
             $verifyURL = "https://search.youphptube.com/verify.php?url=". urlencode($url);
             $result = url_get_contents($verifyURL);
-            $_SESSION['responses'][$url] = $result;
+            file_put_contents($cacheFile, $result);
         }else{
             error_log("Verification GetFrom Cache {$url}");
-            $result = $_SESSION['responses'][$url];
+            $result = file_get_contents($cacheFile);
         }
         error_log("Verification Response ($verifyURL): {$result}");
         return json_decode($result);
