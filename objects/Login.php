@@ -61,6 +61,10 @@ class Login {
             }
             if ($object->streamers_id) {
                 $s = new Streamer($object->streamers_id);
+                if($s->verify()){
+                    return false;
+                }
+                
                 $object->isAdmin = $s->getIsAdmin();
                 if (!$encodedPass || $encodedPass === 'false') {
                     $pass = md5($pass);

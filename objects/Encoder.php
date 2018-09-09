@@ -439,84 +439,62 @@ class Encoder extends ObjectYPT {
                 $obj->msg = "There is no file on queue";
             } else {
                 $encoder = new Encoder($row['id']);
-                
-                $verify = $encoder->verify();
-                // in case it fail, let it go
-                if (!empty($verify) && (isset($verify->verified) && $verify->verified === false)) {
-                    error_log("NOT Verified URL");
+
+                $return_vars = json_decode($encoder->getReturn_vars());
+                $encoder->setStatus("downloading");
+                $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
+                $encoder->save();
+                $objFile = static::downloadFile($encoder->getId());
+                if ($objFile->error) {
+                    $obj->msg = $objFile->msg;
                     $encoder->setStatus("error");
-                    if (!empty($verify) && is_object($verify) && $verify->status === 'Ban') {
-                        error_log("NOT Verified URL BANNED");
-                        $obj->msg = "This site is Banned from our platform";
-                        $encoder->setStatus_obs($obj->msg);
-                    }else{
-                        error_log("NOT Verified URL no response");
-                        $obj->msg = "We could not verify your site";
-                        $encoder->setStatus_obs($obj->msg);
-                    }
+                    $encoder->setStatus_obs("Could not download the file ");
                     $encoder->save();
                 } else {
-                    if(!empty($verify)){
-                        error_log("Verified URL");
-                    }else{
-                        error_log("NOT Verified we let it go");
-                    }
-                    $return_vars = json_decode($encoder->getReturn_vars());
-                    $encoder->setStatus("downloading");
-                    $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
+                    $encoder->setStatus("encoding");
                     $encoder->save();
-                    $objFile = static::downloadFile($encoder->getId());
-                    if ($objFile->error) {
-                        $obj->msg = $objFile->msg;
+
+                    self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
+                    // get the encode code and convert it
+                    $code = new Format($encoder->getFormats_id());
+                    $resp = $code->run($objFile->pathFileName, $encoder->getId());
+                    if ($resp->error) {
+                        $obj->msg = "Execute code error " . print_r($resp->msg, true) . " \n Code: {$resp->code}";
+                        error_log(print_r($obj, true));
                         $encoder->setStatus("error");
-                        $encoder->setStatus_obs("Could not download the file ");
+                        $encoder->setStatus_obs($obj->msg);
                         $encoder->save();
                     } else {
-                        $encoder->setStatus("encoding");
-                        $encoder->save();
-
-                        self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
-                        // get the encode code and convert it
-                        $code = new Format($encoder->getFormats_id());
-                        $resp = $code->run($objFile->pathFileName, $encoder->getId());
-                        if ($resp->error) {
-                            $obj->msg = "Execute code error " . print_r($resp->msg, true) . " \n Code: {$resp->code}";
-                            error_log(print_r($obj, true));
-                            $encoder->setStatus("error");
-                            $encoder->setStatus_obs($obj->msg);
-                            $encoder->save();
-                        } else {
-                            $obj->error = false;
-                            $obj->msg = $resp->code;
-                            $videos_id = 0;
-                            if (!empty($return_vars->videos_id)) {
-                                $videos_id = $return_vars->videos_id;
-                            }
-                            // notify YouPHPTube it is done
-                            $response = $encoder->send();
-                            if (!$response->error) {
-                                // update queue status
-                                $encoder->setStatus("done");
-                                $config = new Configuration();
-                                if (!empty($config->getAutodelete())) {
-                                    $encoder->delete();
-                                } else {
-                                    error_log("Autodelete Not active");
-                                }
-                                $encoder->notifyVideoIsDone();
-                            } else {
-                                $encoder->setStatus("error");
-                                $encoder->setStatus_obs("Send message error = " . $response->msg);
-                                $encoder->notifyVideoIsDone(1);
-                            }
-                            $encoder->save();
-                            // TODO remove file
-                            // run again
+                        $obj->error = false;
+                        $obj->msg = $resp->code;
+                        $videos_id = 0;
+                        if (!empty($return_vars->videos_id)) {
+                            $videos_id = $return_vars->videos_id;
                         }
+                        // notify YouPHPTube it is done
+                        $response = $encoder->send();
+                        if (!$response->error) {
+                            // update queue status
+                            $encoder->setStatus("done");
+                            $config = new Configuration();
+                            if (!empty($config->getAutodelete())) {
+                                $encoder->delete();
+                            } else {
+                                error_log("Autodelete Not active");
+                            }
+                            $encoder->notifyVideoIsDone();
+                        } else {
+                            $encoder->setStatus("error");
+                            $encoder->setStatus_obs("Send message error = " . $response->msg);
+                            $encoder->notifyVideoIsDone(1);
+                        }
+                        $encoder->save();
+                        // TODO remove file
+                        // run again
                     }
-
-                    static::run();
                 }
+
+                static::run();
             }
         } else {
             $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
