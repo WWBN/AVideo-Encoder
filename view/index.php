@@ -187,7 +187,7 @@ if (!empty($_GET['noNavbar'])) {
                                     if (!response.streamer) {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "We could not find your streamer site!", "error");
-                                    } else if (response.streamer = 'ban') {
+                                    } else if (response.streamer == 'ban') {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "Your site is banned!", "error");
                                     } else if (!response.isLogged) {
