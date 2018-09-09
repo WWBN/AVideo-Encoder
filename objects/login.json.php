@@ -15,8 +15,9 @@ if(!Streamer::isURLAllowed($_POST['siteURL'])){
 Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL'], $_POST['encodedPass']);
 if(!empty($_SESSION['login'])){
     $json = json_encode($_SESSION['login']);
-}else{
-    $json = "{'streamer':'ban'}";
+}else{   
+    $object->error = "Your site is banned";
+    die(json_encode($object));
 }
 header("Content-length: ".  strlen($json));
 echo $json;
