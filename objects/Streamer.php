@@ -77,6 +77,7 @@ class Streamer extends ObjectYPT {
         $cacheFile = "/tmp/".md5($url)."_verify.log";
         $lifetime = 3600;//1 hour
         error_log("Verification Start {$url}");
+        $verifyURL = "";
         if(!file_exists($cacheFile) || (((time() - $lifetime) <= filemtime($cacheFile)))){
             error_log("Verification Creating the Cache {$url}");
             $verifyURL = "https://search.youphptube.com/verify.php?url=". urlencode($url);
