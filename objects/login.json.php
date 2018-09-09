@@ -13,6 +13,10 @@ if(!Streamer::isURLAllowed($_POST['siteURL'])){
 }
 
 Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL'], $_POST['encodedPass']);
-$json = json_encode($_SESSION['login']);
+if(!empty($_SESSION['login'])){
+    $json = json_encode($_SESSION['login']);
+}else{
+    $json = "{streamer:'ban'}";
+}
 header("Content-length: ".  strlen($json));
 echo $json;

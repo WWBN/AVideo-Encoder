@@ -63,15 +63,7 @@ class Login {
                 $s = new Streamer($object->streamers_id);
                 $resultV = $s->verify();
                 if(!empty($resultV) && !$resultV->verified){
-                    $object->streamer = false;
-                    $object->streamers_id = 0;
-                    $object->isLogged = false;
-                    $object->isAdmin = false;
-                    $object->canUpload = false;
-                    $object->canComment = false;
-                    $object->categories = array();
-                    error_log("Error on Login context");
-                    $_SESSION['login'] = $object;
+                    error_log("Error on Login not verified");
                     return false;
                 }
                 
