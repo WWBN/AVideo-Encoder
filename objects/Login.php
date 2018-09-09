@@ -61,7 +61,8 @@ class Login {
             }
             if ($object->streamers_id) {
                 $s = new Streamer($object->streamers_id);
-                if($s->verify()){
+                $result = $s->verify();
+                if(!empty($result) && !$result->verified){
                     return false;
                 }
                 
