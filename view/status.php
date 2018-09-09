@@ -1,5 +1,5 @@
 <?php
-//header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
