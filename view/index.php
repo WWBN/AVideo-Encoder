@@ -196,7 +196,9 @@ if (!empty($_GET['noNavbar'])) {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "Your user or password is wrong!", "error");
                                     } else {
-                                        document.location = document.location+"&justLogin=1";
+                                        var url = new URL(document.location);
+                                        url.searchParams.append('justLogin', 1);
+                                        document.location = url;
                                     }
                                 }
                             });
