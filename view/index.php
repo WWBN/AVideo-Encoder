@@ -22,7 +22,7 @@ require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 
-if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass'])) {
+if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
 }
 
@@ -196,7 +196,7 @@ if (!empty($_GET['noNavbar'])) {
                                         modal.hidePleaseWait();
                                         swal("Sorry!", "Your user or password is wrong!", "error");
                                     } else {
-                                        document.location = document.location;
+                                        document.location = document.location+"?justLogin=1";
                                     }
                                 }
                             });
