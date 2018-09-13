@@ -21,6 +21,11 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
+
+if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass'])) {
+    Login::logoff();
+}
+
 $rows = Encoder::getAllQueue();
 $config = new Configuration();
 if (empty($_POST['sort']) && $config->currentVersionGreaterThen("1.0")) {
