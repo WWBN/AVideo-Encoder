@@ -56,14 +56,14 @@ if($_GET['format'] === 'png'){
 }
 
 testTime(__LINE__);
-
+$httpReferer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
 if(!is_readable($destination)){
     echo url_get_contents($destinationTmpFile);
-    error_log("Destination get Temp Image from {$url} {$_GET['format']}: {$destinationTmpFile}");
+    error_log("getImage {$httpReferer} Destination get Temp Image from {$url} {$_GET['format']}: {$destinationTmpFile}");
 }else{
     // flush old image then encode
     echo url_get_contents($destination);
-    error_log("Destination get Image from {$url} {$_GET['format']}: {$destination}");
+    error_log("getImage {$httpReferer} Destination get Image from {$url} {$_GET['format']}: {$destination}");
 }
 
 testTime(__LINE__);
