@@ -510,6 +510,9 @@ if (!empty($_GET['noNavbar'])) {
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                             </label>
+                            <?php
+                                if(empty($global['disableWebM'])){
+                            ?>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
                                 <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
@@ -517,6 +520,9 @@ if (!empty($_GET['noNavbar'])) {
                                     For Chrome Browsers
                                 </small>
                             </label>
+                            <?php
+                                }
+                            ?>
                         </div>
                     </div>
 
