@@ -31,14 +31,7 @@ function url_get_contents($Url, $ctx = "") {
         }
     }
 
-    if (function_exists('curl_init')) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $Url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $output = curl_exec($ch);
-        curl_close($ch);
-        return $output;
-    }else if (ini_get('allow_url_fopen')) {
+    if (ini_get('allow_url_fopen')) {
         try {
             fetch_http_file_contents($Url);
         } catch (ErrorException $e) {
@@ -51,6 +44,13 @@ function url_get_contents($Url, $ctx = "") {
                 error_log("Error on get Content");
             }
         }
+    } else if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $Url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $output = curl_exec($ch);
+        curl_close($ch);
+        return $output;
     }
     return @file_get_contents($Url, false, $context);
 }
