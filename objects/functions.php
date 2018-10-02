@@ -33,7 +33,7 @@ function url_get_contents($Url, $ctx = "") {
 
     if (ini_get('allow_url_fopen')) {
         try {
-            fetch_http_file_contents($url);
+            fetch_http_file_contents($Url);
         } catch (ErrorException $e) {
             try {
                 $tmp = @file_get_contents($Url, false, $context);
