@@ -33,12 +33,16 @@ function url_get_contents($Url, $ctx = "") {
 
     if (ini_get('allow_url_fopen')) {
         try {
-            $tmp = @file_get_contents($Url, false, $context);
-            if ($tmp != false) {
-                return $tmp;
-            }
+            fetch_http_file_contents($url);
         } catch (ErrorException $e) {
-            error_log("Error on get Content");
+            try {
+                $tmp = @file_get_contents($Url, false, $context);
+                if ($tmp != false) {
+                    return $tmp;
+                }
+            } catch (ErrorException $e) {
+                error_log("Error on get Content");
+            }
         }
     } else if (function_exists('curl_init')) {
         $ch = curl_init();
@@ -49,6 +53,55 @@ function url_get_contents($Url, $ctx = "") {
         return $output;
     }
     return @file_get_contents($Url, false, $context);
+}
+
+function fetch_http_file_contents($url) {
+    $hostname = parse_url($url, PHP_URL_HOST);
+    if ($hostname == FALSE) {
+        return FALSE;
+    }
+
+    $host_has_ipv6 = FALSE;
+    $host_has_ipv4 = FALSE;
+    $file_response = FALSE;
+
+    $dns_records = dns_get_record($hostname, DNS_AAAA + DNS_A);
+
+    foreach ($dns_records as $dns_record) {
+        if (isset($dns_record['type'])) {
+            switch ($dns_record['type']) {
+                case 'AAAA':
+                    $host_has_ipv6 = TRUE;
+                    break;
+                case 'A':
+                    $host_has_ipv4 = TRUE;
+                    break;
+            }
+        }
+    }
+
+    if ($host_has_ipv6 === TRUE) {
+        $file_response = file_get_intbound_contents($url, '[0]:0');
+    }
+    if ($host_has_ipv4 === TRUE && $file_response == FALSE) {
+        $file_response = file_get_intbound_contents($url, '0:0');
+    }
+
+    return $file_response;
+}
+
+function file_get_intbound_contents($url, $bindto_addr_family) {
+    $stream_context = stream_context_create(
+            array(
+                'socket' => array(
+                    'bindto' => $bindto_addr_family
+                ),
+                'http' => array(
+                    'timeout' => 20,
+                    'method' => 'GET'
+    )));
+
+    return file_get_contents($url, FALSE, $stream_context);
 }
 
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
