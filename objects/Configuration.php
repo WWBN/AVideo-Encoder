@@ -1,4 +1,7 @@
 <?php
+if(class_exists('Configuration')){
+    return;
+}
 class Configuration extends ObjectYPT {
     
     protected $allowedStreamersURL, $defaultPriority, $version, $autodelete; 
