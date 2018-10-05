@@ -1,8 +1,6 @@
 <?php
 
-if (class_exists('Format')) {
-    return;
-} else {
+if (!class_exists('Format')) {
 
     class Format extends ObjectYPT {
 

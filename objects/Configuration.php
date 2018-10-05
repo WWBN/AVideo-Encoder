@@ -1,8 +1,6 @@
 <?php
 
-if (class_exists('Configuration')) {
-    return;
-} else {
+if (!class_exists('Configuration')) {
 
     class Configuration extends ObjectYPT {
 
