@@ -9,6 +9,13 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 session_write_close();
 
+if(!empty($_GET['videoURL']) && empty($_POST['videoURL'])){
+    $_POST['videoURL'] = $_GET['videoURL'];
+}
+if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
+    Login::run($_GET['user'], $_GET['pass'], $_GET['webSiteRootURL'], true);
+}
+
 function addVideo($link, $streamers_id, $title = "") {
     $obj = new stdClass();
     // remove list parameter from
