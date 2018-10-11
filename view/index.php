@@ -349,7 +349,7 @@ if (!empty($_GET['noNavbar'])) {
                                 <li class="active"><a data-toggle="tab" href="#upload"><i class="fa fa-file" aria-hidden="true"></i> From File</a></li>
                                 <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> From Web</a></li>
                                 <?php
-                                if (empty($global['disableBulkEncode'])) {
+                                if (Login::canBulkEncode()) {
                                     ?>
                                     <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
                                 <?php } ?>
@@ -422,7 +422,7 @@ if (!empty($_GET['noNavbar'])) {
                                 </div>
 
                                 <?php
-                                if (empty($global['disableBulkEncode'])) {
+                                if (Login::canBulkEncode()) {
                                     ?>
 
                                     <div id="bulk" class="tab-pane fade">
@@ -774,7 +774,7 @@ if (!empty($_GET['noNavbar'])) {
                             evt.preventDefault();
                             if (isAChannel()) {
     <?php
-    if (empty($global['disableBulkEncode'])) {
+    if (Login::canBulkEncode()) {
         ?>
                                     swal({
                                         title: "Are you sure?",

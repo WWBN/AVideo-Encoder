@@ -1,9 +1,10 @@
 <?php
 require_once dirname(__FILE__) . '/../videos/configuration.php';
+require_once $global['systemRootPath'] . 'objects/Login.php';
 header('Content-Type: application/json');
 
 $files = array();
-if(empty($global['disableBulkEncode'])){
+if(Login::canBulkEncode()){
     if (!empty($_POST['path'])) {
         $path = $_POST['path'];
         if (substr($path, -1) !== '/') {

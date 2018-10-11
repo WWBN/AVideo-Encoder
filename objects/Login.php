@@ -93,6 +93,14 @@ if (!class_exists('Login')) {
         static function isAdmin() {
             return !empty($_SESSION['login']->isAdmin);
         }
+        
+        static function canBulkEncode() {
+            global $global;
+            if(self::isAdmin() || empty($global['disableBulkEncode'])){
+                return true;
+            }
+            return false;
+        }
 
         static function canUpload() {
             return !empty($_SESSION['login']->canUpload);
