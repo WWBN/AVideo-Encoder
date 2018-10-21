@@ -75,6 +75,10 @@ if (!class_exists('Login')) {
                     // update pass
                     $s->setPass($pass);
                     $s->save();
+                    $cookieLife = time() + 3600 * 24 * 2;// 2 day
+                    setcookie("user", $user, $cookieLife, "/");
+                    setcookie("pass", $pass, $cookieLife, "/");
+                    setcookie("youPHPTubeURL", $youPHPTubeURL, $cookieLife, "/");
                 }
             }
             $object->youPHPTubeURL = $url;
@@ -84,9 +88,17 @@ if (!class_exists('Login')) {
 
         static function logoff() {
             unset($_SESSION['login']);
+            setcookie('user', null, -1, "/");
+            setcookie('pass', null, -1, "/");
+            unset($_COOKIE['user']);
+            unset($_COOKIE['pass']);
         }
 
         static function isLogged() {
+            $isLogged = !empty($_SESSION['login']->isLogged);
+            if(!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['youPHPTubeURL'])){
+                Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['youPHPTubeURL'], true);
+            }
             return !empty($_SESSION['login']->isLogged);
         }
 
@@ -103,7 +115,7 @@ if (!class_exists('Login')) {
         }
 
         static function canUpload() {
-            return !empty($_SESSION['login']->canUpload);
+            return self::isLogged() && !empty($_SESSION['login']->canUpload);
         }
 
         static function canComment() {
