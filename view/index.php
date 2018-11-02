@@ -365,6 +365,9 @@ if (!empty($_GET['noNavbar'])) {
                                         <div class="form-group">
                                             <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
                                         </div>
+                                        <?php
+                                        if(!empty($_SESSION['login']->categories)){
+                                        ?>
                                         <div class="form-group">
                                             <select class="form-control" id="categories_id" name="categories_id">
 
@@ -376,7 +379,9 @@ if (!empty($_GET['noNavbar'])) {
                                                 ?>
                                             </select>
                                         </div> 
-
+                                        <?php
+                                        }
+                                        ?>
                                         <hr>
                                         <div id="drop">
                                             Drop Your Files Here
@@ -407,6 +412,9 @@ if (!empty($_GET['noNavbar'])) {
                                             </div>
                                         </div>
 
+                                        <?php
+                                        if(!empty($_SESSION['login']->categories)){
+                                        ?>
                                         <div class="form-group">
                                             <select class="form-control" id="download_categories_id" name="download_categories_id">
 
@@ -418,6 +426,9 @@ if (!empty($_GET['noNavbar'])) {
                                                 ?>
                                             </select>
                                         </div> 
+                                        <?php
+                                        }
+                                        ?>
                                     </form>
                                 </div>
 
@@ -451,6 +462,9 @@ if (!empty($_GET['noNavbar'])) {
                                             </div>
                                         </div>
 
+                                        <?php
+                                        if(!empty($_SESSION['login']->categories)){
+                                        ?>
                                         <div class="form-group">
                                             <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
 
@@ -462,6 +476,9 @@ if (!empty($_GET['noNavbar'])) {
                                                 ?>
                                             </select>
                                         </div> 
+                                        <?php
+                                        }
+                                        ?>
                                         <ul class="list-group" id="files">
                                         </ul>
                                         <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
