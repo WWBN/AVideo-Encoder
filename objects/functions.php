@@ -440,6 +440,9 @@ function decideFromPlugin() {
 }
 
 function decideFormatOrder() {
+    if(!empty($_GET['webm']) && empty($_POST['webm'])){
+        $_POST['webm'] = $_GET['webm'];
+    }
     if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
         if (
