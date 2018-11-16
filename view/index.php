@@ -532,7 +532,7 @@ if (!empty($_GET['noNavbar'])) {
                             ?>
                             <label  id="webm">
                                 <input type="checkbox" id="inputWebM">
-                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video
+                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
                                 <small class="label label-warning">
                                     For Chrome Browsers
                                 </small>

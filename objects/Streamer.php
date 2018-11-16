@@ -74,6 +74,7 @@ if (!class_exists('Streamer')) {
         }
 
         function verify() {
+            ini_set('default_socket_timeout', 5); 
             $url = $this->getSiteURL();
             $cacheFile = sys_get_temp_dir() . "/" . md5($url) . "_verify.log";
             $lifetime = 3600; //1 hour
