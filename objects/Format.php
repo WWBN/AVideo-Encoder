@@ -177,6 +177,13 @@ if (!class_exists('Format')) {
         static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {
             $o = new Format(0);
             $o->loadFromOrder($format_order);
+            // make sure the file extension is correct
+            if($format_order==50){
+                $parts = pathinfo($destinationFile);
+                if(strtolower($parts["extension"])==='mp3'){
+                    $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}.mp4";
+                }
+            }
             return self::exec($o->getId(), $pathFileName, $destinationFile, $encoder_queue_id);
         }
 
