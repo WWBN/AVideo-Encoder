@@ -41,6 +41,7 @@ if (!class_exists('Login')) {
                 $result = file_get_contents($url, false, $context);
             }
 
+            
             if (empty($result)) {
                 $object = new stdClass();
                 $object->streamer = false;
@@ -55,30 +56,35 @@ if (!class_exists('Login')) {
                 error_log($result);
             } else {
                 $object = json_decode($result);
-                $object->streamer = $youPHPTubeURL;
-                $object->streamers_id = 0;
-                if (!empty($object->canUpload)) {
-                    $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL, $encodedPass);
-                }
-                if ($object->streamers_id) {
-                    $s = new Streamer($object->streamers_id);
-                    $resultV = $s->verify();
-                    if (!empty($resultV) && !$resultV->verified) {
-                        error_log("Error on Login not verified");
-                        return false;
+                if (!empty($object)) {
+                    $object->streamer = $youPHPTubeURL;
+                    $object->streamers_id = 0;
+                    if (!empty($object->canUpload)) {
+                        $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL, $encodedPass);
                     }
+                    if ($object->streamers_id) {
+                        $s = new Streamer($object->streamers_id);
+                        $resultV = $s->verify();
+                        if (!empty($resultV) && !$resultV->verified) {
+                            error_log("Error on Login not verified");
+                            return false;
+                        }
 
-                    $object->isAdmin = $s->getIsAdmin();
-                    if (!$encodedPass || $encodedPass === 'false') {
-                        $pass = md5($pass);
+                        $object->isAdmin = $s->getIsAdmin();
+                        if (!$encodedPass || $encodedPass === 'false') {
+                            $pass = md5($pass);
+                        }
+                        // update pass
+                        $s->setPass($pass);
+                        $s->save();
+                        $cookieLife = time() + 3600 * 24 * 2; // 2 day
+                        setcookie("user", $user, $cookieLife, "/");
+                        setcookie("pass", $pass, $cookieLife, "/");
+                        setcookie("youPHPTubeURL", $youPHPTubeURL, $cookieLife, "/");
                     }
-                    // update pass
-                    $s->setPass($pass);
-                    $s->save();
-                    $cookieLife = time() + 3600 * 24 * 2;// 2 day
-                    setcookie("user", $user, $cookieLife, "/");
-                    setcookie("pass", $pass, $cookieLife, "/");
-                    setcookie("youPHPTubeURL", $youPHPTubeURL, $cookieLife, "/");
+                } else {
+                    $object = new stdClass();
+                    error_log("Encoder Login Error: ".$result);
                 }
             }
             $object->youPHPTubeURL = $url;
@@ -96,7 +102,7 @@ if (!class_exists('Login')) {
 
         static function isLogged() {
             $isLogged = !empty($_SESSION['login']->isLogged);
-            if(!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['youPHPTubeURL'])){
+            if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['youPHPTubeURL'])) {
                 Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['youPHPTubeURL'], true);
             }
             return !empty($_SESSION['login']->isLogged);
@@ -105,10 +111,10 @@ if (!class_exists('Login')) {
         static function isAdmin() {
             return !empty($_SESSION['login']->isAdmin);
         }
-        
+
         static function canBulkEncode() {
             global $global;
-            if(self::isAdmin() || empty($global['disableBulkEncode'])){
+            if (self::isAdmin() || empty($global['disableBulkEncode'])) {
                 return true;
             }
             return false;
