@@ -71,7 +71,9 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-        $response = Encoder::sendFile('', 0, $format, $e);
+        
+        $response = Encoder::sendFile('', 0, $format, $e); // this always produces an error log but if this 
+        // and the next 3 lines are commented the images don't transfer
         if(!empty($response->response->video_id)){
             $obj->videos_id = $response->response->video_id;
         }
