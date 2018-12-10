@@ -47,11 +47,11 @@ if (!class_exists('Streamer')) {
         }
 
         static function createIfNotExists($user, $pass, $siteURL, $encodedPass = false) {
-            if (!$encodedPass || $encodedPass === 'false') {
-                $pass = md5($pass);
-            }
             if (substr($siteURL, -1) !== '/') {
                 $siteURL .= "/";
+            }
+            if (!$encodedPass || $encodedPass === 'false') {
+                $pass = encryptPassword($pass, $siteURL);
             }
             if ($row = static::get($user, $siteURL)) {
                 if (!empty($row['id'])) {

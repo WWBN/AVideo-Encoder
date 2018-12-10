@@ -567,3 +567,14 @@ function ip_is_private($ip) {
 
     return false;
 }
+
+/**
+ * webservice to use the streamer to encode the password
+ * @param type $password
+ * @param type $streamerURL
+ * @return type
+ */
+function encryptPassword($password, $streamerURL) {
+    $streamerEncrypt = json_decode(url_get_contents("{$streamerURL}objects/encryptPass.json.php?pass=". urlencode($password)));
+    return $streamerEncrypt->encryptedPassword;
+}
