@@ -7,19 +7,20 @@ require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 require_once $global['systemRootPath'] . 'objects/functions.php';
 
-class Encoder extends ObjectYPT {
+class Encoder extends ObjectYPT
+{
 
     protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
 
-    static function getSearchFieldsNames() {
+    public static function getSearchFieldsNames() {
         return array('filename');
     }
 
-    static function getTableName() {
+    public static function getTableName() {
         return 'encoder_queue';
     }
 
-    function save() {
+    public function save() {
         global $global;
         if (empty($this->id)) {
             $this->setStatus("queue");
@@ -29,7 +30,7 @@ class Encoder extends ObjectYPT {
         return parent::save();
     }
 
-    static function getAll($onlyMine = false) {
+    public static function getAll($onlyMine = false) {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
         if ($onlyMine && !Login::isAdmin()) {
@@ -50,8 +51,8 @@ class Encoder extends ObjectYPT {
         return $rows;
     }
 
-    static function getTotal($onlyMine = false) {
-        //will receive 
+    public static function getTotal($onlyMine = false) {
+        //will receive
         //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
         global $global;
         $sql = "SELECT id FROM  " . static::getTableName() . " WHERE 1=1  ";
@@ -63,128 +64,127 @@ class Encoder extends ObjectYPT {
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
 
-
         return $res->num_rows;
     }
 
-    function getId() {
+    public function getId() {
         return $this->id;
     }
 
-    function getFileURI() {
+    public function getFileURI() {
         return $this->fileURI;
     }
 
-    function getFilename() {
+    public function getFilename() {
         return $this->filename;
     }
 
-    function getStatus() {
+    public function getStatus() {
         return $this->status;
     }
 
-    function getStatus_obs() {
+    public function getStatus_obs() {
         return $this->status_obs;
     }
 
-    function getReturn_vars() {
+    public function getReturn_vars() {
         return $this->return_vars;
     }
 
-    function getPriority() {
+    public function getPriority() {
         return intval($this->priority);
     }
 
-    function getCreated() {
+    public function getCreated() {
         return $this->created;
     }
 
-    function getModified() {
+    public function getModified() {
         return $this->modified;
     }
 
-    function getFormats_id() {
+    public function getFormats_id() {
         return $this->formats_id;
     }
 
-    function setFileURI($fileURI) {
+    public function setFileURI($fileURI) {
         $this->fileURI = $fileURI;
     }
 
-    function setFilename($filename) {
+    public function setFilename($filename) {
         $this->filename = $filename;
     }
 
-    function setStatus($status) {
+    public function setStatus($status) {
         $this->status = $status;
     }
 
-    function setStatus_obs($status_obs) {
+    public function setStatus_obs($status_obs) {
         $this->status_obs = $status_obs;
     }
 
-    function setReturn_vars($return_vars) {
+    public function setReturn_vars($return_vars) {
         $this->return_vars = $return_vars;
     }
 
-    function setPriority($priority) {
+    public function setPriority($priority) {
         $this->priority = intval($priority);
     }
 
-    function setCreated($created) {
+    public function setCreated($created) {
         $this->created = $created;
     }
 
-    function setModified($modified) {
+    public function setModified($modified) {
         $this->modified = $modified;
     }
 
-    function getTitle() {
+    public function getTitle() {
         return $this->title;
     }
 
-    function setTitle($title) {
+    public function setTitle($title) {
         $this->title = $title;
     }
 
-    function getVideoDownloadedLink() {
+    public function getVideoDownloadedLink() {
         return $this->videoDownloadedLink;
     }
 
-    function setVideoDownloadedLink($videoDownloadedLink) {
+    public function setVideoDownloadedLink($videoDownloadedLink) {
         $this->videoDownloadedLink = $videoDownloadedLink;
     }
 
-    function getDownloadedFileName() {
+    public function getDownloadedFileName() {
         return $this->downloadedFileName;
     }
 
-    function setDownloadedFileName($downloadedFileName) {
+    public function setDownloadedFileName($downloadedFileName) {
         $this->downloadedFileName = $downloadedFileName;
     }
 
-    function getStreamers_id() {
+    public function getStreamers_id() {
         return $this->streamers_id;
     }
 
-    function setStreamers_id($streamers_id) {
+    public function setStreamers_id($streamers_id) {
         $this->streamers_id = $streamers_id;
     }
 
-    function setFormats_id($formats_id) {
+    public function setFormats_id($formats_id) {
         if (!preg_match('/^[0-9]+$/', $formats_id)) {
             $formats_id = Format::createIfNotExists($formats_id);
         }
         $this->formats_id = $formats_id;
     }
 
-    function setFormats_idFromOrder($order) {
+    public function setFormats_idFromOrder($order) {
         $o = new Format(0);
         $o->loadFromOrder($order);
         $this->setFormats_id($o->getId());
     }
 
-    static function getNext() {
+    public static function getNext() {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE status = 'queue' ";
         $sql .= " ORDER BY priority ASC, id ASC LIMIT 1";
@@ -198,22 +198,21 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
-    static function downloadFile($queue_id) {
-        ini_set('memory_limit', '-1');
+    public static function downloadFile($queue_id) {
         global $global;
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
         $f = new Format($q->getFormats_id());
-        $dstFilepath = $global['systemRootPath'] . "videos/";
+        $destinationPath = $global['systemRootPath'] . "videos/";
         $filename = "{$queue_id}_tmpFile." . $f->getExtension_from();
-        if (!is_dir($dstFilepath)) {
-            mkdir($dstFilepath);
+        if (!is_dir($destinationPath)) {
+            mkdir($destinationPath);
         }
 
         $obj->error = true;
         $obj->filename = $filename;
-        $obj->pathFileName = $dstFilepath . $filename;
+        $obj->pathFileName = $destinationPath . $filename;
 
         $e = Encoder::getFromFileURI($url);
         if (!empty($e['downloadedFileName'])) {
@@ -223,33 +222,29 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
             return $obj;
         }
-        // do not download the file twice
-        if (!file_exists($obj->pathFileName)) {
 
-            if (!empty($q->getVideoDownloadedLink())) {
-                $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id);
-            } else {
-                $response = static::getVideoFile($url, $queue_id);
-            }
-            if ($response) {
-                if (file_put_contents($obj->pathFileName, $response)) {
-                    $q->setDownloadedFileName($obj->pathFileName);
-                    $q->save();
-                    $obj->error = false;
-                } else {
-                    $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
-                }
-            } else {
-                $obj->msg = "Could not get file {$url}";
-            }
-        } else {
+        if (!empty($q->getVideoDownloadedLink())) {
+            //begin youtube-dl downloading and symlink it to the video temp file
+            $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
             $obj->error = false;
+        } else {
+            //symlink the downloaded file to the video temp file ($obj-pathFileName)
+            $downloadedFile = substr($url, strrpos($url, '/') + 1);
+            $downloadedFile = $destinationPath . $downloadedFile;
+            $response = static::getVideoFile($url, $queue_id, $downloadedFile, $obj->pathFileName);
+            $obj->error = false;
+        }
+        if ($obj->error == false) {
+            $q->setDownloadedFileName($obj->pathFileName);
+            $q->save();
+        }
+        if ($response) {
+            $obj->msg = "Could not save file {$url} in {$destinationPath}{$filename}";
         }
         return $obj;
     }
 
-    static function getYoutubeDl($videoURL, $queue_id) {
-        ini_set('memory_limit', '-1');
+    public static function getYoutubeDl($videoURL, $queue_id, $destinationFile) {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
@@ -267,11 +262,14 @@ class Encoder extends ObjectYPT {
                 $dl = static::getYoutubeDlProgress($queue_id);
                 $file = $dl->filename;
             }
-            return url_get_contents($file);
+            // instead of loading the whole file into memory to dump it into a new filename
+            // the file is just symlinked
+            symlink($file, $destinationFile);
+            return url_set_file_context($file);
         }
     }
 
-    static function getYoutubeDlProgress($queue_id) {
+    public static function getYoutubeDlProgress($queue_id) {
         global $global;
         $obj = new stdClass();
         $obj->filename = "";
@@ -287,7 +285,7 @@ class Encoder extends ObjectYPT {
         }
         preg_match_all('/\[download\] +([0-9.]+)% of/', $text, $matches, PREG_SET_ORDER);
 //$m = end($matches);
-//$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
+        //$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
         foreach ($matches as $m) {
             $obj->progress = empty($m[1]) ? 0 : intval($m[1]);
             if ($obj->progress == 100) {
@@ -297,8 +295,10 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function getVideoFile($videoURL, $queue_id) {
-        ini_set('memory_limit', '-1');
+    public static function getVideoFile($videoURL, $queue_id, $downloadedFile, $destinationFile) {
+        // the file has already been downloaded
+        // all that is needed to do is create a tempfile reference to the original
+        symlink($downloadedFile, $destinationFile);
         global $global;
         $arrContextOptions = array(
             "ssl" => array(
@@ -308,26 +308,30 @@ class Encoder extends ObjectYPT {
         );
         $global['queue_id'] = $queue_id;
         $ctx = stream_context_create($arrContextOptions);
-        stream_context_set_params($ctx, array("notification" => "stream_notification_callback"));
-        error_log("Getting Video File {$videoURL}");
-        $return = url_get_contents($videoURL, $ctx);
+        //copied from stream_contenxt_set_params
+        // the file is already 100% downloaded by now
+        $txt = "[download]  100% of all Bytes";
+        // save this progress file
+        $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
+        //url_get_contents is what drives the red bar and causes the memory failure
+        $return = url_set_file_context($videoURL, $ctx);
         if (!$return) {
             $fixedEncodedUrl = utf8_encode($videoURL);
             error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
-            $return = url_get_contents($videoURL, $ctx);
+            $return = url_set_file_context($videoURL, $ctx);
             if (!$return) {
                 $fixedEncodedUrl = utf8_decode($videoURL);
                 error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
-                $return = url_get_contents($videoURL, $ctx);
+                $return = url_set_file_context($videoURL, $ctx);
             }
         }
         return $return;
     }
 
-    static function isEncoding() {
+    public static function isEncoding() {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' LIMIT 1 ";
+            . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' LIMIT 1 ";
 
         $res = $global['mysqli']->query($sql);
 
@@ -351,38 +355,39 @@ class Encoder extends ObjectYPT {
     }
 
     /*
-      static function isTransferring() {
-      global $global;
-      $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-      . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
+    static function isTransferring() {
+    global $global;
+    $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+    . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
 
-      $res = $global['mysqli']->query($sql);
+    $res = $global['mysqli']->query($sql);
 
-      $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
+    $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
 
-      if ($res) {
-      $result = $res->fetch_assoc();
-      if (!empty($result)) {
-      $result['return_vars'] = json_decode($result['return_vars']);
-      $s = new Streamer($result['streamers_id']);
-      $result['streamer_site'] = $s->getSiteURL();
-      $result['streamer_priority'] = $s->getPriority();
-      return $result;
-      } else {
-      return false;
-      }
-      } else {
-      die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
-      }
-      return false;
-      }
-     * 
+    if ($res) {
+    $result = $res->fetch_assoc();
+    if (!empty($result)) {
+    $result['return_vars'] = json_decode($result['return_vars']);
+    $s = new Streamer($result['streamers_id']);
+    $result['streamer_site'] = $s->getSiteURL();
+    $result['streamer_priority'] = $s->getPriority();
+    return $result;
+    } else {
+    return false;
+    }
+    } else {
+    die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+    }
+    return false;
+    }
+     *
      */
 
-    static function getAllQueue() {
+    public static function getAllQueue()
+    {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE (status = 'encoding' OR  status = 'downloading' OR status = 'queue' OR status = 'error') ";
+            . " LEFT JOIN formats f ON f.id = formats_id WHERE (status = 'encoding' OR  status = 'downloading' OR status = 'queue' OR status = 'error') ";
 
         $sql .= " ORDER BY priority ASC, e.id ASC ";
         $res = $global['mysqli']->query($sql);
@@ -401,7 +406,7 @@ class Encoder extends ObjectYPT {
         return $rows;
     }
 
-    static function getFromFilename($filename) {
+    public static function getFromFilename($filename) {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE filename = '$filename' LIMIT 1 ";
 
@@ -414,7 +419,7 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
-    static function getFromFileURI($fileURI) {
+    public static function getFromFileURI($fileURI) {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE fileURI = '$fileURI' LIMIT 1 ";
 
@@ -427,8 +432,7 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
-    static function run() {
-        ini_set('memory_limit', '-1');
+    public static function run() {
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
@@ -439,7 +443,6 @@ class Encoder extends ObjectYPT {
                 $obj->msg = "There is no file on queue";
             } else {
                 $encoder = new Encoder($row['id']);
-
                 $return_vars = json_decode($encoder->getReturn_vars());
                 $encoder->setStatus("downloading");
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
@@ -453,7 +456,6 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
-
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -493,13 +495,11 @@ class Encoder extends ObjectYPT {
                         // run again
                     }
                 }
-
                 static::run();
             }
         } else {
             $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
         }
-
         return $obj;
     }
 
@@ -553,7 +553,6 @@ class Encoder extends ObjectYPT {
             curl_close($curl);
         }
 
-
         error_log(json_encode($obj));
         return $obj;
     }
@@ -565,13 +564,12 @@ class Encoder extends ObjectYPT {
         return $r;
     }
 
-    function verify() {
+    public function verify() {
         $streamer = new Streamer($this->getStreamers_id());
         return $streamer->verify();
     }
 
-    function send() {
-        ini_set('memory_limit', '-1');
+    public function send() {
         global $global;
         $formatId = $this->getFormats_id();
         $f = new Format($formatId);
@@ -627,7 +625,7 @@ class Encoder extends ObjectYPT {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "") {
+    public static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "") {
         global $global;
         global $sentImage;
 
@@ -637,7 +635,6 @@ class Encoder extends ObjectYPT {
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
-
         $duration = static::getDurationFromFile($file);
         if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
@@ -679,7 +676,7 @@ class Encoder extends ObjectYPT {
             'videoDownloadedLink' => $obj->videoDownloadedLink,
             'description' => $description,
             'user' => $user,
-            'password' => $pass
+            'password' => $pass,
         );
         $obj->postFields = $postFields;
 
@@ -700,8 +697,8 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         $r = curl_exec($curl);
         error_log("YouPHPTube-Streamer answer {$r}");
         $obj->postFields = count($postFields);
@@ -720,7 +717,7 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function sendImages($file, $videos_id, $encoder) {
+    public static function sendImages($file, $videos_id, $encoder) {
         global $global;
 
         $obj = new stdClass();
@@ -742,18 +739,21 @@ class Encoder extends ObjectYPT {
             'duration' => $duration,
             'videos_id' => $videos_id,
             'user' => $user,
-            'password' => $pass
+            'password' => $pass,
         );
+
         $obj->postFields = $postFields;
 
         if (!empty($file)) {
-            $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
-            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+            $durationInSeconds = static::getDurationInSecondsFromFile($file);
+            $postFields['image'] = new CURLFile(static::getImage($file, $durationInSeconds / 2));
+            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, $durationInSeconds / 2, 3));
         } else {
             $obj->msg = "sendImages: File is empty {$file} ";
             error_log(json_encode($obj));
             return $obj;
         }
+
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -761,13 +761,14 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         $r = curl_exec($curl);
         error_log("sendImages: YouPHPTube-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
+
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
@@ -781,7 +782,7 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function getVideoConversionStatus($encoder_queue_id) {
+    public static function getVideoConversionStatus($encoder_queue_id) {
         global $global;
         $progressFilename = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
         $content = url_get_contents($progressFilename);
@@ -792,7 +793,7 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
-    static private function parseProgress($content) {
+    private static function parseProgress($content) {
         //get duration of source
 
         $obj = new stdClass();
@@ -866,7 +867,16 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function getDurationFromFile($file) {
+    public static function getDurationInSecondsFromFile($file) {
+        eval('$cmd="ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{$file}\"";');
+        exec($cmd . ' 2>&1', $output, $return_val);
+        $durationInSeconds = $output[0];
+        error_log("output {$output} duration {$durationInSeconds}");
+
+        return $durationInSeconds;
+    }
+
+    public static function getDurationFromFile($file) {
         global $config;
         // get movie duration HOURS:MM:SS.MICROSECONDS
         if (!file_exists($file)) {
@@ -896,16 +906,16 @@ class Encoder extends ObjectYPT {
         return $duration;
     }
 
-    static function getImage($pathFileName, $seconds = 5) {
+    public static function getImage($pathFileName, $seconds = 5) {
         global $global;
         $destinationFile = "{$pathFileName}.jpg";
         // do not encode again
         if (file_exists($destinationFile)) {
             return $destinationFile;
         }
-        //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
-        $duration = static::parseSecondsToDuration($seconds);
-        eval('$ffmpeg ="ffmpeg -i {$pathFileName} -ss {$duration} -vframes 1 -y {$destinationFile}";');
+
+        // placing ss before the input is faster https://stackoverflow.com/a/27573049
+        eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -vframes 1 -y {$destinationFile}";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Create Image error: {$ffmpeg}");
@@ -915,7 +925,8 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getGifImage($pathFileName, $seconds = 5, $howLong = 3) {
+    public static function getGifImage($pathFileName, $seconds = 5, $howLong = 3) {
+        error_log("getGifImage");
         global $global;
         $destinationFile = "{$pathFileName}.gif";
         // do not encode again
@@ -923,16 +934,17 @@ class Encoder extends ObjectYPT {
             return $destinationFile;
         }
 
-        $duration = static::parseSecondsToDuration($seconds);
-
-        //Generate a palette:
-        eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
+        eval('$ffmpeg ="ffmpeg -y -ss {$seconds} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Create Pallete Gif Image error: {$ffmpeg}");
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
-            eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
+            // I've discovered that if the ss parameter comes before the input flag, a tremendous time penalty is avoided.
+            // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
+            // so that they don't get rendered incorrectly on the youphptube site. https://superuser.com/a/891478
+
+            eval('$ffmpeg ="ffmpeg -ss {$seconds} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 error_log("Create Gif Image error: {$ffmpeg}");
@@ -943,15 +955,17 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    function delete() {
+    public function delete() {
         global $global;
         if (empty($this->id)) {
             return false;
         }
         $files = glob("{$global['systemRootPath']}videos/{$this->id}_tmpFile*"); // get all file names
         foreach ($files as $file) { // iterate files
-            if (is_file($file))
-                unlink($file); // delete file
+            if (is_file($file)) {
+                unlink($file);
+            }
+            // delete file
         }
         $this->deleteOriginal();
         return parent::delete();
@@ -964,39 +978,43 @@ class Encoder extends ObjectYPT {
         }
         $files = glob("{$global['systemRootPath']}videos/original_" . $this->getFilename()); // get all file names
         foreach ($files as $file) { // iterate files
-            if (is_file($file))
-                unlink($file); // delete file
+            if (is_file($file)) {
+                unlink($file);
+            }
+            // delete file
         }
         return true;
     }
 
-    static function checkList() {
+    public static function checkList() {
         // is videos writeble
     }
 
-    static function parseDurationToSeconds($str) {
+    public static function parseDurationToSeconds($str) {
         $durationParts = explode(":", $str);
-        if (empty($durationParts[1]))
+        if (empty($durationParts[1])) {
             return 0;
+        }
+
         $minutes = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
         return intval($durationParts[2]) + ($minutes * 60);
     }
 
-    static function formatDuration($str) {
+    public static function formatDuration($str) {
         $seconds = 0;
-        if (preg_match('/^[0-9]+$/', $str)) {// seconds only
+        if (preg_match('/^[0-9]+$/', $str)) { // seconds only
             $seconds = $str;
-        } else if (preg_match('/^[0-9]+:[0-9]+$/', $str)) {// seconds and minutes
+        } else if (preg_match('/^[0-9]+:[0-9]+$/', $str)) { // seconds and minutes
             $durationParts = explode(":", $str);
             $seconds = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
-        } else if (preg_match('/^[0-9]+:[0-9]+:[0-9]+$/', $str)) {// seconds and minutes
+        } else if (preg_match('/^[0-9]+:[0-9]+:[0-9]+$/', $str)) { // seconds and minutes
             $durationParts = explode(":", $str);
             $seconds = intval(($durationParts[0]) * 60 * 60) + (($durationParts[1]) * 60) + intval($durationParts[2]);
         }
         return self::parseSecondsToDuration($seconds);
     }
 
-    static function parseSecondsToDuration($int) {
+    public static function parseSecondsToDuration($int) {
         $seconds = $int % 60;
         if ($seconds < 10) {
             $seconds = "0{$seconds}";
@@ -1014,11 +1032,12 @@ class Encoder extends ObjectYPT {
     }
 
     /**
-     * 
+     *
      * @param type $link channel link
      * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
      */
-    static function getReverseVideosJsonListFromLink($link) {
+    public static function getReverseVideosJsonListFromLink($link)
+    {
         $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -1033,7 +1052,7 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getTitleFromLink($link) {
+    public static function getTitleFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -1044,7 +1063,7 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getDurationFromLink($link) {
+    public static function getDurationFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --get-duration --skip-download \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -1060,7 +1079,7 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getThumbsFromLink($link) {
+    public static function getThumbsFromLink($link) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
@@ -1071,7 +1090,7 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getDescriptionFromLink($link) {
+    public static function getDescriptionFromLink($link) {
         if (empty($link)) {
             return '';
         }
@@ -1085,7 +1104,7 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getYouTubeDLCommand() {
+    public static function getYouTubeDLCommand() {
         if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl";
         } else {

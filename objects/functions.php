@@ -10,6 +10,35 @@ function local_get_contents($path) {
     return @file_get_contents($path);
 }
 
+function url_set_file_context($Url, $ctx = "") {
+    // I wasn't sure what to call this function because I'm not sure exactly what it does.
+    // But I know that it is needed to display the progress indicators
+    // on the main encoder web page.
+    // It has been stripped of file_get_contents and fetch_http_file_contents 
+    // which causes huge memory usage. If you upload a 9GB file the server must have a minimum of 18G 
+    // in the old scheme. Now such large memory requirements are not necessary. 
+    // the encoder has already downloaded the file
+    // it just needs to be symlinked
+    if (empty($ctx)) {
+        $opts = array(
+            "ssl" => array(
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+                "allow_self_signed" => true
+            )
+        );
+        $context = stream_context_create($opts);
+    } else {
+        $context = $ctx;
+    }
+    // some times the path has special chars
+    if (!filter_var($Url, FILTER_VALIDATE_URL)) {
+        if (!file_exists($Url)) {
+            $Url = utf8_decode($Url);
+        }
+    }
+}
+
 function url_get_contents($Url, $ctx = "") {
     if (empty($ctx)) {
         $opts = array(
@@ -23,14 +52,14 @@ function url_get_contents($Url, $ctx = "") {
     } else {
         $context = $ctx;
     }
-
+    
     // some times the path has special chars
     if (!filter_var($Url, FILTER_VALIDATE_URL)) {
         if (!file_exists($Url)) {
             $Url = utf8_decode($Url);
         }
     }
-
+    
     if (ini_get('allow_url_fopen')) {
         try {
             fetch_http_file_contents($Url);
@@ -52,19 +81,20 @@ function url_get_contents($Url, $ctx = "") {
         curl_close($ch);
         return $output;
     }
+    
     return @file_get_contents($Url, false, $context);
 }
 
 function fetch_http_file_contents($url) {
     $hostname = parse_url($url, PHP_URL_HOST);
+    
     if ($hostname == FALSE) {
         return FALSE;
     }
-
+    
     $host_has_ipv6 = FALSE;
     $host_has_ipv4 = FALSE;
     $file_response = FALSE;
-
     $dns_records = @dns_get_record($hostname, DNS_AAAA + DNS_A);
     if (!empty($dns_records) && is_array($dns_records)) {
         foreach ($dns_records as $dns_record) {
@@ -86,7 +116,6 @@ function fetch_http_file_contents($url) {
     if ($host_has_ipv4 === TRUE && $file_response == FALSE) {
         $file_response = file_get_intbound_contents($url, '0:0');
     }
-
     return $file_response;
 }
 
