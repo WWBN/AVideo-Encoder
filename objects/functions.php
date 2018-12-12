@@ -549,7 +549,11 @@ function decideFormatOrder() {
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (82);
-        } else {
+        } else if (
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+        ) {
+            return (81);
+        }else {
             $decide = decideFromPlugin();
             return $decide['webm'];
         }
