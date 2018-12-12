@@ -754,6 +754,7 @@ class Encoder extends ObjectYPT {
             error_log(json_encode($obj));
             return $obj;
         }
+        error_log("sendImages: curl_init");
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -763,6 +764,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        error_log("sendImages: curl_exec");
         $r = curl_exec($curl);
         error_log("sendImages: YouPHPTube-Streamer answer {$r}");
         $obj->postFields = count($postFields);
