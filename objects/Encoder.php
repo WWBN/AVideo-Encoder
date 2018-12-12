@@ -906,7 +906,11 @@ class Encoder extends ObjectYPT {
             error_log("getImage: file exists {$destinationFile}");
             return $destinationFile;
         }
+        if($seconds>60){
+            $seconds=60;
+        }
         //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
+        
         $duration = static::parseSecondsToDuration($seconds);
         eval('$ffmpeg ="ffmpeg -i {$pathFileName} -ss {$duration} -vframes 1 -y {$destinationFile}";');
         error_log("getImage: {$ffmpeg}");
@@ -927,6 +931,9 @@ class Encoder extends ObjectYPT {
             return $destinationFile;
         }
 
+        if($seconds>60){
+            $seconds=60;
+        }
         $duration = static::parseSecondsToDuration($seconds);
 
         //Generate a palette:
