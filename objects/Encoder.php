@@ -903,11 +903,13 @@ class Encoder extends ObjectYPT {
         $destinationFile = "{$pathFileName}.jpg";
         // do not encode again
         if (file_exists($destinationFile)) {
+            error_log("getImage: file exists {$destinationFile}");
             return $destinationFile;
         }
         //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
         $duration = static::parseSecondsToDuration($seconds);
         eval('$ffmpeg ="ffmpeg -i {$pathFileName} -ss {$duration} -vframes 1 -y {$destinationFile}";');
+        error_log("getImage: {$ffmpeg}");
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Create Image error: {$ffmpeg}");
