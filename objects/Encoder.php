@@ -909,9 +909,13 @@ class Encoder extends ObjectYPT {
         //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
         
         $duration = static::parseSecondsToDuration($seconds);
+        $time_start = microtime(true); 
         eval('$ffmpeg ="ffmpeg -ss {$duration} -i {$pathFileName} -vframes 1 -y {$destinationFile}";');
         error_log("getImage: {$ffmpeg}");
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        error_log("getImage: takes {$execution_time} sec to complete");
         if ($return_val !== 0) {
             error_log("Create Image error: {$ffmpeg}");
             return $global['systemRootPath'] . "view/img/notfound.jpg";
@@ -929,10 +933,15 @@ class Encoder extends ObjectYPT {
         }
 
         $duration = static::parseSecondsToDuration($seconds);
+        $time_start = microtime(true); 
+        error_log("getGif: Starts");
 
         //Generate a palette:
         eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        error_log("getGif: takes {$execution_time} sec to complete");
         if ($return_val !== 0) {
             error_log("Create Pallete Gif Image error: {$ffmpeg}");
             return $global['systemRootPath'] . "view/img/notfound.gif";
