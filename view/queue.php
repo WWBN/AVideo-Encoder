@@ -55,7 +55,6 @@ if(empty($e->getId())){
         $response = Encoder::sendFile('', 0, $format, $e);
         //var_dump($response);exit;
         if(!empty($response->response->video_id)){
-            error_log("q5.4");
             $obj->videos_id = $response->response->video_id;
         }
     }

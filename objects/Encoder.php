@@ -230,8 +230,6 @@ class Encoder extends ObjectYPT
             $obj->error = false;
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
-            error_log("url $url");
-            error_log("$e->getFileURI()");
             if(strpos($url, "http") !== false) {
                 //this file was uploaded "from file" and thus is in the videos directory
                 $downloadedFile = substr($url, strrpos($url, '/') + 1);
@@ -306,7 +304,6 @@ class Encoder extends ObjectYPT
     }
 
     public static function getVideoFile($videoURL, $queue_id, $downloadedFile, $destinationFile) {
-        error_log("getVideoFile $videoURL $queue_id $downloadedFile $destinationFile");
         // the file has already been downloaded
         // all that is needed to do is create a tempfile reference to the original
         symlink($downloadedFile, $destinationFile);
@@ -637,7 +634,6 @@ class Encoder extends ObjectYPT
     }
 
     public static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "") {
-        error_log("sendFile $file $videos_id $format $resolution");
         global $global;
         global $sentImage;
 
