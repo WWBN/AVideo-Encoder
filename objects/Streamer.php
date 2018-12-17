@@ -103,6 +103,10 @@ if (!class_exists('Streamer')) {
                 return true;
             }
             $allowed = explode(PHP_EOL, $urls);
+            $allowed[] = "http://localhost/YouPHPTube/";
+            $allowed[] = "http://127.0.0.1/YouPHPTube/";
+            $allowed[] = "https://localhost/YouPHPTube/";
+            $allowed[] = "https://127.0.0.1/YouPHPTube/";
             $return = false;
             if (empty($allowed)) {
                 $return = true;
