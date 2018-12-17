@@ -45,16 +45,17 @@ if(empty($e->getId())){
     } else {
         $e->setFormats_idFromOrder(decideFormatOrder());
     }
+    
     $obj = new stdClass();
     $obj->videos_id = @$_POST['videos_id'];
     // notify streamer if need
     if(empty($obj->videos_id)){
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-        
         $response = Encoder::sendFile('', 0, $format, $e);
         //var_dump($response);exit;
         if(!empty($response->response->video_id)){
+            error_log("q5.4");
             $obj->videos_id = $response->response->video_id;
         }
     }

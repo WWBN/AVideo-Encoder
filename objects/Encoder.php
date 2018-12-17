@@ -203,6 +203,7 @@ class Encoder extends ObjectYPT
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
+        error_log("url $url");
         $f = new Format($q->getFormats_id());
         $destinationPath = $global['systemRootPath'] . "videos/";
         $filename = "{$queue_id}_tmpFile." . $f->getExtension_from();
@@ -229,8 +230,17 @@ class Encoder extends ObjectYPT
             $obj->error = false;
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
-            $downloadedFile = substr($url, strrpos($url, '/') + 1);
-            $downloadedFile = $destinationPath . $downloadedFile;
+            error_log("url $url");
+            error_log("$e->getFileURI()");
+            if(strpos($url, "http") !== false) {
+                //this file was uploaded "from file" and thus is in the videos directory
+                $downloadedFile = substr($url, strrpos($url, '/') + 1);
+                $downloadedFile = $destinationPath . $downloadedFile;
+            } else {
+                //this file was a "bulk encode" and thus is on a local directory
+                $downloadedFile = $url;
+            }
+            
             $response = static::getVideoFile($url, $queue_id, $downloadedFile, $obj->pathFileName);
             $obj->error = false;
         }
@@ -296,6 +306,7 @@ class Encoder extends ObjectYPT
     }
 
     public static function getVideoFile($videoURL, $queue_id, $downloadedFile, $destinationFile) {
+        error_log("getVideoFile $videoURL $queue_id $downloadedFile $destinationFile");
         // the file has already been downloaded
         // all that is needed to do is create a tempfile reference to the original
         symlink($downloadedFile, $destinationFile);
@@ -626,6 +637,7 @@ class Encoder extends ObjectYPT
     }
 
     public static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "") {
+        error_log("sendFile $file $videos_id $format $resolution");
         global $global;
         global $sentImage;
 
