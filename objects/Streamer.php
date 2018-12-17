@@ -47,11 +47,11 @@ if (!class_exists('Streamer')) {
         }
 
         static function createIfNotExists($user, $pass, $siteURL, $encodedPass = false) {
-            if (!$encodedPass || $encodedPass === 'false') {
-                $pass = md5($pass);
-            }
             if (substr($siteURL, -1) !== '/') {
                 $siteURL .= "/";
+            }
+            if (!$encodedPass || $encodedPass === 'false') {
+                $pass = encryptPassword($pass, $siteURL);
             }
             if ($row = static::get($user, $siteURL)) {
                 if (!empty($row['id'])) {
@@ -103,6 +103,10 @@ if (!class_exists('Streamer')) {
                 return true;
             }
             $allowed = explode(PHP_EOL, $urls);
+            $allowed[] = "http://localhost/YouPHPTube/";
+            $allowed[] = "http://127.0.0.1/YouPHPTube/";
+            $allowed[] = "https://localhost/YouPHPTube/";
+            $allowed[] = "https://127.0.0.1/YouPHPTube/";
             $return = false;
             if (empty($allowed)) {
                 $return = true;

@@ -72,7 +72,7 @@ if (!class_exists('Login')) {
 
                         $object->isAdmin = $s->getIsAdmin();
                         if (!$encodedPass || $encodedPass === 'false') {
-                            $pass = md5($pass);
+                            $pass = encryptPassword($pass, $youPHPTubeURL);
                         }
                         // update pass
                         $s->setPass($pass);

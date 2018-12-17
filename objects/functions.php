@@ -549,7 +549,11 @@ function decideFormatOrder() {
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (82);
-        } else {
+        } else if (
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+        ) {
+            return (81);
+        }else {
             $decide = decideFromPlugin();
             return $decide['webm'];
         }
@@ -595,4 +599,15 @@ function ip_is_private($ip) {
     }
 
     return false;
+}
+
+/**
+ * webservice to use the streamer to encode the password
+ * @param type $password
+ * @param type $streamerURL
+ * @return type
+ */
+function encryptPassword($password, $streamerURL) {
+    $streamerEncrypt = json_decode(url_get_contents("{$streamerURL}objects/encryptPass.json.php?pass=". urlencode($password)));
+    return $streamerEncrypt->encryptedPassword;
 }
