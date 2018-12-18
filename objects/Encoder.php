@@ -907,7 +907,9 @@ class Encoder extends ObjectYPT {
             return $destinationFile;
         }
         //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
-        
+        if($seconds>600){
+            $seconds = 600;            
+        }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true); 
         eval('$ffmpeg ="ffmpeg -ss {$duration} -i {$pathFileName} -vframes 1 -y {$destinationFile}";');
@@ -931,7 +933,9 @@ class Encoder extends ObjectYPT {
         if (file_exists($destinationFile)) {
             return $destinationFile;
         }
-
+        if($seconds>600){
+            $seconds = 600;            
+        }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true); 
         error_log("getGif: Starts");

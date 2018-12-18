@@ -24,11 +24,14 @@ $cache_life = '600'; //caching time, in seconds
 $ob_flush = false;
 
 testTime(__LINE__);
+if($_GET['time']>600){
+    $_GET['time'] = 600;            
+}
 $duration = Encoder::parseSecondsToDuration($_GET['time']);
 if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i \"{$url}\" -ss {$duration} -f image2  -s 400x225 -vframes 1 -y {$destination}";
+    $exec = "ffmpeg  -ss {$duration} -i \"{$url}\" -f image2  -s 400x225 -vframes 1 -y {$destination}";
 }else if($_GET['format'] === 'gif'){
     // gif image has the double lifetime
     $cache_life*=2;
