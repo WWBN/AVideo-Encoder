@@ -327,7 +327,7 @@ class Encoder extends ObjectYPT {
     static function getVideoFile($videoURL, $queue_id, $downloadedFile, $destinationFile) {
         // the file has already been downloaded
         // all that is needed to do is create a tempfile reference to the original
-        //symlink($downloadedFile, $destinationFile);
+        // symlink($downloadedFile, $destinationFile);
         global $global;
         $arrContextOptions = array(
             "ssl" => array(
