@@ -233,6 +233,7 @@ class Encoder extends ObjectYPT {
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
             if (strpos($url, "http") !== false) {
+                error_log("downloadFile:strpos global['webSiteRootURL'] = {$global['webSiteRootURL']}");
                 if (strpos($url, $global['webSiteRootURL']) !== false) {
                     error_log("downloadFile: keep the same URL");
                     $downloadedFile = $url;
