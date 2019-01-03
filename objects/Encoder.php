@@ -339,17 +339,18 @@ class Encoder extends ObjectYPT {
         $return = url_set_file_context($videoURL, $ctx);
         if (!$return) {
             $fixedEncodedUrl = utf8_encode($videoURL);
-            error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
+            error_log("getVideoFile: Try to get UTF8 URL {$fixedEncodedUrl}");
             $return = url_set_file_context($videoURL, $ctx);
             if (!$return) {
                 $fixedEncodedUrl = utf8_decode($videoURL);
-                error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
+                error_log("getVideoFile: Try to get UTF8 decode URL {$fixedEncodedUrl}");
                 $return = url_set_file_context($videoURL, $ctx);
             }
             if (!$return) {
-                error_log("ERROR on get URL {$fixedEncodedUrl}");
+                error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
             }
         }
+        error_log("getVideoFile: ".  json_encode($return));
         return $return;
     }
 
