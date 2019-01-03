@@ -203,6 +203,8 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
+        error_log("downloadFile: start queue_id = {$queue_id}");
+        error_log("downloadFile: url = {$url}");
         $f = new Format($q->getFormats_id());
         $dstFilepath = $global['systemRootPath'] . "videos/";
         $filename = "{$queue_id}_tmpFile." . $f->getExtension_from();
@@ -213,7 +215,6 @@ class Encoder extends ObjectYPT {
         $obj->error = true;
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
-        error_log("downloadFile: start queue_id = {$queue_id}");
         $e = Encoder::getFromFileURI($url);
         if (!empty($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
@@ -355,7 +356,7 @@ class Encoder extends ObjectYPT {
             }
         }
         error_log("getVideoFile: destinationFile = {$destinationFile}");
-        error_log("getVideoFile: $downloadedFile = {$downloadedFile}");
+        error_log("getVideoFile: downloadedFile = {$downloadedFile}");
         error_log("getVideoFile: ".  json_encode($return));
         return $return;
     }
