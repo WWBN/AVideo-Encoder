@@ -232,7 +232,7 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
-            if (strpos($url, "http") !== false) {
+            if (strpos($url, $global['webSiteRootURL']) !== false) {
                 error_log("downloadFile: this file was uploaded from file and thus is in the videos");
                 //this file was uploaded "from file" and thus is in the videos directory
                 $downloadedFile = substr($url, strrpos($url, '/') + 1);
