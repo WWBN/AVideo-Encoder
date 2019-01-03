@@ -224,7 +224,7 @@ class Encoder extends ObjectYPT {
             error_log("downloadFile: e['downloadedFileName'] = {$e['downloadedFileName']}");
             return $obj;
         }
-        
+
         if (!empty($q->getVideoDownloadedLink())) {
             //begin youtube-dl downloading and symlink it to the video temp file
             $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
@@ -232,11 +232,16 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
-            if (strpos($url, $global['webSiteRootURL']) !== false) {
-                error_log("downloadFile: this file was uploaded from file and thus is in the videos");
-                //this file was uploaded "from file" and thus is in the videos directory
-                $downloadedFile = substr($url, strrpos($url, '/') + 1);
-                $downloadedFile = $dstFilepath . $downloadedFile;
+            if (strpos($url, "http") !== false) {
+                if (strpos($url, $global['webSiteRootURL']) !== false) {
+                    error_log("downloadFile: keep the same URL");
+                    $downloadedFile = $url;
+                } else {
+                    error_log("downloadFile: this file was uploaded from file and thus is in the videos");
+                    //this file was uploaded "from file" and thus is in the videos directory
+                    $downloadedFile = substr($url, strrpos($url, '/') + 1);
+                    $downloadedFile = $dstFilepath . $downloadedFile;
+                }
             } else {
                 error_log("downloadFile: this file was a bulk encode and thus is on a local directory");
                 //this file was a "bulk encode" and thus is on a local directory
@@ -256,7 +261,7 @@ class Encoder extends ObjectYPT {
             error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
         }
-        error_log("downloadFile: ".  json_encode($obj));
+        error_log("downloadFile: " . json_encode($obj));
         return $obj;
     }
 
@@ -349,7 +354,7 @@ class Encoder extends ObjectYPT {
             }
             if (!$return) {
                 error_log("getVideoFile: Try url_get_contents {$fixedEncodedUrl}");
-                $return = file_put_contents($destinationFile,url_get_contents($downloadedFile));
+                $return = file_put_contents($destinationFile, url_get_contents($downloadedFile));
             }
             if (!$return) {
                 error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
@@ -357,7 +362,7 @@ class Encoder extends ObjectYPT {
         }
         error_log("getVideoFile: destinationFile = {$destinationFile}");
         error_log("getVideoFile: downloadedFile = {$downloadedFile}");
-        error_log("getVideoFile: ".  json_encode($return));
+        error_log("getVideoFile: " . json_encode($return));
         return $return;
     }
 
