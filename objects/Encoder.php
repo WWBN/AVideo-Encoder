@@ -213,41 +213,49 @@ class Encoder extends ObjectYPT {
         $obj->error = true;
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
-
+        error_log("downloadFile: start queue_id = {$queue_id}");
         $e = Encoder::getFromFileURI($url);
         if (!empty($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
             $obj->error = false;
+            error_log("downloadFile: e['downloadedFileName'] = {$e['downloadedFileName']}");
             return $obj;
         }
-
+        
         if (!empty($q->getVideoDownloadedLink())) {
             //begin youtube-dl downloading and symlink it to the video temp file
             $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
+            error_log("downloadFile:getYoutubeDl queue_id = {$queue_id}");
             $obj->error = false;
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
             if (strpos($url, "http") !== false) {
+                error_log("downloadFile: this file was uploaded from file and thus is in the videos");
                 //this file was uploaded "from file" and thus is in the videos directory
                 $downloadedFile = substr($url, strrpos($url, '/') + 1);
                 $downloadedFile = $dstFilepath . $downloadedFile;
             } else {
+                error_log("downloadFile: this file was a bulk encode and thus is on a local directory");
                 //this file was a "bulk encode" and thus is on a local directory
                 $downloadedFile = $url;
             }
+            error_log("downloadFile: downloadedFile = {$downloadedFile} | url = {$url}");
 
             $response = static::getVideoFile($url, $queue_id, $downloadedFile, $obj->pathFileName);
             $obj->error = false;
         }
         if ($obj->error == false) {
+            error_log("downloadFile: success");
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
         }
         if ($response) {
+            error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
         }
+        error_log("downloadFile: ".  json_encode($obj));
         return $obj;
     }
 
