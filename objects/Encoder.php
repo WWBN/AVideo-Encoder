@@ -355,7 +355,8 @@ class Encoder extends ObjectYPT {
             }
             if (!$return) {
                 error_log("getVideoFile: Try url_get_contents {$fixedEncodedUrl}");
-                $return = file_put_contents($destinationFile, url_get_contents($downloadedFile));
+                $data = url_get_contents($downloadedFile);
+                $return = file_put_contents($destinationFile, $data);
             }
             if (!$return) {
                 error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
