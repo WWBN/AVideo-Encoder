@@ -997,8 +997,15 @@ class Encoder extends ObjectYPT {
             //eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                error_log("Create Gif Image error: {$ffmpeg}");
-                return $global['systemRootPath'] . "view/img/notfound.gif";
+                error_log("Create Gif Image error 1: {$ffmpeg} ". json_encode($output));
+                eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
+                exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+                if ($return_val !== 0) {
+                    error_log("Create Gif Image error 2: {$ffmpeg} ". json_encode($output));
+                    return $global['systemRootPath'] . "view/img/notfound.gif";
+                } else {
+                    return $destinationFile;
+                }
             } else {
                 return $destinationFile;
             }
