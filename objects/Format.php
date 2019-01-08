@@ -165,8 +165,12 @@ if (!class_exists('Format')) {
                 error_log("YouPHPTube-Encoder Start Encoder [{$code}] ");
                 exec($code . " 1> {$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
-                    error_log($code . "\n" . print_r($output, true) . " ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
+                    error_log($code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
                     $obj->msg = print_r($output, true);
+                    $encoder = new Encoder($encoder_queue_id);
+                    $encoder->setStatus("error");
+                    $encoder->setStatus_obs($obj->msg);
+                    $encoder->save();
                 } else {
                     $obj->error = false;
                 }
