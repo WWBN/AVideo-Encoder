@@ -495,6 +495,7 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
+
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -782,9 +783,16 @@ class Encoder extends ObjectYPT {
         );
 
         $obj->postFields = $postFields;
-
+        // check if you can get the image from youtube
+        $downloadLink = $encoder->getVideoDownloadedLink();
+        if (!empty($downloadLink)) {
+            $destinationFile = self::getThumbsFromLink($downloadLink, true);
+            $postFields['image'] = new CURLFile($destinationFile);
+        }
         if (!empty($file)) {
-            $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+            if(empty($postFields['image'])){
+                $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+            }
             $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
         } else {
             $obj->msg = "sendImages: File is empty {$file} ";
@@ -997,11 +1005,11 @@ class Encoder extends ObjectYPT {
             //eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                error_log("Create Gif Image error 1: {$ffmpeg} ". json_encode($output));
+                error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
                 eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
                 exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
                 if ($return_val !== 0) {
-                    error_log("Create Gif Image error 2: {$ffmpeg} ". json_encode($output));
+                    error_log("Create Gif Image error 2: {$ffmpeg} " . json_encode($output));
                     return $global['systemRootPath'] . "view/img/notfound.gif";
                 } else {
                     return $destinationFile;
@@ -1129,14 +1137,20 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getThumbsFromLink($link) {
+    static function getThumbsFromLink($link, $returnFileName=false) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
+        error_log("getThumbsFromLink: {$cmd}");
         if ($return_val !== 0) {
+            error_log("getThumbsFromLink: Error: ". json_encode($output));
             return false;
         } else {
-            return url_get_contents($tmpfname . ".jpg");
+            if($returnFileName){
+                return $tmpfname . ".jpg";
+            }else{
+                return url_get_contents($tmpfname . ".jpg");
+            }
         }
     }
 
