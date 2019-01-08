@@ -169,7 +169,7 @@ if (!class_exists('Format')) {
                     $obj->msg = print_r($output, true);
                     $encoder = new Encoder($encoder_queue_id);
                     $encoder->setStatus("error");
-                    $encoder->setStatus_obs($obj->msg);
+                    $encoder->setStatus_obs(json_encode($output));
                     $encoder->save();
                 } else {
                     $obj->error = false;
