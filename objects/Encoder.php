@@ -501,8 +501,8 @@ class Encoder extends ObjectYPT {
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if ($resp->error) {
-                        $obj->msg = "Execute code error " . print_r($resp->msg, true) . " \n Code: {$resp->code}";
-                        error_log(print_r($obj, true));
+                        $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                        error_log("Encoder Run: ".json_encode($obj));
                         $encoder->setStatus("error");
                         $encoder->setStatus_obs($obj->msg);
                         $encoder->save();
