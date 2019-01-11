@@ -62,13 +62,13 @@ function url_get_contents($Url, $ctx = "") {
     
     if (ini_get('allow_url_fopen')) {
         try {
-            fetch_http_file_contents($Url);
+            $tmp = @file_get_contents($Url, false, $context);
+            if ($tmp != false) {
+                return $tmp;
+            }
         } catch (ErrorException $e) {
             try {
-                $tmp = @file_get_contents($Url, false, $context);
-                if ($tmp != false) {
-                    return $tmp;
-                }
+                fetch_http_file_contents($Url);
             } catch (ErrorException $e) {
                 error_log("Error on get Content");
             }
