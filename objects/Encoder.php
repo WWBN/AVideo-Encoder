@@ -294,7 +294,9 @@ class Encoder extends ObjectYPT {
         }
         // instead of loading the whole file into memory to dump it into a new filename
         // the file is just symlinked
-        symlink($file, $destinationFile);
+        //////symlink($file, $destinationFile);
+        ////// symlink not allowed without apache configuration
+        copy($file, $destinationFile);
         return url_set_file_context($file);
     }
 
@@ -328,6 +330,9 @@ class Encoder extends ObjectYPT {
         // the file has already been downloaded
         // all that is needed to do is create a tempfile reference to the original
         // symlink($downloadedFile, $destinationFile);
+        /////whoops! apache has to be taught to use symlinks so this won't work
+        /////trying copy instead
+        copy($downloadedFile, $destinationFile);
         global $global;
         $arrContextOptions = array(
             "ssl" => array(
@@ -344,7 +349,7 @@ class Encoder extends ObjectYPT {
         $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
         //url_get_contents is what drives the red bar and causes the memory failure
         $return = url_set_file_context($videoURL, $ctx);
-        if (!$return) {
+        /*if (!$return) { //OhioVR did this because the encoder quickly runs out of memory
             $fixedEncodedUrl = utf8_encode($videoURL);
             error_log("getVideoFile: Try to get UTF8 URL {$fixedEncodedUrl}");
             $return = url_set_file_context($videoURL, $ctx);
@@ -365,6 +370,19 @@ class Encoder extends ObjectYPT {
         error_log("getVideoFile: destinationFile = {$destinationFile}");
         error_log("getVideoFile: downloadedFile = {$downloadedFile}");
         error_log("getVideoFile: " . json_encode($return));
+        */
+        //And OhioVR also did this:
+        $return = url_set_file_context($videoURL, $ctx);
+        if (!$return) {
+            $fixedEncodedUrl = utf8_encode($videoURL);
+            error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
+            $return = url_set_file_context($videoURL, $ctx);
+            if (!$return) {
+                $fixedEncodedUrl = utf8_decode($videoURL);
+                error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
+                $return = url_set_file_context($videoURL, $ctx);
+            }
+        }
         return $return;
     }
 
