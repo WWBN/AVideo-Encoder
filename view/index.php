@@ -347,7 +347,7 @@ if (!empty($_GET['noNavbar'])) {
 
                             <ul class="nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#upload"><i class="fa fa-file" aria-hidden="true"></i> From File</a></li>
-                                <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> From Web</a></li>
+                                <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> Import Video</a></li>
                                 <?php
                                 if (Login::canBulkEncode()) {
                                     ?>
