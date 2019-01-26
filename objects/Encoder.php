@@ -272,14 +272,14 @@ class Encoder extends ObjectYPT {
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 -f 'mp4' \"{$videoURL}\"";
         //echo "\n**Trying Youtube DL **".$cmd;
-        error_log("Getting from Youtube DL {$cmd}");
+        error_log("getYoutubeDl: Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             error_log($cmd . "\n" . print_r($output, true));
             $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 \"{$videoURL}\"";
             //echo "\n**Trying Youtube DL **".$cmd;
-            error_log("Getting from Youtube other option DL {$cmd}");
+            error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
@@ -289,14 +289,17 @@ class Encoder extends ObjectYPT {
         }
         $file = $tmpfname . ".mp4";
         if (!file_exists($file)) {
+            error_log("getYoutubeDl: ERROR MP4 NOT FOUND {$file} ");
             $mkvFile = $tmpfname . ".mkv";
             if (file_exists($mkvFile)) {
                 $file = $mkvFile;
             } else {
+                error_log("getYoutubeDl: ERROR MKV NOT FOUND {$mkvFile} ");
                 $dl = static::getYoutubeDlProgress($queue_id);
                 $file = $dl->filename;
             }
         }
+        error_log("getYoutubeDl: Copying [$file] to [$destinationFile] ");
         // instead of loading the whole file into memory to dump it into a new filename
         // the file is just symlinked
         //////symlink($file, $destinationFile);
