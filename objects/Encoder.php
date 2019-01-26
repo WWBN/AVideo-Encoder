@@ -289,8 +289,13 @@ class Encoder extends ObjectYPT {
         }
         $file = $tmpfname . ".mp4";
         if (!file_exists($file)) {
-            $dl = static::getYoutubeDlProgress($queue_id);
-            $file = $dl->filename;
+            $mkvFile = $tmpfname . ".mkv";
+            if (file_exists($mkvFile)) {
+                $file = $mkvFile;
+            } else {
+                $dl = static::getYoutubeDlProgress($queue_id);
+                $file = $dl->filename;
+            }
         }
         // instead of loading the whole file into memory to dump it into a new filename
         // the file is just symlinked
@@ -349,28 +354,28 @@ class Encoder extends ObjectYPT {
         $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
         //url_get_contents is what drives the red bar and causes the memory failure
         $return = url_set_file_context($videoURL, $ctx);
-        /*if (!$return) { //OhioVR did this because the encoder quickly runs out of memory
-            $fixedEncodedUrl = utf8_encode($videoURL);
-            error_log("getVideoFile: Try to get UTF8 URL {$fixedEncodedUrl}");
-            $return = url_set_file_context($videoURL, $ctx);
-            if (!$return) {
-                $fixedEncodedUrl = utf8_decode($videoURL);
-                error_log("getVideoFile: Try to get UTF8 decode URL {$fixedEncodedUrl}");
-                $return = url_set_file_context($videoURL, $ctx);
-            }
-            if (!$return) {
-                error_log("getVideoFile: Try url_get_contents {$fixedEncodedUrl}");
-                $data = url_get_contents($downloadedFile);
-                $return = file_put_contents($destinationFile, $data);
-            }
-            if (!$return) {
-                error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
-            }
-        }
-        error_log("getVideoFile: destinationFile = {$destinationFile}");
-        error_log("getVideoFile: downloadedFile = {$downloadedFile}");
-        error_log("getVideoFile: " . json_encode($return));
-        */
+        /* if (!$return) { //OhioVR did this because the encoder quickly runs out of memory
+          $fixedEncodedUrl = utf8_encode($videoURL);
+          error_log("getVideoFile: Try to get UTF8 URL {$fixedEncodedUrl}");
+          $return = url_set_file_context($videoURL, $ctx);
+          if (!$return) {
+          $fixedEncodedUrl = utf8_decode($videoURL);
+          error_log("getVideoFile: Try to get UTF8 decode URL {$fixedEncodedUrl}");
+          $return = url_set_file_context($videoURL, $ctx);
+          }
+          if (!$return) {
+          error_log("getVideoFile: Try url_get_contents {$fixedEncodedUrl}");
+          $data = url_get_contents($downloadedFile);
+          $return = file_put_contents($destinationFile, $data);
+          }
+          if (!$return) {
+          error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
+          }
+          }
+          error_log("getVideoFile: destinationFile = {$destinationFile}");
+          error_log("getVideoFile: downloadedFile = {$downloadedFile}");
+          error_log("getVideoFile: " . json_encode($return));
+         */
         //And OhioVR also did this:
         $return = url_set_file_context($videoURL, $ctx);
         if (!$return) {
@@ -520,7 +525,7 @@ class Encoder extends ObjectYPT {
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if ($resp->error) {
                         $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
-                        error_log("Encoder Run: ".json_encode($obj));
+                        error_log("Encoder Run: " . json_encode($obj));
                         $encoder->setStatus("error");
                         $encoder->setStatus_obs($obj->msg);
                         $encoder->save();
@@ -808,7 +813,7 @@ class Encoder extends ObjectYPT {
             $postFields['image'] = new CURLFile($destinationFile);
         }
         if (!empty($file)) {
-            if(empty($postFields['image'])){
+            if (empty($postFields['image'])) {
                 $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
             }
             $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
@@ -1155,18 +1160,18 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getThumbsFromLink($link, $returnFileName=false) {
+    static function getThumbsFromLink($link, $returnFileName = false) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
         if ($return_val !== 0) {
-            error_log("getThumbsFromLink: Error: ". json_encode($output));
+            error_log("getThumbsFromLink: Error: " . json_encode($output));
             return false;
         } else {
-            if($returnFileName){
+            if ($returnFileName) {
                 return $tmpfname . ".jpg";
-            }else{
+            } else {
                 return url_get_contents($tmpfname . ".jpg");
             }
         }

@@ -305,7 +305,7 @@ require_once '../objects/functions.php';
                                     Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public) 
                                     <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
                                        title="What is this?" 
-                                       data-content="Only the listed sites will be allowed to use this encoder installarion">
+                                       data-content="Only the listed sites will be allowed to use this encoder installation">
                                         <i class="glyphicon glyphicon-question-sign"></i>
                                     </button>
                                 </label>
