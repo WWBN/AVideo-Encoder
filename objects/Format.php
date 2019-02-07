@@ -44,22 +44,22 @@ if (!class_exists('Format')) {
             $obj->error = true;
             $path_parts = pathinfo($pathFileName);
             if ($this->order == 70) {
-                error_log("runVideoToSpectrum");
+                error_log("run:runVideoToSpectrum");
                 $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
             } else if ($this->order == 71) {
-                error_log("runVideoToAudio");
+                error_log("run:runVideoToAudio");
                 $obj = $this->runVideoToAudio($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 72) {
-                error_log("runBothVideo");
+                error_log("run:runBothVideo");
                 $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
             } else if ($this->order == 73) {
-                error_log("runBothAudio");
+                error_log("run:runBothAudio");
                 $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
             } else if (in_array($this->order, $global['multiResolutionOrder'])) {
-                error_log("runMultiResolution");
+                error_log("run:runMultiResolution");
                 $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id, $this->order);
             } else {
-                error_log("execOrder {$this->order}");
+                error_log("run: {$this->order}");
                 $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted." . $path_parts['extension'];
                 $obj = static::execOrder($this->order, $pathFileName, $destinationFile, $encoder_queue_id);
             }
@@ -150,6 +150,49 @@ if (!class_exists('Format')) {
             return $obj;
         }
 
+        static private function preProcessHLS($destinationFile) {
+            $parts = pathinfo($destinationFile);
+            $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
+            // create a directory
+            mkdir($destinationFile);
+            mkdir($destinationFile."low");
+            mkdir($destinationFile."sd");
+            mkdir($destinationFile."hd");
+            // create a encryption key
+            $key = openssl_random_pseudo_bytes(16);
+            $keyFileName = "enc_" . uniqid() . ".key";
+            file_put_contents($destinationFile . $keyFileName, $key);
+
+            // create info file keyinfo
+            $str = "{\$pathToVideo}{$keyFileName}\n{$destinationFile}{$keyFileName}";
+            file_put_contents($destinationFile . "keyinfo", $str);
+            
+            //master playlist
+             $str = "#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=800000
+low/index.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1400000
+sd/index.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2800000
+hd/index.m3u8
+";
+             file_put_contents($destinationFile . "index.m3u8", $str);
+             return $destinationFile;
+        }
+        
+        static private function posProcessHLS($destinationFile, $encoder_queue_id) {
+            // zip the directory
+            $encoder = new Encoder($encoder_queue_id);
+            $encoder->setStatus("packing");
+            $encoder->save();
+            unlink($destinationFile . "keyinfo");
+            error_log("posProcessHLS: ZIP start {$destinationFile}");
+            $zipPath = zipDirectory($destinationFile);
+            error_log("posProcessHLS: ZIP created {$zipPath}");
+            return file_exists($zipPath);
+        }
+
         static private function exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id) {
             global $global;
             $obj = new stdClass();
@@ -157,6 +200,9 @@ if (!class_exists('Format')) {
             $obj->destinationFile = $destinationFile;
             $obj->pathFileName = $pathFileName;
             $f = new Format($format_id);
+            if ($format_id == 29) {// it is HLS
+                $destinationFile = self::preProcessHLS($destinationFile);
+            }
             eval('$code ="' . $f->getCode() . '";');
             if (empty($code)) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
@@ -175,6 +221,13 @@ if (!class_exists('Format')) {
                     $obj->error = false;
                 }
             }
+            
+            if ($format_id == 29) {// it is HLS
+                $obj->error = !self::posProcessHLS($destinationFile, $encoder_queue_id);
+                if($obj->error){
+                    $obj->msg = "Error on pack directory";
+                }
+            }
             return $obj;
         }
 
@@ -182,9 +235,9 @@ if (!class_exists('Format')) {
             $o = new Format(0);
             $o->loadFromOrder($format_order);
             // make sure the file extension is correct
-            if($format_order==50){
+            if ($format_order == 50) {
                 $parts = pathinfo($destinationFile);
-                if(strtolower($parts["extension"])==='mp3'){
+                if (strtolower($parts["extension"]) === 'mp3') {
                     $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}.mp4";
                 }
             }

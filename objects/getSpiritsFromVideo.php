@@ -31,7 +31,12 @@ $numberOfTiles = $_GET['totalClips'];
 $tileHeight = intval($tileWidth/16*9);
 $pxBetweenTiles = 0;
 
-$duration = Encoder::getDurationFromFile($url);
+if(!empty($_GET['duration'])){
+    $duration = $_GET['duration'];
+}else{
+    $duration = Encoder::getDurationFromFile($url);
+}
+
 $videoLength = parseDurationToSeconds($duration);
 
 

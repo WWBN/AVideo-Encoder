@@ -372,7 +372,7 @@ require_once '../objects/functions.php';
                                     If you do not have YouPHPTube Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/YouPHPTube" target="_blank">here</a>. Then, please, go back here and finish this installation.
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary btn-block">Install now</button>
                         </form>
                     </div>            
                 </div>

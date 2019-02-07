@@ -52,14 +52,14 @@ function url_get_contents($Url, $ctx = "") {
     } else {
         $context = $ctx;
     }
-    
+
     // some times the path has special chars
     if (!filter_var($Url, FILTER_VALIDATE_URL)) {
         if (!file_exists($Url)) {
             $Url = utf8_decode($Url);
         }
     }
-    
+
     if (ini_get('allow_url_fopen')) {
         try {
             $tmp = @file_get_contents($Url, false, $context);
@@ -81,17 +81,17 @@ function url_get_contents($Url, $ctx = "") {
         curl_close($ch);
         return $output;
     }
-    
+
     return @file_get_contents($Url, false, $context);
 }
 
 function fetch_http_file_contents($url) {
     $hostname = parse_url($url, PHP_URL_HOST);
-    
+
     if ($hostname == FALSE) {
         return FALSE;
     }
-    
+
     $host_has_ipv6 = FALSE;
     $host_has_ipv4 = FALSE;
     $file_response = FALSE;
@@ -408,7 +408,7 @@ function parseDurationToSeconds($str) {
     $durationParts = explode(":", $str);
     if (empty($durationParts[1]))
         return 0;
-    $minutes = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
+    $minutes = (intval($durationParts[0]) * 60) + intval($durationParts[1]);
     return intval($durationParts[2]) + ($minutes * 60);
 }
 
@@ -469,9 +469,14 @@ function decideFromPlugin() {
 }
 
 function decideFormatOrder() {
-    if(!empty($_GET['webm']) && empty($_POST['webm'])){
+    if (!empty($_GET['webm']) && empty($_POST['webm'])) {
         $_POST['webm'] = $_GET['webm'];
     }
+    error_log("decideFormatOrder: " . json_encode($_POST));
+    if (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS'])!=="false") {
+        error_log("decideFormatOrder: Multi bitrate HLS encrypted");
+        return (9);
+    } else
     if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
         if (
@@ -479,40 +484,40 @@ function decideFormatOrder() {
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) { // all resolutions
-            error_log("MP4 All");
+            error_log("decideFormatOrder: MP4 All");
             return (80);
         } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
-            error_log("MP4 Low - HD");
+            error_log("decideFormatOrder: MP4 Low - HD");
             return (79);
         } else if (
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
-            error_log("MP4 SD - HD");
+            error_log("decideFormatOrder: MP4 SD - HD");
             return (78);
         } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
-            error_log("MP4 Low SD");
+            error_log("decideFormatOrder: MP4 Low SD");
             return (77);
         } else if (
                 !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
-            error_log("MP4 HD");
+            error_log("decideFormatOrder: MP4 HD");
             return (76);
         } else if (
                 !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
-            error_log("MP4 SD");
+            error_log("decideFormatOrder: MP4 SD");
             return (75);
         } else if (
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
-            error_log("MP4 LOW");
+            error_log("decideFormatOrder: MP4 LOW");
             return (74);
         } else {
             $decide = decideFromPlugin();
@@ -553,7 +558,7 @@ function decideFormatOrder() {
                 !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
             return (81);
-        }else {
+        } else {
             $decide = decideFromPlugin();
             return $decide['webm'];
         }
@@ -608,6 +613,37 @@ function ip_is_private($ip) {
  * @return type
  */
 function encryptPassword($password, $streamerURL) {
-    $streamerEncrypt = json_decode(url_get_contents("{$streamerURL}objects/encryptPass.json.php?pass=". urlencode($password)));
+    $streamerEncrypt = json_decode(url_get_contents("{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password)));
     return $streamerEncrypt->encryptedPassword;
+}
+
+function zipDirectory($destinationFile) {
+    // Get real path for our folder
+    $rootPath = realpath($destinationFile);
+    $zipPath = rtrim($destinationFile,"/").".zip";
+    // Initialize archive object
+    $zip = new ZipArchive();
+    $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+    // Create recursive directory iterator
+    /** @var SplFileInfo[] $files */
+    $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($rootPath), RecursiveIteratorIterator::LEAVES_ONLY
+    );
+
+    foreach ($files as $name => $file) {
+        // Skip directories (they would be added automatically)
+        if (!$file->isDir()) {
+            // Get real and relative path for current file
+            $filePath = $file->getRealPath();
+            $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+            // Add current file to archive
+            $zip->addFile($filePath, $relativePath);
+        }
+    }
+
+    // Zip archive will be created only after closing object
+    $zip->close();
+    return $zipPath;
 }

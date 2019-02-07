@@ -13,7 +13,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 CREATE TABLE IF NOT EXISTS `formats` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
-  `code` VARCHAR(400) NOT NULL,
+  `code` TEXT NOT NULL,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
   `extension` VARCHAR(5) NULL,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `fileURI` VARCHAR(255) NOT NULL,
   `filename` VARCHAR(400) NOT NULL,
-  `status` ENUM('queue', 'encoding', 'error', 'done', 'downloading', 'transferring') NULL,
+  `status` VARCHAR(45) NULL,
   `status_obs` VARCHAR(255) NULL,
   `return_vars` VARCHAR(45) NULL,
   `priority` INT(1) NULL,
@@ -121,4 +121,5 @@ INSERT INTO `formats` VALUES
 (25,'Both Low SD','10-11-20-21',now(),now(),'mp4','mp4',84),
 (26,'Both SD HD','11-12-21-22',now(),now(),'mp4','mp4',85),
 (27,'Both Low HD','10-12-20-22',now(),now(),'mp4','mp4',86),
-(28,'Both Low SD HD','10-11-12-20-21-22',now(),now(),'mp4','mp4',87);
+(28,'Both Low SD HD','10-11-12-20-21-22',now(),now(),'mp4','mp4',87),
+(29,'Multi Bitrate HLS VOD encrypted','ffmpeg -re -i {$pathFileName} -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:360 -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 800k -maxrate 856k -bufsize 1200k -b:a 96k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}low/index.m3u8 -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:540 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 1400k -maxrate 1498k -bufsize 2100k -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}sd/index.m3u8 -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:720 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 2800k -maxrate 2996k -bufsize 4200k -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}hd/index.m3u8',now(),now(),'mp4','m3u8',9);

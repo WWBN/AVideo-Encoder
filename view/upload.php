@@ -1,4 +1,5 @@
 <?php
+
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 require_once '../objects/Login.php';
@@ -48,39 +49,44 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $e->setStatus('queue');
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['YouPHPTubeURL'] . "youPHPTubeEncoder.json");
-
+        error_log("Upload.php will set format");
         if ($type == "video") {
             if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
                 if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
+                    error_log("Upload.php set format 11");
                     $e->setFormats_id(11); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
                 } else {
+                    error_log("Upload.php set format 12");
                     $e->setFormats_id(12);
                 }
-            } else{
+            } else {
+                error_log("Upload.php will let function decide decideFormatOrder");
                 $e->setFormats_idFromOrder(decideFormatOrder());
             }
-        } else {    
+        } else {
             if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
-                $e->setFormats_id(5); 
+                error_log("Upload.php set format 5");
+                $e->setFormats_id(5);
             } else {
+                error_log("Upload.php set format 3");
                 $e->setFormats_id(3);
             }
         }
-        
-        
+
+
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-        
+
         $response = Encoder::sendFile('', 0, $format, $e); // this always produces an error log but if this 
         // and the next 3 lines are commented the images don't transfer
-        if(!empty($response->response->video_id)){
+        if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
         }
         $e->setReturn_vars(json_encode($obj));
 
         $encoders_ids[] = $e->save();
-        
+
         $obj->error = false;
         $obj->msg = "Your file ($filename) is queue";
     }

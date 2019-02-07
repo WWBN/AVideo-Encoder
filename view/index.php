@@ -38,7 +38,7 @@ if (empty($streamerURL)) {
 }
 $config = new Configuration();
 
-$ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+$ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 29);
 
 $updateFiles = getUpdatesFiles();
 
@@ -224,6 +224,12 @@ if (!empty($_GET['noNavbar'])) {
                 $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
                 // convert the string to a json object
                 $advancedCustom = json_decode($json_file);
+                $result = json_decode($_SESSION['login']->result);
+                if(empty($result->videoHLS)){
+                    $advancedCustom->doNotShowEncoderHLS = true;
+                }else{
+                    $advancedCustom->doNotShowEncoderHLS = false;
+                }
                 ?>
 
                 <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
@@ -278,7 +284,7 @@ if (!empty($_GET['noNavbar'])) {
                                         }
                                         ?>
                                         <div class="input-group input-group-sm">
-                                            <span class="input-group-addon"><?php echo $value['id']; ?> - <?php echo $value['name']; ?></span>
+                                            <span class="input-group-addon"><?php echo $value['name']; ?></span>
                                             <input type="text" class="form-control formats" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo $value['code']; ?>">
                                         </div>    
                                         <?php
@@ -492,24 +498,31 @@ if (!empty($_GET['noNavbar'])) {
                         <div class="panel-heading">Resolutions</div>
                         <div class="panel-body">
                             <?php
+                            if (empty($advancedCustom->doNotShowEncoderHLS)) {
+                                ?> 
+                                <label style="" id="">
+                                    <input type="checkbox" id="inputHLS" checked="checked" onclick="if($(this).is(':checked')){$('.mp4Checkbox').prop('checked', false);}"> Multi Bitrate HLS
+                                </label><br>
+                                <?php
+                            }
                             if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
                                 ?> 
                                 <label style="" id="">
-                                    <input type="checkbox" id="inputLow" checked="checked"> Low
+                                    <input type="checkbox" id="inputLow" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> Low
                                 </label>
                                 <?php
                             }
                             if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
                                 ?> 
                                 <label id="">
-                                    <input type="checkbox" id="inputSD" checked="checked"> SD
+                                    <input type="checkbox" id="inputSD" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> SD
                                 </label>
                                 <?php
                             }
                             if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
                                 ?> 
                                 <label>
-                                    <input type="checkbox" id="inputHD" checked="checked"> HD
+                                    <input type="checkbox" id="inputHD" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> HD
                                 </label>
                                 <?php
                             }
@@ -732,6 +745,7 @@ if (!empty($_GET['noNavbar'])) {
                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
                                             "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                             "webm": $('#inputWebM').is(":checked"),
+                                            "inputHLS": $('#inputHLS').is(":checked"),
                                             "inputLow": $('#inputLow').is(":checked"),
                                             "inputSD": $('#inputSD').is(":checked"),
                                             "inputHD": $('#inputHD').is(":checked"),
@@ -816,6 +830,7 @@ if (!empty($_GET['noNavbar'])) {
                                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
                                                             "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                                             "webm": $('#inputWebM').is(":checked"),
+                                                            "inputHLS": $('#inputHLS').is(":checked"),
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
                                                             "inputHD": $('#inputHD').is(":checked"),
@@ -867,6 +882,7 @@ if (!empty($_GET['noNavbar'])) {
                                         "audioOnly": $('#inputAudioOnly').is(":checked"),
                                         "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                         "webm": $('#inputWebM').is(":checked"),
+                                        "inputHLS": $('#inputHLS').is(":checked"),
                                         "inputLow": $('#inputLow').is(":checked"),
                                         "inputSD": $('#inputSD').is(":checked"),
                                         "inputHD": $('#inputHD').is(":checked"),

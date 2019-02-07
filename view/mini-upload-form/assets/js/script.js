@@ -45,6 +45,7 @@ $(function () {
                 "audioOnly": $('#inputAudioOnly').is(":checked"), 
                 "spectrum": $('#inputAudioSpectrum').is(":checked"), 
                 "webm": $('#inputWebM').is(":checked"),
+                "inputHLS": $('#inputHLS').is(":checked"),
                 "inputLow": $('#inputLow').is(":checked"),
                 "inputSD": $('#inputSD').is(":checked"),
                 "inputHD": $('#inputHD').is(":checked"),

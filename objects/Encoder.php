@@ -670,9 +670,13 @@ class Encoder extends ObjectYPT {
                 }
             }
         } else {
-            $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted." . $f->getExtension();
-            $format = $f->getExtension();
-            $r = static::sendFile($file, $videos_id, $format, $this);
+            $extension = $f->getExtension();
+            if($formatId==29){ // if it is HLS send the compacted file
+                $extension = "zip";
+            }
+            
+            $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
+            $r = static::sendFile($file, $videos_id, $extension, $this);
             if ($r->error) {
                 $return->error = true;
                 $return->msg = $r->msg;
@@ -966,7 +970,7 @@ class Encoder extends ObjectYPT {
                 $duration = "EE:EE:EE";
             }
         }
-        error_log("Duration founded: {$duration}");
+        error_log("Duration found: {$duration}");
         return $duration;
     }
 
