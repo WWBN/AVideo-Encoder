@@ -164,7 +164,7 @@ if (!class_exists('Format')) {
             file_put_contents($destinationFile . $keyFileName, $key);
 
             // create info file keyinfo
-            $str = "{\$pathToVideo}{$keyFileName}\n{$destinationFile}{$keyFileName}";
+            $str = "../{$keyFileName}\n{$destinationFile}{$keyFileName}";
             file_put_contents($destinationFile . "keyinfo", $str);
             
             //master playlist
