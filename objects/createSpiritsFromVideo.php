@@ -2,7 +2,8 @@
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 header('Access-Control-Allow-Origin: *');
-
+$max_execution_time = 2 * 3600;
+ini_set('max_execution_time', $max_execution_time);
 $pxBetweenTiles = 0;
 
 $url = $argv[1];
@@ -15,7 +16,7 @@ $baseName = $argv[7];
 
 $dirname = $global['systemRootPath'] . "videos/thumbs_{$baseName}/";
 if (is_dir($dirname)) {
-    if (time() - filemtime($dirname) > 2 * 3600) {
+    if (time() - filemtime($dirname) > $max_execution_time) {
         // file older than 2 hours
         error_log("CreateSpirits:  request is older then 2 hours, we will try again");
     } else {
