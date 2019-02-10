@@ -35,10 +35,7 @@ if (!file_exists($imageFileName)) {
     //call createsprits
     $command = ("php '{$global['systemRootPath']}objects/createSpiritsFromVideo.php' '$url' '$step' '$tileWidth' '$tileHeight' '$imageFileName' '$numberOfTiles' '$baseName'");
     error_log("getSpritsFromVideo: {$command}");
-    exec($command . " < /dev/null 2>&1", $output, $return_val);
-    if ($return_val !== 0) {
-        error_log("getSpritsFromVideo ERROR: ". json_encode($output)." {$command} ");
-    }
+    exec($command . " < /dev/null");
 } else {
     echo file_get_contents($imageFileName);
     unlink($imageFileName);
