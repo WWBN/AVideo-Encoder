@@ -99,6 +99,7 @@ $content = "<?php
 
 \$global['disableConfigurations'] = false;
 \$global['disableBulkEncode'] = false;
+\$global['disableWebM'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
