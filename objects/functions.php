@@ -42,6 +42,7 @@ function url_set_file_context($Url, $ctx = "") {
 function url_get_contents($Url, $ctx = "") {
     if (empty($ctx)) {
         $opts = array(
+            'http'=>array('header' => "User-Agent:YouPHPTubeAgent/1.0\r\n"),
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
