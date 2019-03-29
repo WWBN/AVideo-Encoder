@@ -8,6 +8,7 @@ if (!class_exists('Login')) {
 
         static function run($user, $pass, $youPHPTubeURL, $encodedPass = false) {
             global $global;
+            $youPHPTubeURL = trim($youPHPTubeURL);
             if (substr($youPHPTubeURL, -1) !== '/') {
                 $youPHPTubeURL .= "/";
             }
