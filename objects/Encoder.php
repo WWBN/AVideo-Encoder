@@ -497,7 +497,8 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
-    static function run() {
+    static function run($try = 0) {
+        $try++;
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
@@ -514,10 +515,19 @@ class Encoder extends ObjectYPT {
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
-                    $obj->msg = $objFile->msg;
-                    $encoder->setStatus("error");
-                    $encoder->setStatus_obs("Could not download the file ");
-                    $encoder->save();
+                    if ($try < 4) {
+                        $msg = "Trying again: [$try] => Could not download the file ";
+                        error_log($msg);
+                        $encoder->setStatus("queue");
+                        $encoder->setStatus_obs($msg);
+                        $encoder->save();
+                        self::run($try);
+                    } else {
+                        $obj->msg = $objFile->msg;
+                        $encoder->setStatus("error");
+                        $encoder->setStatus_obs("Could not download the file ");
+                        $encoder->save();
+                    }
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
@@ -527,11 +537,20 @@ class Encoder extends ObjectYPT {
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if ($resp->error) {
-                        $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
-                        error_log("Encoder Run: " . json_encode($obj));
-                        $encoder->setStatus("error");
-                        $encoder->setStatus_obs($obj->msg);
-                        $encoder->save();
+                        if ($try < 4) {
+                            $msg = "Trying again: [$try] => Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            error_log($msg);
+                            $encoder->setStatus("queue");
+                            $encoder->setStatus_obs($msg);
+                            $encoder->save();
+                            self::run($try);
+                        } else {
+                            $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            error_log("Encoder Run: " . json_encode($obj));
+                            $encoder->setStatus("error");
+                            $encoder->setStatus_obs($obj->msg);
+                            $encoder->save();
+                        }
                     } else {
                         $obj->error = false;
                         $obj->msg = $resp->code;
@@ -671,10 +690,10 @@ class Encoder extends ObjectYPT {
             }
         } else {
             $extension = $f->getExtension();
-            if($formatId==29){ // if it is HLS send the compacted file
+            if ($formatId == 29) { // if it is HLS send the compacted file
                 $extension = "zip";
             }
-            
+
             $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
             $r = static::sendFile($file, $videos_id, $extension, $this);
             if ($r->error) {
