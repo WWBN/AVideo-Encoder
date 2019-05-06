@@ -94,14 +94,14 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 
 
 INSERT INTO `formats` VALUES 
-(1,'MP4 Low','ffmpeg -i {$pathFileName} -vf scale=-2:360 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}',now(),now(),'mp4','mp4',10),
+(1,'MP4 Low','ffmpeg -i {$pathFileName} -vf scale=-2:360 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -max_muxing_queue_size 1024 -y {$destinationFile}',now(),now(),'mp4','mp4',10),
 (2,'WEBM Low','ffmpeg -i {$pathFileName} -vf scale=-2:360 -movflags faststart -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {$destinationFile}',now(),now(),'webm','mp4',20),
 (3,'MP3','ffmpeg -i {$pathFileName} -acodec libmp3lame -y {$destinationFile}',now(),now(),'mp3','mp3',30),
 (4,'OGG','ffmpeg -i {$pathFileName} -acodec libvorbis -y {$destinationFile}',now(),now(),'ogg','mp3',40),
 (5,'MP3 to Spectrum.MP4','ffmpeg -i {$pathFileName} -filter_complex \'[0:a]showwaves=s=640x360:mode=line,format=yuv420p[v]\' -map \'[v]\' -map 0:a -c:v libx264 -c:a copy {$destinationFile}',now(),now(),'mp4','mp3',50),
 (6,'Video.MP4 to Audio.MP3','ffmpeg -i {$pathFileName} -y {$destinationFile}',now(),now(),'mp3','mp4',60),
-(7,'MP4 SD','ffmpeg -i {$pathFileName} -vf scale=-2:540 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}',now(),now(),'mp4','mp4',11),
-(8,'MP4 HD','ffmpeg -i {$pathFileName} -vf scale=-2:720 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}',now(),now(),'mp4','mp4',12),
+(7,'MP4 SD','ffmpeg -i {$pathFileName} -vf scale=-2:540 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -max_muxing_queue_size 1024 -y {$destinationFile}',now(),now(),'mp4','mp4',11),
+(8,'MP4 HD','ffmpeg -i {$pathFileName} -vf scale=-2:720 -movflags faststart -preset ultrafast -vcodec h264 -acodec aac -strict -2 -max_muxing_queue_size 1024 -y {$destinationFile}',now(),now(),'mp4','mp4',12),
 (9,'WEBM SD','ffmpeg -i {$pathFileName} -vf scale=-2:540 -movflags faststart -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {$destinationFile}',now(),now(),'webm','mp4',21),
 (10,'WEBM HD','ffmpeg -i {$pathFileName} -vf scale=-2:720 -movflags faststart -preset ultrafast -f webm -c:v libvpx -b:v 1M -acodec libvorbis -y {$destinationFile}',now(),now(),'webm','mp4',22),
 (11,'Video to Spectrum','60-50-10',now(),now(),'mp4','mp4',70),
@@ -123,3 +123,4 @@ INSERT INTO `formats` VALUES
 (27,'Both Low HD','10-12-20-22',now(),now(),'mp4','mp4',86),
 (28,'Both Low SD HD','10-11-12-20-21-22',now(),now(),'mp4','mp4',87),
 (29,'Multi Bitrate HLS VOD encrypted','ffmpeg -re -i {$pathFileName} -c:a aac -strict -2 -b:a 128k -c:v libx264 -vf scale=-2:360 -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 800k -maxrate 856k -bufsize 1200k -b:a 96k -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}low/index.m3u8 -c:a aac -strict -2 -b:a 128k -c:v libx264 -vf scale=-2:540 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 1400k -maxrate 1498k -bufsize 2100k -b:a 128k -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}sd/index.m3u8 -c:a aac -strict -2 -b:a 128k -c:v libx264 -vf scale=-2:720 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 2800k -maxrate 2996k -bufsize 4200k -b:a 128k -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}hd/index.m3u8',now(),now(),'mp4','m3u8',9);
+-- ffmpeg -re -i {$pathFileName} -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:540 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 1400k -maxrate 1498k -bufsize 2100k -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}low/index.m3u8 -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:720 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 2800k -maxrate 2996k -bufsize 4200k -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}sd/index.m3u8 -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:1080 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -b:v 5000k -maxrate 5350k -bufsize 7500k -b:a 192k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}hd/index.m3u8
