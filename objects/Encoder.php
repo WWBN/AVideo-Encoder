@@ -543,7 +543,7 @@ class Encoder extends ObjectYPT {
                             $encoder->setStatus("queue");
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
-                            self::run($try);
+                            static::run($try);
                         } else {
                             $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log("Encoder Run: " . json_encode($obj));
