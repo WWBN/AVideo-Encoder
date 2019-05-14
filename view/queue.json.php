@@ -12,18 +12,25 @@ foreach ($rows as $key => $value) {
     $rows[$key]['format'] = $f->getName();
     $s = new Streamer($rows[$key]['streamers_id']);
     $rows[$key]['streamer'] = $s->getSiteURL();
+    $file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted";
     foreach ($resolutions as $value2) {
-        $file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted_{$value2}.mp4";
-        if (file_exists($file)) {
+        
+        $file_ = $file."_{$value2}.mp4";
+        if (file_exists($file_)) {
             $rows[$key]['mp4_filesize_' . $value2] = filesize($file);
             $rows[$key]['mp4_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
 
-        $file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted_{$value2}.webm";
-        if (file_exists($file)) {
+        $file_ = $file."_{$value2}.webm";
+        if (file_exists($file_)) {
             $rows[$key]['webm_filesize_' . $value2] = filesize($file);
             $rows[$key]['webm_filesize_human_' . $value2] = humanFileSize($rows[$key]['webm_filesize_' . $value2]);
         }
+    }    
+        
+    if (is_dir($file)) {
+        $rows[$key]['hls_filesize'] = directorysize($file);
+        $rows[$key]['hls_filesize_human'] = humanFileSize($rows[$key]['hls_filesize']);
     }
 }
 $rows = array_values($rows);

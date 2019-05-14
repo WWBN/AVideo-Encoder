@@ -648,3 +648,11 @@ function zipDirectory($destinationFile) {
     $zip->close();
     return $zipPath;
 }
+
+function directorysize ($dir){
+    $size = 0;
+    foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+        $size += is_file($each) ? filesize($each) : directorysize($each);
+    }
+    return $size;
+}

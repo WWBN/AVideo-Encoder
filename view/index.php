@@ -678,10 +678,10 @@ if (!empty($_GET['noNavbar'])) {
                         console.log(queueItemAfter);
                         var item = '<div id="encodeProgress' + queueItem.id + '">';
                         item += '<a href="' + queueItem.streamer_site + '" class="btn btn-default btn-xs" target="_blank">' + queueItem.streamer_site + '</a>';
-                        item += '<div class="progress progress-striped active " id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
+                        item += '<div class="progress progress-striped active encodingProgress" id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
                         item += '<div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">';
                         item += '<span class="sr-only">0% Complete</span></div><span class="progress-type"><span class="badge ">Priority ' + queueItem.streamer_priority + '</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
-                        item += '</div><div class="progress progress-striped active " id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
+                        item += '</div><div class="progress progress-striped active downloadProgress" id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
                         item += '</div>';
                         if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
                             $("#encoding").append(item);
@@ -976,6 +976,9 @@ if (!empty($_GET['noNavbar'])) {
                                     }
                                     if (row.webm_filesize_HD) {
                                         title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_HD + '">WEBM HD Size: ' + row.webm_filesize_human_HD + '</span>';
+                                    }
+                                    if (row.hls_filesize) {
+                                        title += '<br><span class="label label-success fileSize" value="' + row.hls_filesize + '">HLS Size: ' + row.hls_filesize_human + '</span>';
                                     }
                                     title += '<br>' + row.title;
                                     return title;
