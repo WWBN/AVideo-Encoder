@@ -15,15 +15,16 @@ foreach ($rows as $key => $value) {
     $file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted";
     foreach ($resolutions as $value2) {
         
+        //$file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted_{$value2}.mp4";
         $file_ = $file."_{$value2}.mp4";
         if (file_exists($file_)) {
-            $rows[$key]['mp4_filesize_' . $value2] = filesize($file);
+            $rows[$key]['mp4_filesize_' . $value2] = filesize($file_);
             $rows[$key]['mp4_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
 
         $file_ = $file."_{$value2}.webm";
         if (file_exists($file_)) {
-            $rows[$key]['webm_filesize_' . $value2] = filesize($file);
+            $rows[$key]['webm_filesize_' . $value2] = filesize($file_);
             $rows[$key]['webm_filesize_human_' . $value2] = humanFileSize($rows[$key]['webm_filesize_' . $value2]);
         }
     }    
