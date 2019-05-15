@@ -836,7 +836,9 @@ class Encoder extends ObjectYPT {
         $downloadLink = $encoder->getVideoDownloadedLink();
         if (!empty($downloadLink)) {
             $destinationFile = self::getThumbsFromLink($downloadLink, true);
-            $postFields['image'] = new CURLFile($destinationFile);
+            if(!empty($destinationFile)){
+                $postFields['image'] = new CURLFile($destinationFile);
+            }
         }
         if (!empty($file)) {
             if (empty($postFields['image'])) {
