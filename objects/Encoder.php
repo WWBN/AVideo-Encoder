@@ -1191,7 +1191,7 @@ class Encoder extends ObjectYPT {
         $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
-        if ($return_val !== 0) {
+        if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
             return false;
         } else {
