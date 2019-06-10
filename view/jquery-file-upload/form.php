@@ -4,6 +4,29 @@
 <noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css"></noscript>
 <noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css"></noscript>
 <form id="fileupload" action="https://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+    </div>
+    <div class="form-group">
+        <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
+    </div>
+    <?php
+    if (!empty($_SESSION['login']->categories)) {
+        ?>
+        <div class="form-group">
+            <select class="form-control" id="categories_id" name="categories_id">
+
+                <option value="0">Category - Use site default</option>
+                <?php
+                foreach ($_SESSION['login']->categories as $key => $value) {
+                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                }
+                ?>
+            </select>
+        </div> 
+        <?php
+    }
+    ?>
     <!-- Redirect browsers with JavaScript disabled to the origin page -->
     <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
