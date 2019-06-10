@@ -12,7 +12,7 @@
 require_once '../../../../videos/configuration.php';
 require_once '../../../../objects/Login.php';
 
-if(Login::isLogged()){
+if(!Login::isLogged()){
     die("Not login");
 }
 
