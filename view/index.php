@@ -225,9 +225,9 @@ if (!empty($_GET['noNavbar'])) {
                 // convert the string to a json object
                 $advancedCustom = json_decode($json_file);
                 $result = json_decode($_SESSION['login']->result);
-                if(empty($result->videoHLS)){
+                if (empty($result->videoHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = true;
-                }else{
+                } else {
                     $advancedCustom->doNotShowEncoderHLS = false;
                 }
                 ?>
@@ -235,7 +235,6 @@ if (!empty($_GET['noNavbar'])) {
                 <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
                 <script src="view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
                 <!-- The main CSS file -->
-                <link href="view/mini-upload-form/assets/css/style.css" rel="stylesheet" />
                 <div class="col-md-8">
 
                     <ul class="nav nav-tabs">
@@ -363,44 +362,9 @@ if (!empty($_GET['noNavbar'])) {
 
                             <div class="tab-content">
                                 <div id="upload" class="tab-pane fade in active">
-                                    <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
-
-                                        <div class="form-group">
-                                            <input type="text" class="form-control" id="title" name="title" placeholder="Title">
-                                        </div>
-                                        <div class="form-group">
-                                            <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
-                                        </div>
-                                        <?php
-                                        if(!empty($_SESSION['login']->categories)){
-                                        ?>
-                                        <div class="form-group">
-                                            <select class="form-control" id="categories_id" name="categories_id">
-
-                                                <option value="0">Category - Use site default</option>
-                                                <?php
-                                                foreach ($_SESSION['login']->categories as $key => $value) {
-                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div> 
-                                        <?php
-                                        }
-                                        ?>
-                                        <hr>
-                                        <div id="drop">
-                                            Drop Your Files Here
-
-                                            <a>Browse</a>
-                                            <input type="file" name="upl" multiple />
-                                        </div>
-
-                                        <ul>
-                                            <!-- The file uploads will be shown here -->
-                                        </ul>
-
-                                    </form>
+                                    <?php
+                                        include '../view/jquery-file-upload/form.php';
+                                    ?>
                                 </div>
                                 <div id="download" class="tab-pane fade">
                                     <div class="alert alert-info">
@@ -419,20 +383,20 @@ if (!empty($_GET['noNavbar'])) {
                                         </div>
 
                                         <?php
-                                        if(!empty($_SESSION['login']->categories)){
-                                        ?>
-                                        <div class="form-group">
-                                            <select class="form-control" id="download_categories_id" name="download_categories_id">
+                                        if (!empty($_SESSION['login']->categories)) {
+                                            ?>
+                                            <div class="form-group">
+                                                <select class="form-control" id="download_categories_id" name="download_categories_id">
 
-                                                <option value="0">Category - Use site default</option>
-                                                <?php
-                                                foreach ($_SESSION['login']->categories as $key => $value) {
-                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div> 
-                                        <?php
+                                                    <option value="0">Category - Use site default</option>
+                                                    <?php
+                                                    foreach ($_SESSION['login']->categories as $key => $value) {
+                                                        echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div> 
+                                            <?php
                                         }
                                         ?>
                                     </form>
@@ -469,20 +433,20 @@ if (!empty($_GET['noNavbar'])) {
                                         </div>
 
                                         <?php
-                                        if(!empty($_SESSION['login']->categories)){
-                                        ?>
-                                        <div class="form-group">
-                                            <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
+                                        if (!empty($_SESSION['login']->categories)) {
+                                            ?>
+                                            <div class="form-group">
+                                                <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
 
-                                                <option value="0">Category - Use site default</option>
-                                                <?php
-                                                foreach ($_SESSION['login']->categories as $key => $value) {
-                                                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
-                                                }
-                                                ?>
-                                            </select>
-                                        </div> 
-                                        <?php
+                                                    <option value="0">Category - Use site default</option>
+                                                    <?php
+                                                    foreach ($_SESSION['login']->categories as $key => $value) {
+                                                        echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div> 
+                                            <?php
                                         }
                                         ?>
                                         <ul class="list-group" id="files">
@@ -501,32 +465,39 @@ if (!empty($_GET['noNavbar'])) {
                             if (empty($advancedCustom->doNotShowEncoderHLS)) {
                                 ?> 
                                 <label style="" id="">
-                                    <input type="checkbox" id="inputHLS" checked="checked" onclick="if($(this).is(':checked')){$('.mp4Checkbox').prop('checked', false);}"> Multi Bitrate HLS
+                                    <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
+                                $('.mp4Checkbox').prop('checked', false);
+                            }"> Multi Bitrate HLS
                                 </label><br>
                                 <?php
                             }
                             if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
                                 ?> 
                                 <label style="" id="">
-                                    <input type="checkbox" id="inputLow" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> Low
+                                    <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                $('#inputHLS').prop('checked', false);
+                                            }"> Low
                                 </label>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-                                ?> 
+        <?php
+    }
+    if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+        ?> 
                                 <label id="">
-                                    <input type="checkbox" id="inputSD" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> SD
+                                    <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                $('#inputHLS').prop('checked', false);
+                                            }"> SD
                                 </label>
                                 <?php
                             }
                             if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
                                 ?> 
                                 <label>
-                                    <input type="checkbox" id="inputHD" <?php if(!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if($(this).is(':checked')){$('#inputHLS').prop('checked', false);}"> HD
+                                    <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                $('#inputHLS').prop('checked', false);}"> HD
                                 </label>
-                                <?php
-                            }
-                            ?> 
+        <?php
+    }
+    ?> 
                         </div>
                     </div>
                     <div class="panel panel-default">
@@ -540,19 +511,19 @@ if (!empty($_GET['noNavbar'])) {
                                 <input type="checkbox" id="inputAudioSpectrum">
                                 <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                             </label>
-                            <?php
-                                if(empty($global['disableWebM'])){
-                            ?>
-                            <label  id="webm">
-                                <input type="checkbox" id="inputWebM">
-                                <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
-                                <small class="label label-warning">
-                                    For Chrome Browsers
-                                </small>
-                            </label>
-                            <?php
-                                }
-                            ?>
+    <?php
+    if (empty($global['disableWebM'])) {
+        ?>
+                                <label  id="webm">
+                                    <input type="checkbox" id="inputWebM">
+                                    <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
+                                    <small class="label label-warning">
+                                        For Chrome Browsers
+                                    </small>
+                                </label>
+        <?php
+    }
+    ?>
                         </div>
                     </div>
 
@@ -567,16 +538,6 @@ if (!empty($_GET['noNavbar'])) {
                     </div>
                 </div>
 
-                <!-- JavaScript Includes -->
-                <script src="view/mini-upload-form/assets/js/jquery.knob.js"></script>
-
-                <!-- jQuery File Upload Dependencies -->
-                <script src="view/mini-upload-form/assets/js/jquery.ui.widget.js"></script>
-                <script src="view/mini-upload-form/assets/js/jquery.iframe-transport.js"></script>
-                <script src="view/mini-upload-form/assets/js/jquery.fileupload.js"></script>
-
-                <!-- Our main JS file -->
-                <script src="view/mini-upload-form/assets/js/script.js"></script>
                 <script>
                     var encodingNowId = "";
                     function checkFiles() {
@@ -1119,9 +1080,9 @@ if (!empty($_GET['noNavbar'])) {
                     );
 
                 </script>
-                <?php
-            }
-            ?>
+    <?php
+}
+?>
 
         </div>
 

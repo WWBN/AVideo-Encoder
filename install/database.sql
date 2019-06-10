@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `filename` VARCHAR(400) NOT NULL,
   `status` VARCHAR(45) NULL,
   `status_obs` VARCHAR(255) NULL,
-  `return_vars` VARCHAR(45) NULL,
+  `return_vars` VARCHAR(255) NULL,
   `priority` INT(1) NULL,
   `title` VARCHAR(255) NULL,
   `videoDownloadedLink` VARCHAR(255) NULL,
