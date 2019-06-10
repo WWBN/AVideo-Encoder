@@ -249,7 +249,6 @@ class UploadHandler
     }
 
     protected function get_upload_path($file_name = null, $version = null) {
-        global $global;
         $file_name = $file_name ? $file_name : '';
         if (empty($version)) {
             $version_path = '';
