@@ -130,7 +130,19 @@ $(function () {
         console.log(data);
         $.ajax({
             url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php',
-            data: {"file": data.files[0].name},
+            data: {
+                "file": data.files[0].name,
+                "audioOnly": $('#inputAudioOnly').is(":checked"),
+                "spectrum": $('#inputAudioSpectrum').is(":checked"),
+                "webm": $('#inputWebM').is(":checked"),
+                "inputHLS": $('#inputHLS').is(":checked"),
+                "inputLow": $('#inputLow').is(":checked"),
+                "inputSD": $('#inputSD').is(":checked"),
+                "inputHD": $('#inputHD').is(":checked"),
+                "title": $('#title').val(),
+                "description": $('#description').val(),
+                "categories_id": $('#categories_id').val()
+            },
             type: 'post',
             success: function (response) {
                 console.log(response);
