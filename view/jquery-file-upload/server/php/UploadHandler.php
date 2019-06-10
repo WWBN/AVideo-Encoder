@@ -249,6 +249,7 @@ class UploadHandler
     }
 
     protected function get_upload_path($file_name = null, $version = null) {
+        global $global;
         $file_name = $file_name ? $file_name : '';
         if (empty($version)) {
             $version_path = '';
@@ -259,7 +260,6 @@ class UploadHandler
             }
             $version_path = $version.'/';
         }
-        $path = "{$global['systemRootPath']}videos/chunk";
         make_path($this->options['upload_dir']);
         return $this->options['upload_dir'].$this->get_user_path()
             .$version_path.$file_name;
