@@ -11,8 +11,6 @@
  */
 require_once '../../../../videos/configuration.php';
 
-$path = "{$global['systemRootPath']}videos/chunk";
-make_path($path);
 //error_reporting(E_ALL | E_STRICT);
 require('UploadHandler.php');
 header('Access-Control-Allow-Origin: *');
