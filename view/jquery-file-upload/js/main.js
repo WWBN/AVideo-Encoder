@@ -36,7 +36,7 @@ $(function () {
             var fu = $(this).data('blueimp-fileupload') || $(this).data('fileupload'),
                     retries = data.context.data('retries') || 0,
                     retry = function () {
-                        $.getJSON('server/php/', {file: data.files[0].name})
+                        $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name})
                                 .done(function (result) {
                                     var file = result.file;
                                     data.uploadedBytes = file && file.size;
