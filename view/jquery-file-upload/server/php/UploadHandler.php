@@ -51,8 +51,8 @@ class UploadHandler
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             //'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             //'upload_url' => $this->get_full_url().'/files/',
-            'upload_dir' => $global['systemRootPath'].'videos/chunk/',
-            'upload_url' => $global['webSiteRootURL'].'videos/chunk/',
+            'upload_dir' => $global['systemRootPath'].'videos/chunk/'.Login::getStreamerId().'/',
+            'upload_url' => $global['webSiteRootURL'].'videos/chunk/'.Login::getStreamerId().'/',
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -259,6 +259,8 @@ class UploadHandler
             }
             $version_path = $version.'/';
         }
+        $path = "{$global['systemRootPath']}videos/chunk";
+        make_path($this->options['upload_dir']);
         return $this->options['upload_dir'].$this->get_user_path()
             .$version_path.$file_name;
     }
