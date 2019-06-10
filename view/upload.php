@@ -30,9 +30,16 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
 
     $destinationFile = "{$global['systemRootPath']}videos/original_" . $filename;
     $destinationFileURI = "{$global['webSiteRootURL']}videos/original_" . $filename;
-    if (!move_uploaded_file($_FILES['upl']['tmp_name'], $destinationFile)) {
-        $obj->msg = "Error on move_uploaded_file(" . $_FILES['upl']['tmp_name'] . ", " . "{$global['systemRootPath']}videos/original_" . $filename . ")";
-        die(json_encode($obj));
+    if(!empty($forceRename)){
+        if (!rename($_FILES['upl']['tmp_name'], $destinationFile)) {
+            $obj->msg = "Error on rename(" . $_FILES['upl']['tmp_name'] . ", " . "{$global['systemRootPath']}videos/original_" . $filename . ")";
+            die(json_encode($obj));
+        }
+    }else{    
+        if (!move_uploaded_file($_FILES['upl']['tmp_name'], $destinationFile)) {
+            $obj->msg = "Error on move_uploaded_file(" . $_FILES['upl']['tmp_name'] . ", " . "{$global['systemRootPath']}videos/original_" . $filename . ")";
+            die(json_encode($obj));
+        }
     }
 
     $e = new Encoder("");
