@@ -1,4 +1,5 @@
 <?php
+
 /*
  * jQuery File Upload Plugin PHP Example
  * https://github.com/blueimp/jQuery-File-Upload
@@ -18,7 +19,7 @@ $_FILES['upl'] = array();
 $_FILES['upl']['error'] = 0;
 
 $_FILES['upl']['name'] = $_POST['file'];
-$_FILES['upl']['tmp_name'] = $global['systemRootPath']."videos/chunk/".$_FILES['upl']['name'];
+$_FILES['upl']['tmp_name'] = $global['systemRootPath'] . "videos/chunk/" . Login::getStreamerId() . "/" . $_FILES['upl']['name'];
 
 $forceRename = true;
 
