@@ -51,8 +51,8 @@ class UploadHandler
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             //'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             //'upload_url' => $this->get_full_url().'/files/',
-            'upload_dir' => $global['systemRootPath'].'videos/',
-            'upload_url' => $global['webSiteRootURL'].'videos/',
+            'upload_dir' => $global['systemRootPath'].'videos/chunk/',
+            'upload_url' => $global['webSiteRootURL'].'videos/chunk/',
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -216,7 +216,7 @@ class UploadHandler
                 $this->post($this->options['print_response']);
                 break;
             case 'DELETE':
-                //$this->delete($this->options['print_response']);
+                $this->delete($this->options['print_response']);
                 break;
             default:
                 $this->header('HTTP/1.1 405 Method Not Allowed');
@@ -1442,6 +1442,7 @@ class UploadHandler
         }
         $response = array();
         foreach ($file_names as $file_name) {
+            $file_name = str_replace("../", "", $file_name);
             $file_path = $this->get_upload_path($file_name);
             $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
             if ($success) {

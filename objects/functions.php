@@ -656,3 +656,9 @@ function directorysize ($dir){
     }
     return $size;
 }
+
+function make_path($path) {
+    if (!is_dir($path)) {
+        mkdir($path, 0755, true);
+    }
+}

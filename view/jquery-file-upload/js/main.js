@@ -18,7 +18,48 @@ $(function () {
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: 'view/jquery-file-upload/server/php/'
+        url: 'view/jquery-file-upload/server/php/',
+        maxChunkSize: 10000000, // 10 MB
+        add: function (e, data) {
+            var that = this;
+            $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name}, function (result) {
+                var file = result.file;
+                data.uploadedBytes = file && file.size;
+                $.blueimp.fileupload.prototype
+                        .options.add.call(that, e, data);
+            });
+        },
+        maxRetries: 100,
+        retryTimeout: 500,
+        fail: function (e, data) {
+            // jQuery Widget Factory uses "namespace-widgetname" since version 1.10.0:
+            var fu = $(this).data('blueimp-fileupload') || $(this).data('fileupload'),
+                    retries = data.context.data('retries') || 0,
+                    retry = function () {
+                        $.getJSON('server/php/', {file: data.files[0].name})
+                                .done(function (result) {
+                                    var file = result.file;
+                                    data.uploadedBytes = file && file.size;
+                                    // clear the previous data:
+                                    data.data = null;
+                                    data.submit();
+                                })
+                                .fail(function () {
+                                    fu._trigger('fail', e, data);
+                                });
+                    };
+            if (data.errorThrown !== 'abort' &&
+                    data.uploadedBytes < data.files[0].size &&
+                    retries < fu.options.maxRetries) {
+                retries += 1;
+                data.context.data('retries', retries);
+                window.setTimeout(retry, retries * fu.options.retryTimeout);
+                return;
+            }
+            data.context.removeData('retries');
+            $.blueimp.fileupload.prototype
+                    .options.fail.call(this, e, data);
+        }
     });
 
     // Enable iframe cross-domain access via redirect option:
@@ -84,5 +125,16 @@ $(function () {
             "description": $('#description').val(),
             "categories_id": $('#categories_id').val()
         };
+    }).bind('fileuploaddone', function (e, data) {
+        console.log(e);
+        console.log(data);
+        $.ajax({
+            url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php',
+            data: {"file": data.files[0].name},
+            type: 'post',
+            success: function (response) {
+                console.log(response);
+            }
+        });
     });
 });
