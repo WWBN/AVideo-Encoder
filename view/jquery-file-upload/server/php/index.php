@@ -10,6 +10,11 @@
  * https://opensource.org/licenses/MIT
  */
 require_once '../../../../videos/configuration.php';
+require_once '../../../../objects/Login.php';
+
+if(Login::isLogged()){
+    die("Not login");
+}
 
 //error_reporting(E_ALL | E_STRICT);
 require('UploadHandler.php');
