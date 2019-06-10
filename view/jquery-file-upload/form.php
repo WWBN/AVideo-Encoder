@@ -33,20 +33,20 @@
     <div class="row fileupload-buttonbar">
         <div class="col-lg-12">
             <!-- The fileinput-button span is used to style the file input field as button -->
-            <span class="btn btn-success fileinput-button">
+            <span class="btn btn-success fileinput-button col-lg-12">
                 <i class="glyphicon glyphicon-plus"></i>
                 <span>Add files...</span>
                 <input type="file" name="files[]" multiple>
             </span>
-            <button type="submit" class="btn btn-primary start">
+            <button type="submit" class="btn btn-primary start col-lg-4">
                 <i class="glyphicon glyphicon-upload"></i>
                 <span>Start upload</span>
             </button>
-            <button type="reset" class="btn btn-warning cancel">
+            <button type="reset" class="btn btn-warning cancel col-lg-4">
                 <i class="glyphicon glyphicon-ban-circle"></i>
                 <span>Cancel upload</span>
             </button>
-            <button type="button" class="btn btn-danger delete">
+            <button type="button" class="btn btn-danger delete col-lg-4">
                 <i class="glyphicon glyphicon-trash"></i>
                 <span>Delete</span>
             </button>
