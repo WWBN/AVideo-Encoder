@@ -38,15 +38,15 @@
                 <span>Add files...</span>
                 <input type="file" name="files[]" multiple>
             </span>
-            <button type="submit" class="btn btn-primary start col-lg-4">
+            <button type="submit" class="btn btn-primary start col-lg-4" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
                 <i class="glyphicon glyphicon-upload"></i>
                 <span>Start upload</span>
             </button>
-            <button type="reset" class="btn btn-warning cancel col-lg-4">
+            <button type="reset" class="btn btn-warning cancel col-lg-4" style="border-radius: 0;">
                 <i class="glyphicon glyphicon-ban-circle"></i>
                 <span>Cancel upload</span>
             </button>
-            <button type="button" class="btn btn-danger delete col-lg-4">
+            <button type="button" class="btn btn-danger delete col-lg-4" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                 <i class="glyphicon glyphicon-trash"></i>
                 <span>Delete</span>
             </button>
