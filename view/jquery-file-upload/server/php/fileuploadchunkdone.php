@@ -15,10 +15,14 @@ require_once '../../../../videos/configuration.php';
 require_once '../../../../objects/Encoder.php';
 require_once '../../../../objects/Login.php';
 
+if(!Login::isLogged()){
+    die("Not login");
+}
+
 $_FILES['upl'] = array();
 $_FILES['upl']['error'] = 0;
 
-$_FILES['upl']['name'] = $_POST['file'];
+$_FILES['upl']['name'] = str_replace("/", "", $_POST['file']);
 $_FILES['upl']['tmp_name'] = $global['systemRootPath'] . "videos/chunk/" . Login::getStreamerId() . "/" . $_FILES['upl']['name'];
 
 $forceRename = true;
