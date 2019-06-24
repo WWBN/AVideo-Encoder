@@ -42,7 +42,7 @@ function url_set_file_context($Url, $ctx = "") {
 function url_get_contents($Url, $ctx = "") {
     if (empty($ctx)) {
         $opts = array(
-            'http'=>array('header' => "User-Agent:YouPHPTubeAgent/1.0\r\n"),
+            'http' => array('header' => "User-Agent:YouPHPTubeAgent/1.0\r\n"),
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
@@ -474,7 +474,7 @@ function decideFormatOrder() {
         $_POST['webm'] = $_GET['webm'];
     }
     error_log("decideFormatOrder: " . json_encode($_POST));
-    if (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS'])!=="false") {
+    if (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS']) !== "false") {
         error_log("decideFormatOrder: Multi bitrate HLS encrypted");
         return (9);
     } else
@@ -621,7 +621,7 @@ function encryptPassword($password, $streamerURL) {
 function zipDirectory($destinationFile) {
     // Get real path for our folder
     $rootPath = realpath($destinationFile);
-    $zipPath = rtrim($destinationFile,"/").".zip";
+    $zipPath = rtrim($destinationFile, "/") . ".zip";
     // Initialize archive object
     $zip = new ZipArchive();
     $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -649,9 +649,9 @@ function zipDirectory($destinationFile) {
     return $zipPath;
 }
 
-function directorysize ($dir){
+function directorysize($dir) {
     $size = 0;
-    foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+    foreach (glob(rtrim($dir, '/') . '/*', GLOB_NOSORT) as $each) {
         $size += is_file($each) ? filesize($each) : directorysize($each);
     }
     return $size;
@@ -660,5 +660,31 @@ function directorysize ($dir){
 function make_path($path) {
     if (!is_dir($path)) {
         mkdir($path, 0755, true);
+    }
+}
+
+function json_error() {
+    switch (json_last_error()) {
+        case JSON_ERROR_NONE:
+            return ' - No errors';
+            break;
+        case JSON_ERROR_DEPTH:
+            return ' - Maximum stack depth exceeded';
+            break;
+        case JSON_ERROR_STATE_MISMATCH:
+            return ' - Underflow or the modes mismatch';
+            break;
+        case JSON_ERROR_CTRL_CHAR:
+            return ' - Unexpected control character found';
+            break;
+        case JSON_ERROR_SYNTAX:
+            return ' - Syntax error, malformed JSON';
+            break;
+        case JSON_ERROR_UTF8:
+            return ' - Malformed UTF-8 characters, possibly incorrectly encoded';
+            break;
+        default:
+            return ' - Unknown error';
+            break;
     }
 }
