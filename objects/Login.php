@@ -85,7 +85,7 @@ if (!class_exists('Login')) {
                     }
                 } else {
                     $object = new stdClass();
-                    error_log("Encoder Login Error: ".$result);
+                    error_log("Encoder Login Error: ".json_error().$result);
                 }
             }
             $object->youPHPTubeURL = $url;
