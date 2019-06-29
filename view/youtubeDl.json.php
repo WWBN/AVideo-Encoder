@@ -32,6 +32,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj->type = "warning";
         $obj->title = "Sorry!";
         $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
+        error_log("youtubeDl::addVideo We could not get the title ($title) of your video ($link)");
     } else {
         $obj->type = "success";
         $obj->title = "Congratulations!";
