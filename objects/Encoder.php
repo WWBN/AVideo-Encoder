@@ -1168,6 +1168,7 @@ class Encoder extends ObjectYPT {
             error_log("Get Title Error: $cmd \n" . print_r($output, true));
             return false;
         } else {
+            error_log("Get Title: $cmd \n" . print_r($output, true));
             return end($output);
         }
     }
