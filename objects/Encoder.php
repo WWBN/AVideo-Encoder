@@ -1162,7 +1162,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTitleFromLink($link) {
-        $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
+        $cmd = "LC_ALL=en_US.UTF-8 ". self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get Title Error: $cmd \n" . print_r($output, true));
