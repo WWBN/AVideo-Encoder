@@ -1090,7 +1090,7 @@ class Encoder extends ObjectYPT {
         if (empty($this->id)) {
             return false;
         }
-        $files = glob("{$global['systemRootPath']}videos/original_" . $this->getFilename()); // get all file names
+        $files = glob("{$global['systemRootPath']}videos/original_" . $this->getFilename()."*"); // get all file names
         foreach ($files as $file) { // iterate files
             if (is_file($file))
                 unlink($file); // delete file
