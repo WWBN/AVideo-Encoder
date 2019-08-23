@@ -155,9 +155,9 @@ if (!class_exists('Format')) {
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
             mkdir($destinationFile);
-            mkdir($destinationFile."low");
-            mkdir($destinationFile."sd");
-            mkdir($destinationFile."hd");
+            mkdir($destinationFile . "low");
+            mkdir($destinationFile . "sd");
+            mkdir($destinationFile . "hd");
             // create a encryption key
             $key = openssl_random_pseudo_bytes(16);
             $keyFileName = "enc_" . uniqid() . ".key";
@@ -166,9 +166,9 @@ if (!class_exists('Format')) {
             // create info file keyinfo
             $str = "../{$keyFileName}\n{$destinationFile}{$keyFileName}";
             file_put_contents($destinationFile . "keyinfo", $str);
-            
+
             //master playlist
-             $str = "#EXTM3U
+            $str = "#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:BANDWIDTH=800000
 low/index.m3u8
@@ -177,10 +177,89 @@ sd/index.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=2800000
 hd/index.m3u8
 ";
-             file_put_contents($destinationFile . "index.m3u8", $str);
-             return $destinationFile;
+            file_put_contents($destinationFile . "index.m3u8", $str);
+            return $destinationFile;
         }
-        
+
+        static function getResolution($pathFileName) {
+            $command = "ffprobe -v quiet -print_format json -show_format -show_streams '$pathFileName'";
+            $json = exec($command . " 2>&1", $output, $return_val);
+            if ($return_val !== 0) {
+                error_log("getResolution: Error on ffprobe");
+                return 1080;
+            }
+            $json = implode(" ", $output);
+            $jsonObj = json_decode($json);
+            
+            if (empty($jsonObj)) {
+                error_log("getResolution: Error on json {$json}");
+                return 1080;
+            }
+            return $jsonObj->streams[0]->height;
+        }
+
+        /**
+          2160p: 3840x2160
+          1440p: 2560x1440
+          1080p: 1920x1080
+          720p: 1280x720
+          480p: 854x480
+          360p: 640x360
+          240p: 426x240
+         * @param type $destinationFile
+         * @param type $resolutions
+         * @return type
+         */
+        static private function preProcessDynamicHLS($pathFileName, $destinationFile) {
+            $height = self::getResolution($pathFileName);
+            $resolutions = array(360, 480, 720, 1080, 1440, 2160);
+            $parts = pathinfo($destinationFile);
+            $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
+            // create a directory
+            mkdir($destinationFile);
+            // create a encryption key
+            $key = openssl_random_pseudo_bytes(16);
+            $keyFileName = "enc_" . uniqid() . ".key";
+            file_put_contents($destinationFile . $keyFileName, $key);
+
+            // create info file keyinfo
+            $str = "../{$keyFileName}\n{$destinationFile}{$keyFileName}";
+            file_put_contents($destinationFile . "keyinfo", $str);
+
+            //master playlist
+            $str = "#EXTM3U
+#EXT-X-VERSION:3
+";
+
+            mkdir($destinationFile . "res240");
+            $str .= "#EXT-X-STREAM-INF:BANDWIDTH=240000
+res240/index.m3u8
+";
+            foreach ($resolutions as $value) {
+                if ($height >= $value) {
+                    mkdir($destinationFile . "res{$value}");
+                    $str .= "#EXT-X-STREAM-INF:BANDWIDTH=".($value*1000)."
+res{$value}/index.m3u8
+";
+                }
+            }
+
+            file_put_contents($destinationFile . "index.m3u8", $str);
+            
+            // create command
+            
+            $command = 'ffmpeg -re -i {$pathFileName} ';
+            $command .= ' -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:240 -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.(2*240).'k -maxrate '.(3*240).'k -bufsize '.(4*240).'k -b:a '.(240/4).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res240/index.m3u8';
+            
+            foreach ($resolutions as $value) {
+                if ($height >= $value) {
+                    $command .= ' -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:'.$value.' -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.(2*$value).'k -maxrate '.(3*$value).'k -bufsize '.(4*$value).'k -b:a '.intval($value/4).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
+                }
+            }
+            
+            return array($destinationFile, $command);
+        }
+
         static private function posProcessHLS($destinationFile, $encoder_queue_id) {
             // zip the directory
             $encoder = new Encoder($encoder_queue_id);
@@ -200,10 +279,20 @@ hd/index.m3u8
             $obj->destinationFile = $destinationFile;
             $obj->pathFileName = $pathFileName;
             $f = new Format($format_id);
+            $fc = $f->getCode();
             if ($format_id == 29) {// it is HLS
-                $destinationFile = self::preProcessHLS($destinationFile);
+                if (empty($fc)) {
+                    $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
+                    $destinationFile = $dynamic[0];
+                    $fc = $dynamic[1];
+                } else { // use default 3 resolutions
+                    $destinationFile = self::preProcessHLS($destinationFile);
+                }
             }
-            eval('$code ="' . $f->getCode() . '";');
+
+
+
+            eval('$code ="' . $fc . '";');
             if (empty($code)) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
@@ -221,10 +310,10 @@ hd/index.m3u8
                     $obj->error = false;
                 }
             }
-            
+
             if ($format_id == 29) {// it is HLS
                 $obj->error = !self::posProcessHLS($destinationFile, $encoder_queue_id);
-                if($obj->error){
+                if ($obj->error) {
                     $obj->msg = "Error on pack directory";
                 }
             }

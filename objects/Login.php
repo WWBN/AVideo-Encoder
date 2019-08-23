@@ -7,6 +7,8 @@ if (!class_exists('Login')) {
     class Login {
 
         static function run($user, $pass, $youPHPTubeURL, $encodedPass = false) {
+            ini_set('memory_limit', '50M');
+            ini_set('max_execution_time', 10);
             global $global;
             $youPHPTubeURL = trim($youPHPTubeURL);
             if (substr($youPHPTubeURL, -1) !== '/') {
