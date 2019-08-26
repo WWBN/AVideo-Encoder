@@ -126,12 +126,12 @@ $(function () {
             "categories_id": $('#categories_id').val()
         };
     }).bind('fileuploaddone', function (e, data) {
-        console.log(e);
-        console.log(data);
+        //console.log(e);
+        //console.log(data);
         $.ajax({
             url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php',
             data: {
-                "file": data.files[0].name,
+                "file": data.result.files[0].name,
                 "audioOnly": $('#inputAudioOnly').is(":checked"),
                 "spectrum": $('#inputAudioSpectrum').is(":checked"),
                 "webm": $('#inputWebM').is(":checked"),
