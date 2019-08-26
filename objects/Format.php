@@ -214,7 +214,7 @@ hd/index.m3u8
             $height = self::getResolution($pathFileName);
             $resolutions = array(360, 480, 720, 1080, 1440, 2160);
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
-            $videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
+            //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
             $audioBitrate = array(128, 128, 192, 192, 192, 192);
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
@@ -256,7 +256,7 @@ res{$value}/index.m3u8
             
             foreach ($resolutions as $key => $value) {
                 if ($height >= $value) {
-                    $rate = $bandwidth/1000;
+                    $rate = $bandwidth[$key]/1000;
                     $command .= ' -c:a aac -b:a '.($audioBitrate[$key]).'k -c:v libx264 -vf scale=-2:'.$value.' -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.($rate).'k -maxrate '.($rate*1.5).'k -bufsize '.($rate*2).'k -b:a '.($audioBitrate[$key]).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
                 }
             }
