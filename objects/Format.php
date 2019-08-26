@@ -213,7 +213,9 @@ hd/index.m3u8
         static private function preProcessDynamicHLS($pathFileName, $destinationFile) {
             $height = self::getResolution($pathFileName);
             $resolutions = array(360, 480, 720, 1080, 1440, 2160);
-            $bitrate = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
+            $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
+            $videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
+            $audioBitrate = array(128, 128, 192, 192, 192, 192);
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
@@ -239,7 +241,7 @@ res240/index.m3u8
             foreach ($resolutions as $key => $value) {
                 if ($height >= $value) {
                     mkdir($destinationFile . "res{$value}");
-                    $str .= "#EXT-X-STREAM-INF:BANDWIDTH=".($bitrate[$key])."
+                    $str .= "#EXT-X-STREAM-INF:BANDWIDTH=".($bandwidth[$key])."
 res{$value}/index.m3u8
 ";
                 }
@@ -250,11 +252,12 @@ res{$value}/index.m3u8
             // create command
             
             $command = 'ffmpeg -re -i {$pathFileName} ';
-            $command .= ' -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:240 -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.(2*240).'k -maxrate '.(3*240).'k -bufsize '.(4*240).'k -b:a '.(240/4).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res240/index.m3u8';
+            $command .= ' -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:240 -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.(300).'k -maxrate '.(450).'k -bufsize '.(600).'k -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res240/index.m3u8';
             
-            foreach ($resolutions as $value) {
+            foreach ($resolutions as $key => $value) {
                 if ($height >= $value) {
-                    $command .= ' -c:a aac -b:a 128k -c:v libx264 -vf scale=-2:'.$value.' -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.(2*$value).'k -maxrate '.(3*$value).'k -bufsize '.(4*$value).'k -b:a '.intval($value/4).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
+                    $rate = $bandwidth/1000;
+                    $command .= ' -c:a aac -b:a '.($audioBitrate[$key]).'k -c:v libx264 -vf scale=-2:'.$value.' -g 48 -keyint_min 48  -sc_threshold 0 -bf 3 -b_strategy 2 -b:v '.($rate).'k -maxrate '.($rate*1.5).'k -bufsize '.($rate*2).'k -b:a '.($audioBitrate[$key]).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
                 }
             }
             
