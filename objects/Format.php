@@ -213,6 +213,7 @@ hd/index.m3u8
         static private function preProcessDynamicHLS($pathFileName, $destinationFile) {
             $height = self::getResolution($pathFileName);
             $resolutions = array(360, 480, 720, 1080, 1440, 2160);
+            $bitrate = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
@@ -232,13 +233,13 @@ hd/index.m3u8
 ";
 
             mkdir($destinationFile . "res240");
-            $str .= "#EXT-X-STREAM-INF:BANDWIDTH=240000
+            $str .= "#EXT-X-STREAM-INF:BANDWIDTH=300000
 res240/index.m3u8
 ";
-            foreach ($resolutions as $value) {
+            foreach ($resolutions as $key => $value) {
                 if ($height >= $value) {
                     mkdir($destinationFile . "res{$value}");
-                    $str .= "#EXT-X-STREAM-INF:BANDWIDTH=".($value*1000)."
+                    $str .= "#EXT-X-STREAM-INF:BANDWIDTH=".($bitrate[$key])."
 res{$value}/index.m3u8
 ";
                 }
