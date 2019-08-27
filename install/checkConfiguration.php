@@ -1,5 +1,9 @@
 <?php
 
+if (file_exists("../videos/configuration.php")) {
+    error_log("Can not create configuration again: ".  json_encode($_SERVER));
+    exit;
+}
 $installationVersion = "2.6";
 
 header('Content-Type: application/json');
