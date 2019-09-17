@@ -221,15 +221,20 @@ if (!empty($_GET['noNavbar'])) {
                 </script>    
                 <?php
             } else {
-                $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+                $aURL = Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php";
+                $json_file = url_get_contents();
                 // convert the string to a json object
                 $advancedCustom = json_decode($json_file);
+                if(empty($advancedCustom)){
+                    error_log("ERROR on get {$aURL} ".$json_file);
+                }
                 $result = json_decode($_SESSION['login']->result);
                 if (empty($result->videoHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = true;
                 } else {
                     $advancedCustom->doNotShowEncoderHLS = false;
                 }
+                
                 ?>
 
                 <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
