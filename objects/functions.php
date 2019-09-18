@@ -614,7 +614,11 @@ function ip_is_private($ip) {
  * @return type
  */
 function encryptPassword($password, $streamerURL) {
-    $streamerEncrypt = json_decode(url_get_contents("{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password)));
+    $url = "{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password);
+    $streamerEncrypt = json_decode(url_get_contents($url));
+    if(empty($streamerEncrypt) || empty($streamerEncrypt->encryptedPassword)){
+        error_log("ERROR on encryptPassword ".$url);
+    }
     return $streamerEncrypt->encryptedPassword;
 }
 
