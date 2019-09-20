@@ -81,6 +81,10 @@ if ($_POST['createTables'] > 0) {
 }
 
 
+if (substr($_POST['siteURL'], -1) !== '/') {
+    $_POST['siteURL'] .= "/";
+}
+
 $sql = "INSERT INTO streamers (siteURL, user, pass, priority, created, modified, isAdmin) VALUES ('{$_POST['siteURL']}', '{$_POST['inputUser']}', '{$_POST['inputPassword']}', 1, now(), now(), 1)";
 if ($mysqli->query($sql) !== TRUE) {
     $obj->error = "Error creating streamer: " . $mysqli->error;
