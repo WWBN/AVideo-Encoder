@@ -441,6 +441,7 @@ function decideFromPlugin() {
     $json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
     // convert the string to a json object
     $advancedCustom = json_decode($json_file);
+    fixAdvancedCustom($advancedCustom);
     if (
             empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 80, "webm" => 87);
@@ -664,6 +665,20 @@ function directorysize($dir) {
 function make_path($path) {
     if (!is_dir($path)) {
         mkdir($path, 0755, true);
+    }
+}
+
+/**
+ * Overwrite all advanced custom configurations with the $global configuration
+ * @global type $global
+ * @param type $advancedCustom
+ */
+function fixAdvancedCustom(&$advancedCustom){
+    global $global;
+    foreach ($global as $key => $value) {
+        if(isset($advancedCustom->$key)){
+            $advancedCustom->$key = $value;
+        }
     }
 }
 

@@ -234,7 +234,7 @@ if (!empty($_GET['noNavbar'])) {
                 } else {
                     $advancedCustom->doNotShowEncoderHLS = false;
                 }
-                
+                fixAdvancedCustom($advancedCustom);
                 ?>
 
                 <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
