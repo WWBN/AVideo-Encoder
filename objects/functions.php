@@ -243,6 +243,10 @@ function isFFMPEG() {
     return trim(shell_exec('which ffmpeg'));
 }
 
+function isYoutubeDL() {
+    return trim(shell_exec('which youtube-dl'));
+}
+
 function isExifToo() {
     return trim(shell_exec('which exiftool'));
 }
