@@ -97,13 +97,14 @@ require_once '../objects/functions.php';
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>FFMPEG <?php echo $ffmpeg; ?> is Present</strong>
+                                <strong>Make sure your FFMPEG is 3.x or greater</strong>
                             </div>                  
                             <?php
                         } else {
                             ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>FFmpeg is not enabled</strong>
+                                <strong>FFmpeg is not enabled, make sure your FFMPEG is 3.x or greater</strong>
                                 <details>
                                     FFmpeg has been removed from Ubuntu 14.04 and was replaced by Libav. This decision has been reversed so that FFmpeg is available now in Ubuntu 15.04 again, but there is still no official package for 14.04. In this tutorial, I will show you how to install FFmpeg from mc3man ppa. Add the mc3man ppa:
                                     <br>
@@ -213,7 +214,7 @@ require_once '../objects/functions.php';
                             ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?>, it must be at least 100M</strong>
+                                <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?>, it must be at least 1000M</strong>
 
                                 <details>
                                     Edit the <code>php.ini</code> file 
@@ -237,7 +238,7 @@ require_once '../objects/functions.php';
                             ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?>, it must be at least 100M</strong>
+                                <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?>, it must be at least 1000M</strong>
 
                                 <details>
                                     Edit the <code>php.ini</code> file 
