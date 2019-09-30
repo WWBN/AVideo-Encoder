@@ -140,6 +140,53 @@ require_once '../objects/functions.php';
 
 
                         <?php
+                        if ($youtube_dl = isYoutubeDL()) {
+                            ?>
+                            <div class="alert alert-success">
+                                <span class="glyphicon glyphicon-check"></span>
+                                <strong>youtube-dl <?php echo $youtube_dl; ?> is Present</strong>
+                            </div>                  
+                            <?php
+                        } else {
+                            ?>
+                            <div class="alert alert-danger">
+                                <span class="glyphicon glyphicon-unchecked"></span>
+                                <strong>youtube-dl is not enabled</strong>
+                                <details>
+                                    <br>
+                                    Update the package list.
+                                    <br>
+                                    <pre><code>
+                                                        sudo apt-get update
+                                                        sudo apt-get dist-upgrade
+                                    </code></pre>
+                                    <br>
+                                    Install pip:
+                                    <br>
+                                    <code>
+                                        sudo apt-get install python-pip
+                                    </code>
+                                    <br>
+                                    Use pip to install youtube-dl:
+                                    <br>
+                                    <pre><code>sudo pip install youtube-dl</code></pre>
+                                    <br>
+                                    Make sure you have the latest version:
+                                    <br>
+                                    <pre><code>sudo pip install --upgrade youtube-dl</code></pre>
+                                    <br>
+                                    Add this line in you crontab to make sure you will always have the latest youtube-dl:
+                                    <br>
+                                    <pre><code>0 1 * * * sudo pip install --upgrade youtube-dl</code></pre>
+
+                                </details>
+                            </div>                  
+                            <?php
+                        }
+                        ?>
+
+
+                        <?php
                         if (checkVideosDir()) {
                             ?>
                             <div class="alert alert-success">
