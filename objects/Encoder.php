@@ -270,14 +270,14 @@ class Encoder extends ObjectYPT {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 -f 'mp4' \"{$videoURL}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 -f 'mp4' \"{$videoURL}\"";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("getYoutubeDl: Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             error_log($cmd . "\n" . print_r($output, true));
-            $cmd = self::getYouTubeDLCommand() . "  --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 \"{$videoURL}\"";
+            $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 \"{$videoURL}\"";
             //echo "\n**Trying Youtube DL **".$cmd;
             error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -1147,7 +1147,7 @@ class Encoder extends ObjectYPT {
      * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
      */
     static function getReverseVideosJsonListFromLink($link) {
-        $cmd = self::getYouTubeDLCommand() . " --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get ReverseVideosJsonListFromLink List Error: $cmd \n" . print_r($output, true));
@@ -1162,7 +1162,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTitleFromLink($link) {
-        $cmd = "LC_ALL=en_US.UTF-8 ". self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
+        $cmd = "LC_ALL=en_US.UTF-8 ". self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
@@ -1174,7 +1174,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getDurationFromLink($link) {
-        $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --get-duration --skip-download \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -1191,7 +1191,7 @@ class Encoder extends ObjectYPT {
 
     static function getThumbsFromLink($link, $returnFileName = false) {
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand() . " --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
