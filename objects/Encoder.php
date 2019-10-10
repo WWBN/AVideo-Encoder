@@ -765,7 +765,8 @@ class Encoder extends ObjectYPT {
             'videoDownloadedLink' => $obj->videoDownloadedLink,
             'description' => $description,
             'user' => $user,
-            'password' => $pass
+            'password' => $pass,
+            'downloadURL' => $global['webSiteRootURL'].str_replace($global['systemRootPath'], "", $file)
         );
         $obj->postFields = $postFields;
 
