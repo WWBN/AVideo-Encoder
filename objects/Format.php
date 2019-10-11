@@ -183,6 +183,7 @@ hd/index.m3u8
 
         static function getResolution($pathFileName) {
             $command = "ffprobe -v quiet -print_format json -show_format -show_streams '$pathFileName'";
+            error_log("getResolution: {$command}");
             $json = exec($command . " 2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 error_log("getResolution: Error on ffprobe");
@@ -195,6 +196,8 @@ hd/index.m3u8
                 error_log("getResolution: Error on json {$json}");
                 return 1080;
             }
+            error_log("getResolution: success ({$jsonObj->streams[0]->height}) ({$json})");
+            
             return $jsonObj->streams[0]->height;
         }
 
