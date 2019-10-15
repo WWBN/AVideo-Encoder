@@ -196,9 +196,17 @@ hd/index.m3u8
                 error_log("getResolution: Error on json {$json}");
                 return 1080;
             }
-            error_log("getResolution: success ({$jsonObj->streams[0]->height}) ({$json})");
             
-            return $jsonObj->streams[0]->height;
+            $resolution = 1080;
+            foreach($jsonObj->streams as $stream){
+                if(!empty($stream->height)){
+                    $resolution = $stream->height;
+                    break;
+                }
+            }
+            error_log("getResolution: success $resolution ({$json})");
+            
+            return $resolution;
         }
 
         /**
