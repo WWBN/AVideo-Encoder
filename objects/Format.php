@@ -99,15 +99,23 @@ if (!class_exists('Format')) {
             $destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
             // MP4 to MP3
+            error_log("runVideoToSpectrum: MP4 to MP3");
             $obj = static::execOrder(60, $pathFileName, $destinationFile . ".mp3", $encoder_queue_id);
             if (!$obj->error) {
                 //MP3 to Spectrum.MP4
+                error_log("runVideoToSpectrum: MP3 to MP4");
                 $obj = static::execOrder(50, $obj->destinationFile, $destinationFile . ".mp4", $encoder_queue_id);
                 if (!$obj->error) {
                     // Spectrum.MP4 to WEBM
+                    error_log("runVideoToSpectrum: MP4 to WEBM");
                     $obj = static::execOrder(21, $obj->destinationFile, $destinationFile . ".webm", $encoder_queue_id);
                 }
             }
+            
+            if($obj->error){
+                error_log("runVideoToSpectrum: ERROR ". json_encode($obj));
+            }
+            
             return $obj;
         }
 

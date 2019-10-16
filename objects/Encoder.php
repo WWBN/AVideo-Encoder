@@ -87,7 +87,7 @@ class Encoder extends ObjectYPT {
         return $this->status_obs;
     }
 
-    function getReturn_vars() {
+    function getReturn_vars() {        error_log("getReturn_vars ".$this->return_vars);
         return $this->return_vars;
     }
 
@@ -125,6 +125,20 @@ class Encoder extends ObjectYPT {
 
     function setReturn_vars($return_vars) {
         $this->return_vars = $return_vars;
+    }
+    
+    function setReturn_varsVideos_id($videos_id) {
+        $videos_id = intval($videos_id);
+        if(empty($videos_id)){
+            return false;
+        }
+        $obj = json_decode($this->return_vars);
+        if(empty($obj)){
+            $obj = new stdClass();
+        }
+        $obj->videos_id = $videos_id;
+        $this->setReturn_vars(json_encode($obj));
+        return $this->save();
     }
 
     function setPriority($priority) {
@@ -531,7 +545,7 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
-
+                    
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -637,7 +651,6 @@ class Encoder extends ObjectYPT {
             }
             curl_close($curl);
         }
-
         error_log(json_encode($obj));
         return $obj;
     }
@@ -665,11 +678,14 @@ class Encoder extends ObjectYPT {
         $return->sends = array();
         $return->formats_id = $this->getFormats_id();
         $return->error = false;
+        $return->original_videos_id = $videos_id;
+        $return->videos_id = 0;
 
         $this->setStatus("transferring");
         $this->save();
-
+        error_log("Encoder::send() order_id=$order_id");
         if (in_array($order_id, $global['multiResolutionOrder'])) {
+            error_log("Encoder::send() multiResolutionOrder");
             if (in_array($order_id, $global['hasHDOrder'])) {
                 $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
                 if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
@@ -689,13 +705,25 @@ class Encoder extends ObjectYPT {
                 }
             }
         } else {
+            error_log("Encoder::send() NOT multiResolutionOrder");
             $extension = $f->getExtension();
             if ($formatId == 29) { // if it is HLS send the compacted file
                 $extension = "zip";
             }
+            if(empty($global['webmOnly'])){
+                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
+                $r = static::sendFile($file, $videos_id, $extension, $this);     
+                error_log("Encoder::send() response ". json_encode($r));       
+                $return->videos_id = $r->response->video_id;
+                $this->setReturn_varsVideos_id($return->videos_id);
+            }
+            if ($order_id == 70) { // if it is Spectrum send the webm also
+                $extension = "webm";
+                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
+                $r = static::sendFile($file, $return->videos_id, $extension, $this);  
+                error_log("Encoder::send() response ". json_encode($r));       
+            }
 
-            $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
-            $r = static::sendFile($file, $videos_id, $extension, $this);
             if ($r->error) {
                 $return->error = true;
                 $return->msg = $r->msg;
@@ -724,6 +752,9 @@ class Encoder extends ObjectYPT {
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        
+        error_log("Encoder::sendFile videos_id=$videos_id, format=$format");
+        
         $duration = static::getDurationFromFile($file);
         if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
@@ -753,8 +784,8 @@ class Encoder extends ObjectYPT {
 
         $target = $youPHPTubeURL . "youPHPTubeEncoder.json";
         $obj->target = $target;
-        error_log("YouPHPTube-Encoder sending file to {$target}");
-        error_log("YouPHPTube-Encoder reading file from {$file}");
+        error_log("Encoder::sendFile sending file to {$target}");
+        error_log("Encoder::sendFile reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
@@ -803,6 +834,7 @@ class Encoder extends ObjectYPT {
         }
         curl_close($curl);
         error_log(json_encode($obj));
+        $encoder->setReturn_varsVideos_id($obj->response->video_id);
         //var_dump($obj);exit;
         return $obj;
     }
@@ -877,6 +909,7 @@ class Encoder extends ObjectYPT {
         }
         curl_close($curl);
         error_log(json_encode($obj));
+        $encoder->setReturn_varsVideos_id($obj->response->video_id);
         //var_dump($obj);exit;
         return $obj;
     }

@@ -131,7 +131,7 @@ if (!empty($_GET['noNavbar'])) {
 
 
                                 <div class="form-group">
-                                    <label class="col-md-4 control-label">YouPHPTube Streamer Site</label>  
+                                    <label class="col-md-4 control-label">Streamer Site</label>  
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
