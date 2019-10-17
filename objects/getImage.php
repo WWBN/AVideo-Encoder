@@ -50,6 +50,13 @@ if($_GET['format'] === 'png'){
     $ffmpegPallet ="ffmpeg -y -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
     $exec ="ffmpeg -y -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
+}else if($_GET['format'] === 'webp'){
+    // gif image has the double lifetime
+    $cache_life*=2;
+    header('Content-Type: image/webp');
+    $destination .= ".".$_GET['format'];    
+    $exec ="ffmpeg -y -ss 3 -t 3 -i \"{$url}\" -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
+    $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
     die();
