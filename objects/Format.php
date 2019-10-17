@@ -353,7 +353,15 @@ res{$value}/index.m3u8
                     $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}.mp4";
                 }
             }
-            return self::exec($o->getId(), $pathFileName, $destinationFile, $encoder_queue_id);
+            $obj = self::exec($o->getId(), $pathFileName, $destinationFile, $encoder_queue_id);
+            if ($format_order == 50) {
+                if (!$obj->error) {
+                    // Spectrum.MP4 to WEBM
+                    error_log("runVideoToSpectrum: MP4 to WEBM");
+                    $obj = static::execOrder(21, $obj->destinationFile, $destinationFile . ".webm", $encoder_queue_id);
+                }
+            }
+            return $obj;                
         }
 
         static function getFromName($name) {

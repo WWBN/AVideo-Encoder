@@ -26,6 +26,7 @@ class Encoder extends ObjectYPT {
         }
         $this->setTitle($global['mysqli']->real_escape_string($this->getTitle()));
         $this->setStatus_obs($global['mysqli']->real_escape_string($this->getStatus_obs()));
+        error_log("Encoder::save id=(".$this->getId().") title=(".$this->getTitle().")". json_encode(debug_backtrace()));
         return parent::save();
     }
 
@@ -138,7 +139,9 @@ class Encoder extends ObjectYPT {
         }
         $obj->videos_id = $videos_id;
         $this->setReturn_vars(json_encode($obj));
-        return $this->save();
+        $this->id = $this->save();
+        return $this->id;
+        
     }
 
     function setPriority($priority) {
@@ -717,7 +720,7 @@ class Encoder extends ObjectYPT {
                 $return->videos_id = $r->response->video_id;
                 $this->setReturn_varsVideos_id($return->videos_id);
             }
-            if ($order_id == 70) { // if it is Spectrum send the webm also
+            if ($order_id == 70 || $order_id == 50) { // if it is Spectrum send the webm also
                 $extension = "webm";
                 $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
                 $r = static::sendFile($file, $return->videos_id, $extension, $this);  
