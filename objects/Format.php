@@ -315,7 +315,7 @@ res{$value}/index.m3u8
 
 
 
-            eval('$code ="' . $fc . '";');
+            eval('$code ="' . addcslashes($fc,'"') . '";');
             if (empty($code)) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
