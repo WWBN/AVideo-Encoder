@@ -82,7 +82,7 @@ if (!class_exists('Streamer')) {
             $verifyURL = "";
             if (!file_exists($cacheFile) || (time() > (filemtime($cacheFile) + $lifetime))) {
                 error_log("Verification Creating the Cache {$url}");
-                $verifyURL = "https://search.youphptube.com/verify.php?url=" . urlencode($url);
+                $verifyURL = "https://search.avideo.com/verify.php?url=" . urlencode($url);
                 $result = url_get_contents($verifyURL);
                 file_put_contents($cacheFile, $result);
             } else {
@@ -103,10 +103,10 @@ if (!class_exists('Streamer')) {
                 return true;
             }
             $allowed = explode(PHP_EOL, $urls);
-            $allowed[] = "http://localhost/YouPHPTube/";
-            $allowed[] = "http://127.0.0.1/YouPHPTube/";
-            $allowed[] = "https://localhost/YouPHPTube/";
-            $allowed[] = "https://127.0.0.1/YouPHPTube/";
+            $allowed[] = "http://localhost/AVideo/";
+            $allowed[] = "http://127.0.0.1/AVideo/";
+            $allowed[] = "https://localhost/AVideo/";
+            $allowed[] = "https://127.0.0.1/AVideo/";
             $return = false;
             if (empty($allowed)) {
                 $return = true;

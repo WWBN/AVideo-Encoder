@@ -6,13 +6,13 @@ if (!class_exists('Login')) {
 
     class Login {
 
-        static function run($user, $pass, $youPHPTubeURL, $encodedPass = false) {
+        static function run($user, $pass, $aVideoURL, $encodedPass = false) {
             ini_set('memory_limit', '50M');
             ini_set('max_execution_time', 10);
             global $global;
-            $youPHPTubeURL = trim($youPHPTubeURL);
-            if (substr($youPHPTubeURL, -1) !== '/') {
-                $youPHPTubeURL .= "/";
+            $aVideoURL = trim($aVideoURL);
+            if (substr($aVideoURL, -1) !== '/') {
+                $aVideoURL .= "/";
             }
 
             $postdata = http_build_query(
@@ -37,7 +37,7 @@ if (!class_exists('Login')) {
             );
 
             $context = stream_context_create($opts);
-            $url = $youPHPTubeURL . 'login';
+            $url = $aVideoURL . 'login';
             $result = url_get_contents($url, $context);
             if (empty($result)) {
                 error_log("Get Login fail, try again");
@@ -60,10 +60,10 @@ if (!class_exists('Login')) {
             } else {
                 $object = json_decode($result);
                 if (!empty($object)) {
-                    $object->streamer = $youPHPTubeURL;
+                    $object->streamer = $aVideoURL;
                     $object->streamers_id = 0;
                     if (!empty($object->canUpload)) {
-                        $object->streamers_id = Streamer::createIfNotExists($user, $pass, $youPHPTubeURL, $encodedPass);
+                        $object->streamers_id = Streamer::createIfNotExists($user, $pass, $aVideoURL, $encodedPass);
                     }
                     if ($object->streamers_id) {
                         $s = new Streamer($object->streamers_id);
@@ -75,7 +75,7 @@ if (!class_exists('Login')) {
 
                         $object->isAdmin = $s->getIsAdmin();
                         if (!$encodedPass || $encodedPass === 'false') {
-                            $pass = encryptPassword($pass, $youPHPTubeURL);
+                            $pass = encryptPassword($pass, $aVideoURL);
                         }
                         // update pass
                         $s->setPass($pass);
@@ -83,14 +83,14 @@ if (!class_exists('Login')) {
                         $cookieLife = time() + 3600 * 24 * 2; // 2 day
                         setcookie("user", $user, $cookieLife, "/");
                         setcookie("pass", $pass, $cookieLife, "/");
-                        setcookie("youPHPTubeURL", $youPHPTubeURL, $cookieLife, "/");
+                        setcookie("aVideoURL", $aVideoURL, $cookieLife, "/");
                     }
                 } else {
                     $object = new stdClass();
                     error_log("Encoder Login Error: ".json_error().$result);
                 }
             }
-            $object->youPHPTubeURL = $url;
+            $object->aVideoURL = $url;
             $object->result = $result;
             $_SESSION['login'] = $object;
         }
@@ -105,8 +105,8 @@ if (!class_exists('Login')) {
 
         static function isLogged() {
             $isLogged = !empty($_SESSION['login']->isLogged);
-            if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['youPHPTubeURL'])) {
-                Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['youPHPTubeURL'], true);
+            if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['aVideoURL'])) {
+                Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['aVideoURL'], true);
             }
             return !empty($_SESSION['login']->isLogged);
         }

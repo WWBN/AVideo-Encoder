@@ -12,7 +12,7 @@ $url = base64_decode($_GET['base64Url']);
 $parts = explode("?token", $url);
 $baseName = md5($parts[0]) ;
 $imageFileName = $global['systemRootPath'] . "videos/sprit_{$baseName}.jpg";
-//$url = "http://127.0.0.1/YouPHPTube/videos/_YPTuniqid_5a01ef79b04ec6.24051213_HD.mp4";
+//$url = "http://127.0.0.1/AVideo/videos/_YPTuniqid_5a01ef79b04ec6.24051213_HD.mp4";
 
 $tileWidth = $_GET['tileWidth'];
 $numberOfTiles = $_GET['totalClips'];

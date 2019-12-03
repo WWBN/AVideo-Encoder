@@ -1,5 +1,5 @@
 <div class="container-fluid">
-            <div class="alert alert-success"><?php printf("You are running YouPHPTube Encoder version %s!", $config->getVersion()); ?></div>
+            <div class="alert alert-success"><?php printf("You are running AVideo Encoder version %s!", $config->getVersion()); ?></div>
             <?php
             if (empty($_POST['updateFile'])) {
                 $updateFiles = getUpdatesFiles();
@@ -8,7 +8,7 @@
                     <div class="alert alert-warning">
                         <form method="post" class="form-compact well form-horizontal" >
                             <fieldset>
-                                <legend>Update YouPHPTube System</legend>
+                                <legend>Update AVideo System</legend>
                                 <label for="updateFile" class="sr-only">Select the update</label>
                                 <select class="selectpicker" data-width="fit" name="updateFile" id="updateFile" required autofocus>
                                     <?php

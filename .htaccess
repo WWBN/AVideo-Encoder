@@ -27,7 +27,7 @@
     RewriteRule    ^getSpiritsFromVideo/([A-Za-z0-9=/]+)/([0-9]+)/([0-9]+)/([0-9:]+)$ objects/getSpiritsFromVideo.php?base64Url=$1&tileWidth=$2&totalClips=$3&duration=$4    [NC,L]
     RewriteRule    ^getLinkInfo/([A-Za-z0-9=/]+)$ objects/getLinkInfo.json.php?base64Url=$1    [NC,L]
 </IfModule>
-<Files youphptube.log>
+<Files avideo.log>
 Order Allow,Deny
 Deny from all
 </Files>

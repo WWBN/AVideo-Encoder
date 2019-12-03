@@ -31,7 +31,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($link, true);
         $obj->type = "warning";
         $obj->title = "Sorry!";
-        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/DanielnetoDotCom/YouPHPTube/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
+        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/WWBN/AVideo/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
         error_log("youtubeDl::addVideo We could not get the title ($title) of your video ($link)");
     } else {
         $obj->type = "success";
@@ -51,7 +51,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $e->setFilename($filename);
         $e->setStatus('queue');
         $e->setPriority($s->getPriority());
-        //$e->setNotifyURL($global['YouPHPTubeURL'] . "youPHPTubeEncoder.json");
+        //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
 
         $encoders_ids = array();
 

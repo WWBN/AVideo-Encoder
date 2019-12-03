@@ -4,7 +4,7 @@ require_once '../objects/functions.php';
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Install YouPHPTube</title>
+        <title>Install AVideo</title>
         <link rel="icon" href="../view/img/favicon.png">
         <link href="../view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <link href="../view/js/seetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
@@ -81,7 +81,7 @@ require_once '../objects/functions.php';
                             ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Since YouPHPTube 2.1 we use exiftool to determine if an video is landscape or portrait</strong>
+                                <strong>Since AVideo 2.1 we use exiftool to determine if an video is landscape or portrait</strong>
                                 <details>
                                     In order to install exiftool type the following command in the terminal:<br>
                                     <pre><code>sudo apt install libimage-exiftool-perl</code></pre>
@@ -204,7 +204,7 @@ require_once '../objects/functions.php';
                                     $dir = getPathToApplication() . "videos";
                                     if (!file_exists($dir)) {
                                         ?>
-                                        The video directory does not exist, YouPHPTube had no permission to create it, you must create it manually!
+                                        The video directory does not exist, AVideo had no permission to create it, you must create it manually!
                                         <br>
                                         <pre><code>sudo mkdir <?php echo $dir; ?></code></pre>
                                         <?php
@@ -345,12 +345,12 @@ require_once '../objects/functions.php';
                             </div>
                             <div class="form-group">
                                 <label for="databaseName">Database Name</label>
-                                <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="youPHPTube-Encoder" required="required">
+                                <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="aVideo-Encoder" required="required">
                             </div>
 
                             <div class="form-group">
                                 <label for="allowedStreamers">
-                                    Allowed YouPHPTube Streamers Sites (One per line. Leave blank for public) 
+                                    Allowed AVideo Streamers Sites (One per line. Leave blank for public) 
                                     <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
                                        title="What is this?" 
                                        data-content="Only the listed sites will be allowed to use this encoder installation">
@@ -390,10 +390,10 @@ require_once '../objects/functions.php';
                             <div class="alert alert-info" id="streamer" >
 
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube Streamer Site URL
+                                    <label for="siteURL">AVideo Streamer Site URL
                                     <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
                                        title="What is this?" 
-                                       data-content="If you do not have YouPHPTube Streamer Site yet, download it https://github.com/DanielnetoDotCom/YouPHPTube">
+                                       data-content="If you do not have AVideo Streamer Site yet, download it https://github.com/DanielnetoDotCom/AVideo">
                                         <i class="glyphicon glyphicon-question-sign"></i>
                                     </button>
                                     </label>
@@ -403,21 +403,21 @@ require_once '../objects/functions.php';
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="inputUser">YouPHPTube Streamer Site admin User</label>
+                                    <label for="inputUser">AVideo Streamer Site admin User</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                                         <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="admin" required >
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="siteURL">YouPHPTube Streamer Site admin Password</label>
+                                    <label for="siteURL">AVideo Streamer Site admin Password</label>
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
                                         <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
                                     </div>
                                 </div>
                                 <div class="alert alert-warning">
-                                    If you do not have YouPHPTube Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/YouPHPTube" target="_blank">here</a>. Then, please, go back here and finish this installation.
+                                    If you do not have AVideo Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/AVideo" target="_blank">here</a>. Then, please, go back here and finish this installation.
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Install now</button>

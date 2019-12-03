@@ -1,6 +1,6 @@
 <?php
 ini_set( 'log_errors_max_len', '1024' );
-ini_set('error_log', $global['systemRootPath'].'videos/youphptube.log');
+ini_set('error_log', $global['systemRootPath'].'videos/avideo.log');
 global $global;
 global $config;
 

@@ -42,7 +42,7 @@ function url_set_file_context($Url, $ctx = "") {
 function url_get_contents($Url, $ctx = "") {
     if (empty($ctx)) {
         $opts = array(
-            'http' => array('header' => "User-Agent:YouPHPTubeAgent/1.0\r\n"),
+            'http' => array('header' => "User-Agent:AVideoAgent/1.0\r\n"),
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
@@ -421,7 +421,7 @@ function parseDurationToSeconds($str) {
  * 
  * @global type $global
  * @param type $mail
- * call it before send mail to let YouPHPTube decide the method
+ * call it before send mail to let AVideo decide the method
  */
 function setSiteSendMessage(&$mail) {
     global $global;

@@ -575,7 +575,7 @@ class Encoder extends ObjectYPT {
                         if (!empty($return_vars->videos_id)) {
                             $videos_id = $return_vars->videos_id;
                         }
-                        // notify YouPHPTube it is done
+                        // notify AVideo it is done
                         $response = $encoder->send();
                         if (!$response->error) {
                             // update queue status
@@ -619,11 +619,11 @@ class Encoder extends ObjectYPT {
             $pass = $s->getPass();
 
             $s = new Streamer($streamers_id);
-            $youPHPTubeURL = $s->getSiteURL();
+            $aVideoURL = $s->getSiteURL();
 
-            $target = $youPHPTubeURL . "objects/youPHPTubeEncoderNotifyIsDone.json.php";
+            $target = $aVideoURL . "objects/aVideoEncoderNotifyIsDone.json.php";
             $obj->target = $target;
-            error_log("YouPHPTube-Encoder sending confirmation to {$target}");
+            error_log("AVideo-Encoder sending confirmation to {$target}");
             $postFields = array(
                 'videos_id' => $videos_id,
                 'user' => $user,
@@ -642,7 +642,7 @@ class Encoder extends ObjectYPT {
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
             $r = curl_exec($curl);
-            error_log("YouPHPTube-Streamer confirmation answer {$r}");
+            error_log("AVideo-Streamer confirmation answer {$r}");
             $obj->response_raw = $r;
             $obj->response = json_decode($r);
             if ($errno = curl_errno($curl)) {
@@ -781,11 +781,11 @@ class Encoder extends ObjectYPT {
 
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
-        $youPHPTubeURL = $s->getSiteURL();
+        $aVideoURL = $s->getSiteURL();
         $user = $s->getUser();
         $pass = $s->getPass();
 
-        $target = $youPHPTubeURL . "youPHPTubeEncoder.json";
+        $target = $aVideoURL . "aVideoEncoder.json";
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target}");
         error_log("Encoder::sendFile reading file from {$file}");
@@ -824,7 +824,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = curl_exec($curl);
-        error_log("YouPHPTube-Streamer answer {$r}");
+        error_log("AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -852,14 +852,14 @@ class Encoder extends ObjectYPT {
         $duration = static::getDurationFromFile($file);
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
-        $youPHPTubeURL = $s->getSiteURL();
+        $aVideoURL = $s->getSiteURL();
         $user = $s->getUser();
         $pass = $s->getPass();
 
-        $target = $youPHPTubeURL . "objects/youPHPTubeEncoderReceiveImage.json.php";
+        $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
-        error_log("sendImages: YouPHPTube-Encoder sending file to {$target}");
-        error_log("sendImages: YouPHPTube-Encoder reading file from {$file}");
+        error_log("sendImages: AVideo-Encoder sending file to {$target}");
+        error_log("sendImages: AVideo-Encoder reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
             'videos_id' => $videos_id,
@@ -899,7 +899,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         error_log("sendImages: curl_exec");
         $r = curl_exec($curl);
-        error_log("sendImages: YouPHPTube-Streamer answer {$r}");
+        error_log("sendImages: AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -986,14 +986,14 @@ class Encoder extends ObjectYPT {
             $obj->progress = $progress;
         }
 
-        //Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/284_tmpFile_converted.mp4':
+        //Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/daniel/Dropbox/htdocs/AVideo-Encoder/videos/284_tmpFile_converted.mp4':
         preg_match("/Input[a-z0-9 #,]+from '(.*_tmpFile_converted.*)'/", $content, $matches);
         if (!empty($matches[1])) {
             $path_parts = pathinfo($matches[1]);
             $obj->from = $path_parts['extension'];
         }
 
-        //Output #0, webm, to '/home/daniel/Dropbox/htdocs/YouPHPTube-Encoder/videos/284_tmpFile_converted.webm':preg_match("/Input[a-z0-9 #,]+from '(.*_tmpFile_converted.*)'/", $content, $matches);
+        //Output #0, webm, to '/home/daniel/Dropbox/htdocs/AVideo-Encoder/videos/284_tmpFile_converted.webm':preg_match("/Input[a-z0-9 #,]+from '(.*_tmpFile_converted.*)'/", $content, $matches);
         preg_match("/Output[a-z0-9 #,]+to '(.*_tmpFile_converted.*)'/", $content, $matches);
         if (!empty($matches[1])) {
             $path_parts = pathinfo($matches[1]);
@@ -1088,7 +1088,7 @@ class Encoder extends ObjectYPT {
         } else {
             // I've discovered that if the ss parameter comes before the input flag, a tremendous time penalty is avoided.
             // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
-            // so that they don't get rendered incorrectly on the youphptube site. https://superuser.com/a/891478
+            // so that they don't get rendered incorrectly on the avideo site. https://superuser.com/a/891478
 
             eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
             //eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');

@@ -56,7 +56,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $e->setFilename($filename);
         $e->setStatus('queue');
         $e->setPriority($s->getPriority());
-        //$e->setNotifyURL($global['YouPHPTubeURL'] . "youPHPTubeEncoder.json");
+        //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
         error_log("Upload.php will set format");
         if ($type == "video") {
             if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {

@@ -320,7 +320,7 @@ res{$value}/index.m3u8
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
                 $obj->code = $code;
-                error_log("YouPHPTube-Encoder Start Encoder [{$code}] ");
+                error_log("AVideo-Encoder Start Encoder [{$code}] ");
                 exec($code . " 1> {$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
                     error_log($code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
