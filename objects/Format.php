@@ -291,6 +291,7 @@ res{$value}/index.m3u8
             unlink($destinationFile . "keyinfo");
             error_log("posProcessHLS: ZIP start {$destinationFile}");
             $zipPath = zipDirectory($destinationFile);
+            rrmdir($destinationFile);
             error_log("posProcessHLS: ZIP created {$zipPath} ".  humanFileSize(filesize($zipPath)));
             return file_exists($zipPath);
         }
