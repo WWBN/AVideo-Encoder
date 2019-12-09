@@ -4,12 +4,7 @@ ini_set('error_log', $global['systemRootPath'].'videos/avideo.log');
 global $global;
 global $config;
 
-if(!empty($_GET['base64Url'])){
-    if(!filter_var(base64_decode($_GET['base64Url']), FILTER_VALIDATE_URL)){
-        error_log('base64Url attack '. json_encode($_SERVER));
-        exit;
-    }
-}
+require_once $global['systemRootPath'] . 'objects/security.php';
 
 $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser,$mysqlPass,$mysqlDatabase);
 
