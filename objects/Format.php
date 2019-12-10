@@ -1,7 +1,9 @@
 <?php
 
 if (!class_exists('Format')) {
-
+    if(!class_exists('ObjectYPT')){
+        require_once './Object.php';
+    }
     class Format extends ObjectYPT {
 
         protected $id, $name, $code, $created, $modified, $extension, $extension_from, $order;
