@@ -2,6 +2,9 @@
 
 if (!class_exists('Configuration')) {
 
+    if(!class_exists('ObjectYPT')){
+        require_once 'Object.php';
+    }
     class Configuration extends ObjectYPT {
 
         protected $allowedStreamersURL, $defaultPriority, $version, $autodelete;
