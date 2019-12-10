@@ -726,3 +726,21 @@ function rrmdir($dir) {
         rmdir($dir);
     }
 }
+
+
+function xss_esc($text) {
+    if (empty($text)) {
+        return "";
+    }
+    $result = @htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    if (empty($result)) {
+        $result = str_replace(array('"', "'", "\\"), array("", "", ""), strip_tags($text));
+    }
+    return $result;
+}
+
+function xss_esc_back($text) {
+    $text = htmlspecialchars_decode($text, ENT_QUOTES);
+    $text = str_replace(array('&amp;', '&#039;', "#039;"), array(" ", "`", "`"), $text);
+    return $text;
+}
