@@ -35,7 +35,7 @@ This is the Encoder for <a href="https://www.youphptube.com/" target="_blank">AV
 AVideo! is an video-sharing website, It is an open source solution that is freely available to everyone. With AVideo you can create your own video sharing site, AVideo will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site. The service was created in march 2017.
 
 <div align="center">
-<img src="https://youphptube.com/img/prints/encoder.png">
+<img src="https://camo.githubusercontent.com/154b7098b81a7a8d43d0fdd4414dbec2079d0bad/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f656e636f6465725f696d672e706e67">
 <a href="https://encoder.youphptube.com/" target="_blank">View Public Encoder</a>
 </div>
 
