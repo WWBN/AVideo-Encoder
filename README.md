@@ -57,7 +57,7 @@ Surely you need to install an encoder
 Go get it <a href="https://github.com/DanielnetoDotCom/AVideo" target="_blank">here</a>
 
 <div align="center">
-<img src="https://www.youphptube.com/img/prints/prints7.png">
+
 <a href="https://demo.youphptube.com/" target="_blank">View Demo</a>
 </div>
 
