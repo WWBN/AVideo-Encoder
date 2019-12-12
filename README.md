@@ -54,11 +54,11 @@ If your server does not have a public IP or uses an IP on some of these bands:
 Surely you need to install an encoder
 
 # AVideo - Streamer
-Go get it <a href="https://github.com/DanielnetoDotCom/AVideo" target="_blank">here</a>
+Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
 
 <div align="center">
 
-<a href="https://demo.youphptube.com/" target="_blank">View Demo</a>
+<a href="https://demo.avideo.com/" target="_blank">View Demo</a>
 </div>
 
 # Server Requirements
