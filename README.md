@@ -80,7 +80,7 @@ Since version 4.x+ we separate the streamer website from the encoder website, so
 No. We will be providing a public encoder, we will build the encoder in such a way that several streamers can use the same encoder. We are also providing source code for this, so you can install it internally and manage your own encoding priority.
 
 <div align="center">
-<img src="https://www.youphptube.com/img/architecture/SchemeV4.0.jpg">
+<img src="https://camo.githubusercontent.com/f72c4d1450b6dbd8c6f2c6860cc7dd19ddfcbb11/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f6368616c6b626f6172642e706e67">
 <a href="https://github.com/WWBN/AVideo-Encoder" target="_blank">Download Encoder</a>
 </div>
 
