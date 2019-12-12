@@ -53,9 +53,9 @@ If your server does not have a public IP or uses an IP on some of these bands:
 
 Surely you need to install an encoder
 
-# AVideo - Streamer
+# AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
-
+<img src="https://camo.githubusercontent.com/cdd3a6d454d3f9c66888e4b1f8e2875cfc3092c3/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f77686f2d77652d6172652e6a7067"/>
 <div align="center">
 
 <a href="https://demo.avideo.com/" target="_blank">View Demo</a>
