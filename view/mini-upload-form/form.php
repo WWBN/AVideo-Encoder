@@ -14,8 +14,9 @@
 
                 <option value="0">Category - Use site default</option>
                 <?php
+                array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
                 foreach ($_SESSION['login']->categories as $key => $value) {
-                    echo '<option value="' . $value->id . '">' . $value->name . '</option>';
+                    echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
                 }
                 ?>
             </select>
