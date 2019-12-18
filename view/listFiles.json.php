@@ -12,10 +12,17 @@ if(Login::canBulkEncode()){
         }
 
         if (file_exists($path)) {
-            $filesStr = "{*." . implode(",*.", $global['allowed']) . "}";
+            if (defined( 'GLOB_BRACE' )) {
+                $filesStr = "{*." . implode(",*.", $global['allowed']) . "}";
 
-            //echo $files;
-            $video_array = glob($path . $filesStr, GLOB_BRACE);
+                //echo $files;
+                $video_array = glob($path . $filesStr, GLOB_BRACE);
+            } else {
+                $video_array = array();
+                foreach ($global['allowed'] as $value) {
+                    $video_array += glob($path . "*." . $value);
+                }
+            }
 
             $id = 0;
             foreach ($video_array as $key => $value) {
