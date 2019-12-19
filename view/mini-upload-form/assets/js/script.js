@@ -51,7 +51,8 @@ $(function () {
                 "inputHD": $('#inputHD').is(":checked"),
                 "title": $('#title').val(),
                 "description": $('#description').val(),
-                "categories_id": $('#categories_id').val()
+                "categories_id": $('#categories_id').val(),
+                "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
             };
             // Automatically upload the file once it is added to the queue
             var jqXHR = data.submit();

@@ -54,6 +54,7 @@ if (!class_exists('Login')) {
                 $object->canUpload = false;
                 $object->canComment = false;
                 $object->categories = array();
+                $object->userGroups = array();
                 error_log("Error on Login context");
                 error_log($url);
                 error_log($result);

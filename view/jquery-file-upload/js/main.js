@@ -123,7 +123,8 @@ $(function () {
             "inputHD": $('#inputHD').is(":checked"),
             "title": $('#title').val(),
             "description": $('#description').val(),
-            "categories_id": $('#categories_id').val()
+            "categories_id": $('#categories_id').val(),
+            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
         };
     }).bind('fileuploaddone', function (e, data) {
         //console.log(e);
@@ -141,7 +142,8 @@ $(function () {
                 "inputHD": $('#inputHD').is(":checked"),
                 "title": $('#title').val(),
                 "description": $('#description').val(),
-                "categories_id": $('#categories_id').val()
+                "categories_id": $('#categories_id').val(),
+                "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
             },
             type: 'post',
             success: function (response) {
