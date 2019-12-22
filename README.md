@@ -1,4 +1,4 @@
-<img src="https://platform.avideo.com/website/assets/151/images/avideo_encoder.png"/>
+<img src="https://platform.avideo.com/website/assets/151/images/avideo_encoder1.png"/>
 
 # AVideo - Encoder
 ### This is the Encoder for <a href="https://avideo.com/" target="_blank">AVideo</a>.
