@@ -10,7 +10,7 @@ if (empty($_GET['totalClips'])) {
 
 $url = base64_decode($_GET['base64Url']);
 $parts = explode("?token", $url);
-$baseName = md5($parts[0]) ;
+$baseName = md5($parts[0]);
 $imageFileName = $global['systemRootPath'] . "videos/sprit_{$baseName}.jpg";
 //$url = "http://127.0.0.1/AVideo/videos/_YPTuniqid_5a01ef79b04ec6.24051213_HD.mp4";
 
@@ -40,4 +40,14 @@ if (!file_exists($imageFileName)) {
 } else {
     echo file_get_contents($imageFileName);
     unlink($imageFileName);
+}
+// delete old sprits files
+$files = glob($global['systemRootPath'] . "videos/sprit_*.jpg");
+$now = time();
+foreach ($files as $file) {
+    if (is_file($file)) {
+        if ($now - filemtime($file) >= 86400) { // 1 day
+            unlink($file);
+        }
+    }
 }
