@@ -744,3 +744,9 @@ function xss_esc_back($text) {
     $text = str_replace(array('&amp;', '&#039;', "#039;"), array(" ", "`", "`"), $text);
     return $text;
 }
+
+function remove_utf8_bom($text){
+    $bom = pack('H*','EFBBBF');
+    $text = preg_replace("/^$bom/", '', $text);
+    return $text;
+}
