@@ -833,7 +833,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        $r = curl_exec($curl);
+        $r = remove_utf8_bom(curl_exec($curl));
         error_log("AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
