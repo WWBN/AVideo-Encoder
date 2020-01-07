@@ -59,6 +59,7 @@ if (!class_exists('Login')) {
                 error_log($url);
                 error_log($result);
             } else {
+                $result = remove_utf8_bom($result);
                 $object = json_decode($result);
                 if (!empty($object)) {
                     $object->streamer = $aVideoURL;
