@@ -65,7 +65,7 @@ function url_get_contents($Url, $ctx = "") {
         try {
             $tmp = @file_get_contents($Url, false, $context);
             if ($tmp != false) {
-                return $tmp;
+                return remove_utf8_bom($tmp);
             }
         } catch (ErrorException $e) {
             try {
@@ -80,10 +80,10 @@ function url_get_contents($Url, $ctx = "") {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $output = curl_exec($ch);
         curl_close($ch);
-        return $output;
+        return remove_utf8_bom($output);
     }
 
-    return @file_get_contents($Url, false, $context);
+    return remove_utf8_bom(@file_get_contents($Url, false, $context));
 }
 
 function fetch_http_file_contents($url) {
@@ -442,7 +442,7 @@ function setSiteSendMessage(&$mail) {
 }
 
 function decideFromPlugin() {
-    $json_file = file_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+    $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
     // convert the string to a json object
     $advancedCustom = json_decode($json_file);
     fixAdvancedCustom($advancedCustom);
