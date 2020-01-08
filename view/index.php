@@ -227,6 +227,7 @@ if (!empty($_GET['noNavbar'])) {
                 $advancedCustom = json_decode($json_file);
                 if (empty($advancedCustom)) {
                     error_log("ERROR on get {$aURL} " . $json_file);
+                    $advancedCustom = new stdClass();
                 }
                 $result = json_decode($_SESSION['login']->result);
                 if (empty($result->videoHLS)) {
