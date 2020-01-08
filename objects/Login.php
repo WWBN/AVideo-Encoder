@@ -41,7 +41,7 @@ if (!class_exists('Login')) {
             $result = url_get_contents($url, $context);
             if (empty($result)) {
                 error_log("Get Login fail, try again");
-                $result = file_get_contents($url, false, $context);
+                $result = url_get_contents($url, $context);
             }
 
             

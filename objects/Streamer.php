@@ -87,7 +87,7 @@ if (!class_exists('Streamer')) {
                 file_put_contents($cacheFile, $result);
             } else {
                 error_log("Verification GetFrom Cache {$url}");
-                $result = file_get_contents($cacheFile);
+                $result = url_get_contents($cacheFile);
             }
             error_log("Verification Response ($verifyURL): {$result}");
             return json_decode($result);

@@ -32,13 +32,13 @@ $step = $videoLength / $numberOfTiles;
 header("Content-type: image/jpeg");
 if (!file_exists($imageFileName)) {
     // display a dummy image
-    echo file_get_contents($global['systemRootPath'] . "view/img/creatingImages.jpg");
+    echo url_get_contents($global['systemRootPath'] . "view/img/creatingImages.jpg");
     //call createsprits
     $command = ("php '{$global['systemRootPath']}objects/createSpiritsFromVideo.php' '$url' '$step' '$tileWidth' '$tileHeight' '$imageFileName' '$numberOfTiles' '$baseName'");
     error_log("getSpritsFromVideo: {$command}");
     exec($command . " > /dev/null 2>/dev/null &");
 } else {
-    echo file_get_contents($imageFileName);
+    echo url_get_contents($imageFileName);
     unlink($imageFileName);
 }
 // delete old sprits files
