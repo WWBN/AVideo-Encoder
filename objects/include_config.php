@@ -3,7 +3,7 @@ ini_set( 'log_errors_max_len', '1024' );
 ini_set('error_log', $global['systemRootPath'].'videos/avideo.log');
 global $global;
 global $config;
-
+session_name(preg_replace( '/[\W]/', '', $global['webSiteRootURL']));
 require_once $global['systemRootPath'] . 'objects/security.php';
 
 $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser,$mysqlPass,$mysqlDatabase);
