@@ -9,7 +9,7 @@ if (!class_exists('Login')) {
         static function run($user, $pass, $aVideoURL, $encodedPass = false) {
             ini_set('memory_limit', '50M');
             ini_set('max_execution_time', 10);
-            error_log("Login::run ($user, $pass, $aVideoURL, $encodedPass)");
+            error_log("Login::run ($user, ***, $aVideoURL, $encodedPass)");
             global $global;
             $aVideoURL = trim($aVideoURL);
             if (substr($aVideoURL, -1) !== '/') {
