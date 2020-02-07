@@ -10,6 +10,7 @@ if(empty($_POST['fileURI'])){
 
 if(!empty($_POST['user']) && !empty($_POST['pass']) && !empty($_POST['notifyURL'])){
     error_log("Sent Login variables try to login");
+    error_log("login.json: Login::run");
     Login::run($_POST['user'], $_POST['pass'], $_POST['notifyURL'], true);
 }
 
