@@ -126,7 +126,7 @@ if (!class_exists('Login')) {
         }
 
         static function canUpload() {
-            return self::isLogged() && !empty($_SESSION['login']->canUpload);
+            return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
         }
 
         static function canComment() {
