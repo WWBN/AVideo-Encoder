@@ -108,6 +108,7 @@ if (!class_exists('Login')) {
         static function isLogged() {
             $isLogged = !empty($_SESSION['login']->isLogged);
             if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['aVideoURL'])) {
+                error_log("isLogged: Login::run");
                 Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['aVideoURL'], true);
             }
             return !empty($_SESSION['login']->isLogged);
