@@ -126,6 +126,7 @@ if (!class_exists('Login')) {
         }
 
         static function canUpload() {
+            error_log("canUpload: ". json_encode($_SESSION['login']));
             return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
         }
 
