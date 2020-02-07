@@ -13,6 +13,7 @@ if(!empty($_GET['videoURL']) && empty($_POST['videoURL'])){
     $_POST['videoURL'] = $_GET['videoURL'];
 }
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
+    error_log("youtubeDl.json: Login::run");
     Login::run($_GET['user'], $_GET['pass'], $_GET['webSiteRootURL'], true);
 }
 
