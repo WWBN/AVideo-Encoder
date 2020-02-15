@@ -358,8 +358,12 @@ if (!empty($_GET['noNavbar'])) {
 
                             <ul class="nav nav-tabs">
                                 <li class="active"><a data-toggle="tab" href="#upload"><i class="fa fa-file" aria-hidden="true"></i> From File</a></li>
+                                <?php
+                                if(empty($global['disableImportVideo'])){
+                                ?>
                                 <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> Import Video</a></li>
                                 <?php
+                                }
                                 if (Login::canBulkEncode()) {
                                     ?>
                                     <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
@@ -372,6 +376,10 @@ if (!empty($_GET['noNavbar'])) {
                                     include '../view/jquery-file-upload/form.php';
                                     ?>
                                 </div>
+                                
+                                <?php
+                                if(empty($global['disableImportVideo'])){
+                                ?>
                                 <div id="download" class="tab-pane fade">
                                     <div class="alert alert-info">
                                         <span class="glyphicon glyphicon-info-sign"></span> Share videos from YouTube and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
@@ -410,6 +418,7 @@ if (!empty($_GET['noNavbar'])) {
                                 </div>
 
                                 <?php
+                                }
                                 if (Login::canBulkEncode()) {
                                     ?>
 
