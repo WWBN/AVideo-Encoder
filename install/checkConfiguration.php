@@ -107,6 +107,7 @@ $content = "<?php
 
 \$global['disableConfigurations'] = false;
 \$global['disableBulkEncode'] = false;
+\$global['disableImportVideo'] = false;
 \$global['disableWebM'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
