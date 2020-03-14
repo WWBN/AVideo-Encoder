@@ -892,16 +892,13 @@ class Encoder extends ObjectYPT {
         error_log("AVideo-Streamer chunk answer {$r}");
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
-        if ($errno = curl_errno($ch)) {
-            $error_message = curl_strerror($errno);
+        if ($errno) {
             //echo "cURL error ({$errno}):\n {$error_message}";
             $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
-            curl_close($ch);
             error_log(json_encode($obj));
             return self::sendFile($file, $videos_id, $format, $encoder, $resolution);
         } else {
             $obj->error = false;
-            curl_close($ch);
             error_log(json_encode($obj));
             $duration = static::getDurationFromFile($file);
             return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file, $duration);
