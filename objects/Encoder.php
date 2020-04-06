@@ -854,7 +854,8 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "") {
+    static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+        $try++;
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
@@ -893,10 +894,15 @@ class Encoder extends ObjectYPT {
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno) {
-            //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
-            error_log(json_encode($obj));
-            return self::sendFile($file, $videos_id, $format, $encoder, $resolution);
+            sleep($try);
+            if($try<=3){
+                return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
+            }else{
+                //echo "cURL error ({$errno}):\n {$error_message}";
+                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+                error_log(json_encode($obj));
+                return self::sendFile($file, $videos_id, $format, $encoder, $resolution, $try);
+            }
         } else {
             $obj->error = false;
             error_log(json_encode($obj));
