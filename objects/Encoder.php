@@ -1117,7 +1117,7 @@ class Encoder extends ObjectYPT {
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
         // placing ss before the input is faster https://stackoverflow.com/a/27573049
-        eval('$ffmpeg ="ffmpeg -ss {$duration} -i "{$pathFileName}" -vframes 1 -y {$destinationFile}";');
+        eval('$ffmpeg ="ffmpeg -ss {$duration} -i {$pathFileName} -vframes 1 -y {$destinationFile}";');
         error_log("getImage: {$ffmpeg}");
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         $time_end = microtime(true);
