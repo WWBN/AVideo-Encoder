@@ -273,12 +273,12 @@ res{$value}/index.m3u8
             // create command
             
             $command = 'ffmpeg -i {$pathFileName} ';
-            $command .= ' -c:v h264 -vf scale=-2:240 -r 24 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -minrate '.(200).'k -crf 23 -maxrate '.(450).'k -bufsize '.(600).'k -c:a aac -b:a 128k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res240/index.m3u8';
+            $command .= ' -c:v h264 -vf scale=-2:240 -r 24 -g 48 -keyint_min 48 -sc_threshold 0 -bf 3 -b_strategy 2 -minrate '.(200).'k -crf 23 -maxrate '.(450).'k -bufsize '.(600).'k -c:a aac -b:a 128k -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res240/index.m3u8';
             
             foreach ($resolutions as $key => $value) {
                 if ($height >= $value) {
                     $rate = $bandwidth[$key]/1000;
-                    $command .= ' -c:v h264 -vf scale=-2:'.$value.' -sc_threshold 0 -bf 3 -b_strategy 2 -minrate '.($rate*0.5).'k -crf 23 -maxrate '.($rate*1.5).'k -bufsize '.($rate*2).'k -c:a aac -b:a '.($audioBitrate[$key]).'k -f hls -hls_time 15 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
+                    $command .= ' -c:v h264 -vf scale=-2:'.$value.' -sc_threshold 0 -bf 3 -b_strategy 2 -minrate '.($rate*0.5).'k -crf 23 -maxrate '.($rate*1.5).'k -bufsize '.($rate*2).'k -c:a aac -b:a '.($audioBitrate[$key]).'k -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res'.$value.'/index.m3u8';
                 }
             }
             
