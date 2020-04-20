@@ -893,7 +893,7 @@ class Encoder extends ObjectYPT {
         error_log("AVideo-Streamer chunk answer {$r}");
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
-        if ($errno || empty($r->filesize)) {
+        if ($errno || empty($obj->response->filesize)) {
             sleep($try);
             if($try<=3){
                 return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
