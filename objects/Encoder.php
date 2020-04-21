@@ -26,7 +26,7 @@ class Encoder extends ObjectYPT {
         }
         $this->setTitle($global['mysqli']->real_escape_string($this->getTitle()));
         $this->setStatus_obs($global['mysqli']->real_escape_string($this->getStatus_obs()));
-        error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")" . json_encode(debug_backtrace()));
+        error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
         return parent::save();
     }
 
