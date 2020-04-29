@@ -33,7 +33,7 @@ $height = $tileHeight + $pxBetweenTiles;
 $mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
 $mapHeight = $tileHeight * (ceil($numberOfTiles / 10));
 
-$cmd = "ffmpeg -i \"{$url}\" -vf fps=1/{$step} -s {$tileWidth}x{$tileHeight} {$dirname}out%03d.png";
+$cmd = "ffmpeg -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step} -s {$tileWidth}x{$tileHeight} {$dirname}out%03d.png";
 error_log("CreateSpirits: $cmd");
 //var_dump($duration, $videoLength);echo $cmd;exit;
 exec($cmd);
