@@ -136,7 +136,7 @@
     {% } %}
 </script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included-->
-<script src="js/vendor/jquery.ui.widget.js"></script>
+<script src="view/jquery-file-upload/js/vendor/jquery.ui.widget.js"></script>
 <!--The Templates plugin is included to render the upload/download listings -->
 <script src="https://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
@@ -162,7 +162,7 @@
 <!-- The File Upload user interface plugin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-ui.min.js"></script>
 <!-- The main application script -->
-<script src="js/main.js"></script>
+<script src="view/jquery-file-upload/js/main.js"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
 <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/cors/jquery.xdr-transport.min.js"></script>
