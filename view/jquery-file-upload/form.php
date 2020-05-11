@@ -1,8 +1,8 @@
-<link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css">
-<link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/css/jquery.fileupload.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/css/jquery.fileupload-ui.min.css">
 <!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css"></noscript>
-<noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css"></noscript>
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/css/jquery.fileupload-noscript.min.css"></noscript>
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/css/jquery.fileupload-ui-noscript.min.css"></noscript>
 <form id="fileupload" action="https://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <input type="text" class="form-control" id="title" name="title" placeholder="Title">
@@ -135,9 +135,9 @@
     </tr>
     {% } %}
 </script>
-<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included-->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/vendor/jquery.ui.widget.js"></script>
-<!-- The Templates plugin is included to render the upload/download listings -->
+<!--The Templates plugin is included to render the upload/download listings -->
 <script src="https://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
 <script src="https://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
@@ -146,24 +146,24 @@
 <!-- blueimp Gallery script -->
 <script src="https://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.iframe-transport.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.iframe-transport.min.js"></script>
 <!-- The basic File Upload plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload.min.js"></script>
 <!-- The File Upload processing plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-process.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-process.min.js"></script>
 <!-- The File Upload image preview & resize plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-image.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-image.min.js"></script>
 <!-- The File Upload audio preview plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-audio.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-audio.min.js"></script>
 <!-- The File Upload video preview plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-video.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-video.min.js"></script>
 <!-- The File Upload validation plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-validate.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-validate.min.js"></script>
 <!-- The File Upload user interface plugin -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/jquery.fileupload-ui.min.js"></script>
 <!-- The main application script -->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/main.js"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
 <!--[if (gte IE 8)&(lt IE 10)]>
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/cors/jquery.xdr-transport.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-file-upload/10.24.0/js/cors/jquery.xdr-transport.min.js"></script>
 <![endif]-->
