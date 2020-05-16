@@ -3,6 +3,12 @@ ini_set( 'log_errors_max_len', '1024' );
 ini_set('error_log', $global['systemRootPath'].'videos/avideo.log');
 global $global;
 global $config;
+
+if(empty($global['configurationVersion']) || $global['configurationVersion']<2){
+    require_once $global['systemRootPath'].'objects/Configuration.php';
+    Configuration::rewriteConfigFile();
+}
+
 session_name(preg_replace( '/[\W]/', '', $global['webSiteRootURL']));
 require_once $global['systemRootPath'] . 'objects/security.php';
 

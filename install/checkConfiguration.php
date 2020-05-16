@@ -102,8 +102,10 @@ if ($mysqli->query($sql) !== TRUE) {
 $mysqli->close();
 
 $content = "<?php
+\$global['configurationVersion'] = 2;
 \$global['webSiteRootURL'] = '{$_POST['webSiteRootURL']}';
 \$global['systemRootPath'] = '{$_POST['systemRootPath']}';
+\$global['webSiteRootPath'] = '';
 
 \$global['disableConfigurations'] = false;
 \$global['disableBulkEncode'] = false;
@@ -119,6 +121,16 @@ $content = "<?php
 /**
  * Do NOT change from here
  */
+if(empty(\$global['webSiteRootPath'])){
+    preg_match('/https?:\/\/[^\/]+(.*)/i', \$global['webSiteRootURL'], \$matches);
+    if(!empty(\$matches[1])){
+        \$global['webSiteRootPath'] = \$matches[1];
+    }
+}
+if(empty(\$global['webSiteRootPath'])){
+    die('Please configure your webSiteRootPath');
+}
+
 
 require_once \$global['systemRootPath'].'objects/include_config.php';
 ";
