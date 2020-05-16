@@ -62,6 +62,9 @@ $ad = $config->getAutodelete();
         <script src="view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
         <script src="view/js/main.js" type="text/javascript"></script>
         <link href="view/css/style.css" rel="stylesheet" type="text/css"/>
+        <script>
+        var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
+        </script>
         <style>
 <?php
 if (!empty($_GET['noNavbar'])) {
