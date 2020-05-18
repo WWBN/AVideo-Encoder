@@ -807,7 +807,8 @@ class Encoder extends ObjectYPT {
             'user' => $user,
             'password' => $pass,
             'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
-            'chunkFile' => $chunkFile
+            'chunkFile' => $chunkFile,
+            'encoderURL' => $global['webSiteRootURL']
         );
         $count = 0;
         foreach ($usergroups_id as $value) {
