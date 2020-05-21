@@ -51,7 +51,9 @@
                 <i class="glyphicon glyphicon-trash"></i>
                 <span>Delete</span>
             </button>
-            <input type="checkbox" class="toggle">
+            <div class="checkbox">
+                <label><input type="checkbox" class="toggle"> Select All</label>
+            </div>
             <!-- The global file processing state -->
             <span class="fileupload-process"></span>
         </div>
