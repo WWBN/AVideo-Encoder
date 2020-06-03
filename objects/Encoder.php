@@ -335,17 +335,19 @@ class Encoder extends ObjectYPT {
             return $obj;
         }
         $text = url_get_contents($file);
-        preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
-        if (!empty($matches[1])) {
-            $obj->filename = $matches[1];
-        }
-        preg_match_all('/\[download\] +([0-9.]+)% of/', $text, $matches, PREG_SET_ORDER);
-//$m = end($matches);
-//$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
-        foreach ($matches as $m) {
-            $obj->progress = empty($m[1]) ? 0 : intval($m[1]);
-            if ($obj->progress == 100) {
-                break;
+        if(!empty($text)){
+            preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
+            if (!empty($matches[1])) {
+                $obj->filename = $matches[1];
+            }
+            preg_match_all('/\[download\] +([0-9.]+)% of/', $text, $matches, PREG_SET_ORDER);
+    //$m = end($matches);
+    //$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
+            foreach ($matches as $m) {
+                $obj->progress = empty($m[1]) ? 0 : intval($m[1]);
+                if ($obj->progress == 100) {
+                    break;
+                }
             }
         }
         return $obj;
