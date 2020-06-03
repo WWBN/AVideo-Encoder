@@ -331,7 +331,7 @@ class Encoder extends ObjectYPT {
         $obj->filename = "";
         $obj->progress = 0;
         $file = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
-        if (!file_exists($file)) {
+        if (!file_exists($file) || filesize($file) > 5000000) {
             return $obj;
         }
         try {
