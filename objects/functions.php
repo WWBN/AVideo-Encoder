@@ -82,8 +82,11 @@ function url_get_contents($Url, $ctx = "") {
         curl_close($ch);
         return remove_utf8_bom($output);
     }
-
-    return remove_utf8_bom(@file_get_contents($Url, false, $context));
+    $content = @file_get_contents($Url, false, $context);
+    if(empty($content)){
+        return "";
+    }
+    return remove_utf8_bom($content);
 }
 
 function fetch_http_file_contents($url) {
