@@ -334,7 +334,12 @@ class Encoder extends ObjectYPT {
         if (!file_exists($file)) {
             return $obj;
         }
-        $text = url_get_contents($file);
+        try {
+            $text = url_get_contents($file);
+        } catch (Exception $exc) {
+            error_log($exc->getMessage());
+        }
+        
         if(!empty($text)){
             preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
             if (!empty($matches[1])) {
