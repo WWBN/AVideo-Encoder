@@ -83,7 +83,7 @@ function url_get_contents($Url, $ctx = "") {
         return remove_utf8_bom($output);
     }
 
-    return remove_utf8_bom(file_get_contents($Url, false, $context));
+    return remove_utf8_bom(@file_get_contents($Url, false, $context));
 }
 
 function fetch_http_file_contents($url) {
