@@ -746,6 +746,9 @@ function xss_esc_back($text) {
 }
 
 function remove_utf8_bom($text){
+    if(empty($text)){
+        return "";
+    }
     if(strlen($text)>1000000){
         return $text;
     }
