@@ -370,6 +370,7 @@ class Encoder extends ObjectYPT {
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
+                "allow_self_signed" => true
             ),
         );
         $global['queue_id'] = $queue_id;
