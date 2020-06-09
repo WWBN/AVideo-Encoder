@@ -46,6 +46,7 @@ if (!class_exists('Login')) {
             }
 
             
+            error_log("Login::run response: ($result)");
             if (empty($result)) {
                 $object = new stdClass();
                 $object->streamer = false;
@@ -130,6 +131,10 @@ if (!class_exists('Login')) {
         static function canUpload() {
             //error_log("canUpload: ". json_encode($_SESSION['login']));
             return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
+        }
+        static function canStream() {
+            //error_log("canUpload: ". json_encode($_SESSION['login']));
+            return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canStream));
         }
 
         static function canComment() {
