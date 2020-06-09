@@ -362,9 +362,6 @@ class Encoder extends ObjectYPT {
         // the file has already been downloaded
         // all that is needed to do is create a tempfile reference to the original
         // symlink($downloadedFile, $destinationFile);
-        /////whoops! apache has to be taught to use symlinks so this won't work
-        /////trying copy instead
-        copy($downloadedFile, $destinationFile);
         global $global;
         $arrContextOptions = array(
             "ssl" => array(
@@ -375,6 +372,9 @@ class Encoder extends ObjectYPT {
         );
         $global['queue_id'] = $queue_id;
         $ctx = stream_context_create($arrContextOptions);
+        /////whoops! apache has to be taught to use symlinks so this won't work
+        /////trying copy instead
+        copy($downloadedFile, $destinationFile, $ctx);
         //copied from stream_contenxt_set_params
         // the file is already 100% downloaded by now
         $txt = "[download]  100% of all Bytes";
