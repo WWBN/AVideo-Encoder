@@ -235,7 +235,7 @@ if (!empty($_GET['noNavbar'])) {
                 $result = json_decode($_SESSION['login']->result);
                 if (empty($result->videoHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = true;
-                } else {
+                } else if(!isset($advancedCustom->doNotShowEncoderHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = false;
                 }
                 fixAdvancedCustom($advancedCustom);
