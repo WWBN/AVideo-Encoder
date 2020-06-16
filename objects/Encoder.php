@@ -889,7 +889,11 @@ class Encoder extends ObjectYPT {
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Transfer-Encoding: chunked'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         // Use a callback to provide curl with data to transmit from the stream
+        global $countCURLOPT_READFUNCTION;
+        $countCURLOPT_READFUNCTION = 0;
         curl_setopt($ch, CURLOPT_READFUNCTION, function($ch, $fd, $length) use ($stream) {
+            global $countCURLOPT_READFUNCTION;
+            $countCURLOPT_READFUNCTION++;
             return fread($stream, 1024);
         });
         $r = curl_exec($ch);
@@ -899,7 +903,7 @@ class Encoder extends ObjectYPT {
         curl_close($ch);
 
         $r = remove_utf8_bom($r);
-        error_log("AVideo-Streamer chunk answer {$r}");
+        error_log("AVideo-Streamer countCURLOPT_READFUNCTION = ($countCURLOPT_READFUNCTION) chunk answer {$r}");
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno || empty($obj->response->filesize)) {
