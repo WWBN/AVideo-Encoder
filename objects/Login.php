@@ -145,6 +145,10 @@ if (!class_exists('Login')) {
             if (!static::isLogged()) {
                 return false;
             }
+            global $global;
+            if(!empty($global['forceStreamerSiteURL'])){
+                return $global['forceStreamerSiteURL'];
+            }
             return $_SESSION['login']->streamer;
         }
 
