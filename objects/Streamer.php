@@ -135,6 +135,10 @@ if (!class_exists('Streamer')) {
         }
 
         function getSiteURL() {
+            global $global;
+            if(!empty($global['forceStreamerSiteURL'])){
+                return $global['forceStreamerSiteURL'];
+            }
             return $this->siteURL;
         }
 
