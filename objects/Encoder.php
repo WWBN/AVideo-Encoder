@@ -907,8 +907,8 @@ class Encoder extends ObjectYPT {
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno || empty($obj->response->filesize)) {
-            sleep($try);
             if($try<=3){
+                sleep($try);
                 return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
             }else{
                 //echo "cURL error ({$errno}):\n {$error_message}";
