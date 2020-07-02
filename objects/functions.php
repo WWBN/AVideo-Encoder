@@ -759,3 +759,14 @@ function remove_utf8_bom($text){
     $text = preg_replace("/^$bom/", '', $text);
     return $text;
 }
+
+function _session_start(Array $options = array()) {
+    try {
+        if (session_status() == PHP_SESSION_NONE) {
+            return session_start($options);
+        }
+    } catch (Exception $exc) {
+        _error_log("_session_start: " . $exc->getTraceAsString());
+        return false;
+    }
+}

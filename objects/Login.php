@@ -57,13 +57,14 @@ if (!class_exists('Login')) {
                 $object->canComment = false;
                 $object->categories = array();
                 $object->userGroups = array();
-                error_log("Error on Login context");
+                error_log("Login::run Error on Login context");
                 error_log($url);
                 error_log($result);
             } else {
                 $result = remove_utf8_bom($result);
                 $object = json_decode($result);
                 if (!empty($object)) {
+                    error_log("Login::run got an object");
                     $object->streamer = $aVideoURL;
                     $object->streamers_id = 0;
                     if (!empty($object->canUpload)) {
@@ -88,6 +89,7 @@ if (!class_exists('Login')) {
                         setcookie("user", $user, $cookieLife, "/");
                         setcookie("pass", $pass, $cookieLife, "/");
                         setcookie("aVideoURL", $aVideoURL, $cookieLife, "/");
+                        error_log("Login:: almost done");
                     }
                 } else {
                     $object = new stdClass();
@@ -96,7 +98,9 @@ if (!class_exists('Login')) {
             }
             $object->aVideoURL = $url;
             $object->result = $result;
+            _session_start();
             $_SESSION['login'] = $object;
+            error_log("Login:: done");
         }
 
         static function logoff() {

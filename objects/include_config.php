@@ -1,6 +1,9 @@
 <?php
 ini_set( 'log_errors_max_len', '1024' );
-ini_set('error_log', $global['systemRootPath'].'videos/avideo.log');
+if(empty($global['logfile'])){
+    $global['logfile'] = $global['systemRootPath'].'videos/avideo.log';
+}
+ini_set('error_log', $global['logfile']);
 global $global;
 global $config;
 

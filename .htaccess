@@ -7,6 +7,7 @@
     RewriteRule    ^index.php$ view/index.php    [NC,L]
     #RewriteRule    ^$ view/    [NC,L]
     RewriteRule    ^isAdmin$ view/isAdmin.php    [NC,L]
+    RewriteRule    ^videosListToLive view/videosListToLive.php    [NC,L]
     RewriteRule    ^removeStreamer$ view/removeStreamer.php    [NC,L]
     RewriteRule    ^priority$ view/priority.php    [NC,L]
     RewriteRule    ^status$ view/status.php    [NC,L]
