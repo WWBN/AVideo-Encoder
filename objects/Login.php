@@ -100,7 +100,7 @@ if (!class_exists('Login')) {
             $object->result = $result;
             _session_start();
             $_SESSION['login'] = $object;
-            error_log("Login:: done session_id = ". session_id()." session_login ". json_encode($_SESSION['login']));
+            error_log("Login:: done session_id = ". session_id()." session_login ". json_encode($_SESSION['login']->isLogged));
         }
 
         static function logoff() {
@@ -117,8 +117,9 @@ if (!class_exists('Login')) {
             if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['aVideoURL'])) {
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['aVideoURL'], true);
+            }else if (!$isLogged && !empty ($_SESSION['login'])) {
+                error_log("isLogged: false ". json_encode($_SESSION['login']->isLogged));
             }
-            $islogged = !empty($_SESSION['login']->isLogged);
             if(!empty($_GET['justLogin'])){
                 error_log("isLogged:: session_id = ". session_id());
             }
