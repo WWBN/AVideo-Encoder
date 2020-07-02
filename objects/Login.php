@@ -100,7 +100,7 @@ if (!class_exists('Login')) {
             $object->result = $result;
             _session_start();
             $_SESSION['login'] = $object;
-            error_log("Login:: done session_id = ". session_id());
+            error_log("Login:: done session_id = ". session_id()." session_login ". json_encode($_SESSION['login']));
         }
 
         static function logoff() {
