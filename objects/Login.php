@@ -104,6 +104,7 @@ if (!class_exists('Login')) {
         }
 
         static function logoff() {
+            error_log("logoff:: done session_id = ". session_id());
             unset($_SESSION['login']);
             setcookie('user', null, -1, "/");
             setcookie('pass', null, -1, "/");
