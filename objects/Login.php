@@ -100,7 +100,7 @@ if (!class_exists('Login')) {
             $object->result = $result;
             _session_start();
             $_SESSION['login'] = $object;
-            error_log("Login:: done");
+            error_log("Login:: done session_id = ". session_id());
         }
 
         static function logoff() {
@@ -117,7 +117,11 @@ if (!class_exists('Login')) {
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['aVideoURL'], true);
             }
-            return !empty($_SESSION['login']->isLogged);
+            $islogged = !empty($_SESSION['login']->isLogged);
+            if(!empty($_GET['justLogin'])){
+                error_log("isLogged:: session_id = ". session_id());
+            }
+            return $isLogged;
         }
 
         static function isAdmin() {
