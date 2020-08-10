@@ -9,9 +9,9 @@ if (file_exists("../videos/configuration.php")) {
 }
 
 $webSiteRootURL = @$argv[1];
-$databaseUser = empty($argv[2])?"youphptube":$argv[2];
-$databasePass = empty($argv[3])?"youphptube":$argv[3];
-$systemAdminPass = empty($argv[4])?"123":$argv[4];
+$databaseUser = empty($argv[2]) ? "youphptube" : $argv[2];
+$databasePass = empty($argv[3]) ? "youphptube" : $argv[3];
+$systemAdminPass = empty($argv[4]) ? "123" : $argv[4];
 while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
     if (!empty($webSiteRootURL)) {
         echo "Invalid Site URL\n";
@@ -34,8 +34,18 @@ $_POST['inputUser'] = 'admin';
 $_POST['inputPassword'] = $systemAdminPass;
 $_POST['webSiteTitle'] = "AVideo";
 $_POST['siteURL'] = $webSiteRootURL;
-$_POST['webSiteRootURL'] = $webSiteRootURL."Encoder/";
+$_POST['webSiteRootURL'] = $webSiteRootURL . "Encoder/";
 $_POST['allowedStreamers'] = "";
 $_POST['defaultPriority'] = 1;
 
 include './checkConfiguration.php';
+
+$streamerConfiguration = "../../videos/configuration.php";
+if (file_exists($streamerConfiguration)) {
+    require_once $streamerConfiguration;
+    $sql = "UPDATE configurations SET "
+            . "encoderURL = '{$global['mysqli']->real_escape_string($webSiteRootURL)}'"
+            . " WHERE id = 1";
+
+    $global['mysqli']->query($sql);
+}
