@@ -8,9 +8,15 @@ if (file_exists("../videos/configuration.php")) {
     die("Can not create configuration again: " . json_encode($_SERVER));
 }
 
+$databaseUser = "youphptube";
+$databasePass = "youphptube";
+if (version_compare(phpversion(), '7.2', '<')) {
+    $databaseUser = "root";
+}
+
 $webSiteRootURL = @$argv[1];
-$databaseUser = empty($argv[2]) ? "youphptube" : $argv[2];
-$databasePass = empty($argv[3]) ? "youphptube" : $argv[3];
+$databaseUser = empty($argv[2])?$databaseUser:$argv[2];
+$databasePass = empty($argv[3])?$databasePass:$argv[3];
 $systemAdminPass = empty($argv[4]) ? "123" : $argv[4];
 while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
     if (!empty($webSiteRootURL)) {
@@ -20,9 +26,12 @@ while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
     ob_flush();
     $webSiteRootURL = trim(readline(""));
 }
-
+$webSiteRootURL = rtrim($webSiteRootURL, '/') . '/';
 
 $_POST['systemRootPath'] = "/var/www/html/YouPHPTube/Encoder/";
+if(!is_dir($_POST['systemRootPath'])){
+    $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
+}
 $_POST['databaseHost'] = "localhost";
 $_POST['databaseUser'] = $databaseUser;
 $_POST['databasePass'] = $databasePass;
