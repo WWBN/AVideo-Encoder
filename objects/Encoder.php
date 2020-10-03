@@ -868,6 +868,7 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
+        $obj->filesize = filesize($file);
         $obj->response = "";
 
         error_log("Encoder::sendFileChunk file=$file");
@@ -906,8 +907,12 @@ class Encoder extends ObjectYPT {
         error_log("AVideo-Streamer countCURLOPT_READFUNCTION = ($countCURLOPT_READFUNCTION) chunk answer {$r}");
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
-        if ($errno || empty($obj->response->filesize)) {
-            error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target}");
+        if ($errno || empty($obj->response->filesize) || ($obj->response->filesize < $obj->filesize)) {
+            if($obj->response->filesize < $obj->filesize){
+                error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize)." local Encoder file size =  ".humanFileSize($obj->filesize));
+            }else{
+                error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target}");
+            }
             if($try<=3){
                 sleep($try);
                 return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
