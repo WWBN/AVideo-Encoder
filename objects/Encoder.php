@@ -899,7 +899,7 @@ class Encoder extends ObjectYPT {
         $r = curl_exec($ch);
         $errno = curl_errno($ch);
         $error_message = curl_strerror($errno);
-        var_dump($r, $errno, $error_message);
+        //var_dump($r, $errno, $error_message);
         curl_close($ch);
 
         $r = remove_utf8_bom($r);
