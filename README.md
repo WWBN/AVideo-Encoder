@@ -42,7 +42,7 @@ https://www.youphptube.com/services
 
 <div align="center">
 <img src="https://camo.githubusercontent.com/154b7098b81a7a8d43d0fdd4414dbec2079d0bad/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f656e636f6465725f696d672e706e67">
-<a href="https://encoder.youphptube.com/" target="_blank">View Public Encoder</a>
+<a href="https://encoder.avideo.com/" target="_blank">View Public Encoder</a>
 </div>
 
 # Why do I need the Encoder?
@@ -61,7 +61,7 @@ Surely you need to install an encoder
 
 # AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
-<img src="https://camo.githubusercontent.com/cdd3a6d454d3f9c66888e4b1f8e2875cfc3092c3/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f77686f2d77652d6172652e6a7067"/>
+<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
 <div align="center">
 
 <a href="https://demo.avideo.com/" target="_blank">View Demo</a>
