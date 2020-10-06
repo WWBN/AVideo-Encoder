@@ -761,8 +761,10 @@ function remove_utf8_bom($text){
 }
 
 function _session_start(Array $options = array()) {
+    global $global;
     try {
         if (session_status() == PHP_SESSION_NONE) {
+            session_name("encoder".preg_replace( '/[\W]/', '', $global['webSiteRootURL']));
             return session_start($options);
         }
     } catch (Exception $exc) {

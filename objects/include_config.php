@@ -12,7 +12,6 @@ if(empty($global['configurationVersion']) || $global['configurationVersion']<2){
     Configuration::rewriteConfigFile();
 }
 
-session_name(preg_replace( '/[\W]/', '', $global['webSiteRootURL']));
 require_once $global['systemRootPath'] . 'objects/security.php';
 
 $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser,$mysqlPass,$mysqlDatabase);
@@ -29,15 +28,15 @@ $global['mysqli']->query("SET time_zone='$offset';");
 session_set_cookie_params(86400);
 ini_set('session.gc_maxlifetime', 86400);
 ini_set('session.cookie_lifetime',86400);
-session_start();
-
-$_SESSION['lastUpdate'] = time();
 
 if(!function_exists('local_get_contents')){
     require_once $global['systemRootPath'].'objects/functions.php';
     require_once $global['systemRootPath'].'objects/Object.php';
 }
 
+_session_start();
+
+$_SESSION['lastUpdate'] = time();
 
 $global['multiResolutionOrder']     = array(74,75,76,77,78,79,80,81,82,83,84,85,86,87);
 $global['hasHDOrder']                 = array(87,86,85,83,80,79,78,76); 

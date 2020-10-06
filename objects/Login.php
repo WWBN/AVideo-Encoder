@@ -86,8 +86,8 @@ if (!class_exists('Login')) {
                         $s->setPass($pass);
                         $s->save();
                         $cookieLife = time() + 3600 * 24 * 2; // 2 day
-                        setcookie("user", $user, $cookieLife, "/");
-                        setcookie("pass", $pass, $cookieLife, "/");
+                        setcookie("encoder_user", $user, $cookieLife, "/");
+                        setcookie("encoder_pass", $pass, $cookieLife, "/");
                         setcookie("aVideoURL", $aVideoURL, $cookieLife, "/");
                         error_log("Login:: almost done");
                     }
@@ -106,17 +106,17 @@ if (!class_exists('Login')) {
         static function logoff() {
             error_log("logoff:: done session_id = ". session_id());
             unset($_SESSION['login']);
-            setcookie('user', null, -1, "/");
-            setcookie('pass', null, -1, "/");
-            unset($_COOKIE['user']);
-            unset($_COOKIE['pass']);
+            setcookie('encoder_user', null, -1, "/");
+            setcookie('encoder_pass', null, -1, "/");
+            unset($_COOKIE['encoder_user']);
+            unset($_COOKIE['encoder_pass']);
         }
 
         static function isLogged() {
             $isLogged = !empty($_SESSION['login']->isLogged);
-            if (!$isLogged && !empty($_COOKIE['user']) && !empty($_COOKIE['pass']) && !empty($_COOKIE['aVideoURL'])) {
+            if (!$isLogged && !empty($_COOKIE['encoder_user']) && !empty($_COOKIE['encoder_pass']) && !empty($_COOKIE['encoder_aVideoURL'])) {
                 error_log("isLogged: Login::run");
-                Login::run($_COOKIE['user'], $_COOKIE['pass'], $_COOKIE['aVideoURL'], true);
+                Login::run($_COOKIE['encoder_user'], $_COOKIE['encoder_pass'], $_COOKIE['encoder_aVideoURL'], true);
             }else if (!$isLogged && !empty ($_SESSION['login'])) {
                 error_log("isLogged: false ". json_encode($_SESSION['login']->isLogged));
             }
