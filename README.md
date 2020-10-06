@@ -1,12 +1,12 @@
-<img src="https://platform.avideo.com/website/assets/151/images/avideo_encoder1.png"/>
+<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
 
 # AVideo - Encoder
 ### This is the Encoder for <a href="https://avideo.com/" target="_blank">AVideo</a>.
 AVideo is a video-sharing Platform software, the open source solution that is freely available to everyone. When you download AVideo Platform instance, you can create your own video sharing site, AVideo will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site. 
 
-#### Want to manage multiple encoders? <a href="http://git.encoder-network.avideo.com/" class="" target="_blank">AVideo Encoder Network</a> (Optional)
+#### Want to manage multiple encoders? <a href="http://git-encoder-network.avideo.tube/" class="" target="_blank">AVideo Encoder Network</a> (Optional)
 
-### If you are not sure what is AVideo Platform, go to our <a href="https://demo.avideo.com/" target="_blank">demo</a> page or visit our <a href="https://platform.avideo.com/" target="_blank">AVideo Platform Official Site</a>
+### If you are not sure what is AVideo Platform, go to our <a href="https://demo.avideo.com/" target="_blank">demo</a> page or visit our <a href="https://avideo.tube/" target="_blank">AVideo Platform Official Site</a>
 
 
 * <a href="https://flix.avideo.com/" target="_blank">AVideo Platform Flix Style Demo</a>
@@ -42,7 +42,7 @@ https://www.youphptube.com/services
 
 <div align="center">
 <img src="https://camo.githubusercontent.com/154b7098b81a7a8d43d0fdd4414dbec2079d0bad/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f656e636f6465725f696d672e706e67">
-<a href="https://encoder.youphptube.com/" target="_blank">View Public Encoder</a>
+<a href="https://encoder.avideo.com/" target="_blank">View Public Encoder</a>
 </div>
 
 # Why do I need the Encoder?
@@ -61,7 +61,7 @@ Surely you need to install an encoder
 
 # AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
-<img src="https://camo.githubusercontent.com/cdd3a6d454d3f9c66888e4b1f8e2875cfc3092c3/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f77686f2d77652d6172652e6a7067"/>
+<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
 <div align="center">
 
 <a href="https://demo.avideo.com/" target="_blank">View Demo</a>
@@ -86,7 +86,7 @@ Since version 4.x+ we separate the streamer website from the encoder website, so
 No. We will be providing a public encoder, we will build the encoder in such a way that several streamers can use the same encoder. We are also providing source code for this, so you can install it internally and manage your own encoding priority.
 
 <div align="center">
-<img src="https://camo.githubusercontent.com/f72c4d1450b6dbd8c6f2c6860cc7dd19ddfcbb11/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f6368616c6b626f6172642e706e67">
+<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png">
 <a href="https://github.com/WWBN/AVideo-Encoder" target="_blank">Download Encoder</a>
 </div>
 
