@@ -7,6 +7,6 @@ if(!isCommandLineInterface()){
 }
 
 $sql = "UPDATE configurations SET allowedStreamersURL = '' where id > 0 ";
-$insert_row = sqlDAL::writeSql($sql);
+$global['mysqli']->query($sql);
 
 die();
