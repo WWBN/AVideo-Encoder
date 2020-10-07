@@ -25,7 +25,7 @@
     RewriteRule    ^logoff$ objects/logoff.json.php    [NC,L]
     RewriteRule    ^getImage/([A-Za-z0-9=/]+)/([A-Za-z0-9]{3})$ objects/getImage.php?base64Url=$1&format=$2    [NC,L]
     RewriteRule    ^getImageMP4/([A-Za-z0-9=/]+)/([A-Za-z0-9]{3,4})/([0-9.]+)$ objects/getImageMP4.php?base64Url=$1&format=$2&time=$3    [NC,L]
-    RewriteRule    ^getSpiritsFromVideo/([A-Za-z0-9%=/]+)/([0-9]+)/([0-9]+)/([0-9:]+)$ objects/getSpiritsFromVideo.php?base64Url=$1&tileWidth=$2&totalClips=$3&duration=$4    [NC,L]
+    RewriteRule    ^getSpiritsFromVideo/([A-Za-z0-9%=/]+)/([0-9]+)/([0-9]+)/([0-9:]+)? objects/getSpiritsFromVideo.php?base64Url=$1&tileWidth=$2&totalClips=$3&duration=$4    [NC,L]
     RewriteRule    ^getLinkInfo/([A-Za-z0-9=/]+)$ objects/getLinkInfo.json.php?base64Url=$1    [NC,L]
 </IfModule>
 <Files avideo.log>
