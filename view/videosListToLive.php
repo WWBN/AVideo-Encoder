@@ -108,7 +108,7 @@ function __exec($cmd) {
     exec($cmd . " 2>&1", $output, $return_val);
     if ($return_val !== 0) {
         echo "\nErro\n";
-        var_dump($output);
+        //var_dump($output);
         echo "\n";
         return false;
     }

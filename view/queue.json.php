@@ -12,24 +12,33 @@ foreach ($rows as $key => $value) {
     $rows[$key]['format'] = $f->getName();
     $s = new Streamer($rows[$key]['streamers_id']);
     $rows[$key]['streamer'] = $s->getSiteURL();
-    $file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted";
     foreach ($resolutions as $value2) {
+        $rows[$key]['fileInfo'] = Encoder::getAllFilesInfo($rows[$key]['id']);
+        $files = Encoder::getTmpFiles($rows[$key]['id']);
+        foreach ($files as $file) {
+            $rows[$key]['mp4_filesize_'] = filesize($file_);
+        }
         
-        //$file = "{$global['systemRootPath']}videos/{$rows[$key]['id']}_tmpFile_converted_{$value2}.mp4";
-        $file_ = $file."_{$value2}.mp4";
+        
+        if (file_exists($file_)) {
+            $rows[$key]['mp4_filesize_' . $value2] = filesize($file_);
+            $rows[$key]['mp4_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
+        }
+        
+        $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'mp4', $value2);
         if (file_exists($file_)) {
             $rows[$key]['mp4_filesize_' . $value2] = filesize($file_);
             $rows[$key]['mp4_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
 
-        $file_ = $file."_{$value2}.webm";
+        $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'webm', $value2);
         if (file_exists($file_)) {
             $rows[$key]['webm_filesize_' . $value2] = filesize($file_);
             $rows[$key]['webm_filesize_human_' . $value2] = humanFileSize($rows[$key]['webm_filesize_' . $value2]);
         }
     }    
         
-    if (is_dir($file)) {
+    if (!empty($file) && is_dir($file)) {
         $rows[$key]['hls_filesize'] = directorysize($file);
         $rows[$key]['hls_filesize_human'] = humanFileSize($rows[$key]['hls_filesize']);
     }
@@ -40,5 +49,8 @@ $total = Encoder::getTotal(true);
 if (empty($_POST['rowCount']) && !empty($total)) {
     $_POST['rowCount'] = $total;
 }
-
+// start queue now
+$cmd = PHP_BINDIR."/php -f {$global['systemRootPath']}view/run.php > /dev/null 2>/dev/null &";
+//echo "** executing command {$cmd}\n";
+exec($cmd);
 echo '{  "current": ' . $_POST['current'] . ',"rowCount": ' . $_POST['rowCount'] . ', "total": ' . ($total) . ', "rows":' . json_encode($rows) . '}';

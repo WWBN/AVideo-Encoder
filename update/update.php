@@ -26,7 +26,7 @@
 
                     <script>
                         $(document).ready(function () {
-                            $('#updateFile').selectpicker();
+                            //$('#updateFile').selectpicker();
                         });
                     </script>
                     <?php

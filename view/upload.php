@@ -1,5 +1,6 @@
 <?php
-if(empty($global['systemRootPath'])){
+
+if (empty($global['systemRootPath'])) {
     require_once dirname(__FILE__) . '/../videos/configuration.php';
     require_once '../objects/Encoder.php';
     require_once '../objects/Login.php';
@@ -30,12 +31,12 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
 
     $destinationFile = "{$global['systemRootPath']}videos/original_" . $filename;
     $destinationFileURI = "{$global['webSiteRootURL']}videos/original_" . $filename;
-    if(!empty($forceRename)){
+    if (!empty($forceRename)) {
         if (!rename($_FILES['upl']['tmp_name'], $destinationFile)) {
             $obj->msg = "Error on rename(" . $_FILES['upl']['tmp_name'] . ", " . "{$global['systemRootPath']}videos/original_" . $filename . ")";
             die(json_encode($obj));
         }
-    }else{    
+    } else {
         if (!move_uploaded_file($_FILES['upl']['tmp_name'], $destinationFile)) {
             $obj->msg = "Error on move_uploaded_file(" . $_FILES['upl']['tmp_name'] . ", " . "{$global['systemRootPath']}videos/original_" . $filename . ")";
             die(json_encode($obj));
@@ -72,7 +73,18 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 $e->setFormats_idFromOrder(decideFormatOrder());
             }
         } else {
-            if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
+            if (!empty($_POST['inputAutoHLS']) && strtolower($_POST['inputAutoHLS']) !== "false") {
+                error_log("Upload.php set format 33");
+                $e->setFormats_id(33);
+            } else
+            if (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
+                error_log("Upload.php set format 33");
+                $e->setFormats_id(34);
+            } else
+            if (!empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+                error_log("Upload.php set format 35");
+                $e->setFormats_id(35);
+            } else if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
                 error_log("Upload.php set format 5");
                 $e->setFormats_id(5);
             } else {

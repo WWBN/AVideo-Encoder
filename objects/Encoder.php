@@ -556,7 +556,7 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
-
+                    
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -668,9 +668,49 @@ class Encoder extends ObjectYPT {
 
     private function multiResolutionSend($resolution, $format, $videos_id) {
         global $global;
-        $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted_{$resolution}.{$format}";
+        error_log("Encoder::multiResolutionSend($resolution, $format, $videos_id)");
+        $file = self::getTmpFileName($this->id, $format, $resolution);
         $r = static::sendFileChunk($file, $videos_id, $format, $this, $resolution);
         return $r;
+    }
+    
+    public static function getTmpFileName($encoder_queue_id, $format, $resolution=''){
+        global $global;
+        
+        $encoder = new Encoder($encoder_queue_id);
+        $streamers_id = $encoder->getStreamers_id();
+        
+        if(!empty($resolution)){
+            $resolution = "_{$resolution}";
+        }
+        
+        $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_{$resolution}.{$format}";
+        return $file;
+    }
+    
+    public static function getTmpFiles($encoder_queue_id){
+        global $global;
+        
+        $encoder = new Encoder($encoder_queue_id);
+        $streamers_id = $encoder->getStreamers_id();
+        $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_";
+        
+        $files = glob("{$file}*");
+        
+        $hlsZipFile = $global['systemRootPath'] . "videos/{$encoder_queue_id}_tmpFile_converted.zip";
+        if(file_exists($hlsZipFile)){
+            $files[] = $hlsZipFile;
+        }
+        return $files;
+    }
+    
+    public static function getAllFilesInfo($encoder_queue_id){
+        $files = Encoder::getTmpFiles($encoder_queue_id);
+        $info = array();
+        foreach ($files as $file) {
+            $info[] = getFileInfo($file);
+        }
+        return $info;
     }
 
     function verify() {
@@ -697,32 +737,48 @@ class Encoder extends ObjectYPT {
         error_log("Encoder::send() order_id=$order_id");
         if (in_array($order_id, $global['multiResolutionOrder'])) {
             error_log("Encoder::send() multiResolutionOrder");
-            if (in_array($order_id, $global['hasHDOrder'])) {
-                $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
-                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                    $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
+            if(in_array($order_id,$global['sendAll'])){
+                $files = self::getTmpFiles($this->id);
+                error_log("Encoder::send() multiResolutionOrder sendAll found (".count($files).") files");
+                foreach ($files as $file) {
+                    $format = pathinfo($file, PATHINFO_EXTENSION);
+                    preg_match('/([^_]+).'.$format.'$/', $file, $matches);
+                    $resolution = @$matches[1];
+                    if($resolution=='converted'){
+                        $resolution='';
+                    }
+                    error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
+                    $return->sends[] = self::sendFileChunk($file, $videos_id, $format, $this, $resolution);
                 }
-            }
-            if (in_array($order_id, $global['hasSDOrder'])) {
-                $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);
-                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                    $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
+            }else{
+                if (in_array($order_id, $global['hasHDOrder'])) {
+                    $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
+                    if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
+                        $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
+                    }
                 }
-            }
-            if (in_array($order_id, $global['hasLowOrder'])) {
-                $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);
-                if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                    $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
+                if (in_array($order_id, $global['hasSDOrder'])) {
+                    $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);
+                    if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
+                        $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
+                    }
+                }
+                if (in_array($order_id, $global['hasLowOrder'])) {
+                    $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);
+                    if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
+                        $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
+                    }
                 }
             }
         } else {
             error_log("Encoder::send() NOT multiResolutionOrder");
             $extension = $f->getExtension();
-            if ($formatId == 29) { // if it is HLS send the compacted file
+            if ($formatId == 29 || $formatId == 30) { // if it is HLS send the compacted file
                 $extension = "zip";
             }
             if (empty($global['webmOnly'])) {
-                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
+                error_log("Encoder::send webmOnly");
+                $file = self::getTmpFileName($this->id, $extension);
                 $r = static::sendFileChunk($file, $videos_id, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
                 $return->videos_id = $r->response->video_id;
@@ -730,7 +786,8 @@ class Encoder extends ObjectYPT {
             }
             if ($order_id == 70 || $order_id == 50) { // if it is Spectrum send the webm also
                 $extension = "webm";
-                $file = $global['systemRootPath'] . "videos/{$this->id}_tmpFile_converted.{$extension}";
+                error_log("Encoder::send Spectrum send the web");
+                $file = self::getTmpFileName($this->id, $extension);
                 $r = static::sendFileChunk($file, $return->videos_id, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
             }
@@ -849,7 +906,7 @@ class Encoder extends ObjectYPT {
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
-        if ($errno = curl_errno($curl)) {
+        if ($errno = curl_errno($curl) || empty($obj->response)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
             $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}\n {$chunkFile} ";
@@ -864,6 +921,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+        error_log("Encoder:sendFileChunk($file, $videos_id, $format, object, $resolution, $try)");
         $try++;
         $obj = new stdClass();
         $obj->error = true;
@@ -923,7 +981,7 @@ class Encoder extends ObjectYPT {
                 return self::sendFile($file, $videos_id, $format, $encoder, $resolution, $try);
             }
         } else {
-            error_log("cURL success, Local file: ". humanFileSize(filesize($file))." => Transferred file ".humanFileSize(filesize($obj->response->file)));
+            error_log("cURL success, Local file: ". humanFileSize($obj->filesize)." => Transferred file ".humanFileSize($obj->response->filesize));
             $obj->error = false;
             error_log(json_encode($obj));
             $duration = static::getDurationFromFile($file);
@@ -1075,15 +1133,13 @@ class Encoder extends ObjectYPT {
             $obj->progress = $progress;
         }
 
-        //Input #0, mov,mp4,m4a,3gp,3g2,mj2, from '/home/daniel/Dropbox/htdocs/AVideo-Encoder/videos/284_tmpFile_converted.mp4':
-        preg_match("/Input[a-z0-9 #,]+from '(.*_tmpFile_converted.*)'/", $content, $matches);
+        preg_match("/Input[a-z0-9 #,]+from '(.*avideoTmpFile_.*)'/", $content, $matches);
         if (!empty($matches[1])) {
             $path_parts = pathinfo($matches[1]);
             $obj->from = $path_parts['extension'];
         }
 
-        //Output #0, webm, to '/home/daniel/Dropbox/htdocs/AVideo-Encoder/videos/284_tmpFile_converted.webm':preg_match("/Input[a-z0-9 #,]+from '(.*_tmpFile_converted.*)'/", $content, $matches);
-        preg_match("/Output[a-z0-9 #,]+to '(.*_tmpFile_converted.*)'/", $content, $matches);
+        preg_match("/Output[a-z0-9 #,]+to '(.*avideoTmpFile_.*)'/", $content, $matches);
         if (!empty($matches[1])) {
             $path_parts = pathinfo($matches[1]);
             $obj->to = $path_parts['extension'];
@@ -1094,6 +1150,12 @@ class Encoder extends ObjectYPT {
 
     static function getDurationFromFile($file) {
         global $config;
+        if(empty($file)){
+            return "EE:EE:EE";
+        }
+        
+        $file = str_replace(".zip", ".mp4", $file);
+        
         // get movie duration HOURS:MM:SS.MICROSECONDS
         if (!file_exists($file)) {
             $file_headers = @get_headers($file);
@@ -1235,6 +1297,17 @@ class Encoder extends ObjectYPT {
         foreach ($files as $file) { // iterate files
             if (is_file($file))
                 unlink($file); // delete file
+            else {
+                rrmdir($file);
+            }
+        }
+        $files = glob("{$global['systemRootPath']}videos/avideoTmpFile_{$this->id}*"); // get all file names
+        foreach ($files as $file) { // iterate files
+            if (is_file($file))
+                unlink($file); // delete file
+            else {
+                rrmdir($file);
+            }
         }
         $this->deleteOriginal();
         return parent::delete();

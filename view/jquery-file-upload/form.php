@@ -121,7 +121,7 @@
     </td>
     <td>
     {% if (file.deleteUrl) { %}
-    <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+    <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}&PHPSESSID={%=PHPSESSID%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
     <i class="glyphicon glyphicon-trash"></i>
     <span>Delete</span>
     </button>
@@ -163,7 +163,7 @@
 <!-- The File Upload user interface plugin -->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-ui.js"></script>
 <!-- The main application script -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/main.js"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/jquery-file-upload/js/main.js"); ?>"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
 <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/cors/jquery.xdr-transport.js"></script>

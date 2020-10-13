@@ -99,6 +99,7 @@ if (!class_exists('Login')) {
             $object->aVideoURL = $url;
             $object->result = $result;
             _session_start();
+            $object->PHPSESSID = session_id(); // to allow cross domain logins
             $_SESSION['login'] = $object;
             error_log("Login:: done session_id = ". session_id()." session_login ". json_encode($_SESSION['login']->isLogged));
         }
@@ -160,6 +161,14 @@ if (!class_exists('Login')) {
                 return $global['forceStreamerSiteURL'];
             }
             return $_SESSION['login']->streamer;
+        }
+        
+        static function getStreamerUser() {
+            if (!static::isLogged()) {
+                return false;
+            }
+            global $global;
+            return $_SESSION['login']->user;
         }
 
         static function getStreamerId() {

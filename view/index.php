@@ -28,21 +28,20 @@ if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pa
 
 $rows = Encoder::getAllQueue();
 $config = new Configuration();
-if (empty($_POST['sort']) && $config->currentVersionGreaterThen("1.0")) {
-    $_POST['sort']['`order`'] = 'asc';
-}
-$frows = Format::getAll();
 $streamerURL = @$_GET['webSiteRootURL'];
 if (empty($streamerURL)) {
     $streamerURL = Streamer::getFirstURL();
 }
 $config = new Configuration();
 
-$ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 29);
-
 $updateFiles = getUpdatesFiles();
 
 $ad = $config->getAutodelete();
+
+
+if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
+    $_COOKIE['format'] = $_SESSION['format'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -54,24 +53,45 @@ $ad = $config->getAutodelete();
 
         <title>Encoder</title>
         <link rel="icon" href="view/img/favicon.png">
-        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link href="<?php echo Login::getStreamerURL(); ?>view/css/fontawesome-free-5.5.0-web/css/all.min.css"" rel="stylesheet" crossorigin="anonymous">
         <script src="view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
         <link href="view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <script src="view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <link href="view/js/seetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
         <script src="view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
-        <script src="view/js/main.js" type="text/javascript"></script>
-        <link href="view/css/style.css" rel="stylesheet" type="text/css"/>
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
+        <script src="view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
+        <link href="view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
         <script>
-        var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
+            var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
+            var PHPSESSID = '<?php echo session_id(); ?>';
         </script>
         <style>
 <?php
 if (!empty($_GET['noNavbar'])) {
     ?>
+                body{
+                    margin: 0;
+                }
                 .main-container {
                     margin-top: 0;
+                    padding-top: 5px;
                 }
+                #mainTabs{
+                    position: fixed;
+                    top: 0;
+                    padding-top: 5px;
+                    background-color: #FFF;
+                    z-index: 10;
+                    width: 100%;
+                }
+                #noNavbarPlaceholder{
+                    height: 55px;
+                }
+                #rightContainer{
+                    z-index: 11;
+                }
+            
     <?php
 }
 ?>
@@ -131,8 +151,6 @@ if (!empty($_GET['noNavbar'])) {
                         <form class="form-compact well form-horizontal"  id="loginForm">
                             <fieldset>
                                 <legend>Please sign in</legend>
-
-
                                 <div class="form-group">
                                     <label class="col-md-4 control-label">Streamer Site</label>  
                                     <div class="col-md-8 inputGroupContainer">
@@ -165,7 +183,7 @@ if (!empty($_GET['noNavbar'])) {
                                 <!-- Button -->
                                 <div class="form-group">
                                     <div class="col-md-12">
-                                        <button type="submit" class="btn btn-success  btn-block" id="mainButton" ><span class="fa fa-sign-in"></span> Sign in</button>
+                                        <button type="submit" class="btn btn-success  btn-block" id="mainButton" ><span class="fas fa-sign-in"></span> Sign in</button>
                                     </div>
                                 </div>
                             </fieldset>
@@ -201,6 +219,10 @@ if (!empty($_GET['noNavbar'])) {
                                     } else {
                                         var url = new URL(document.location);
                                         url.searchParams.append('justLogin', 1);
+                                        if (typeof response.PHPSESSID !== 'undefined' && response.PHPSESSID) {
+                                            PHPSESSID = response.PHPSESSID;
+                                            url.searchParams.append('PHPSESSID', response.PHPSESSID);
+                                        }
                                         document.location = url;
                                     }
                                 }
@@ -214,7 +236,7 @@ if (!empty($_GET['noNavbar'])) {
 
     <?php
 // if pass all parameters submit the form
-    if (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])) {
+    if (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
         echo '$(\'#loginForm\').submit()';
     }
     ?>
@@ -235,8 +257,10 @@ if (!empty($_GET['noNavbar'])) {
                 $result = json_decode($_SESSION['login']->result);
                 if (empty($result->videoHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = true;
-                } else if(!isset($advancedCustom->doNotShowEncoderHLS)) {
+                    $advancedCustom->doNotShowEncoderAutomaticHLS = true;
+                } else if (!isset($advancedCustom->doNotShowEncoderHLS)) {
                     $advancedCustom->doNotShowEncoderHLS = false;
+                    $advancedCustom->doNotShowEncoderAutomaticHLS = false;
                 }
                 fixAdvancedCustom($advancedCustom);
                 ?>
@@ -245,8 +269,8 @@ if (!empty($_GET['noNavbar'])) {
                 <script src="view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
                 <!-- The main CSS file -->
                 <div class="col-md-8">
-
-                    <ul class="nav nav-tabs">
+                    <div id="noNavbarPlaceholder"></div>
+                    <ul class="nav nav-tabs" id="mainTabs">
                         <li <?php if (empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a></li>
                         <li><a data-toggle="tab" href="#log"><span class="glyphicon glyphicon-cog"></span> Queue Log</a></li>
 
@@ -255,7 +279,7 @@ if (!empty($_GET['noNavbar'])) {
                             if (empty($global['disableConfigurations'])) {
                                 ?>
                                 <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
-                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fa fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
+                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
                                 <?php
                             }
                             ?>
@@ -281,57 +305,7 @@ if (!empty($_GET['noNavbar'])) {
                             </table>
                         </div>
                         <?php
-                        if (Login::isAdmin()) {
-                            if (empty($global['disableConfigurations'])) {
-                                ?>
-                                <div id="config" class="tab-pane fade">
-                                    <?php
-                                    foreach ($frows as $value) {
-                                        if (!in_array($value['id'], $ffmpegArray)) {
-                                            continue;
-                                        }
-                                        ?>
-                                        <div class="input-group input-group-sm">
-                                            <span class="input-group-addon"><?php echo $value['name']; ?></span>
-                                            <input type="text" class="form-control formats" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo htmlentities($value['code']); ?>">
-                                        </div>    
-                                        <?php
-                                    }
-                                    ?>
-                                    <hr>
-                                    <div class="form-group">
-                                        <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
-                                        <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="defaultPriority">Default Priority</label>
-                                        <select class="" id="defaultPriority">
-                                            <?php
-                                            $priority = $config->getDefaultPriority();
-                                            for ($index = 1; $index <= 10; $index++) {
-                                                echo '<option value="' . $index . '" ' . ($priority == $index ? "selected" : "") . ' >' . $index . '</option>';
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="defaultPriority">Auto remove</label>
-                                        <input type="checkbox" class="" id="autodelete" value="1" <?php if (!empty($ad)) { ?>checked="true"<?php } ?>>
-                                        <small>Will remove queue and the files when the encoder process is done</small>
-                                    </div>
-
-                                    <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
-                                </div>
-                                <div id="update" class="tab-pane fade <?php if (!empty($_POST['updateFile'])) { ?>in active<?php } ?>">
-                                    <?php
-                                    include '../update/update.php';
-                                    ?>
-                                </div>
-                                <?php
-                            }
-                        }
+                        include './index_configurations.php';
                         ?>
                         <?php
                         if (Login::isAdmin()) {
@@ -354,231 +328,110 @@ if (!empty($_GET['noNavbar'])) {
                         ?>
                     </div>
                 </div>
-                <div class="col-md-4" >
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><i class="fa fa-share-alt-square"></i> Share Videos</div>
-                        <div class="panel-body">
-
-                            <ul class="nav nav-tabs">
-                                <li class="active"><a data-toggle="tab" href="#upload"><i class="fa fa-file" aria-hidden="true"></i> From File</a></li>
-                                <?php
-                                if(empty($global['disableImportVideo'])){
-                                ?>
-                                <li ><a data-toggle="tab" href="#download"><i class="fa fa-globe" aria-hidden="true"></i> Import Video</a></li>
-                                <?php
-                                }
-                                if (Login::canBulkEncode()) {
-                                    ?>
-                                    <li><a data-toggle="tab" href="#bulk"><span class="glyphicon glyphicon-duplicate"></span> Bulk Encode</a></li>
-                                <?php } ?>
-                            </ul>
-
-                            <div class="tab-content">
-                                <div id="upload" class="tab-pane fade in active">
-                                    <?php
-                                    include '../view/jquery-file-upload/form.php';
-                                    ?>
-                                </div>
-                                
-                                <?php
-                                if(empty($global['disableImportVideo'])){
-                                ?>
-                                <div id="download" class="tab-pane fade">
-                                    <div class="alert alert-info">
-                                        <span class="glyphicon glyphicon-info-sign"></span> Share videos from YouTube and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
-                                    </div>
-                                    <form id="downloadForm" onsubmit="">
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-secondary" type="submit">
-                                                        <i class="fa fa-check" aria-hidden="true"></i> Share
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <?php
-                                        if (!empty($_SESSION['login']->categories)) {
-                                            ?>
-                                            <div class="form-group">
-                                                <select class="form-control" id="download_categories_id" name="download_categories_id">
-
-                                                    <option value="0">Category - Use site default</option>
-                                                    <?php
-                                                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                                    foreach ($_SESSION['login']->categories as $key => $value) {
-                                                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div> 
-                                            <?php
-                                        }
-                                        ?>
-                                    </form>
-                                </div>
-
-                                <?php
-                                }
-                                if (Login::canBulkEncode()) {
-                                    ?>
-
-                                    <div id="bulk" class="tab-pane fade">
-                                        <div class="alert alert-info">
-                                            <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
-                                        </div>
-
-                                        <div class="form-group">
-                                            <div class="input-group">
-                                                <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-secondary" id="pathBtn">
-                                                        <span class="glyphicon glyphicon-list"></span> List Files
-                                                    </button>
-                                                </span>
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-secondary" id="checkBtn">
-                                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                                    </button>
-                                                </span>
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-secondary" id="uncheckBtn">
-                                                        <i class="fa fa-square-o" aria-hidden="true"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <?php
-                                        if (!empty($_SESSION['login']->categories)) {
-                                            ?>
-                                            <div class="form-group">
-                                                <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
-
-                                                    <option value="0">Category - Use site default</option>
-                                                    <?php
-                                                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                                    foreach ($_SESSION['login']->categories as $key => $value) {
-                                                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                                    }
-                                                    ?>
-                                                </select>
-                                            </div> 
-                                            <?php
-                                        }
-                                        ?>
-                                        <ul class="list-group" id="files">
-                                        </ul>
-                                        <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
-                                    </div>
-                                <?php } ?>
-                            </div> 
-                        </div>
-                    </div>
-
+                <div class="col-md-4" id="rightContainer" >
                     <?php
+                    include './index_shareVideos.php';
                     if (!empty($_SESSION['login']->userGroups)) {
                         ?>
                         <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fa fa-users"></i> User Groups</div>
+                            <div class="panel-heading"><i class="fas fa-users"></i> User Groups</div>
                             <div class="panel-body">
                                 <?php
                                 foreach ($_SESSION['login']->userGroups as $key => $value) {
                                     ?>
                                     <label>
                                         <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
-                                            <i class="fa fa-lock"></i> <?php echo $value->group_name; ?>
+                                        <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
                                     </label><br>
                                     <?php
                                 }
                                 ?>
-                                    <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fa fa-info-circle"></i> Unckeck all to make it public</div>
-                                
+                                <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> Unckeck all to make it public</div>
+
+                            </div>
+                        </div>
+                        <?php
+                    }
+                    if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
+                        ?>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><i class="fas fa-desktop"></i> Resolutions</div>
+                            <div class="panel-body">
+                                <?php
+                                if (empty($advancedCustom->doNotShowEncoderHLS)) {
+                                    ?> 
+                                    <label style="" id="">
+                                        <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
+                                        $('.mp4Checkbox').prop('checked', false);
+                                    }"> Multi Bitrate HLS
+                                    </label><br>
+                                    <?php
+                                }
+                                if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
+                                    ?> 
+                                    <label style="" id="">
+                                        <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                $('#inputHLS').prop('checked', false);
+                                                            }"> Low
+                                    </label>
+                                    <?php
+                                }
+                                if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+                                    ?> 
+                                    <label id="">
+                                        <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                $('#inputHLS').prop('checked', false);
+                                                            }"> SD
+                                    </label>
+                                    <?php
+                                }
+                                if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+                                    ?> 
+                                    <label>
+                                        <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                $('#inputHLS').prop('checked', false);
+                                                            }"> HD
+                                    </label>
+                                    <?php
+                                }
+                                ?> 
+                            </div>
+                        </div>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><i class="fas fa-cogs"></i> Advanced</div>
+                            <div class="panel-body">
+                                <label>
+                                    <input type="checkbox" id="inputAudioOnly">
+                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                                </label><br>
+                                <label style="display: none;" id="spectrum">
+                                    <input type="checkbox" id="inputAudioSpectrum">
+                                    <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                                </label>
+                                <?php
+                                if (empty($global['disableWebM'])) {
+                                    ?>
+                                    <label  id="webm">
+                                        <input type="checkbox" id="inputWebM">
+                                        <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
+                                        <br><small class="label label-warning">
+                                            For Chrome Browsers
+                                        </small>
+                                    </label>
+                                    <?php
+                                }
+                                ?>
                             </div>
                         </div>
                         <?php
                     }
                     ?>
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><i class="fa fa-desktop"></i> Resolutions</div>
+                    <div class="panel panel-success">
+                        <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> Streamer info </div>
                         <div class="panel-body">
-                            <?php
-                            if (empty($advancedCustom->doNotShowEncoderHLS)) {
-                                ?> 
-                                <label style="" id="">
-                                    <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                                $('.mp4Checkbox').prop('checked', false);
-                                            }"> Multi Bitrate HLS
-                                </label><br>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
-                                ?> 
-                                <label style="" id="">
-                                    <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                $('#inputHLS').prop('checked', false);
-                                            }"> Low
-                                </label>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-                                ?> 
-                                <label id="">
-                                    <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                $('#inputHLS').prop('checked', false);
-                                            }"> SD
-                                </label>
-                                <?php
-                            }
-                            if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-                                ?> 
-                                <label>
-                                    <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                $('#inputHLS').prop('checked', false);
-                                            }"> HD
-                                </label>
-                                <?php
-                            }
-                            ?> 
+                            <i class="fas fa-globe"></i> <strong><?php echo Login::getStreamerURL(); ?></strong><br>
+                            <i class="fas fa-user"></i> User: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
                         </div>
-                    </div>
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><i class="fa fa-cogs"></i> Advanced</div>
-                        <div class="panel-body">
-                            <label>
-                                <input type="checkbox" id="inputAudioOnly">
-                                <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                            </label><br>
-                            <label style="display: none;" id="spectrum">
-                                <input type="checkbox" id="inputAudioSpectrum">
-                                <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                            </label>
-                            <?php
-                            if (empty($global['disableWebM'])) {
-                                ?>
-                                <label  id="webm">
-                                    <input type="checkbox" id="inputWebM">
-                                    <i class="fa fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
-                                    <br><small class="label label-warning">
-                                        For Chrome Browsers
-                                    </small>
-                                </label>
-                                <?php
-                            }
-                            ?>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-success">
-                        <span class="glyphicon glyphicon-send"></span>  
-                        All converted files will be submited to the streamer site 
-                        <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                        <span class="label label-danger">The encoder Max File Size is: <strong><?php echo get_max_file_size(); ?></strong></span>
-                        <span class="label label-danger">The Streamer Max File Size is: <strong id="max_file_size">Loading ...</strong></span>
-                        <span class="label label-danger">The Streamer Max Video Storage Limit is: <strong id="videoStorageLimitMinutes">Loading ...</strong></span>
-                        <span class="label label-danger">The Streamer Current Video Storage is: <strong id="currentStorageUsage">Loading ...</strong></span>
                     </div>
                 </div>
 
@@ -590,7 +443,7 @@ if (!empty($_GET['noNavbar'])) {
                             return false;
                         }
                         $.ajax({
-                            url: 'listFiles.json',
+                            url: 'listFiles.json?<?php echo getPHPSessionIDURL(); ?>',
                             data: {"path": path},
                             type: 'post',
                             success: function (response) {
@@ -612,7 +465,7 @@ if (!empty($_GET['noNavbar'])) {
 
                     function checkProgress() {
                         $.ajax({
-                            url: 'status',
+                            url: 'status?<?php echo getPHPSessionIDURL(); ?>',
                             success: function (response) {
                                 if (response.queue_list.length) {
                                     for (i = 0; i < response.queue_list.length; i++) {
@@ -696,22 +549,14 @@ if (!empty($_GET['noNavbar'])) {
                     }
 
                     var streamerMaxFileSize = 0;
-                    function updateFileSizes() {
-                        if (!streamerMaxFileSize) {
-                            return false;
-                        }
-                        $('.fileSize').each(function (i, obj) {
-                            var fileSize = $(obj).attr("value");
-                            if (fileSize > streamerMaxFileSize) {
-                                $(obj).removeClass("label-success");
-                                $(obj).addClass("label-danger");
-                                $(obj).text($(obj).text() + " [File is too big]");
-                            }
-                        });
-                    }
 
                     $(document).ready(function () {
                         checkProgress();
+
+                        $("input[name='format']").click(function () {
+                            Cookies.set('format', $(this).attr('id'), {sameSite: 'None'});
+                        });
+
                         var streamerURL = "<?php echo Login::getStreamerURL(); ?>";
     <?php
     /**
@@ -735,7 +580,6 @@ if (!empty($_GET['noNavbar'])) {
                                 } else {
                                     $('#videoStorageLimitMinutes').text("Unlimited");
                                 }
-                                updateFileSizes();
                             }
                         });
 
@@ -744,7 +588,7 @@ if (!empty($_GET['noNavbar'])) {
                                 if ($(this).find('.someSwitchOption').is(":checked")) {
                                     var id = $(this).attr('id');
                                     $.ajax({
-                                        url: 'queue',
+                                        url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
                                         data: {
                                             "fileURI": $(this).attr('path'),
                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
@@ -754,8 +598,14 @@ if (!empty($_GET['noNavbar'])) {
                                             "inputLow": $('#inputLow').is(":checked"),
                                             "inputSD": $('#inputSD').is(":checked"),
                                             "inputHD": $('#inputHD').is(":checked"),
+                                            "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                                            "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                                            "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                                            "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                             "categories_id": $('#bulk_categories_id').val(),
-                                            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
+                                            "usergroups_id": $(".usergroups_id:checked").map(function () {
+                                                return $(this).val();
+                                            }).get()
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -790,7 +640,7 @@ if (!empty($_GET['noNavbar'])) {
                             });
 
                             $.ajax({
-                                url: 'saveConfig',
+                                url: 'saveConfig?<?php echo getPHPSessionIDURL(); ?>',
                                 data: {
                                     "formats": formats,
                                     "allowedStreamers": $("#allowedStreamers").val(),
@@ -830,7 +680,7 @@ if (!empty($_GET['noNavbar'])) {
                                                 if (isConfirm) {
                                                     modal.showPleaseWait();
                                                     $.ajax({
-                                                        url: 'youtubeDl.json',
+                                                        url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
                                                         data: {
                                                             "videoURL": $('#inputVideoURL').val(),
                                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
@@ -840,8 +690,14 @@ if (!empty($_GET['noNavbar'])) {
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
                                                             "inputHD": $('#inputHD').is(":checked"),
+                                                            "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                                                            "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                                                            "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                                                            "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                                             "categories_id": $('#download_categories_id').val(),
-                                                            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get(),
+                                                            "usergroups_id": $(".usergroups_id:checked").map(function () {
+                                                                return $(this).val();
+                                                            }).get(),
                                                             "startIndex": $('#startIndex').val(),
                                                             "endIndex": $('#endIndex').val()
                                                         },
@@ -883,7 +739,7 @@ if (!empty($_GET['noNavbar'])) {
                             } else {
                                 modal.showPleaseWait();
                                 $.ajax({
-                                    url: 'youtubeDl.json',
+                                    url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {
                                         "videoURL": $('#inputVideoURL').val(),
                                         "audioOnly": $('#inputAudioOnly').is(":checked"),
@@ -893,8 +749,14 @@ if (!empty($_GET['noNavbar'])) {
                                         "inputLow": $('#inputLow').is(":checked"),
                                         "inputSD": $('#inputSD').is(":checked"),
                                         "inputHD": $('#inputHD').is(":checked"),
+                                        "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                                        "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                                        "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                                        "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                         "categories_id": $('#download_categories_id').val(),
-                                        "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
+                                        "usergroups_id": $(".usergroups_id:checked").map(function () {
+                                            return $(this).val();
+                                        }).get()
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -927,7 +789,7 @@ if (!empty($_GET['noNavbar'])) {
 
                         var grid = $("#grid").bootgrid({
                             ajax: true,
-                            url: "queue.json",
+                            url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
                             formatters: {
                                 "commands": function (column, row) {
                                     var reQueue = '';
@@ -935,11 +797,11 @@ if (!empty($_GET['noNavbar'])) {
                                     var sendFileQueue = '';
 
                                     if (row.status != 'queue' && row.status != 'encoding') {
-                                        reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" data-placement="left" title="Re-Queue"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
+                                        reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="Re-Queue"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
                                     }
-                                    deleteQueue = '<button type="button" class="btn btn-xs btn-default command-deleteQueue" data-toggle="tooltip" data-placement="left" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+                                    deleteQueue = '<button type="button" class="btn btn-xs btn-default command-deleteQueue" data-toggle="tooltip" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
                                     if (row.status === 'done' || row.status === 'transferring') {
-                                        sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" data-placement="left" title="Send Notify"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
+                                        sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="Send Notify"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
                                     }
 
                                     return sendFileQueue + reQueue + deleteQueue;
@@ -967,27 +829,14 @@ if (!empty($_GET['noNavbar'])) {
                                     var l = getLocation(row.streamer);
                                     var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format + '</span>';
-                                    if (row.mp4_filesize_Low) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_Low + '">MP4 Low Size: ' + row.mp4_filesize_human_Low + '</span>';
+
+                                    for (const index in row.fileInfo) {
+                                        if (typeof row.fileInfo[index].text === 'undefined') {
+                                            continue;
+                                        }
+                                        title += '<br><span class="label label-success fileSize" >' + row.fileInfo[index].text + '</span>';
                                     }
-                                    if (row.mp4_filesize_SD) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_SD + '">MP4 SD Size: ' + row.mp4_filesize_human_SD + '</span>';
-                                    }
-                                    if (row.mp4_filesize_HD) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.mp4_filesize_HD + '">MP4 HD Size: ' + row.mp4_filesize_human_HD + '</span>';
-                                    }
-                                    if (row.webm_filesize_Low) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_Low + '">WEBM Low Size: ' + row.webm_filesize_human_Low + '</span>';
-                                    }
-                                    if (row.webm_filesize_SD) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_SD + '">WEBM SD Size: ' + row.webm_filesize_human_SD + '</span>';
-                                    }
-                                    if (row.webm_filesize_HD) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.webm_filesize_HD + '">WEBM HD Size: ' + row.webm_filesize_human_HD + '</span>';
-                                    }
-                                    if (row.hls_filesize) {
-                                        title += '<br><span class="label label-success fileSize" value="' + row.hls_filesize + '">HLS Size: ' + row.hls_filesize_human + '</span>';
-                                    }
+
                                     title += '<br>' + row.title;
                                     return title;
                                 }
@@ -1000,7 +849,7 @@ if (!empty($_GET['noNavbar'])) {
                                 var row = $("#grid").bootgrid("getCurrentRows")[row_index];
                                 console.log(row);
                                 $.ajax({
-                                    url: 'queue',
+                                    url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id, "fileURI": row.fileURI},
                                     type: 'post',
                                     success: function (response) {
@@ -1016,7 +865,7 @@ if (!empty($_GET['noNavbar'])) {
                                 var row = $("#grid").bootgrid("getCurrentRows")[row_index];
                                 console.log(row);
                                 $.ajax({
-                                    url: 'deleteQueue',
+                                    url: 'deleteQueue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     type: 'post',
                                     success: function (response) {
@@ -1038,7 +887,7 @@ if (!empty($_GET['noNavbar'])) {
                                 var row = $("#grid").bootgrid("getCurrentRows")[row_index];
                                 console.log(row);
                                 $.ajax({
-                                    url: 'send.json',
+                                    url: 'send.json?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     type: 'post',
                                     success: function (response) {
@@ -1048,14 +897,13 @@ if (!empty($_GET['noNavbar'])) {
                                 });
                             });
                             $('[data-toggle="popover"]').popover();
-                            updateFileSizes();
                         });
 
 
 
                         var gridStreamer = $("#gridStreamer").bootgrid({
                             ajax: true,
-                            url: "streamers.json",
+                            url: "streamers.json?<?php echo getPHPSessionIDURL(); ?>",
                             formatters: {
                                 "priority": function (column, row) {
                                     var tag = "<select class='priority' rowId='" + row.id + "'>";
@@ -1077,7 +925,7 @@ if (!empty($_GET['noNavbar'])) {
                                     return tag;
                                 },
                                 "commands": function (column, row) {
-                                    var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" data-placement="left" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                                    var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
 
                                     return deleteBtn;
                                 }
@@ -1089,7 +937,7 @@ if (!empty($_GET['noNavbar'])) {
                                 var row = $("#gridStreamer").bootgrid("getCurrentRows")[row_index];
                                 console.log(row);
                                 $.ajax({
-                                    url: 'removeStreamer',
+                                    url: 'removeStreamer?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     type: 'post',
                                     success: function (response) {
@@ -1102,7 +950,7 @@ if (!empty($_GET['noNavbar'])) {
                             gridStreamer.find(".priority").on("change", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({
-                                    url: 'priority',
+                                    url: 'priority?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "priority": $(this).val()},
                                     type: 'post',
                                     success: function (response) {
@@ -1114,7 +962,7 @@ if (!empty($_GET['noNavbar'])) {
                             gridStreamer.find(".isAdmin").on("change", function (e) {
                                 modal.showPleaseWait();
                                 $.ajax({
-                                    url: 'isAdmin',
+                                    url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "isAdmin": $(this).val()},
                                     type: 'post',
                                     success: function (response) {
@@ -1123,6 +971,7 @@ if (!empty($_GET['noNavbar'])) {
                                 });
                             });
                         });
+                        $('[data-toggle="tooltip"]').tooltip();
                     }
                     );
 

@@ -19,5 +19,6 @@ if(!empty($_SESSION['login'])){
     $object->error = "Your site is banned";
     die(json_encode($object));
 }
+
 header("Content-length: ".  strlen($json));
 echo $json;

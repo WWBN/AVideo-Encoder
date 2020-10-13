@@ -11,7 +11,7 @@ if(empty($global['configurationVersion']) || $global['configurationVersion']<2){
     require_once $global['systemRootPath'].'objects/Configuration.php';
     Configuration::rewriteConfigFile();
 }
-
+header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 require_once $global['systemRootPath'] . 'objects/security.php';
 
 $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser,$mysqlPass,$mysqlDatabase);
@@ -38,7 +38,8 @@ _session_start();
 
 $_SESSION['lastUpdate'] = time();
 
-$global['multiResolutionOrder']     = array(74,75,76,77,78,79,80,81,82,83,84,85,86,87);
+$global['multiResolutionOrder']       = array(74,75,76,77,78,79,80,81,82,83,84,85,86,87,6,7,8, 88, 89, 90);
+$global['sendAll']                    = array(6,7,8, 88, 89, 90);
 $global['hasHDOrder']                 = array(87,86,85,83,80,79,78,76); 
 $global['hasSDOrder']                 = array(87,85,84,82,80,78,77,75); 
 $global['hasLowOrder']                = array(87,86,84,81,80,79,77,74); 

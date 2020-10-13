@@ -18,11 +18,11 @@ $(function () {
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: 'view/jquery-file-upload/server/php/',
+        url: 'view/jquery-file-upload/server/php/?PHPSESSID='+PHPSESSID,
         maxChunkSize: 5000000, // 5 MB
         add: function (e, data) {
             var that = this;
-            $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name}, function (result) {
+            $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID:PHPSESSID}, function (result) {
                 var file = result.file;
                 data.uploadedBytes = file && file.size;
                 $.blueimp.fileupload.prototype
@@ -36,7 +36,7 @@ $(function () {
             var fu = $(this).data('blueimp-fileupload') || $(this).data('fileupload'),
                     retries = data.context.data('retries') || 0,
                     retry = function () {
-                        $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name})
+                        $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID:PHPSESSID})
                                 .done(function (result) {
                                     var file = result.file;
                                     data.uploadedBytes = file && file.size;
@@ -121,16 +121,21 @@ $(function () {
             "inputLow": $('#inputLow').is(":checked"),
             "inputSD": $('#inputSD').is(":checked"),
             "inputHD": $('#inputHD').is(":checked"),
+            "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+            "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+            "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+            "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
             "title": $('#title').val(),
             "description": $('#description').val(),
             "categories_id": $('#categories_id').val(),
-            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
+            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get(),
+            PHPSESSID:PHPSESSID
         };
     }).bind('fileuploaddone', function (e, data) {
         //console.log(e);
         //console.log(data);
         $.ajax({
-            url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php',
+            url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php?PHPSESSID='+PHPSESSID,
             data: {
                 "file": data.result.files[0].name,
                 "audioOnly": $('#inputAudioOnly').is(":checked"),
@@ -140,10 +145,15 @@ $(function () {
                 "inputLow": $('#inputLow').is(":checked"),
                 "inputSD": $('#inputSD').is(":checked"),
                 "inputHD": $('#inputHD').is(":checked"),
+                "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                 "title": $('#title').val(),
                 "description": $('#description').val(),
                 "categories_id": $('#categories_id').val(),
-                "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
+                "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get(),
+                PHPSESSID:PHPSESSID
             },
             type: 'post',
             success: function (response) {
