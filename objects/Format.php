@@ -90,26 +90,26 @@ if (!class_exists('Format')) {
             $obj = null;
             if (in_array($order, $global['hasHDOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, "_HD", 'mp4');
-                $obj = static::execOrder(12, $pathFileName, $destinationFile, $encoder_queue_id);
+                $obj = static::execOrder(12, $pathFileName, $destination, $encoder_queue_id);
                 if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, "_HD", 'webm');
-                    $obj = static::execOrder(22, $pathFileName, $destinationFile, $encoder_queue_id);
+                    $obj = static::execOrder(22, $pathFileName, $destination, $encoder_queue_id);
                 }
             }
             if (in_array($order, $global['hasSDOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, "_SD", 'mp4');
-                $obj = static::execOrder(11, $pathFileName, $destinationFile, $encoder_queue_id);
+                $obj = static::execOrder(11, $pathFileName, $destination, $encoder_queue_id);
                 if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, "_SD", 'webm');
-                    $obj = static::execOrder(21, $pathFileName, $destinationFile, $encoder_queue_id);
+                    $obj = static::execOrder(21, $pathFileName, $destination, $encoder_queue_id);
                 }
             }
             if (in_array($order, $global['hasLowOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, "_Low", 'mp4');
-                $obj = static::execOrder(10, $pathFileName, $destinationFile, $encoder_queue_id);
+                $obj = static::execOrder(10, $pathFileName, $destination, $encoder_queue_id);
                 if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, "_Low", 'webm');
-                    $obj = static::execOrder(20, $pathFileName, $destinationFile, $encoder_queue_id);
+                    $obj = static::execOrder(20, $pathFileName, $destination, $encoder_queue_id);
                 }
             }
 
@@ -129,7 +129,7 @@ if (!class_exists('Format')) {
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
             error_log("mp3ToSpectrum: MP3 to MP4");
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "", 'mp4');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "", 'mp4');
             return self::exec(5, $pathFileName, $destinationFile, $encoder_queue_id);
         }
 
@@ -138,6 +138,7 @@ if (!class_exists('Format')) {
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "", 'mp4');
             $obj = self::mp3ToSpectrum($pathFileName, $encoder_queue_id);
             if (!$obj->error) {
                 $obj = static::execOrder(6, $obj->destinationFile, $destinationFile, $encoder_queue_id);
@@ -145,7 +146,6 @@ if (!class_exists('Format')) {
             if ($obj->error) {
                 error_log("mp3ToSpectrumHLS: ERROR " . json_encode($obj));
             }
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "", 'mp4');
             $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
@@ -155,15 +155,15 @@ if (!class_exists('Format')) {
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
             $obj = self::mp3ToSpectrum($pathFileName, $encoder_queue_id);
             if (!$obj->error) {
-                $obj = static::execOrder(7, $obj->destinationFile, $destination, $encoder_queue_id);
+                $obj = static::execOrder(7, $obj->destinationFile, $destinationFile, $encoder_queue_id);
             }
             if ($obj->error) {
                 error_log("mp3ToSpectrumMP4: ERROR " . json_encode($obj));
             }
-            $this->sendImages($destination, $encoder_queue_id);
+            $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
 
@@ -172,15 +172,15 @@ if (!class_exists('Format')) {
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
             $obj = self::mp3ToSpectrum($pathFileName, $encoder_queue_id);
             if (!$obj->error) {
-                $obj = static::execOrder(8, $obj->destinationFile, $destination , $encoder_queue_id);
+                $obj = static::execOrder(8, $obj->destinationFile, $destinationFile , $encoder_queue_id);
             }
             if ($obj->error) {
                 error_log("mp3ToSpectrumWEBM: ERROR " . json_encode($obj));
             }
-            $this->sendImages($destination, $encoder_queue_id);
+            $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
 
@@ -190,20 +190,20 @@ if (!class_exists('Format')) {
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
             // MP4 to MP3
             error_log("runVideoToSpectrum: MP4 to MP3");
-            $obj = static::execOrder(60, $pathFileName, $destination, $encoder_queue_id);
+            $obj = static::execOrder(60, $pathFileName, $destinationFile, $encoder_queue_id);
             if (!$obj->error) {
                 //MP3 to Spectrum.MP4
                 error_log("runVideoToSpectrum: MP3 to MP4");
-                $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
-                $obj = static::execOrder(50, $obj->destinationFile, $destination, $encoder_queue_id);
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
+                $obj = static::execOrder(50, $obj->destinationFile, $destinationFile, $encoder_queue_id);
                 if (!$obj->error) {
                     // Spectrum.MP4 to WEBM
                     error_log("runVideoToSpectrum: MP4 to WEBM");
-                    $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
-                    $obj = static::execOrder(21, $obj->destinationFile, $destination, $encoder_queue_id);
+                    $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
+                    $obj = static::execOrder(21, $obj->destinationFile, $destinationFile, $encoder_queue_id);
                 }
             }
 
@@ -219,14 +219,14 @@ if (!class_exists('Format')) {
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
             
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
             
             // MP4 to MP3
-            $obj = static::execOrder(60, $pathFileName, $destination , $encoder_queue_id);
+            $obj = static::execOrder(60, $pathFileName, $destinationFile , $encoder_queue_id);
             if (!$obj->error) {
-                $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'ogg');
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'ogg');
                 //MP4 to OGG
-                $obj = static::execOrder(40, $pathFileName, $destination , $encoder_queue_id);
+                $obj = static::execOrder(40, $pathFileName, $destinationFile , $encoder_queue_id);
             }
             return $obj;
         }
@@ -235,14 +235,14 @@ if (!class_exists('Format')) {
             error_log("AVideo-Encoder Format::runBothVideo($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp4');
 
             // Video to MP4
-            $obj = static::execOrder(11, $pathFileName, $destination, $encoder_queue_id);
+            $obj = static::execOrder(11, $pathFileName, $destinationFile, $encoder_queue_id);
             if (!$obj->error) {
-                $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'webm');
                 //MP4 to WEBM
-                $obj = static::execOrder(21, $pathFileName, $destination, $encoder_queue_id);
+                $obj = static::execOrder(21, $pathFileName, $destinationFile, $encoder_queue_id);
             }
             return $obj;
         }
@@ -251,14 +251,14 @@ if (!class_exists('Format')) {
             error_log("AVideo-Encoder Format::runBothAudio($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
-            $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
+            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'mp3');
 
             // Audio to MP3
-            $obj = static::execOrder(30, $pathFileName, $destination . ".mp3", $encoder_queue_id);
+            $obj = static::execOrder(30, $pathFileName, $destinationFile, $encoder_queue_id);
             if (!$obj->error) {
-                $destination = Encoder::getTmpFileName($encoder_queue_id, "converted", 'ogg');
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, "converted", 'ogg');
                 //MP3 to OGG
-                $obj = static::execOrder(40, $pathFileName, $destination . ".ogg", $encoder_queue_id);
+                $obj = static::execOrder(40, $pathFileName, $destinationFile, $encoder_queue_id);
             }
             return $obj;
         }
