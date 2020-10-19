@@ -697,7 +697,8 @@ class Encoder extends ObjectYPT {
         
         $files = glob("{$file}*");
         
-        $hlsZipFile = $global['systemRootPath'] . "videos/{$encoder_queue_id}_tmpFile_converted.zip";
+        $hlsZipFile = Encoder::getTmpFileName($rows[$key]['id'], 'zip', "converted");
+        //$hlsZipFile = $global['systemRootPath'] . "videos/{$encoder_queue_id}_tmpFile_converted.zip";
         if(file_exists($hlsZipFile)){
             $files[] = $hlsZipFile;
         }

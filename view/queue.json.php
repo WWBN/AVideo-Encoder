@@ -19,10 +19,16 @@ foreach ($rows as $key => $value) {
             $rows[$key]['mp4_filesize_'] = filesize($file_);
         }
         
-        
+        $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'm3u8', $value2);
         if (file_exists($file_)) {
-            $rows[$key]['mp4_filesize_' . $value2] = filesize($file_);
-            $rows[$key]['mp4_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
+            $rows[$key]['hls_filesize_' . $value2] = filesize($file_);
+            $rows[$key]['hls_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
+        }
+        
+        $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'zip', $value2);
+        if (file_exists($file_)) {
+            $rows[$key]['zip_filesize_' . $value2] = filesize($file_);
+            $rows[$key]['zip_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
         
         $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'mp4', $value2);
