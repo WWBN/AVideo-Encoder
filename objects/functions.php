@@ -40,6 +40,9 @@ function url_set_file_context($Url, $ctx = "") {
 }
 
 function url_get_contents($Url, $ctx = "") {
+    global $global;
+    $agent = 'AVideoEncoder ';
+    $agent .= parse_url($global['webSiteRootURL'], PHP_URL_HOST);
     if (empty($ctx)) {
         $opts = array(
             'http' => array('header' => "User-Agent:AVideoAgent/1.0\r\n"),
@@ -47,7 +50,8 @@ function url_get_contents($Url, $ctx = "") {
                 "verify_peer" => false,
                 "verify_peer_name" => false,
                 "allow_self_signed" => true
-            )
+            ),
+            'header' => "User-Agent: {$agent}\r\n",
         );
         $context = stream_context_create($opts);
     } else {
@@ -76,6 +80,7 @@ function url_get_contents($Url, $ctx = "") {
         }
     } else if (function_exists('curl_init')) {
         $ch = curl_init();
+        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_URL, $Url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $output = curl_exec($ch);
