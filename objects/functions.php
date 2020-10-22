@@ -40,6 +40,7 @@ function url_set_file_context($Url, $ctx = "") {
 }
 
 function getSelfUserAgent(){
+    global $global;
     $agent = 'AVideoEncoder ';
     $agent .= parse_url($global['webSiteRootURL'], PHP_URL_HOST);
     return $agent;
