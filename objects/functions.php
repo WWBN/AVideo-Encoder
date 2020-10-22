@@ -12,7 +12,8 @@ function local_get_contents($path) {
 
 function get_ffmpeg(){
     //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
-    return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
+    //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
+    return 'ffmpeg  ';
 }
 
 function url_set_file_context($Url, $ctx = "") {
