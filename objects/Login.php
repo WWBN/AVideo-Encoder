@@ -33,13 +33,9 @@ if (!class_exists('Login')) {
                 ),
                 'http' => array(
                     'method' => 'POST',
-                    /* does not send the POST with the header
                     'header' => array(
                         "Content-type: application/x-www-form-urlencoded\r\n",
                         "User-Agent: {$agent}\r\n"),
-                     * 
-                     */
-                    'header' => "Content-type: application/x-www-form-urlencoded\r\n",
                     'content' => $postdata
                 ),
             );
