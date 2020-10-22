@@ -33,7 +33,9 @@ if (!class_exists('Login')) {
                 ),
                 'http' => array(
                     'method' => 'POST',
-                    'header' => "User-Agent: {$agent}\r\nContent-type: application/x-www-form-urlencoded\r\n",
+                    'header' => array(
+                        "Content-type: application/x-www-form-urlencoded\r\n",
+                        "User-Agent: {$agent}\r\n"),
                     'content' => $postdata
                 ),
             );
@@ -46,7 +48,7 @@ if (!class_exists('Login')) {
                 $result = url_get_contents($url, $context);
             }
 
-            
+
             error_log("Login::run response: ($result)");
             if (empty($result)) {
                 $object = new stdClass();
@@ -94,7 +96,7 @@ if (!class_exists('Login')) {
                     }
                 } else {
                     $object = new stdClass();
-                    error_log("Encoder Login Error: ".json_error().$result);
+                    error_log("Encoder Login Error: " . json_error() . $result);
                 }
             }
             $object->aVideoURL = $url;
@@ -102,11 +104,11 @@ if (!class_exists('Login')) {
             _session_start();
             $object->PHPSESSID = session_id(); // to allow cross domain logins
             $_SESSION['login'] = $object;
-            error_log("Login:: done session_id = ". session_id()." session_login ". json_encode($_SESSION['login']->isLogged));
+            error_log("Login:: done session_id = " . session_id() . " session_login " . json_encode($_SESSION['login']));
         }
 
         static function logoff() {
-            error_log("logoff:: done session_id = ". session_id());
+            error_log("logoff:: done session_id = " . session_id());
             unset($_SESSION['login']);
             setcookie('encoder_user', null, -1, "/");
             setcookie('encoder_pass', null, -1, "/");
@@ -119,11 +121,11 @@ if (!class_exists('Login')) {
             if (!$isLogged && !empty($_COOKIE['encoder_user']) && !empty($_COOKIE['encoder_pass']) && !empty($_COOKIE['encoder_aVideoURL'])) {
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['encoder_user'], $_COOKIE['encoder_pass'], $_COOKIE['encoder_aVideoURL'], true);
-            }else if (!$isLogged && !empty ($_SESSION['login'])) {
-                error_log("isLogged: false ". json_encode($_SESSION['login']->isLogged));
+            } else if (!$isLogged && !empty($_SESSION['login'])) {
+                error_log("isLogged: false " . json_encode($_SESSION['login']->isLogged));
             }
-            if(!empty($_GET['justLogin'])){
-                error_log("isLogged:: session_login = ". json_encode($_SESSION['login']->isLogged));
+            if (!empty($_GET['justLogin'])) {
+                error_log("isLogged:: session_login = " . json_encode($_SESSION['login']->isLogged));
             }
             return $isLogged;
         }
@@ -144,6 +146,7 @@ if (!class_exists('Login')) {
             //error_log("canUpload: ". json_encode($_SESSION['login']));
             return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
         }
+
         static function canStream() {
             //error_log("canUpload: ". json_encode($_SESSION['login']));
             return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canStream));
@@ -158,12 +161,12 @@ if (!class_exists('Login')) {
                 return false;
             }
             global $global;
-            if(!empty($global['forceStreamerSiteURL'])){
+            if (!empty($global['forceStreamerSiteURL'])) {
                 return $global['forceStreamerSiteURL'];
             }
             return $_SESSION['login']->streamer;
         }
-        
+
         static function getStreamerUser() {
             if (!static::isLogged()) {
                 return false;
