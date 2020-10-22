@@ -36,7 +36,6 @@ if (!class_exists('Login')) {
                     'header' => "User-Agent: {$agent}\r\nContent-type: application/x-www-form-urlencoded\r\n",
                     'content' => $postdata
                 ),
-                'header' => "User-Agent: {$agent}\r\n",
             );
 
             $context = stream_context_create($opts);
