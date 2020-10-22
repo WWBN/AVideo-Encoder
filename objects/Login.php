@@ -122,10 +122,10 @@ if (!class_exists('Login')) {
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['encoder_user'], $_COOKIE['encoder_pass'], $_COOKIE['encoder_aVideoURL'], true);
             } else if (!$isLogged && !empty($_SESSION['login'])) {
-                error_log("isLogged: false " . json_encode($_SESSION['login']->isLogged));
+                error_log("isLogged: false " . json_encode($_SESSION['login']));
             }
             if (!empty($_GET['justLogin'])) {
-                error_log("isLogged:: session_login = " . json_encode($_SESSION['login']->isLogged));
+                error_log("isLogged:: session_login = " . json_encode($_SESSION['login']));
             }
             return $isLogged;
         }
