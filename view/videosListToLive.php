@@ -95,7 +95,7 @@ while (1) {
     //var_dump($json);
     $index = intval($json->response->nextIndex);
     //echo "Index: $index \n";
-    $cmd = "ffmpeg -re -i \"{$json->response->path}\" -c copy -bsf:a aac_adtstoasc -f flv {$_GET['rtmp']}?p={$_GET['pass']}/{$_GET['liveKey']}";
+    $cmd = get_ffmpeg()." -re -i \"{$json->response->path}\" -c copy -bsf:a aac_adtstoasc -f flv {$_GET['rtmp']}?p={$_GET['pass']}/{$_GET['liveKey']}";
     __exec($cmd);
     ob_flush();
 }

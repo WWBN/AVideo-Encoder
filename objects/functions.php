@@ -10,6 +10,10 @@ function local_get_contents($path) {
     return @file_get_contents($path);
 }
 
+function get_ffmpeg(){
+    return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
+}
+
 function url_set_file_context($Url, $ctx = "") {
     // I wasn't sure what to call this function because I'm not sure exactly what it does.
     // But I know that it is needed to display the progress indicators
@@ -39,10 +43,11 @@ function url_set_file_context($Url, $ctx = "") {
     }
 }
 
-function getSelfUserAgent(){
+function getSelfUserAgent($complement=""){
     global $global;
     $agent = 'AVideoEncoder ';
     $agent .= parse_url($global['webSiteRootURL'], PHP_URL_HOST);
+    $agent .= " {$complement}";
     return $agent;
 }
 
@@ -88,6 +93,8 @@ function url_get_contents($Url, $ctx = "") {
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_URL, $Url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         $output = curl_exec($ch);
         curl_close($ch);
         return remove_utf8_bom($output);

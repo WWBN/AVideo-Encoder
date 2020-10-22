@@ -1193,14 +1193,14 @@ class Encoder extends ObjectYPT {
             error_log("getImage: file exists {$destinationFile}");
             return $destinationFile;
         }
-        //eval('$ffmpeg ="ffmpeg -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
+        //eval('$ffmpeg =get_ffmpeg()." -ss {$seconds} -i {$pathFileName} -qscale:v 2 -vframes 1 -y {$destinationFile}";');
         if ($seconds > 600) {
             $seconds = 600;
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
         // placing ss before the input is faster https://stackoverflow.com/a/27573049
-        eval('$ffmpeg ="ffmpeg -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
+        eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
         error_log("getImage: {$ffmpeg}");
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         $time_end = microtime(true);
@@ -1229,7 +1229,7 @@ class Encoder extends ObjectYPT {
         $time_start = microtime(true);
         error_log("getGif: Starts");
         //generate a palette:
-        eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
+        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
@@ -1242,12 +1242,12 @@ class Encoder extends ObjectYPT {
             // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
             // so that they don't get rendered incorrectly on the avideo site. https://superuser.com/a/891478
 
-            eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
-            //eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
+            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
+            //eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
             exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
-                eval('$ffmpeg ="ffmpeg -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
+                eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
                 exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
                 if ($return_val !== 0) {
                     error_log("Create Gif Image error 2: {$ffmpeg} " . json_encode($output));
@@ -1276,7 +1276,7 @@ class Encoder extends ObjectYPT {
         $time_start = microtime(true);
         error_log("getWebpImage: Starts");
         //generate a palette:
-        eval('$ffmpeg ="ffmpeg -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
+        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
         exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);

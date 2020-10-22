@@ -34,12 +34,12 @@ testTime(__LINE__);
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i \"{$url}\" -f image2  -s 400x225 -vframes 1 -y {$destination}";
+    $exec = get_ffmpeg()." -i \"{$url}\" -f image2  -s 400x225 -vframes 1 -y {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.png";
 }else if($_GET['format'] === 'jpg'){
     header('Content-Type: image/jpg');
     $destination .= ".".$_GET['format'];
-    $exec = "ffmpeg -i \"{$url}\" -f image2  -s 400x225 -vframes 1 -y {$destination}";
+    $exec = get_ffmpeg()." -i \"{$url}\" -f image2  -s 400x225 -vframes 1 -y {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.jpg";
 }else if($_GET['format'] === 'gif'){
     // gif image has the double lifetime
@@ -47,15 +47,15 @@ if($_GET['format'] === 'png'){
     header('Content-Type: image/gif');
     $destination .= ".".$_GET['format'];    
     //Generate a palette:
-    $ffmpegPallet ="ffmpeg -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
-    $exec ="ffmpeg -y -t 3 -i \"{$url}\" -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+    $ffmpegPallet =get_ffmpeg()." -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
+    $exec =get_ffmpeg()." -y -t 3 -i \"{$url}\" -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 }else if($_GET['format'] === 'webp'){
     // gif image has the double lifetime
     $cache_life*=2;
     header('Content-Type: image/webp');
     $destination .= ".".$_GET['format'];    
-    $exec ="ffmpeg -y -ss 3 -t 3 -i \"{$url}\" -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
+    $exec =get_ffmpeg()." -y -ss 3 -t 3 -i \"{$url}\" -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 }else{
     error_log("ERROR Destination get Image {$_GET['format']} not suported");
@@ -87,7 +87,7 @@ if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !em
             exec($cmdGif);
             error_log("Create Gif with Ppallet: {$cmd}");
         }else{
-            $cmdGif = "ffmpeg  -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1 {$destination} &> /dev/null &";
+            $cmdGif = get_ffmpeg()."  -y -t 3 -i \"{$url}\" -vf fps=10,scale=320:-1 {$destination} &> /dev/null &";
             exec($cmdGif);
             error_log("Create Gif no Pallet: {$cmd}");
         }

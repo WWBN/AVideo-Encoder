@@ -358,7 +358,7 @@ hd/index.m3u8
             $autioBitrate = 128;
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
 
-            $command = 'ffmpeg -i {$pathFileName} ';
+            $command = get_ffmpeg().' -i {$pathFileName} ';
             $evalCommand = "\$command .= \" $code\";";
             //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
             eval($evalCommand);
@@ -439,7 +439,7 @@ res{$value}/index.m3u8
             $bufsize = 600;
             $autioBitrate = 128;
 
-            $command = 'ffmpeg -i {$pathFileName} ';
+            $command = get_ffmpeg().' -i {$pathFileName} ';
             eval("\$command .= \" $code\";");
 
             foreach ($resolutions as $key => $value) {
