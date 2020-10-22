@@ -39,19 +39,23 @@ function url_set_file_context($Url, $ctx = "") {
     }
 }
 
-function url_get_contents($Url, $ctx = "") {
-    global $global;
+function getSelfUserAgent(){
     $agent = 'AVideoEncoder ';
     $agent .= parse_url($global['webSiteRootURL'], PHP_URL_HOST);
+    return $agent;
+}
+
+function url_get_contents($Url, $ctx = "") {
+    global $global;
+    $agent = getSelfUserAgent();
     if (empty($ctx)) {
         $opts = array(
-            'http' => array('header' => "User-Agent:AVideoAgent/1.0\r\n"),
+            'http' => array('header' => "User-Agent: {$agent}\r\n"),
             "ssl" => array(
                 "verify_peer" => false,
                 "verify_peer_name" => false,
                 "allow_self_signed" => true
-            ),
-            'header' => "User-Agent: {$agent}\r\n",
+            )
         );
         $context = stream_context_create($opts);
     } else {

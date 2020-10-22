@@ -11,6 +11,7 @@ if (!class_exists('Login')) {
             ini_set('max_execution_time', 10);
             error_log("Login::run ($user, ***, $aVideoURL, $encodedPass)");
             global $global;
+            $agent = getSelfUserAgent();
             $aVideoURL = trim($aVideoURL);
             if (substr($aVideoURL, -1) !== '/') {
                 $aVideoURL .= "/";
@@ -32,9 +33,10 @@ if (!class_exists('Login')) {
                 ),
                 'http' => array(
                     'method' => 'POST',
-                    'header' => 'Content-type: application/x-www-form-urlencoded',
+                    'header' => "User-Agent: {$agent}\r\nContent-type: application/x-www-form-urlencoded\r\n",
                     'content' => $postdata
-                )
+                ),
+                'header' => "User-Agent: {$agent}\r\n",
             );
 
             $context = stream_context_create($opts);
