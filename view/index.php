@@ -62,6 +62,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
         <script src="view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
         <link href="view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
+        
+        <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+        
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
