@@ -10,7 +10,7 @@ function local_get_contents($path) {
     return @file_get_contents($path);
 }
 
-function get_ffmpeg(){
+function get_ffmpeg() {
     //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     return 'ffmpeg  ';
@@ -45,7 +45,7 @@ function url_set_file_context($Url, $ctx = "") {
     }
 }
 
-function getSelfUserAgent($complement=""){
+function getSelfUserAgent($complement = "") {
     global $global;
     $agent = 'AVideoEncoder ';
     $agent .= parse_url($global['webSiteRootURL'], PHP_URL_HOST);
@@ -816,15 +816,55 @@ function remove_utf8_bom($text) {
     return $text;
 }
 
+function getSessionMD5() {
+    global $global;
+    return md5($global['webSiteRootURL'] . $global['systemRootPath']);
+}
+
+function getSessionId() {
+    global $global;
+    $obj = new stdClass();
+    $obj->md5 = getSessionMD5();
+    $obj->uniqueId = uniqid();
+    return base64_encode(json_encode($obj));
+}
+
+function validateSessionId($PHPSESSID) {
+    $json = base64_decode($PHPSESSID);
+    $obj = json_decode($json);
+    if ($obj->md5 == getSessionMD5()) {
+        return true;
+    }
+    return false;
+}
+
+function recreateSessionIdIfNotValid(){
+    $PHPSESSID = session_id();
+    if(!validateSessionId($PHPSESSID)){
+        session_id(getSessionId());
+    }
+}
+
+function _session_id($PHPSESSID){
+    if(validateSessionId($PHPSESSID)){
+        session_id($PHPSESSID);
+    }else{
+        recreateSessionIdIfNotValid();
+    }
+}
+
 function _session_start(Array $options = array()) {
     global $global;
     try {
         if (session_status() == PHP_SESSION_NONE) {
-            if(!empty($_REQUEST['PHPSESSID'])){
-                session_id($_REQUEST['PHPSESSID']);
-            }else{
+            $md5 = getSessionMD5();
+            if (!empty($_REQUEST['PHPSESSID'])) {
+                _session_id($_REQUEST['PHPSESSID']);
+            } else {
                 $_GET['PHPSESSID'] = "";
             }
+            recreateSessionIdIfNotValid();
+            session_name("encoder{$md5}");
             return session_start($options);
         }
     } catch (Exception $exc) {
@@ -855,16 +895,16 @@ function getFileInfo($file) {
         $obj->size = filesize($file);
     }
     $obj->humansize = humanFileSize($obj->size);
-    $obj->text = strtoupper($obj->extension)." {$obj->resolution}: {$obj->humansize}";
+    $obj->text = strtoupper($obj->extension) . " {$obj->resolution}: {$obj->humansize}";
 
     return $obj;
 }
 
-function getPHPSessionIDURL(){
-    if(!empty($_GET['PHPSESSID'])){
-        $p=$_GET['PHPSESSID'];
-    }else{
-        $p= session_id();
+function getPHPSessionIDURL() {
+    if (!empty($_GET['PHPSESSID'])) {
+        $p = $_GET['PHPSESSID'];
+    } else {
+        $p = session_id();
     }
     return "PHPSESSID={$p}";
 }
