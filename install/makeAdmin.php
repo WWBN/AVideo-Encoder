@@ -12,12 +12,13 @@ $userName = trim(readline(""));
 
 if(!empty($userName)){
     $sql = "UPDATE streamers SET isAdmin = 1 where user = '".$user."'";
+    echo $sql.PHP_EOL;         
+    $insert_row = $global['mysqli']->query($sql);
             
-    $insert_row = sqlDAL::writeSql($sql);
-    if($insert_row){
-        echo "Your user {$userName} is admin now";
-        echo "\n";
-        die();
+    if ($insert_row) {
+        echo "User created".PHP_EOL;
+    } else {
+        die($sql . ' Error : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
     }
 }
 echo "Bye";
