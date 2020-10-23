@@ -28,22 +28,25 @@ while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
 }
 $webSiteRootURL = rtrim($webSiteRootURL, '/') . '/';
 
-$_POST['systemRootPath'] = "/var/www/html/YouPHPTube/Encoder/";
+$_POST['systemRootPath'] = str_replace("install", "", getcwd());
 if(!is_dir($_POST['systemRootPath'])){
-    $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
+    $_POST['systemRootPath'] = "/var/www/html/YouPHPTube/Encoder/";
+    if(!is_dir($_POST['systemRootPath'])){
+        $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
+    }
 }
 $_POST['databaseHost'] = "localhost";
 $_POST['databaseUser'] = $databaseUser;
 $_POST['databasePass'] = $databasePass;
 $_POST['databasePort'] = "3306";
-$_POST['databaseName'] = empty($argv[5])?"AVideoEncoder":$argv[5];;
+$_POST['databaseName'] = empty($argv[5])?"AVideoEncoder":$argv[5];
 $_POST['createTables'] = 2;
 $_POST['systemAdminPass'] = $systemAdminPass;
 $_POST['inputUser'] = 'admin';
 $_POST['inputPassword'] = $systemAdminPass;
 $_POST['webSiteTitle'] = "AVideo";
 $_POST['siteURL'] = $webSiteRootURL;
-$_POST['webSiteRootURL'] = $webSiteRootURL . "Encoder/";
+$_POST['webSiteRootURL'] = empty($argv[6])?($webSiteRootURL . "Encoder/"):$argv[6];
 $_POST['allowedStreamers'] = "";
 $_POST['defaultPriority'] = 1;
 
