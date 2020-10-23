@@ -859,11 +859,12 @@ function _session_start(Array $options = array()) {
         if (session_status() == PHP_SESSION_NONE) {
             $md5 = getSessionMD5();
             if (!empty($_REQUEST['PHPSESSID'])) {
-                _session_id($_REQUEST['PHPSESSID']);
+                //_session_id($_REQUEST['PHPSESSID']);
+                session_id($_REQUEST['PHPSESSID']);
             } else {
                 $_GET['PHPSESSID'] = "";
             }
-            recreateSessionIdIfNotValid();
+            //recreateSessionIdIfNotValid();
             session_name("encoder{$md5}");
             return session_start($options);
         }
