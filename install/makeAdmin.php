@@ -11,7 +11,7 @@ ob_flush();
 $userName = trim(readline(""));
 
 if(!empty($userName)){
-    $sql = "UPDATE streamers SET isAdmin = 1, status = 'a' where user = '".$user."'";
+    $sql = "UPDATE streamers SET isAdmin = 1 where user = '".$user."'";
             
     $insert_row = sqlDAL::writeSql($sql);
     if($insert_row){
