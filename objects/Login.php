@@ -1,5 +1,5 @@
 <?php
-
+header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 if (!class_exists('Login')) {
     require_once dirname(__FILE__) . '/../videos/configuration.php';
     require_once dirname(__FILE__) . '/Streamer.php';
