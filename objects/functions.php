@@ -825,7 +825,7 @@ function _session_start(Array $options = array()) {
             }else{
                 $_GET['PHPSESSID'] = "";
             }
-            session_name("encoder" . preg_replace('/[\W]/', '', $global['webSiteRootURL']));
+            session_name("encoder" . md5($global['webSiteRootURL'].$global['systemRootPath']));
             return session_start($options);
         }
     } catch (Exception $exc) {
