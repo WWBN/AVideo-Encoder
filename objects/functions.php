@@ -832,7 +832,7 @@ function getSessionId() {
 function validateSessionId($PHPSESSID) {
     $json = base64_decode($PHPSESSID);
     $obj = json_decode($json);
-    if ($obj->md5 == getSessionMD5()) {
+    if (is_object($obj) && $obj->md5 == getSessionMD5()) {
         return true;
     }
     return false;
