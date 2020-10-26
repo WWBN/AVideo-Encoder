@@ -16,7 +16,7 @@ foreach ($rows as $key => $value) {
         $rows[$key]['fileInfo'] = Encoder::getAllFilesInfo($rows[$key]['id']);
         $files = Encoder::getTmpFiles($rows[$key]['id']);
         foreach ($files as $file) {
-            $rows[$key]['mp4_filesize_'] = filesize($file_);
+            $rows[$key]['mp4_filesize_'] = filesize($file);
         }
         
         $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'm3u8', $value2);
