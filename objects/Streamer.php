@@ -138,9 +138,9 @@ if (!class_exists('Streamer')) {
         function getSiteURL() {
             global $global;
             if(!empty($global['forceStreamerSiteURL'])){
-                return $global['forceStreamerSiteURL'];
+                return trim($global['forceStreamerSiteURL']);
             }
-            return $this->siteURL;
+            return trim($this->siteURL);
         }
 
         function getUser() {
