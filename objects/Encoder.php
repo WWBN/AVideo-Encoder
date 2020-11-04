@@ -967,7 +967,7 @@ class Encoder extends ObjectYPT {
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno || empty($obj->response->filesize) || ($obj->response->filesize < $obj->filesize)) {
-            if($obj->response->filesize < $obj->filesize){
+            if(is_object($obj->response) && $obj->response->filesize < $obj->filesize){
                 error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize)." local Encoder file size =  ".humanFileSize($obj->filesize));
             }else{
                 error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target})");
