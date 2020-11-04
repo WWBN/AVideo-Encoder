@@ -948,6 +948,8 @@ class Encoder extends ObjectYPT {
         // Let curl know that we are using a chunked transfer encoding
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Transfer-Encoding: chunked'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
         // Use a callback to provide curl with data to transmit from the stream
         global $countCURLOPT_READFUNCTION;
         $countCURLOPT_READFUNCTION = 0;
