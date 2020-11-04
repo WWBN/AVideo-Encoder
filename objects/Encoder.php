@@ -857,7 +857,7 @@ class Encoder extends ObjectYPT {
         $user = $s->getUser();
         $pass = $s->getPass();
 
-        $target = $aVideoURL . "aVideoEncoder.json";
+        $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target}");
         error_log("Encoder::sendFile reading file from {$file}");
@@ -910,7 +910,7 @@ class Encoder extends ObjectYPT {
         if ($errno = curl_errno($curl) || empty($obj->response)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}\n {$chunkFile} ";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n {$chunkFile} ";
         } else {
             $obj->error = false;
         }
