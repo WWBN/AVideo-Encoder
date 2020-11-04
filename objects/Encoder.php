@@ -937,7 +937,7 @@ class Encoder extends ObjectYPT {
         $s = new Streamer($streamers_id);
         $aVideoURL = $s->getSiteURL();
         
-        $target = $aVideoURL . "aVideoEncoderChunk.json";
+        $target = trim($aVideoURL . "aVideoEncoderChunk.json");
         $obj->target = $target;
         // Create a curl handle to upload to the file server
         $ch = curl_init($target);
@@ -970,14 +970,14 @@ class Encoder extends ObjectYPT {
             if($obj->response->filesize < $obj->filesize){
                 error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize)." local Encoder file size =  ".humanFileSize($obj->filesize));
             }else{
-                error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target}");
+                error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target})");
             }
             if($try<=3){
                 sleep($try);
                 return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
             }else{
                 //echo "cURL error ({$errno}):\n {$error_message}";
-                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})";
                 error_log(json_encode($obj));
                 return self::sendFile($file, $videos_id, $format, $encoder, $resolution, $try);
             }
