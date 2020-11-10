@@ -1379,6 +1379,7 @@ class Encoder extends ObjectYPT {
      */
     static function getReverseVideosJsonListFromLink($link) {
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
+        error_log("Get ReverseVideosJsonListFromLink List $cmd \n");
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("Get ReverseVideosJsonListFromLink List Error: $cmd \n" . print_r($output, true));
