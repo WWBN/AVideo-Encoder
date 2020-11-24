@@ -922,6 +922,12 @@ class Encoder extends ObjectYPT {
     }
 
     static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+        $obj = self::sendFileToDownload($file, $videos_id, $format, $encoder, $resolution);
+        if(empty($obj->error)){
+            error_log("Encoder:sendFileChunk no need, we could download");
+            return $obj;
+        }
+        
         error_log("Encoder:sendFileChunk($file, $videos_id, $format, object, $resolution, $try)");
         $try++;
         $obj = new stdClass();
@@ -991,6 +997,116 @@ class Encoder extends ObjectYPT {
             return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file, $duration);
         }
     }
+    
+    static function sendFileToDownload($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+        global $global;
+        global $sentImage;
+
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->format = $format;
+        $obj->file = $file;
+        $obj->resolution = $resolution;
+        $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $obj->downloadFileLink = str_replace($global['systemRootPath'], $global['webSiteRootURL'], $file);
+        error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
+        if(empty($duration)){
+            $duration = static::getDurationFromFile($file);
+        }
+        if (empty($_POST['title'])) {
+            $title = $encoder->getTitle();
+        } else {
+            $title = $_POST['title'];
+        }
+        if (empty($_POST['description'])) {
+            if (!empty($obj->videoDownloadedLink)) {
+                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
+            } else {
+                $description = "";
+            }
+        } else {
+            $description = $_POST['description'];
+        }
+        if (empty($_POST['categories_id'])) {
+            $categories_id = 0;
+        } else {
+            $categories_id = $_POST['categories_id'];
+        }
+        if (empty($_POST['usergroups_id'])) {
+            $usergroups_id = array();
+        } else {
+            $usergroups_id = $_POST['usergroups_id'];
+        }
+
+        $streamers_id = $encoder->getStreamers_id();
+        $s = new Streamer($streamers_id);
+        $aVideoURL = $s->getSiteURL();
+        $user = $s->getUser();
+        $pass = $s->getPass();
+
+        $target = trim($aVideoURL . "aVideoEncoder.json");
+        $obj->target = $target;
+        error_log("Encoder::sendFileToDownload sending file to {$target}");
+        error_log("Encoder::sendFileToDownload reading file from {$file}");
+        $postFields = array(
+            'duration' => $duration,
+            'title' => $title,
+            'videos_id' => $videos_id,
+            'categories_id' => $categories_id,
+            'format' => $format,
+            'resolution' => $resolution,
+            'videoDownloadedLink' => $obj->videoDownloadedLink,
+            'description' => $description,
+            'user' => $user,
+            'password' => $pass,
+            'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
+            'downloadFileLink' => $obj->downloadFileLink,
+            'encoderURL' => $global['webSiteRootURL']
+        );
+        $count = 0;
+        foreach ($usergroups_id as $value) {
+            $postFields["usergroups_id[{$count}]"] = $value;
+            $count++;
+        }
+        $obj->postFields = $postFields;
+
+        if (!empty($file)) {
+            if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
+                // do not send image twice
+                $sentImage[] = $videos_id;
+                //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+                //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+            }
+            $obj->videoFileSize = humanFileSize(filesize($file));
+        }
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $target);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        $r = remove_utf8_bom(curl_exec($curl));
+        error_log("AVideo-Streamer answer {$r}");
+        $obj->postFields = count($postFields);
+        $obj->response_raw = $r;
+        $obj->response = json_decode($r);
+        if ($errno = curl_errno($curl) || empty($obj->response)) {
+            $error_message = curl_strerror($errno);
+            //echo "cURL error ({$errno}):\n {$error_message}";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n ";
+        } else {
+            $obj->error = false;
+        }
+        curl_close($curl);
+        error_log(json_encode($obj));
+        $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        //var_dump($obj);exit;
+        return $obj;
+    }
+
 
     static function sendImages($file, $videos_id, $encoder) {
         global $global;
