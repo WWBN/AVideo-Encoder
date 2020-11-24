@@ -1008,7 +1008,6 @@ class Encoder extends ObjectYPT {
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
-        $obj->downloadFileLink = str_replace($global['systemRootPath'], $global['webSiteRootURL'], $file);
         error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
         if(empty($duration)){
             $duration = static::getDurationFromFile($file);
@@ -1060,7 +1059,6 @@ class Encoder extends ObjectYPT {
             'user' => $user,
             'password' => $pass,
             'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
-            'downloadFileLink' => $obj->downloadFileLink,
             'encoderURL' => $global['webSiteRootURL']
         );
         $count = 0;
