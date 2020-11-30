@@ -439,6 +439,21 @@ function parseDurationToSeconds($str) {
     return intval($durationParts[2]) + ($minutes * 60);
 }
 
+function secondsToVideoTime($seconds) {
+    if (!is_numeric($seconds)) {
+        return $seconds;
+    }
+    $seconds = round($seconds);
+    $hours = floor($seconds / 3600);
+    $mins = floor($seconds / 60 % 60);
+    $secs = floor($seconds % 60);
+    return sprintf('%02d:%02d:%02d', $hours, $mins, $secs);
+}
+
+function parseSecondsToDuration($seconds) {
+    return secondsToVideoTime($seconds);
+}
+
 /**
  * 
  * @global type $global
@@ -908,4 +923,35 @@ function getPHPSessionIDURL() {
         $p = session_id();
     }
     return "PHPSESSID={$p}";
+}
+
+function isSameDomain($url1, $url2) {
+    if (empty($url1) || empty($url2)) {
+        return false;
+    }
+    return (get_domain($url1) === get_domain($url2));
+}
+
+function get_domain($url) {
+    $pieces = parse_url($url);
+    $domain = isset($pieces['host']) ? $pieces['host'] : '';
+    if(empty($domain)){
+        return false;
+    }
+    if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
+        return rtrim($regs['domain'], '/');
+    }else{
+        $isIp = (bool)ip2long($pieces['host']);
+        if($isIp){
+            return $pieces['host'];
+        }
+    }
+    return false;
+}
+
+function isPIDRunning($pid){
+    if($pid<1){
+        return false;
+    }
+    return file_exists( "/proc/$pid" );
 }

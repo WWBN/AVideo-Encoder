@@ -1,12 +1,20 @@
+Options -Indexes
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin: *
 </IfModule>
 <IfModule mod_rewrite.c>
     RewriteEngine on
 
+    # Deny access to log files
+    RewriteRule ^.*\.log$ - [F,L,NC]
+    RewriteRule    ^(.*)enc_watermarked.key$ view/watermarked.key.php?path=$1    [QSA]
+
+    #RedirectMatch 403 ^/folder/.+\.(png|gif|js)$
+
     RewriteRule    ^index.php$ view/index.php    [NC,L]
     #RewriteRule    ^$ view/    [NC,L]
     RewriteRule    ^isAdmin$ view/isAdmin.php    [NC,L]
+    RewriteRule    ^watermark$ view/watermark.php    [NC,L]
     RewriteRule    ^videosListToLive view/videosListToLive.php    [NC,L]
     RewriteRule    ^removeStreamer$ view/removeStreamer.php    [NC,L]
     RewriteRule    ^priority$ view/priority.php    [NC,L]
@@ -27,6 +35,7 @@
     RewriteRule    ^getImageMP4/([A-Za-z0-9=/]+)/([A-Za-z0-9]{3,4})/([0-9.]+)$ objects/getImageMP4.php?base64Url=$1&format=$2&time=$3    [NC,L]
     RewriteRule    ^getSpiritsFromVideo/([A-Za-z0-9%=/]+)/([0-9]+)/([0-9]+)/([0-9:]+)? objects/getSpiritsFromVideo.php?base64Url=$1&tileWidth=$2&totalClips=$3&duration=$4    [NC,L]
     RewriteRule    ^getLinkInfo/([A-Za-z0-9=/]+)$ objects/getLinkInfo.json.php?base64Url=$1    [NC,L]
+
 </IfModule>
 <Files avideo.log>
 Order Allow,Deny
