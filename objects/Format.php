@@ -349,7 +349,7 @@ hd/index.m3u8
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
             $audioBitrate = array(128, 128, 192, 192, 192, 192);
-            $videoFramerate = array(20, 30, 30, 0, 0, 0);
+            $videoFramerate = array(30, 30, 0, 0, 0, 0);
 
             $f = new Format($format_id);
             $code = $f->getCode();
@@ -357,6 +357,7 @@ hd/index.m3u8
             // create command
             $resolution = 240;
             $autioBitrate = 128;
+            $framerate = " -r 20 ";
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
 
             $command = get_ffmpeg().' -i {$pathFileName} ';
@@ -401,7 +402,7 @@ hd/index.m3u8
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
             $audioBitrate = array(128, 128, 192, 192, 192, 192);
-            $videoFramerate = array(20, 30, 30, 0, 0, 0);
+            $videoFramerate = array(30, 30, 0, 0, 0, 0);
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
@@ -445,6 +446,7 @@ res{$value}/index.m3u8
             $maxrate = 450;
             $bufsize = 600;
             $autioBitrate = 128;
+            $framerate = " -r 20 ";
 
             $command = get_ffmpeg().' -i {$pathFileName} ';
             eval("\$command .= \" $code\";");
