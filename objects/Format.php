@@ -349,6 +349,7 @@ hd/index.m3u8
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
             $audioBitrate = array(128, 128, 192, 192, 192, 192);
+            $videoFramerate = array(20, 30, 30, 0, 0, 0);
 
             $f = new Format($format_id);
             $code = $f->getCode();
@@ -369,6 +370,11 @@ hd/index.m3u8
                     $autioBitrate = $audioBitrate[$key];
                     $evalCommand = "\$command .= \" $code\";";
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
+                    $framerate = "";
+                    if(!empty($videoFramerate[$key])){
+                        $framerate = " -r {$videoFramerate[$key]} ";
+                    }
+                    
                     //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
                     eval($evalCommand);
                 }
@@ -395,6 +401,7 @@ hd/index.m3u8
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
             $audioBitrate = array(128, 128, 192, 192, 192, 192);
+            $videoFramerate = array(20, 30, 30, 0, 0, 0);
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
@@ -450,6 +457,10 @@ res{$value}/index.m3u8
                     $maxrate = ($rate * 1.5);
                     $bufsize = ($rate * 2);
                     $autioBitrate = $audioBitrate[$key];
+                    $framerate = "";
+                    if(!empty($videoFramerate[$key])){
+                        $framerate = " -r {$videoFramerate[$key]} ";
+                    }
                     eval("\$command .= \" $code\";");
                 }
             }
