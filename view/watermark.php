@@ -321,11 +321,11 @@ function stopAllPids($dir) {
 function totalPidsRunning() {
     global $watermarkDir;
     if(!is_dir($watermarkDir)){
-        error_log("watermarkDir: is not a dir {$watermarkDir}");
+        error_log("totalPidsRunning: is not a dir {$watermarkDir}");
         return 0;
     }
     $total = 0;
-    error_log("watermarkDir: Searching {$dir}");
+    error_log("totalPidsRunning: Searching {$watermarkDir}");
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
