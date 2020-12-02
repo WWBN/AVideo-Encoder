@@ -4,6 +4,7 @@ $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
+$max_process_at_the_same_time = 15;
 
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
@@ -64,7 +65,7 @@ $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
 
 $totalPidsRunning = totalPidsRunning($watermarkDir);
 error_log("totalPidsRunning: $totalPidsRunning");
-if($totalPidsRunning>4){
+if($totalPidsRunning>$max_process_at_the_same_time){
     $obj->msg = "Too many running now";
     die(json_encode($obj));
 }
