@@ -78,20 +78,6 @@ $obj->resolution = intval($_REQUEST['resolution']);
 
 $input = "{$_REQUEST['file']}" . ((strpos($_REQUEST['file'], '?') !== false) ? "&" : "?") . "watermark_token={$_REQUEST['watermark_token']}";
 
-$localFileName = md5($_REQUEST['file']).".mp4";
-$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
-
-make_path("$dir{$_REQUEST['videos_id']}/");
-if(!file_exists($localFileName)){
-    $ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
-
-    error_log("Watermark: download video $ffmpeg");
-
-    //var_dump($ffmpeg);exit;
-    $obj->pid = __exec($ffmpeg);
-}
-
-
 $text = $_REQUEST['watermark_text'];
 $outputTextPath = "$dir{$_REQUEST['videos_id']}/" . md5("{$text}")."/";
 $outputPath = "{$outputTextPath}{$obj->resolution}";
@@ -107,6 +93,19 @@ $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
 if(!amIrunning($outputPath)){
+    
+    $localFileName = md5($_REQUEST['file']).".mp4";
+    $localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
+    make_path("$dir{$_REQUEST['videos_id']}/");
+    if(!file_exists($localFileName)){
+        $ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
+
+        error_log("Watermark: download video $ffmpeg");
+
+        //var_dump($ffmpeg);exit;
+        $obj->pid = __exec($ffmpeg);
+    }
+    
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     error_log("totalPidsRunning: $totalPidsRunning");
     if($totalPidsRunning>$max_process_at_the_same_time){
