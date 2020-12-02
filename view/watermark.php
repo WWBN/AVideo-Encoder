@@ -4,7 +4,7 @@ $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
-$max_process_at_the_same_time = 30;
+$max_process_at_the_same_time = 5;
 
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
