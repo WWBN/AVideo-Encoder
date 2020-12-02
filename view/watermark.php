@@ -94,7 +94,7 @@ $encFileURL = "{$outputURL}/enc_watermarked.key";
 
 if(!amIrunning($outputPath)){
     
-    $localFileName = "video_{$_REQUEST['videos_id']}.mp4";
+    $localFileName = "video_{$_REQUEST['resolution']}.mp4";
     $localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path("$dir{$_REQUEST['videos_id']}/");
     if(!file_exists($localFilePath)){
