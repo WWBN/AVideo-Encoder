@@ -97,7 +97,7 @@ if(!amIrunning($outputPath)){
     $localFileName = md5($_REQUEST['file']).".mp4";
     $localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path("$dir{$_REQUEST['videos_id']}/");
-    if(!file_exists($localFileName)){
+    if(!file_exists($localFilePath)){
         $ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
 
         error_log("Watermark: download video $ffmpeg");
