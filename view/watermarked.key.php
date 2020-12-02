@@ -6,12 +6,13 @@ require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 header("Content-Type: text/plain");
 header("Access-Control-Allow-Origin: *");
-if(empty($_REQUEST['protectionToken'])){
-    die("protectionToken not found");
-}
 $outputPath = "{$global['systemRootPath']}{$_REQUEST['path']}";
 $jsonFile = "{$outputPath}.obj.log";
 $encFile = "{$outputPath}enc_watermarked.key";
+echo file_get_contents($encFile);exit;
+if(empty($_REQUEST['protectionToken'])){
+    die("protectionToken not found");
+}
 $json = json_decode(file_get_contents($jsonFile));
 if (is_object($json)) {
     if ((!empty($_REQUEST['protectionToken']) && $_REQUEST['protectionToken'] === $json->protectionToken) || !empty($_REQUEST['isMobile'])) {

@@ -3,16 +3,29 @@
 $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
-$hls_time = 10;
+$hls_time = 30;
 $max_process_at_the_same_time = 5;
-
+$encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
+//$downloadCodec = " -c:v libx264 -acodec copy ";
+$downloadCodec = " -c copy ";
+//$watermarkCodec = " -c:v libx264 -preset ultrafast -profile:v main  ";
+$watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
+$maximumWatermarkPercentage = 50;
+$minimumWatermarkPercentage = 10;
+$maxElements = 20; // 10 minutes divided in 20 times
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
-//header("Access-Control-Allow-Origin: *");
+session_write_close();
+$global['mysqli']->close();
+ignore_user_abort(true);
+set_time_limit(0);
 
+ob_start();
+
+//header("Access-Control-Allow-Origin: *");
 if (!empty($_REQUEST['_'])) {
     $array = json_decode(base64_decode($_REQUEST['_']));
     foreach ($array as $key => $value) {
@@ -25,22 +38,22 @@ if (!empty($_REQUEST['_'])) {
 $domain = get_domain($_REQUEST['file']);
 
 
-if(!isSameDomain($_REQUEST['file'], $global['webSiteRootURL'])){
-    if(empty($global['watermarkDomainWhitelist'])){
+if (!isSameDomain($_REQUEST['file'], $global['webSiteRootURL'])) {
+    if (empty($global['watermarkDomainWhitelist'])) {
         die("Create an array in your configuration.php file with the allowed domains \$global['watermarkDomainWhitelist']");
     }
 }
 
 // create an array in your configuration.php file with the allowed domains $global['watermarkDomainWhitelist']
-if(!empty($global['watermarkDomainWhitelist'])){
+if (!empty($global['watermarkDomainWhitelist'])) {
     $found = false;
     foreach ($global['watermarkDomainWhitelist'] as $value) {
-        if(isSameDomain($_REQUEST['file'], $value)){
+        if (isSameDomain($_REQUEST['file'], $value)) {
             $found = true;
             break;
         }
     }
-    if(empty($found)){
+    if (empty($found)) {
         die("Domain NOT allowed");
     }
 }
@@ -75,43 +88,77 @@ $obj->file = $_REQUEST['file'];
 $obj->watermark_text = $_REQUEST['watermark_text'];
 $obj->watermark_token = $_REQUEST['watermark_token'];
 $obj->resolution = intval($_REQUEST['resolution']);
+if ($obj->resolution < 360) {
+    $watermark_fontsize = "(h/20)";
+}
 
 $input = "{$_REQUEST['file']}" . ((strpos($_REQUEST['file'], '?') !== false) ? "&" : "?") . "watermark_token={$_REQUEST['watermark_token']}";
 
 $text = $_REQUEST['watermark_text'];
-$outputTextPath = "$dir{$_REQUEST['videos_id']}/" . md5("{$text}")."/";
+$outputTextPath = "$dir{$_REQUEST['videos_id']}/" . md5("{$text}") . "/";
 $outputPath = "{$outputTextPath}{$obj->resolution}";
 $outputURL = str_replace($global['systemRootPath'], $global['webSiteRootURL'], $outputPath);
 
-$outputHLS_ts = "{$outputPath}/%03d.ts";
 $outputHLS_index = "{$outputPath}/index.m3u8";
-$outputHLS = "  -hls_segment_filename \"{$outputHLS_ts}\" \"{$outputHLS_index}\" ";
 
 $jsonFile = "$outputPath/.obj.log";
 $encFile = "$outputPath/enc_watermarked.key";
 $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
-if(!amIrunning($outputPath)){
-    
-    $localFileName = "video_{$_REQUEST['resolution']}.mp4";
-    $localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
-    make_path("$dir{$_REQUEST['videos_id']}/");
-    if(!file_exists($localFilePath)){
-        $ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
+if (!amIrunning($outputPath)) {
+
+    $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
+    $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
+    $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
+    $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
+    //$localFileDownloadDir$localFileName = "video.mp4";
+    //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
+    make_path($localFileDownloadDir);
+    if (!file_exists($localFileDownload_index)) {
+        file_put_contents($localFileDownload_index, "");
+        //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
+        $ffmpeg = "ffmpeg -i \"$input\" {$downloadCodec} -f hls -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$localFileDownload_HLS} ";
 
         error_log("Watermark: download video $ffmpeg");
 
         //var_dump($ffmpeg);exit;
-        $obj->pid = __exec($ffmpeg);
+        __exec($ffmpeg);
+
+        error_log("Watermark: download video complete ");
+        createSymbolicLinks($localFileDownloadDir, $outputPath);
     }
-    
+
+
+
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     //error_log("totalPidsRunning: $totalPidsRunning");
-    if($totalPidsRunning>=$max_process_at_the_same_time){
+    if ($totalPidsRunning >= $max_process_at_the_same_time) {
         $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
         die(json_encode($obj));
     }
+
+    $percentageOfWatermark = 100;
+
+    $reduceCoefficient = 20;
+    if ($obj->resolution < 360) {
+        $reduceCoefficient = 5;
+    } else if ($obj->resolution < 480) {
+        $reduceCoefficient = 10;
+    } else if ($obj->resolution < 720) {
+        $reduceCoefficient = 15;
+    }
+
+    $percentageOfWatermark = $percentageOfWatermark - ($totalPidsRunning * $reduceCoefficient);
+
+    if ($percentageOfWatermark < $minimumWatermarkPercentage) {
+        $percentageOfWatermark = $minimumWatermarkPercentage;
+    }
+    if ($percentageOfWatermark > $maximumWatermarkPercentage) {
+        $percentageOfWatermark = $maximumWatermarkPercentage;
+    }
+
+    //error_log("Watermark: Percentage of watermark will be {$percentageOfWatermark}%");
 
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
@@ -125,28 +172,88 @@ if(!amIrunning($outputPath)){
 
         make_path($outputPath);
 
-        $cmd = "openssl rand 16 > {$encFile}";
-        __exec($cmd);
+        if ($encrypt) {
+            error_log("Watermark: will be encrypted ");
+            $cmd = "openssl rand 16 > {$encFile}";
+            __exec($cmd);
+        } else {
+            error_log("Watermark: will NOT be encrypted ");
+        }
 
-        $keyInfo = $encFileURL . PHP_EOL . $encFile;
-        file_put_contents($keyInfoFile, $keyInfo);
+        if (file_exists($encFile)) {
+            $keyInfo = $encFileURL . PHP_EOL . $encFile;
+            file_put_contents($keyInfoFile, $keyInfo);
+        }
 
-        $randomizeTimeX = random_int(100, 180);
-        $randomizeTimeY = random_int(100, 180);
-        $ffmpeg = "ffmpeg -i \"$localFilePath\" "
-                . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
-                . ' x=if(eq(mod(n\,' . $randomizeTimeX . ')\,0)\,rand(0\,(W-tw))\,x): '
-                . ' y=if(eq(mod(n\,' . $randomizeTimeY . ')\,0)\,rand(0\,(H-th))\,y)" '
-                . "  -f hls -force_key_frames \"expr:gte(t,n_forced*{$hls_time})\"  -segment_list_size 0 -segment_time {$hls_time} " // I need that to be able to create the m3u8 before finish the transcoding
-                . " -hls_key_info_file \"{$keyInfoFile}\" "
-                . " -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$outputHLS} ";
+        //$randomizeTimeX = random_int(100, 180);
+        //$randomizeTimeY = random_int(100, 180);
+        $commands = array();
+        $allFiles = getAllTSFilesInDir($localFileDownloadDir);
 
-        $obj->ffmpeg = $ffmpeg;
-        error_log("Watermark: $ffmpeg");
+        $total = ceil((count($allFiles) / 100) * $percentageOfWatermark);
+        if ($total > $maxElements) {
+            $total = $maxElements;
+        }
+        $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $total);
 
-        //var_dump($ffmpeg);exit;
-        $obj->pid = __exec($ffmpeg, true);
+        error_log("Watermark: we will watermark " . count($watermarkingArray) . " " . json_encode($watermarkingArray));
+        
+        //$allFiles = array();
+        $timeSpent = 0;
+        $count = 0;
+        $totalTimeStart = microtime(true);
+        foreach ($allFiles as $tsFile) {
+            if (empty($tsFile)) {
+                continue;
+            }
+            $inputHLS_ts = "{$localFileDownloadDir}/{$tsFile}";
+            $outputHLS_ts = "{$outputPath}/{$tsFile}";
+            $randX = random_int(60, 120);
+            $randY = random_int(60, 120);
+            $command = "ffmpeg -y -i \"$inputHLS_ts\" ";
+            if (in_array($tsFile, $watermarkingArray)) {
+                //error_log("Watermark:  {$inputHLS_ts} will have watermark");
+                unlink($outputHLS_ts);
+                $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
+                        . ' :x=if(eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
+                        . ' :y=if(eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
+                        . " {$watermarkCodec} -copyts  ";
+            } else {
+                if (file_exists($encFile)) {
+                    $command .= " -c copy -copyts  ";
+                }else{
+                    continue; // keep the symlink
+                }
+            }
+            if (file_exists($encFile)) {
+                $command .= " -hls_key_info_file \"{$keyInfoFile}\" ";
+            }
+            $command .= " {$outputHLS_ts} ";
+            $count++;
+            $commands[] = $command;            
+        }
+        $totalTimeSpent = microtime(true)-$totalTimeStart;
+        error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
+        
+        /*
+          $ffmpeg = "ffmpeg -i \"$localFilePath\" "
+          . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
+          . ' x=if(eq(mod(n\,' . $randomizeTimeX . ')\,0)\,rand(0\,(W-tw))\,x): '
+          . ' y=if(eq(mod(n\,' . $randomizeTimeY . ')\,0)\,rand(0\,(H-th))\,y)" '
+          . "  -f hls -force_key_frames \"expr:gte(t,n_forced*{$hls_time})\"  -segment_list_size 0 -segment_time {$hls_time} " // I need that to be able to create the m3u8 before finish the transcoding
+          . " -hls_key_info_file \"{$keyInfoFile}\" "
+          . " -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$outputHLS} ";
+         * 
+         */
 
+        $obj->ffmpeg = $commands;
+        
+        $cmd = addcslashes(implode(" ; ", $commands), '"');
+        $cmd = "bash -c \"{$cmd}\" ";
+        
+        error_log("Watermark: execute {$cmd} ");
+        $obj->pid = __exec($cmd, true);
+        
         file_put_contents($jsonFile, json_encode($obj));
 
         $tries = 0;
@@ -175,70 +282,90 @@ if(!amIrunning($outputPath)){
         }
     }
 }
+getIndexM3U8();
 
-header('Content-Transfer-Encoding: binary');
-header('Content-Disposition: attachment; filename="index.m3u8"');
-//header('Connection: Keep-Alive');
-//header('Expires: 0');
-//header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-//header('Pragma: public');
-//header('Content-Type: application/vnd.apple.mpegurl');
-//header('Content-Type: application/x-mpegURL');
-//header("Content-Type: text/plain");
-//echo $outputPath;
-// Open a directory, and read its contents
-if (file_exists($outputHLS_index)) {
-    $fsize = filesize($outputHLS_index);
-    header('Content-Length: ' . $fsize);
-    stopAllPids($outputTextPath);
-    $handle = fopen($outputHLS_index, "r");
-    if ($handle) {
-        while (($line = fgets($handle)) !== false) {
-            if (preg_match('/[0-9]+.ts/', $line)) {
-                echo "{$outputURL}/{$line}";
-            } else if (preg_match('/enc_watermarked.key/', $line)) {
-                $json = json_decode(file_get_contents($jsonFile));
-                if (is_object($json) && $obj->isMobile) {
-                    echo str_replace("enc_watermarked.key", "enc_watermarked.key?isMobile=1", $line);
-                }else{
+error_log("Watermark: finish");
+
+function getIndexM3U8($tries = 0) {
+    global $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
+    if(!empty($getIndexM3U8)){
+        return "";
+    }
+    $getIndexM3U8 = 1;
+    error_log("Watermark: getIndexM3U8 start");
+    
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Disposition: attachment; filename="index.m3u8"');
+    if (file_exists($outputHLS_index) && !isRunning($outputPath)) {
+        $fsize = filesize($outputHLS_index);
+        header('Content-Length: ' . $fsize);
+        //stopAllPids($outputTextPath);
+        $handle = fopen($outputHLS_index, "r");
+        if ($handle) {
+            while (($line = fgets($handle)) !== false) {
+                if (preg_match('/EXT-X-PLAYLIST-TYPE:VOD/', $line)) {
+                    if (file_exists($encFile)) {
+                        echo $line . "#EXT-X-KEY:METHOD=AES-128,URI=\"{$encFileURL}\",IV=0x00000000000000000000000000000000" . PHP_EOL;
+                    } else {
+                        echo $line;
+                    }
+                } else if (preg_match('/[0-9]+.ts/', $line)) {
+                    echo "{$outputURL}/{$line}";
+                } else if (preg_match('/enc_watermarked.key/', $line)) {
+                    $json = json_decode(file_get_contents($jsonFile));
+                    if (is_object($json) && $obj->isMobile) {
+                        echo str_replace("enc_watermarked.key", "enc_watermarked.key?isMobile=1", $line);
+                    } else {
+                        echo $line;
+                    }
+                } else {
                     echo $line;
                 }
-            } else {
-                echo $line;
             }
+            fclose($handle);
+        } else {
+            // error opening the file.
         }
-        fclose($handle);
-    } else {
-        // error opening the file.
-    }
-    if(file_exists($keyInfoFile)){
-        unlink($keyInfoFile);
-    }
-    exit;
-} else if (is_dir($outputPath)) {
-    echo "#EXTM3U
+        if (file_exists($keyInfoFile)) {
+            unlink($keyInfoFile);
+        }
+    } else if (is_dir($outputPath)) {
+        echo "#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-TARGETDURATION:{$hls_time}
 #EXT-X-MEDIA-SEQUENCE:0
-#EXT-X-DISCONTINUITY
-#EXT-X-KEY:METHOD=AES-128,URI=\"{$encFileURL}\",IV=0x00000000000000000000000000000000";
+#EXT-X-DISCONTINUITY";
+
+        if (file_exists($encFile)) {
+            echo PHP_EOL . "#EXT-X-KEY:METHOD=AES-128,URI=\"{$encFileURL}\",IV=0x00000000000000000000000000000000" . PHP_EOL;
+        }
         $files = getTSFiles($outputPath);
+        if(empty($files) && $tries<5){
+            sleep(1);
+            return getIndexM3U8($tries+1);
+        }
         $count = 0;
-        while(empty($files)){
+        while (empty($files)) {
             $count++;
-            if($count>60){
+            if ($count > 60) {
                 die("TS file does not respond");
             }
             sleep(1);
             $files = getTSFiles($outputPath);
-        }     
-        
-        echo PHP_EOL . implode( PHP_EOL, $files);
-        exit;
-}
-error_log("Watermark: finish");
+        }
 
-function getTSFiles($dir){
+        echo PHP_EOL . implode(PHP_EOL, $files);
+    }
+    header("Content-Encoding: none");
+    header('Connection: close');
+    header('Content-Length: ' . ob_get_length());
+    ob_end_flush();
+    ob_flush();
+    flush();
+    error_log("Watermark: getIndexM3U8 end");
+}
+
+function getTSFiles($dir) {
     global $hls_time, $text, $outputURL;
     if ($dh = opendir($dir)) {
         $files = array();
@@ -247,28 +374,27 @@ function getTSFiles($dir){
             if (!in_array($file, $ignoreFiles) && !preg_match('/.json/', $file)) {
                 //error_log("Watermark: adding ts {$file} on ($text)");
                 $filePath = "$dir/{$file}";
-                if(filemtime($filePath) < strtotime("-2 seconds")){
+                if (filemtime($filePath) < strtotime("-2 seconds")) {
                     $ts_file = "{$outputURL}/{$file}";
                     //$duration = getTSDuration($ts_file);
-                    if(empty($duration)){
-                       $duration =  $hls_time;
+                    if (empty($duration)) {
+                        $duration = $hls_time;
                     }
-                    $files[] = ("#EXTINF:{$duration}," . PHP_EOL .$ts_file);
+                    $files[] = ("#EXTINF:{$duration}," . PHP_EOL . $ts_file);
                 }
             }
         }
-        if(empty($files)){
+        if (empty($files)) {
             return array();
         }
         sort($files);
-        error_log("Watermark: adding ts on ($text) count: ". count($files));
+        error_log("Watermark: adding ts on ($text) count: " . count($files));
         closedir($dh);
         return $files;
     }
 }
 
 function __exec($cmd, $async = false) {
-    ob_flush();
     if (!$async) {
         exec($cmd . " 2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -282,7 +408,7 @@ function __exec($cmd, $async = false) {
 }
 
 function stopAllPids($dir) {
-    if(!is_dir($dir)){
+    if (!is_dir($dir)) {
         error_log("stopAllPids: is not a dir {$dir}");
         return false;
     }
@@ -290,28 +416,28 @@ function stopAllPids($dir) {
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
-        if (is_object($json) && $json->pid) {
-            if(isPIDRunning($json->pid)){
+        if (is_object($json) && isset($json->pid) && $json->pid) {
+            if (isPIDRunning($json->pid)) {
                 error_log("stopAllPids: Found {$jsonFile}");
                 $cmd = "kill -9 {$json->pid}";
                 error_log("stopAllPids: {$cmd}");
                 exec($cmd);
                 $json->pid = 0;
-            }else{
+            } else {
                 $json->pid = -1; // means is complete
             }
             file_put_contents($jsonFile, json_encode($json));
-        }else{
-            error_log("stopAllPids: PID not running or not found ($json->pid)");
+        } else {
+            //error_log("stopAllPids: PID not running or not found ($json->pid)");
         }
     } else {
         if ($dh = opendir($dir)) {
             while (($file = readdir($dh)) !== false) {
-                if($file=='.' || $file == '..'){
+                if ($file == '.' || $file == '..') {
                     continue;
                 }
                 $newDir = "{$dir}{$file}/";
-                if(is_dir($newDir)){
+                if (is_dir($newDir)) {
                     stopAllPids($newDir);
                 }
             }
@@ -320,12 +446,17 @@ function stopAllPids($dir) {
     }
 }
 
-function amIrunning($dir){
+function isRunning($dir) {
+    if (!is_dir($dir)) {
+        error_log("isRunning: is not a dir {$dir}");
+        return false;
+    }
+    error_log("stopAllPids: Searching {$dir}");
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
-        if (is_object($json) && $json->pid) {
-            if(isPIDRunning($json->pid)){
+        if (is_object($json) && isset($json->pid) && $json->pid) {
+            if (isPIDRunning($json->pid)) {
                 return true;
             }
         }
@@ -333,8 +464,12 @@ function amIrunning($dir){
     return false;
 }
 
+function amIrunning($dir) {
+    return isRunning($dir);
+}
+
 function totalPidsRunning($dir) {
-    if(!is_dir($dir)){
+    if (!is_dir($dir)) {
         error_log("totalPidsRunning: is not a dir {$dir}");
         return 0;
     }
@@ -343,19 +478,19 @@ function totalPidsRunning($dir) {
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
-        if (is_object($json) && $json->pid) {
-            if(isPIDRunning($json->pid)){
+        if (is_object($json) && isset($json->pid) && $json->pid) {
+            if (isPIDRunning($json->pid)) {
                 $total++;
             }
         }
     } else {
         if ($dh = opendir($dir)) {
             while (($file = readdir($dh)) !== false) {
-                if($file=='.' || $file == '..'){
+                if ($file == '.' || $file == '..') {
                     continue;
                 }
                 $newDir = "{$dir}{$file}/";
-                if(is_dir($newDir)){
+                if (is_dir($newDir)) {
                     $total += totalPidsRunning($newDir);
                 }
             }
@@ -365,7 +500,7 @@ function totalPidsRunning($dir) {
     return $total;
 }
 
-function canConvert($dir){
+function canConvert($dir) {
     $jsonFile = "{$dir}/.obj.log";
     $outputHLS_index = "{$dir}/index.m3u8";
     if (file_exists($jsonFile)) {
@@ -373,33 +508,166 @@ function canConvert($dir){
         $fileContent = file_get_contents($jsonFile);
         $json = json_decode($fileContent);
         if (is_object($json) && !empty($json->pid)) {
-            // if index exist or it still processing, do not convert again
-            if(file_exists($outputHLS_index)){
-                error_log("canConvert: $outputHLS_index exists");
+            /*
+              // if index exist or it still processing, do not convert again
+              if(file_exists($outputHLS_index)){
+              error_log("canConvert: $outputHLS_index exists");
+              return false;
+              }
+             * 
+             */
+            if (!allTSFilesAreSymlinks($dir)) {
+                error_log("canConvert: NOT allTSFilesAreSymlinks");
                 return false;
             }
-            
-            if(isPIDRunning($json->pid)){
+
+            if (isPIDRunning($json->pid)) {
                 error_log("canConvert: pid still running");
                 return false;
             }
-        }else{
+        } else {
             error_log("canConvert: pid is empty {$fileContent}");
         }
-    }else{
+    } else {
         error_log("canConvert: $jsonFile file not found");
     }
     error_log("canConvert: said yes");
     return true;
 }
 
-function getTSDuration($ts_file){
+function getTSDuration($ts_file) {
     $cmd = "ffprobe -loglevel quiet -print_format flat -show_entries format=duration {$ts_file}";
     exec($cmd, $output);
-    if(preg_match('/format.duration="([0-9.]+)"/', $output[0], $matches)){
-        if(!empty($matches[1])){
+    if (preg_match('/format.duration="([0-9.]+)"/', $output[0], $matches)) {
+        if (!empty($matches[1])) {
             return floatval($matches[1]);
         }
     }
     return 0;
+}
+
+function createSymbolicLinks($fromDir, $toDir) {
+    make_path($toDir);
+    if ($dh = opendir($fromDir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
+            $cmd = "ln -sf {$fromDir}/{$file} {$toDir}/{$file}";
+            __exec($cmd);
+        }
+        closedir($dh);
+    }
+}
+
+function allTSFilesAreSymlinks($dir) {
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
+                continue;
+            }
+            //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
+            if (!is_link("{$dir}/{$file}")) {
+                error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is a symlynk ");
+                return false;
+            }
+            //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
+        }
+        return true;
+    }
+    return false;
+}
+
+function getTotalTSFilesInDir($dir) {
+    global $getTotalTSFilesInDir;
+    if (!empty($getTotalTSFilesInDir)) {
+        return $getTotalTSFilesInDir;
+    }
+    $total = 0;
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
+                continue;
+            }
+            $total++;
+        }
+    }
+    $getTotalTSFilesInDir = $total;
+    return $total;
+}
+
+function getAllTSFilesInDir($dir) {
+    global $getAllTSFilesInDir;
+    if (!empty($getAllTSFilesInDir)) {
+        return $getAllTSFilesInDir;
+    }
+    $files = array();
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
+                continue;
+            }
+            $files[] = $file;
+        }
+    }
+    sort($files);
+    $getAllTSFilesInDir = $files;
+    return $files;
+}
+
+function getRandomSymlinkTSFileArray($dir, $total) {
+    error_log("getRandomSymlinkTSFileArray: ($total) {$dir}");
+    $files = array("000.ts", sprintf('%03d.ts', intval($total / 2)), sprintf('%03d.ts', $total));
+    for ($i = 0; $i < $total; $i++) {
+        $newFile = getRandomTSFile($dir);
+        //error_log("getRandomSymlinkTSFileArray: \$newFile {$newFile}");
+        if (!empty($newFile) && !in_array($newFile, $files)) {
+            //error_log("getRandomSymlinkTSFileArray: added {$newFile}");
+            $files[] = $newFile;
+        }
+    }
+    $files = array_unique($files);
+    sort($files);
+    error_log("getRandomSymlinkTSFileArray: sort(\$files) " . json_encode($files));
+    return $files;
+}
+
+function getRandomSymlinkTSFile($dir) {
+    $ts = rand(0, getTotalTSFilesInDir($dir));
+    //error_log("getRandomSymlinkTSFile: ($ts)");
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/([0-9]+)\.ts$/', $file, $matches)) {
+                continue;
+            }
+            $fileNum = intval($matches[1]);
+            if ($ts == $fileNum) {
+                //error_log("getRandomSymlinkTSFile: ($file) ($ts) == ({$fileNum})");
+                if (is_link("{$dir}/{$file}")) {
+                    return $file;
+                } else {
+                    //error_log("getRandomSymlinkTSFile: ({$dir}/{$file}) not a symlink ". json_encode(linkinfo("{$dir}/{$file}")));
+                    $ts++;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function getRandomTSFile($dir) {
+    $ts = rand(0, getTotalTSFilesInDir($dir));
+    //error_log("getRandomSymlinkTSFile: ($ts)");
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/([0-9]+)\.ts$/', $file, $matches)) {
+                continue;
+            }
+            $fileNum = intval($matches[1]);
+            if ($ts == $fileNum) {
+                return $file;
+            }
+        }
+    }
+    return false;
 }
