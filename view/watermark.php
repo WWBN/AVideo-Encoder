@@ -4,7 +4,7 @@ $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
-$max_process_at_the_same_time = 15;
+$max_process_at_the_same_time = 30;
 
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
@@ -107,9 +107,9 @@ if(!amIrunning($outputPath)){
     }
     
     $totalPidsRunning = totalPidsRunning($watermarkDir);
-    error_log("totalPidsRunning: $totalPidsRunning");
-    if($totalPidsRunning>$max_process_at_the_same_time){
-        $obj->msg = "Too many running now, total: $totalPidsRunning of $max_process_at_the_same_time";
+    //error_log("totalPidsRunning: $totalPidsRunning");
+    if($totalPidsRunning>=$max_process_at_the_same_time){
+        $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
         die(json_encode($obj));
     }
 
