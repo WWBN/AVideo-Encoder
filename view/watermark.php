@@ -63,13 +63,6 @@ if (empty($obj->videos_id)) {
 
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
 
-$totalPidsRunning = totalPidsRunning($watermarkDir);
-error_log("totalPidsRunning: $totalPidsRunning");
-if($totalPidsRunning>$max_process_at_the_same_time){
-    $obj->msg = "Too many running now";
-    die(json_encode($obj));
-}
-
 $dir = "{$watermarkDir}{$domain}/";
 //error_log("Watermark: DIR $dir");
 make_path($dir);
@@ -113,68 +106,76 @@ $encFile = "$outputPath/enc_watermarked.key";
 $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
-if ($obj->isMobile) {
-    $encFileURL .= "?isMobile=1";
-}
+if(!amIrunning($outputPath)){
+    $totalPidsRunning = totalPidsRunning($watermarkDir);
+    error_log("totalPidsRunning: $totalPidsRunning");
+    if($totalPidsRunning>$max_process_at_the_same_time){
+        $obj->msg = "Too many running now";
+        die(json_encode($obj));
+    }
 
-error_log("Watermark: $outputHLS_index");
-if (canConvert($outputPath)) {
-    //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
-    //__exec($cmd);
-    stopAllPids($outputTextPath);
-    
-    make_path($outputPath);
+    if ($obj->isMobile) {
+        $encFileURL .= "?isMobile=1";
+    }
 
-    $cmd = "openssl rand 16 > {$encFile}";
-    __exec($cmd);
+    error_log("Watermark: $outputHLS_index");
+    if (canConvert($outputPath)) {
+        //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
+        //__exec($cmd);
+        stopAllPids($outputTextPath);
 
-    $keyInfo = $encFileURL . PHP_EOL . $encFile;
-    file_put_contents($keyInfoFile, $keyInfo);
+        make_path($outputPath);
 
-    $randomizeTimeX = random_int(100, 180);
-    $randomizeTimeY = random_int(100, 180);
-    $ffmpeg = "ffmpeg -i \"$localFilePath\" "
-            . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
-            . ' x=if(eq(mod(n\,' . $randomizeTimeX . ')\,0)\,rand(0\,(W-tw))\,x): '
-            . ' y=if(eq(mod(n\,' . $randomizeTimeY . ')\,0)\,rand(0\,(H-th))\,y)" '
-            . "  -f hls -force_key_frames \"expr:gte(t,n_forced*{$hls_time})\"  -segment_list_size 0 -segment_time {$hls_time} " // I need that to be able to create the m3u8 before finish the transcoding
-            . " -hls_key_info_file \"{$keyInfoFile}\" "
-            . " -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$outputHLS} ";
+        $cmd = "openssl rand 16 > {$encFile}";
+        __exec($cmd);
 
-    $obj->ffmpeg = $ffmpeg;
-    error_log("Watermark: $ffmpeg");
+        $keyInfo = $encFileURL . PHP_EOL . $encFile;
+        file_put_contents($keyInfoFile, $keyInfo);
 
-    //var_dump($ffmpeg);exit;
-    $obj->pid = __exec($ffmpeg, true);
-    
-    file_put_contents($jsonFile, json_encode($obj));
-    
-    $tries = 0;
-    while (1) {
-        $tries++;
-        error_log("Watermark: checking file ({$tries}) ({$outputPath}) ");
-        if (file_exists("{$outputPath}/000.ts") && $tries > 5) {
-            error_log("Watermark: file 000.ts");
-            break;
-        } else
-        if (file_exists("{$outputPath}/003.ts")) {
-            error_log("Watermark: file 003.ts");
-            break;
-        } else if ($tries > 10) {
-            error_log("Watermark: file tries > 10");
-            break;
+        $randomizeTimeX = random_int(100, 180);
+        $randomizeTimeY = random_int(100, 180);
+        $ffmpeg = "ffmpeg -i \"$localFilePath\" "
+                . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
+                . ' x=if(eq(mod(n\,' . $randomizeTimeX . ')\,0)\,rand(0\,(W-tw))\,x): '
+                . ' y=if(eq(mod(n\,' . $randomizeTimeY . ')\,0)\,rand(0\,(H-th))\,y)" '
+                . "  -f hls -force_key_frames \"expr:gte(t,n_forced*{$hls_time})\"  -segment_list_size 0 -segment_time {$hls_time} " // I need that to be able to create the m3u8 before finish the transcoding
+                . " -hls_key_info_file \"{$keyInfoFile}\" "
+                . " -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$outputHLS} ";
+
+        $obj->ffmpeg = $ffmpeg;
+        error_log("Watermark: $ffmpeg");
+
+        //var_dump($ffmpeg);exit;
+        $obj->pid = __exec($ffmpeg, true);
+
+        file_put_contents($jsonFile, json_encode($obj));
+
+        $tries = 0;
+        while (1) {
+            $tries++;
+            error_log("Watermark: checking file ({$tries}) ({$outputPath}) ");
+            if (file_exists("{$outputPath}/000.ts") && $tries > 5) {
+                error_log("Watermark: file 000.ts");
+                break;
+            } else
+            if (file_exists("{$outputPath}/003.ts")) {
+                error_log("Watermark: file 003.ts");
+                break;
+            } else if ($tries > 10) {
+                error_log("Watermark: file tries > 10");
+                break;
+            }
+            sleep(1);
         }
-        sleep(1);
-    }
-} else if (file_exists($jsonFile)) {
-    $json = json_decode(file_get_contents($jsonFile));
-    if (is_object($json)) {
-        $json->lastUpdate = time();
-        file_put_contents($jsonFile, json_encode($json));
-        error_log("Watermark: Update $jsonFile");
+    } else if (file_exists($jsonFile)) {
+        $json = json_decode(file_get_contents($jsonFile));
+        if (is_object($json)) {
+            $json->lastUpdate = time();
+            file_put_contents($jsonFile, json_encode($json));
+            error_log("Watermark: Update $jsonFile");
+        }
     }
 }
-
 
 header('Content-Transfer-Encoding: binary');
 header('Content-Disposition: attachment; filename="index.m3u8"');
@@ -318,6 +319,19 @@ function stopAllPids($dir) {
             closedir($dh);
         }
     }
+}
+
+function amIrunning($dir){
+    $jsonFile = "{$dir}.obj.log";
+    if (file_exists($jsonFile)) {
+        $json = json_decode(file_get_contents($jsonFile));
+        if (is_object($json) && $json->pid) {
+            if(isPIDRunning($json->pid)){
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 function totalPidsRunning($dir) {
