@@ -342,7 +342,7 @@ function totalPidsRunning() {
                 }
                 $newDir = "{$watermarkDir}{$file}/";
                 if(is_dir($newDir)){
-                    $total += howManyIsRunning($newDir);
+                    $total += totalPidsRunning($newDir);
                 }
             }
             closedir($dh);
