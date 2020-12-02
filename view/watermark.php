@@ -61,6 +61,13 @@ if (empty($obj->videos_id)) {
 error_log("Watermark: Start " . json_encode($_REQUEST));
 
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
+
+$totalPidsRunning = totalPidsRunning();
+if($totalPidsRunning>4){
+    $obj->msg = "Too many running now";
+    die(json_encode($obj));
+}
+
 $dir = "{$watermarkDir}{$domain}/";
 error_log("Watermark: DIR $dir");
 make_path($dir);
@@ -309,6 +316,39 @@ function stopAllPids($dir) {
             closedir($dh);
         }
     }
+}
+
+function totalPidsRunning() {
+    global $watermarkDir;
+    if(!is_dir($watermarkDir)){
+        error_log("watermarkDir: is not a dir {$watermarkDir}");
+        return 0;
+    }
+    $total = 0;
+    error_log("watermarkDir: Searching {$dir}");
+    $jsonFile = "{$dir}.obj.log";
+    if (file_exists($jsonFile)) {
+        $json = json_decode(file_get_contents($jsonFile));
+        if (is_object($json) && $json->pid) {
+            if(isPIDRunning($json->pid)){
+                $total++;
+            }
+        }
+    } else {
+        if ($dh = opendir($watermarkDir)) {
+            while (($file = readdir($dh)) !== false) {
+                if($file=='.' || $file == '..'){
+                    continue;
+                }
+                $newDir = "{$watermarkDir}{$file}/";
+                if(is_dir($newDir)){
+                    $total += howManyIsRunning($newDir);
+                }
+            }
+            closedir($dh);
+        }
+    }
+    return $total;
 }
 
 function canConvert($dir){
