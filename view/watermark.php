@@ -319,7 +319,6 @@ function stopAllPids($dir) {
 }
 
 function totalPidsRunning($dir) {
-    global $dir;
     if(!is_dir($dir)){
         error_log("totalPidsRunning: is not a dir {$dir}");
         return 0;
