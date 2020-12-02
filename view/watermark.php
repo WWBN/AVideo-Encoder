@@ -321,11 +321,11 @@ function stopAllPids($dir) {
 function totalPidsRunning($dir) {
     global $dir;
     if(!is_dir($dir)){
-        error_log("watermarkDir: is not a dir {$dir}");
+        error_log("totalPidsRunning: is not a dir {$dir}");
         return 0;
     }
     $total = 0;
-    error_log("watermarkDir: Searching {$dir}");
+    error_log("totalPidsRunning: Searching {$dir}");
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
@@ -335,12 +335,12 @@ function totalPidsRunning($dir) {
             }
         }
     } else {
-        if ($dh = opendir($watermarkDir)) {
+        if ($dh = opendir($dir)) {
             while (($file = readdir($dh)) !== false) {
                 if($file=='.' || $file == '..'){
                     continue;
                 }
-                $newDir = "{$watermarkDir}{$file}/";
+                $newDir = "{$dir}{$file}/";
                 if(is_dir($newDir)){
                     $total += totalPidsRunning($newDir);
                 }
