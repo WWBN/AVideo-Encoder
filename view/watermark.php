@@ -59,7 +59,7 @@ if (empty($obj->videos_id)) {
     die(json_encode($obj));
 }
 
-error_log("Watermark: Start " . json_encode($_REQUEST));
+//error_log("Watermark: Start " . json_encode($_REQUEST));
 
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
 
@@ -71,7 +71,7 @@ if($totalPidsRunning>$max_process_at_the_same_time){
 }
 
 $dir = "{$watermarkDir}{$domain}/";
-error_log("Watermark: DIR $dir");
+//error_log("Watermark: DIR $dir");
 make_path($dir);
 
 $clean = array('file', 'watermark_text', 'watermark_token');
