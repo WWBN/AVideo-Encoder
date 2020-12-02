@@ -109,7 +109,7 @@ if(!amIrunning($outputPath)){
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     error_log("totalPidsRunning: $totalPidsRunning");
     if($totalPidsRunning>$max_process_at_the_same_time){
-        $obj->msg = "Too many running now";
+        $obj->msg = "Too many running now, total: $totalPidsRunning of $max_process_at_the_same_time";
         die(json_encode($obj));
     }
 
