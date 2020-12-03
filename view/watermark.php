@@ -10,7 +10,7 @@ $encrypt = false; // if enable encryption it fails to play, probably an error on
 $downloadCodec = " -c copy ";
 //$watermarkCodec = " -c:v libx264 -preset ultrafast -profile:v main  ";
 $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
-$maximumWatermarkPercentage = 50;
+$maximumWatermarkPercentage = 100;
 $minimumWatermarkPercentage = 10;
 $maxElements = 6; 
 
