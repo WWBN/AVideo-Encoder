@@ -12,7 +12,7 @@ $downloadCodec = " -c copy ";
 $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 $maximumWatermarkPercentage = 100;
 $minimumWatermarkPercentage = 10;
-$maxElements = 6; 
+$maxElements = 3; 
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
