@@ -710,8 +710,9 @@ function createFirstSegment() {
     }
     
     $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
-
+    $start = microtime(true);
     __exec($ffmpegCOmmand);
+    error_log("createFirstSegment: took ".(microtime(true)-$start)." seconds");
 }
 
 function getFFMPEGForSegment($segment) {
