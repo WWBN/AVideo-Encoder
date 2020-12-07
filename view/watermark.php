@@ -570,9 +570,10 @@ function canIDownloadVideo($dir) {
     if (file_exists($localFileDownload_index)) {
         $olderThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
         if($olderThen5Min){
-            error_log("canIDownloadVideo: index file exists and it is empty (olderThen5Min = ".($olderThen5Min?"Y":"N").") ");
+            error_log("canIDownloadVideo: index file exists and olderThen5Min");
             if (!filesize($localFileDownload_index)) {
                 error_log("canIDownloadVideo: index is empty ");
+                unlink($localFileDownload_index);
                 return true;
             }
         }
