@@ -5,7 +5,7 @@ $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
 $skippFirstSegments = 30; // 5 min
-$max_process_at_the_same_time = 15;
+$max_process_at_the_same_time = 5;
 $encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
 //$downloadCodec = " -c:v libx264 -acodec copy ";
 $downloadCodec = " -c copy ";
@@ -21,7 +21,7 @@ require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 session_write_close();
 
-if(!empty($global['mysqli'])){
+if (!empty($global['mysqli'])) {
     $global['mysqli']->close();
 }
 ignore_user_abort(true);
@@ -80,7 +80,8 @@ if (empty($obj->videos_id)) {
 
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
 $lockDir = "{$watermarkDir}lock/";
-$lockFilePath = "{$lockDir}". uniqid();;
+$lockFilePath = "{$lockDir}" . uniqid();
+;
 
 
 $dir = "{$watermarkDir}{$domain}/";
@@ -121,11 +122,13 @@ if (!allTSFilesAreSymlinks($outputPath)) {
     exit;
 }
 
-$totalFFMPEG = getHowManyFFMPEG(); 
-if($totalFFMPEG > $max_process_at_the_same_time){
+$totalFFMPEG = getHowManyFFMPEG();
+createFirstSegment();
+if ($totalFFMPEG > $max_process_at_the_same_time) {
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
     error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
     createSymbolicLinks($localFileDownloadDir, $outputPath);
+    createFirstSegment($text, $keyInfoFile);
     getIndexM3U8();
     exit;
 }
@@ -137,7 +140,7 @@ if (!isRunning($outputPath)) {
     //$localFileDownloadDir$localFileName = "video.mp4";
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
-    
+
     if (canIDownloadVideo($localFileDownloadDir)) {
         $startTime = microtime(true);
         file_put_contents($localFileDownload_lock, time());
@@ -148,11 +151,11 @@ if (!isRunning($outputPath)) {
         error_log("Watermark: download video $ffmpeg");
 
         //var_dump($ffmpeg);exit;
-        
+
         __exec($ffmpeg);
-        
+
         unlink($localFileDownload_lock);
-        error_log("Watermark: download video complete in ".(microtime(true)-$startTime)." seconds");
+        error_log("Watermark: download video complete in " . (microtime(true) - $startTime) . " seconds");
         createSymbolicLinks($localFileDownloadDir, $outputPath);
     }
 
@@ -168,23 +171,22 @@ if (!isRunning($outputPath)) {
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
     }
-    
+
     error_log("Watermark: $outputHLS_index");
     if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
-        
+
         stopAllPids($outputTextPath);
-        
+
 
         make_path($outputPath);
 
         if ($encrypt) {
             error_log("Watermark: will be encrypted ");
             $cmd = "openssl rand 16 > {$encFile}";
-        
+
             __exec($cmd);
-        
         } else {
             //error_log("Watermark: will NOT be encrypted ");
         }
@@ -213,52 +215,15 @@ if (!isRunning($outputPath)) {
             }
             $inputHLS_ts = "{$localFileDownloadDir}/{$tsFile}";
             $outputHLS_ts = "{$outputPath}/{$tsFile}";
-            $randX = random_int(60, 120);
-            $randY = random_int(60, 120);
-            $command = "ffmpeg -i \"$inputHLS_ts\" ";
-            if (in_array($tsFile, $watermarkingArray)) {
-                //error_log("Watermark:  {$inputHLS_ts} will have watermark");
-                @unlink($outputHLS_ts);
-                $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
-                        . ' :x=if(eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
-                        . ' :y=if(eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
-                        . " {$watermarkCodec} -copyts  ";
-            } else {
-                if (file_exists($encFile)) {
-                    $command .= " -c copy -copyts  ";
-                } else {
-                    continue; // keep the symlink
-                }
+
+            if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
+                continue;
             }
-            if (file_exists($encFile)) {
-                $command .= " -hls_key_info_file \"{$keyInfoFile}\" ";
-            }
-            $command .= " -y \"{$outputHLS_ts}\" ";
-            $count++;
-            if ($count === 1) {
-                // make sure you have the first segment before proceed
-                $firstSegmentStartTime = microtime(true);    
-                __exec($command);
-                $firstSegmentTotalTime = microtime(true)-$firstSegmentStartTime;  
-                error_log("Executed First segment in {$firstSegmentTotalTime} seconds {$command}");
-        
-            } else {
-                $commands[] = $command;
-            }
+            
+            $commands[] = getFFMPEGForSegment($segment);
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
-
-        /*
-          $ffmpeg = "ffmpeg -i \"$localFilePath\" "
-          . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
-          . ' x=if(eq(mod(n\,' . $randomizeTimeX . ')\,0)\,rand(0\,(W-tw))\,x): '
-          . ' y=if(eq(mod(n\,' . $randomizeTimeY . ')\,0)\,rand(0\,(H-th))\,y)" '
-          . "  -f hls -force_key_frames \"expr:gte(t,n_forced*{$hls_time})\"  -segment_list_size 0 -segment_time {$hls_time} " // I need that to be able to create the m3u8 before finish the transcoding
-          . " -hls_key_info_file \"{$keyInfoFile}\" "
-          . " -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$outputHLS} ";
-         * 
-         */
 
         $obj->ffmpeg = $commands;
 
@@ -296,14 +261,14 @@ if (!isRunning($outputPath)) {
             error_log("Watermark: Update $jsonFile");
         }
     }
-    
+
     endWaretmark();
 }
 getIndexM3U8();
 
 error_log("Watermark: finish");
 
-function getIndexM3U8($tries = 0, $getFirstSegments=0) {
+function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
     global $localFileDownloadDir, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
     if (!empty($getIndexM3U8)) {
         return "";
@@ -329,7 +294,7 @@ function getIndexM3U8($tries = 0, $getFirstSegments=0) {
                     }
                 } else if (preg_match('/[0-9]+.ts/', $line)) {
                     $count++;
-                    if(!empty($getFirstSegments) && $count>$getFirstSegments){
+                    if (!empty($getFirstSegments) && $count > $getFirstSegments) {
                         return false;
                     }
                     echo "{$outputURL}/{$line}";
@@ -702,7 +667,7 @@ function getRandomSymlinkTSFileArray($dir, $total) {
     global $skippFirstSegments;
     $totalTSFiles = getTotalTSFilesInDir($dir);
     error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
-    $firstfile = "0{$skippFirstSegments}.ts";
+    $firstfile = sprintf('%03d.ts', $skippFirstSegments);
     if (!file_exists("{$dir}/{$firstfile}")) {
         $firstfile = "000.ts";
     }
@@ -723,6 +688,70 @@ function getRandomSymlinkTSFileArray($dir, $total) {
     sort($files);
     //error_log("getRandomSymlinkTSFileArray: sort(\$files) " . json_encode($files));
     return $files;
+}
+
+function createFirstSegment() {
+    global $skippFirstSegments, $outputPath, $localFileDownloadDir;
+    $firstfile = sprintf('%03d.ts', $skippFirstSegments);
+    $inputHLS_ts = "{$localFileDownloadDir}/{$firstfile}";
+    if (!file_exists($inputHLS_ts)) {
+        $firstfile = "000.ts";
+        $inputHLS_ts = "{$localFileDownloadDir}/{$firstfile}";
+    }
+    if (!file_exists($inputHLS_ts)) {
+        return false;
+    }
+    
+    $outputHLS_ts = "{$outputPath}/{$firstfile}";
+    if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
+        return false;
+    }
+    
+    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
+
+    __exec($cmd);
+}
+
+function getFFMPEGForSegment($segment) {
+    global $outputPath, $localFileDownloadDir;
+    $file = sprintf('%03d.ts', $segment);
+    $inputHLS_ts = "{$localFileDownloadDir}/{$file}";
+    if (!file_exists($inputFile)) {
+        return false;
+    }
+    $outputHLS_ts = "{$outputPath}/{$firstfile}";
+    if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
+        return false;
+    }
+    
+    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
+    return $ffmpegCOmmand;
+}
+
+function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts) {
+    global $watermark_fontsize, $watermark_color, $watermark_opacity, $watermarkCodec, $text, $keyInfoFile, $encFile;
+    $randX = random_int(60, 120);
+    $randY = random_int(60, 120);
+    $command = "ffmpeg -i \"$inputHLS_ts\" ";
+    if (!empty($text)) {
+        //error_log("Watermark:  {$inputHLS_ts} will have watermark");
+        @unlink($outputHLS_ts);
+        $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
+                . ' :x=if(eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
+                . ' :y=if(eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
+                . " {$watermarkCodec} -copyts  ";
+    } else {
+        if (file_exists($keyInfoFile) && file_exists($encFile)) {
+            $command .= " -c copy -copyts  ";
+        } else {
+            return false;
+        }
+    }
+    if (file_exists($keyInfoFile) && file_exists($encFile)) {
+        $command .= " -hls_key_info_file \"{$keyInfoFile}\" ";
+    }
+    $command .= " -y \"{$outputHLS_ts}\" ";
+    return $command;
 }
 
 function getRandomSymlinkTSFile($dir) {
@@ -768,7 +797,7 @@ function startWaretmark() {
 
     $fi = new FilesystemIterator($lockDir, FilesystemIterator::SKIP_DOTS);
     $totalFiles = iterator_count($fi);
-    if($totalFiles>$max_process_at_the_same_time){
+    if ($totalFiles > $max_process_at_the_same_time) {
         endWaretmark();
         die("startWaretmark: too many processing now {$totalFiles}");
     }
@@ -779,11 +808,10 @@ function endWaretmark() {
     @unlink($lockFilePath);
 }
 
-
-function getHowManyFFMPEG(){
+function getHowManyFFMPEG() {
     $cmd = "ps -aux | grep -i \"ffmpeg.*drawtext\"";
     exec($cmd, $output);
-    return count($output)-1;
+    return count($output) - 1;
 }
 
 function detectEmptyTS($line) {
@@ -794,7 +822,7 @@ function detectEmptyTS($line) {
                 continue;
             }
             $filename = "{$localFileDownloadDir}/{$file}";
-            if(!filesize($filename)){
+            if (!filesize($filename)) {
                 error_log("detectEmptyTS: ($line) $filename");
             }
         }
