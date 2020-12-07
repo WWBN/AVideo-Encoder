@@ -302,7 +302,7 @@ function getIndexM3U8($tries = 0) {
         return "";
     }
     $getIndexM3U8 = 1;
-    error_log("Watermark: getIndexM3U8 start");
+    //error_log("Watermark: getIndexM3U8 start");
 
     header('Content-Transfer-Encoding: binary');
     header('Content-Disposition: attachment; filename="index.m3u8"');
@@ -376,7 +376,7 @@ function getIndexM3U8($tries = 0) {
     ob_end_flush();
     ob_flush();
     flush();
-    error_log("Watermark: getIndexM3U8 end");
+    //error_log("Watermark: getIndexM3U8 end");
 }
 
 function getTSFiles($dir) {
@@ -426,7 +426,7 @@ function stopAllPids($dir) {
         error_log("stopAllPids: is not a dir {$dir}");
         return false;
     }
-    error_log("stopAllPids: Searching {$dir}");
+    //error_log("stopAllPids: Searching {$dir}");
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
