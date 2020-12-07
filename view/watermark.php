@@ -14,6 +14,10 @@ $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
+$lockDir = "/tmp/watermark/";
+$lockFileName = uniqid();
+$lockFilePath = "{$lockDir}{$lockFileName}";
+
 startWaretmark();
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
@@ -730,10 +734,6 @@ function getRandomTSFile($dir) {
     }
     return false;
 }
-
-$lockDir = "/tmp/watermark/";
-$lockFileName = uniqid();
-$lockFilePath = "{$lockDir}{$lockFileName}";
 
 function startWaretmark() {
     global $lockDir, $lockFilePath;
