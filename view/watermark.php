@@ -292,7 +292,7 @@ getIndexM3U8();
 error_log("Watermark: finish");
 
 function getIndexM3U8($tries = 0) {
-    global $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
+    global $localFileDownloadDir, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
     if (!empty($getIndexM3U8)) {
         return "";
     }
@@ -553,17 +553,17 @@ function getTSDuration($ts_file) {
 }
 
 function createSymbolicLinks($fromDir, $toDir) {
-    error_log("createSymbolicLinks($fromDir, $toDir)");
+    //error_log("createSymbolicLinks($fromDir, $toDir)");
     make_path($toDir);
     if ($dh = opendir($fromDir)) {
         while (($file = readdir($dh)) !== false) {
             $destinationFile = "{$toDir}/{$file}";
             if (file_exists($destinationFile) || $file == '.' || $file == '..') {
-                error_log("createSymbolicLinks: ignored $destinationFile)");
+                //error_log("createSymbolicLinks: ignored $destinationFile)");
                 continue;
             }
             $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
-            error_log($cmd);
+            //error_log($cmd);
             __exec($cmd);
         }
         closedir($dh);
