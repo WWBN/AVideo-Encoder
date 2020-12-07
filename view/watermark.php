@@ -214,7 +214,7 @@ if (!isRunning($outputPath)) {
             $outputHLS_ts = "{$outputPath}/{$tsFile}";
             $randX = random_int(60, 120);
             $randY = random_int(60, 120);
-            $command = "ffmpeg -i \"$inputHLS_ts\" ";
+            $command = "rm \"{$outputHLS_ts}\" && ffmpeg -i \"$inputHLS_ts\" ";
             if (in_array($tsFile, $watermarkingArray)) {
                 //error_log("Watermark:  {$inputHLS_ts} will have watermark");
                 @unlink($outputHLS_ts);
