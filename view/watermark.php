@@ -118,9 +118,8 @@ $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
 $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
 
 createSymbolicLinks($localFileDownloadDir, $outputPath);
-        
+getIndexM3U8();
 if (!allTSFilesAreSymlinks($outputPath)) {
-    getIndexM3U8();
     exit;
 }
 
@@ -129,7 +128,6 @@ if ($totalFFMPEG > $max_process_at_the_same_time) {
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
     error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
     createFirstSegment();
-    getIndexM3U8();
     exit;
 }
 
@@ -272,7 +270,6 @@ if (!isRunning($outputPath)) {
 
     endWaretmark();
 }
-getIndexM3U8();
 
 $endTime = microtime(true)-$startTime;
 error_log("Watermark: finish {$outputHLS_index} took: {$endTime} seconds");
