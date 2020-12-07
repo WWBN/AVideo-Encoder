@@ -229,7 +229,7 @@ if (!isRunning($outputPath)) {
 
         $obj->ffmpeg = $commands;
 
-        $cmd = addcslashes(implode(" ; ", $commands), '"');
+        $cmd = addcslashes(implode(" && ", $commands), '"');
         $cmd = "bash -c \"{$cmd}\" ";
 
         error_log("Watermark: execute {$cmd} ");
