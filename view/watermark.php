@@ -561,6 +561,7 @@ function createSymbolicLinks($fromDir, $toDir) {
                 continue;
             }
             $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
+            error_log($cmd);
             __exec($cmd);
         }
         closedir($dh);
