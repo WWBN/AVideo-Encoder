@@ -123,7 +123,7 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 $totalFFMPEG = getHowManyFFMPEG(); 
 if($totalFFMPEG > $max_process_at_the_same_time){
     die("Too many FFMPEG processing now {$totalFFMPEG}");
-}
+}detectEmptyTS(__LINE__);
 if (!isRunning($outputPath)) {
     startWaretmark();
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
@@ -132,6 +132,7 @@ if (!isRunning($outputPath)) {
     //$localFileDownloadDir$localFileName = "video.mp4";
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
+    detectEmptyTS(__LINE__);
     if (canIDownloadVideo($localFileDownloadDir)) {
         file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
@@ -149,7 +150,7 @@ if (!isRunning($outputPath)) {
         createSymbolicLinks($localFileDownloadDir, $outputPath);
     }
 
-
+detectEmptyTS(__LINE__);
 
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     //error_log("totalPidsRunning: $totalPidsRunning");
@@ -161,23 +162,23 @@ if (!isRunning($outputPath)) {
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
     }
-
+    detectEmptyTS(__LINE__);
     error_log("Watermark: $outputHLS_index");
     if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
         detectEmptyTS(__LINE__);
         stopAllPids($outputTextPath);
-        detectEmptyTS(__LINE__);
+        
 
         make_path($outputPath);
 
         if ($encrypt) {
             error_log("Watermark: will be encrypted ");
             $cmd = "openssl rand 16 > {$encFile}";
-        detectEmptyTS(__LINE__);
+        
             __exec($cmd);
-        detectEmptyTS(__LINE__);
+        
         } else {
             error_log("Watermark: will NOT be encrypted ");
         }
@@ -230,9 +231,9 @@ if (!isRunning($outputPath)) {
             $count++;
             if ($count === 1) {
                 // make sure you have the first segment before proceed
-        detectEmptyTS(__LINE__);
+        
                 __exec($command);
-        detectEmptyTS(__LINE__);
+        
             } else {
                 $commands[] = $command;
             }
