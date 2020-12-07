@@ -467,7 +467,7 @@ function isRunning($dir) {
 
         return false;
     }
-    error_log("stopAllPids: Searching {$dir}");
+    //error_log("isRunning: Searching {$dir}");
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
