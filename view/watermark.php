@@ -134,8 +134,13 @@ if (!isRunning($outputPath)) {
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     //error_log("totalPidsRunning: $totalPidsRunning");
     if ($totalPidsRunning >= $max_process_at_the_same_time) {
-        $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
-        die(json_encode($obj));
+        if (!allTSFilesAreSymlinks($dir)) {
+            getIndexM3U8();
+            exit;
+        }else{
+            $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
+            die(json_encode($obj));
+        }
     }
 
     $percentageOfWatermark = 100;
