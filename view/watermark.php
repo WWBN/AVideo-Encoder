@@ -211,7 +211,12 @@ if (!isRunning($outputPath)) {
             }
             $command .= " {$outputHLS_ts} ";
             $count++;
-            $commands[] = $command;
+            if($count===1){
+                // make sure you have the first segment before proceed
+                _exec($command);
+            }else{
+                $commands[] = $command;
+            }
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
@@ -229,8 +234,9 @@ if (!isRunning($outputPath)) {
 
         $obj->ffmpeg = $commands;
 
-        $cmd = addcslashes(implode(" && ", $commands), '"');
-        $cmd = "bash -c \"{$cmd}\" ";
+        //$cmd = addcslashes(implode(" && ", $commands), '"');
+        //$cmd = "bash -c \"{$cmd}\" ";
+        $cmd = implode(" && ", $commands);
 
         error_log("Watermark: execute {$cmd} ");
         $obj->pid = __exec($cmd, true);
