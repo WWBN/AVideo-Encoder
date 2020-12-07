@@ -19,7 +19,8 @@ require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 session_write_close();
-if($global['mysqli']){
+
+if(!empty($global['mysqli'])){
     $global['mysqli']->close();
 }
 ignore_user_abort(true);
@@ -140,7 +141,9 @@ if (!isRunning($outputPath)) {
         error_log("Watermark: download video $ffmpeg");
 
         //var_dump($ffmpeg);exit;
+        detectEmptyTS(__LINE__);
         __exec($ffmpeg);
+        detectEmptyTS(__LINE__);
         unlink($localFileDownload_lock);
         error_log("Watermark: download video complete ");
         createSymbolicLinks($localFileDownloadDir, $outputPath);
@@ -163,14 +166,18 @@ if (!isRunning($outputPath)) {
     if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
+        detectEmptyTS(__LINE__);
         stopAllPids($outputTextPath);
+        detectEmptyTS(__LINE__);
 
         make_path($outputPath);
 
         if ($encrypt) {
             error_log("Watermark: will be encrypted ");
             $cmd = "openssl rand 16 > {$encFile}";
+        detectEmptyTS(__LINE__);
             __exec($cmd);
+        detectEmptyTS(__LINE__);
         } else {
             error_log("Watermark: will NOT be encrypted ");
         }
@@ -223,7 +230,9 @@ if (!isRunning($outputPath)) {
             $count++;
             if ($count === 1) {
                 // make sure you have the first segment before proceed
+        detectEmptyTS(__LINE__);
                 __exec($command);
+        detectEmptyTS(__LINE__);
             } else {
                 $commands[] = $command;
             }
@@ -761,4 +770,19 @@ function getHowManyFFMPEG(){
     $cmd = "ps -aux | grep -i \"ffmpeg.*drawtext\"";
     exec($cmd, $output);
     return count($output)-1;
+}
+
+function detectEmptyTS($line) {
+    global $localFileDownloadDir;
+    if ($dh = opendir($localFileDownloadDir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
+                continue;
+            }
+            $filename = "{$localFileDownloadDir}/{$file}";
+            if(!filesize($filename)){
+                error_log("detectEmptyTS: ($line) $filename");
+            }
+        }
+    }
 }
