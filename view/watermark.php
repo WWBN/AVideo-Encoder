@@ -735,7 +735,7 @@ function getRandomTSFile($dir) {
 }
 
 function startWaretmark() {
-    global $lockDir, $lockFilePath;
+    global $lockDir, $lockFilePath, $max_process_at_the_same_time;
 
     if (!is_dir($lockDir)) {
         mkdir($lockDir, 0755, true);
