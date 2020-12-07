@@ -577,7 +577,7 @@ function allTSFilesAreSymlinks($dir) {
             if (!is_link("{$dir}/{$file}")) {
                 $count++;
                 if ($count > 1) { // make sure you ignore the first segment that is always encode
-                    error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
+                    //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
                     return false;
                 }
             }
