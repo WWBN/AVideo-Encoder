@@ -213,7 +213,7 @@ if (!isRunning($outputPath)) {
             $count++;
             if($count===1){
                 // make sure you have the first segment before proceed
-                _exec($command);
+                __exec($command);
             }else{
                 $commands[] = $command;
             }
