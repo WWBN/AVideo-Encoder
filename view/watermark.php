@@ -631,7 +631,11 @@ function getAllTSFilesInDir($dir) {
 
 function getRandomSymlinkTSFileArray($dir, $total) {
     error_log("getRandomSymlinkTSFileArray: ($total) {$dir}");
-    $files = array("000.ts", sprintf('%03d.ts', intval($total / 2)), sprintf('%03d.ts', $total));
+    $firstfile = "003.ts";
+    if(!file_exists("{$dir}/{$firstfile}")){
+        $firstfile = "000.ts";
+    }
+    $files = array($firstfile, sprintf('%03d.ts', intval($total / 2)), sprintf('%03d.ts', $total));
     for ($i = 0; $i < $total; $i++) {
         $newFile = getRandomTSFile($dir);
         //error_log("getRandomSymlinkTSFileArray: \$newFile {$newFile}");
