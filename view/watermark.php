@@ -10,8 +10,8 @@ $encrypt = false; // if enable encryption it fails to play, probably an error on
 $downloadCodec = " -c copy ";
 //$watermarkCodec = " -c:v libx264 -preset ultrafast -profile:v main  ";
 $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
-$maximumWatermarkPercentage = 100;
-$minimumWatermarkPercentage = 10;
+//$maximumWatermarkPercentage = 100;
+//$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
@@ -143,29 +143,6 @@ if (!isRunning($outputPath)) {
         $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
         die(json_encode($obj));
     }
-
-    $percentageOfWatermark = 100;
-
-    $reduceCoefficient = 20;
-    if ($obj->resolution < 360) {
-        $reduceCoefficient = 5;
-    } else if ($obj->resolution < 480) {
-        $reduceCoefficient = 10;
-    } else if ($obj->resolution < 720) {
-        $reduceCoefficient = 15;
-    }
-
-    $percentageOfWatermark = $percentageOfWatermark - ($totalPidsRunning * $reduceCoefficient);
-
-    if ($percentageOfWatermark < $minimumWatermarkPercentage) {
-        $percentageOfWatermark = $minimumWatermarkPercentage;
-    }
-    if ($percentageOfWatermark > $maximumWatermarkPercentage) {
-        $percentageOfWatermark = $maximumWatermarkPercentage;
-    }
-
-    //error_log("Watermark: Percentage of watermark will be {$percentageOfWatermark}%");
-
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
     }
@@ -196,11 +173,7 @@ if (!isRunning($outputPath)) {
         $commands = array();
         $allFiles = getAllTSFilesInDir($localFileDownloadDir);
 
-        $total = ceil((count($allFiles) / 100) * $percentageOfWatermark);
-        if ($total > $maxElements) {
-            $total = $maxElements;
-        }
-        $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $total);
+        $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $maxElements);
 
         error_log("Watermark: we will watermark " . count($watermarkingArray) . " " . json_encode($watermarkingArray));
 
@@ -582,7 +555,7 @@ function allTSFilesAreSymlinks($dir) {
             }
             //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
             if (!is_link("{$dir}/{$file}")) {
-                error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is a symlynk ");
+                error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
                 return false;
             }
             //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
@@ -663,12 +636,13 @@ function getAllTSFilesInDir($dir) {
 }
 
 function getRandomSymlinkTSFileArray($dir, $total) {
-    error_log("getRandomSymlinkTSFileArray: ($total) {$dir}");
+    $totalTSFiles = getTotalTSFilesInDir($dir);
+    error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
     $firstfile = "003.ts";
     if(!file_exists("{$dir}/{$firstfile}")){
         $firstfile = "000.ts";
     }
-    $files = array($firstfile, sprintf('%03d.ts', intval($total / 2)), sprintf('%03d.ts', $total));
+    $files = array($firstfile, sprintf('%03d.ts', intval($totalTSFiles / 2)), sprintf('%03d.ts', $totalTSFiles));
     for ($i = 0; $i < $total; $i++) {
         $newFile = getRandomTSFile($dir);
         //error_log("getRandomSymlinkTSFileArray: \$newFile {$newFile}");
