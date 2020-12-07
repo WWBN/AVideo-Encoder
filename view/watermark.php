@@ -14,6 +14,8 @@ $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
+startWaretmark();
+
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
@@ -40,6 +42,7 @@ $domain = get_domain($_REQUEST['file']);
 
 if (!isSameDomain($_REQUEST['file'], $global['webSiteRootURL'])) {
     if (empty($global['watermarkDomainWhitelist'])) {
+        endWaretmark();
         die("Create an array in your configuration.php file with the allowed domains \$global['watermarkDomainWhitelist']");
     }
 }
@@ -54,6 +57,7 @@ if (!empty($global['watermarkDomainWhitelist'])) {
         }
     }
     if (empty($found)) {
+        endWaretmark();
         die("Domain NOT allowed");
     }
 }
@@ -69,6 +73,7 @@ $obj->isMobile = !empty($_REQUEST['isMobile']);
 
 if (empty($obj->videos_id)) {
     $obj->msg = "videos_id is empty";
+    endWaretmark();
     die(json_encode($obj));
 }
 
@@ -111,6 +116,7 @@ $localFileDownload_lock = "$localFileDownloadDir/lock";
 
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
+    endWaretmark();
     exit;
 }
 
@@ -143,6 +149,7 @@ if (!isRunning($outputPath)) {
     //error_log("totalPidsRunning: $totalPidsRunning");
     if ($totalPidsRunning >= $max_process_at_the_same_time) {
         $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
+        endWaretmark();
         die(json_encode($obj));
     }
     if ($obj->isMobile) {
@@ -211,10 +218,10 @@ if (!isRunning($outputPath)) {
             }
             $command .= " {$outputHLS_ts} ";
             $count++;
-            if($count===1){
+            if ($count === 1) {
                 // make sure you have the first segment before proceed
                 __exec($command);
-            }else{
+            } else {
                 $commands[] = $command;
             }
         }
@@ -270,6 +277,7 @@ if (!isRunning($outputPath)) {
     }
 }
 getIndexM3U8();
+endWaretmark();
 
 error_log("Watermark: finish");
 
@@ -338,6 +346,7 @@ function getIndexM3U8($tries = 0) {
         while (empty($files)) {
             $count++;
             if ($count > 60) {
+                endWaretmark();
                 die("TS file does not respond");
             }
             sleep(1);
@@ -575,21 +584,21 @@ function allTSFilesAreSymlinks($dir) {
 
 function canIDownloadVideo($dir) {
     global $localFileDownload_lock;
-    if(file_exists($localFileDownload_lock)){
+    if (file_exists($localFileDownload_lock)) {
         $time = file_get_contents($localFileDownload_lock);
         $newerThen10Min = $time > strtotime("-10 min");
-        if($newerThen10Min){
+        if ($newerThen10Min) {
             return false;
         }
     }
-    
-    if(getTotalTSFilesInDir($dir)>0){
+
+    if (getTotalTSFilesInDir($dir) > 0) {
         return false;
     }
     $localFileDownload_index = "$dir/index.m3u8";
     if (file_exists($localFileDownload_index)) {
         $newerThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
-        if($newerThen5Min){
+        if ($newerThen5Min) {
             error_log("canIDownloadVideo: index file exists and olderThen5Min");
             if (!filesize($localFileDownload_index)) {
                 error_log("canIDownloadVideo: index is empty ");
@@ -720,4 +729,28 @@ function getRandomTSFile($dir) {
         return $file;
     }
     return false;
+}
+
+$lockDir = "/tmp/watermark/";
+$lockFileName = uniqid();
+$lockFilePath = "{$lockDir}{$lockFileName}";
+
+function startWaretmark() {
+    global $lockDir, $lockFilePath;
+
+    if (!is_dir($lockDir)) {
+        mkdir($lockDir, 0755, true);
+    }
+
+    $fi = new FilesystemIterator($lockDir, FilesystemIterator::SKIP_DOTS);
+    $totalFiles = iterator_count($fi);
+    if($totalFiles>$max_process_at_the_same_time){
+        endWaretmark();
+        die("startWaretmark: too many processing now {$totalFiles}");
+    }
+}
+
+function endWaretmark() {
+    global $lockDir, $lockFilePath;
+    unlink($lockFilePath);
 }
