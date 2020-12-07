@@ -3,7 +3,7 @@
 $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
-$hls_time = 5;
+$hls_time = 10;
 $max_process_at_the_same_time = 3;
 $encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
 //$downloadCodec = " -c:v libx264 -acodec copy ";
