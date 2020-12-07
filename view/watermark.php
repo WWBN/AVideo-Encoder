@@ -97,7 +97,7 @@ $obj->resolution = intval($_REQUEST['resolution']);
 if ($obj->resolution < 360) {
     $watermark_fontsize = "(h/20)";
 }
-
+detectEmptyTS(__LINE__);
 $input = "{$_REQUEST['file']}" . ((strpos($_REQUEST['file'], '?') !== false) ? "&" : "?") . "watermark_token={$_REQUEST['watermark_token']}";
 
 $text = $_REQUEST['watermark_text'];
@@ -119,11 +119,11 @@ if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
     exit;
 }
-detectEmptyTS(__LINE__);
+
 $totalFFMPEG = getHowManyFFMPEG(); 
 if($totalFFMPEG > $max_process_at_the_same_time){
     die("Too many FFMPEG processing now {$totalFFMPEG}");
-}detectEmptyTS(__LINE__);
+}
 if (!isRunning($outputPath)) {
     startWaretmark();
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
@@ -133,7 +133,7 @@ if (!isRunning($outputPath)) {
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
     
-    if (canIDownloadVideo($localFileDownloadDir)) {
+    if (canIDownloadVideo($localFileDownloadDir)) {detectEmptyTS(__LINE__);
         file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
@@ -147,7 +147,7 @@ if (!isRunning($outputPath)) {
         
         unlink($localFileDownload_lock);
         error_log("Watermark: download video complete ");
-        createSymbolicLinks($localFileDownloadDir, $outputPath);
+        createSymbolicLinks($localFileDownloadDir, $outputPath);detectEmptyTS(__LINE__);
     }
 
 
@@ -164,13 +164,13 @@ if (!isRunning($outputPath)) {
     }
     
     error_log("Watermark: $outputHLS_index");
-    if (canConvert($outputPath)) {detectEmptyTS(__LINE__);
+    if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
         
         stopAllPids($outputTextPath);
         
-detectEmptyTS(__LINE__);
+
         make_path($outputPath);
 
         if ($encrypt) {
@@ -182,12 +182,12 @@ detectEmptyTS(__LINE__);
         } else {
             error_log("Watermark: will NOT be encrypted ");
         }
-detectEmptyTS(__LINE__);
+
         if (file_exists($encFile)) {
             $keyInfo = $encFileURL . PHP_EOL . $encFile;
             file_put_contents($keyInfoFile, $keyInfo);
         }
-detectEmptyTS(__LINE__);
+
         //$randomizeTimeX = random_int(100, 180);
         //$randomizeTimeY = random_int(100, 180);
         $commands = array();
@@ -196,7 +196,7 @@ detectEmptyTS(__LINE__);
         $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $maxElements);
 
         error_log("Watermark: we will watermark " . count($watermarkingArray) . " " . json_encode($watermarkingArray));
-detectEmptyTS(__LINE__);
+
         //$allFiles = array();
         $timeSpent = 0;
         $count = 0;
@@ -208,7 +208,7 @@ detectEmptyTS(__LINE__);
             $inputHLS_ts = "{$localFileDownloadDir}/{$tsFile}";
             $outputHLS_ts = "{$outputPath}/{$tsFile}";
             $randX = random_int(60, 120);
-            $randY = random_int(60, 120);detectEmptyTS(__LINE__);
+            $randY = random_int(60, 120);
             $command = "ffmpeg -i \"$inputHLS_ts\" ";
             if (in_array($tsFile, $watermarkingArray)) {
                 //error_log("Watermark:  {$inputHLS_ts} will have watermark");
@@ -240,7 +240,7 @@ detectEmptyTS(__LINE__);
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
-detectEmptyTS(__LINE__);
+
         /*
           $ffmpeg = "ffmpeg -i \"$localFilePath\" "
           . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
@@ -253,7 +253,7 @@ detectEmptyTS(__LINE__);
          */
 
         $obj->ffmpeg = $commands;
-detectEmptyTS(__LINE__);
+
         //$cmd = addcslashes(implode(" && ", $commands), '"');
         //$cmd = "bash -c \"{$cmd}\" ";
         $cmd = implode(" && ", $commands);
@@ -262,7 +262,7 @@ detectEmptyTS(__LINE__);
         $obj->pid = __exec($cmd, true);
 
         file_put_contents($jsonFile, json_encode($obj));
-detectEmptyTS(__LINE__);
+
         $tries = 0;
         while (1) {
             $tries++;
@@ -290,7 +290,7 @@ detectEmptyTS(__LINE__);
     }
     
     endWaretmark();
-}detectEmptyTS(__LINE__);
+}
 getIndexM3U8();
 
 error_log("Watermark: finish");
