@@ -19,7 +19,9 @@ require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
 session_write_close();
-$global['mysqli']->close();
+if($global['mysqli']){
+    $global['mysqli']->close();
+}
 ignore_user_abort(true);
 set_time_limit(0);
 
