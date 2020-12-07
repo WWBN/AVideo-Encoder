@@ -116,6 +116,8 @@ $encFileURL = "{$outputURL}/enc_watermarked.key";
 
 $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
 $localFileDownload_lock = "$localFileDownloadDir/lock";
+$localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
+$localFileDownload_index = "$localFileDownloadDir/index.m3u8";
 
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
@@ -133,8 +135,6 @@ if ($totalFFMPEG > $max_process_at_the_same_time) {
 }
 if (!isRunning($outputPath)) {
     startWaretmark();
-    $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
-    $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
     $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
     //$localFileDownloadDir$localFileName = "video.mp4";
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
@@ -277,7 +277,7 @@ getIndexM3U8();
 error_log("Watermark: finish");
 
 function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
-    global $localFileDownloadDir, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
+    global $localFileDownloadDir, $localFileDownload_index, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
     if (!empty($getIndexM3U8)) {
         return "";
     }
@@ -287,10 +287,10 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
     header('Content-Transfer-Encoding: binary');
     header('Content-Disposition: attachment; filename="index.m3u8"');
     if (!allTSFilesAreSymlinks($outputPath) && !isRunning($outputPath)) {
-        $fsize = filesize($outputHLS_index);
+        $fsize = filesize($localFileDownload_index);
         header('Content-Length: ' . $fsize);
         //stopAllPids($outputTextPath);
-        $handle = fopen($outputHLS_index, "r");
+        $handle = fopen($localFileDownload_index, "r");
         if ($handle) {
             $count = 0;
             while (($line = fgets($handle)) !== false) {
