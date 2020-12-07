@@ -126,7 +126,7 @@ $totalFFMPEG = getHowManyFFMPEG();
 if ($totalFFMPEG > $max_process_at_the_same_time) {
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
     error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
-    createSymbolicLinks($localFileDownloadDir, $outputPath, $skippFirstSegments);
+    createSymbolicLinks($localFileDownloadDir, $outputPath);
     createFirstSegment();
     getIndexM3U8();
     exit;
@@ -156,6 +156,7 @@ if (!isRunning($outputPath)) {
         unlink($localFileDownload_lock);
         error_log("Watermark: download video complete in " . (microtime(true) - $startTime) . " seconds");
         createSymbolicLinks($localFileDownloadDir, $outputPath);
+        createFirstSegment();
     }
 
 
@@ -285,7 +286,7 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
 
     header('Content-Transfer-Encoding: binary');
     header('Content-Disposition: attachment; filename="index.m3u8"');
-    if (file_exists($outputHLS_index) && !isRunning($outputPath)) {
+    if (!allTSFilesAreSymlinks($outputPath) && !isRunning($outputPath)) {
         $fsize = filesize($outputHLS_index);
         header('Content-Length: ' . $fsize);
         //stopAllPids($outputTextPath);
@@ -542,38 +543,22 @@ function getTSDuration($ts_file) {
     return 0;
 }
 
-function createSymbolicLinks($fromDir, $toDir, $limit = 0) {
+function createSymbolicLinks($fromDir, $toDir) {
     //error_log("createSymbolicLinks($fromDir, $toDir)");
     make_path($toDir);
 
-    if (!empty($limit)) {
-        error_log("createSymbolicLinks: $fromDir, $toDir, $limit");
-        for ($i = 0; $i < $limit; $i++) {
-            $file = sprintf('%03d.ts', $i);
-            $sourceFile = "{$fromDir}/{$file}";
+    if ($dh = opendir($fromDir)) {
+        while (($file = readdir($dh)) !== false) {
             $destinationFile = "{$toDir}/{$file}";
-            if (!file_exists($sourceFile) || file_exists($destinationFile) || $file == '.' || $file == '..') {
+            if (file_exists($destinationFile) || $file == '.' || $file == '..') {
                 //error_log("createSymbolicLinks: ignored $destinationFile)");
                 continue;
             }
-            $cmd = "ln -sf {$sourceFile} $destinationFile";
+            $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
             //error_log($cmd);
             __exec($cmd);
         }
-    } else {
-        if ($dh = opendir($fromDir)) {
-            while (($file = readdir($dh)) !== false) {
-                $destinationFile = "{$toDir}/{$file}";
-                if (file_exists($destinationFile) || $file == '.' || $file == '..') {
-                    //error_log("createSymbolicLinks: ignored $destinationFile)");
-                    continue;
-                }
-                $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
-                //error_log($cmd);
-                __exec($cmd);
-            }
-            closedir($dh);
-        }
+        closedir($dh);
     }
 }
 
