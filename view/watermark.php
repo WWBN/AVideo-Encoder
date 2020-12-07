@@ -40,7 +40,6 @@ $domain = get_domain($_REQUEST['file']);
 
 if (!isSameDomain($_REQUEST['file'], $global['webSiteRootURL'])) {
     if (empty($global['watermarkDomainWhitelist'])) {
-        endWaretmark();
         die("Create an array in your configuration.php file with the allowed domains \$global['watermarkDomainWhitelist']");
     }
 }
@@ -55,7 +54,6 @@ if (!empty($global['watermarkDomainWhitelist'])) {
         }
     }
     if (empty($found)) {
-        endWaretmark();
         die("Domain NOT allowed");
     }
 }
@@ -71,7 +69,6 @@ $obj->isMobile = !empty($_REQUEST['isMobile']);
 
 if (empty($obj->videos_id)) {
     $obj->msg = "videos_id is empty";
-    endWaretmark();
     die(json_encode($obj));
 }
 
@@ -117,7 +114,6 @@ $localFileDownload_lock = "$localFileDownloadDir/lock";
 
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
-    endWaretmark();
     exit;
 }
 
@@ -750,5 +746,5 @@ function startWaretmark() {
 
 function endWaretmark() {
     global $lockDir, $lockFilePath;
-    unlink($lockFilePath);
+    @unlink($lockFilePath);
 }
