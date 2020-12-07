@@ -239,7 +239,7 @@ if (!isRunning($outputPath)) {
                 $firstSegmentStartTime = microtime(true);    
                 __exec($command);
                 $firstSegmentTotalTime = microtime(true)-$firstSegmentStartTime;  
-                console.log("Executed First segment in {$firstSegmentTotalTime} seconds {$command}");
+                error_log("Executed First segment in {$firstSegmentTotalTime} seconds {$command}");
         
             } else {
                 $commands[] = $command;
