@@ -553,11 +553,13 @@ function getTSDuration($ts_file) {
 }
 
 function createSymbolicLinks($fromDir, $toDir) {
+    error_log("createSymbolicLinks($fromDir, $toDir)");
     make_path($toDir);
     if ($dh = opendir($fromDir)) {
         while (($file = readdir($dh)) !== false) {
             $destinationFile = "{$toDir}/{$file}";
             if (file_exists($destinationFile) || $file == '.' || $file == '..') {
+                error_log("createSymbolicLinks: ignored $destinationFile)");
                 continue;
             }
             $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
