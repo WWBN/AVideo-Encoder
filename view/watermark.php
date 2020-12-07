@@ -563,6 +563,9 @@ function createSymbolicLinks($fromDir, $toDir) {
 }
 
 function allTSFilesAreSymlinks($dir) {
+    if(!is_dir($dir)){
+        return true;
+    }
     if ($dh = opendir($dir)) {
         while (($file = readdir($dh)) !== false) {
             if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
