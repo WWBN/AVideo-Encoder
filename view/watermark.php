@@ -711,7 +711,7 @@ function createFirstSegment() {
     
     $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
 
-    __exec($cmd);
+    __exec($ffmpegCOmmand);
 }
 
 function getFFMPEGForSegment($segment) {
@@ -722,7 +722,7 @@ function getFFMPEGForSegment($segment) {
     if (!file_exists($inputHLS_ts)) {
         return false;
     }
-    $outputHLS_ts = "{$outputPath}/{$firstfile}";
+    $outputHLS_ts = "{$outputPath}/{$file}";
     if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
         return false;
     }
