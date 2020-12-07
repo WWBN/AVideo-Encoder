@@ -107,6 +107,7 @@ $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
 $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
+$localFileDownload_lock = "$localFileDownloadDir/lock";
 
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
@@ -122,6 +123,7 @@ if (!isRunning($outputPath)) {
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
     if (canIDownloadVideo($localFileDownloadDir)) {
+        file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
         $ffmpeg = "ffmpeg -i \"$input\" {$downloadCodec} -f hls -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$localFileDownload_HLS} ";
@@ -130,7 +132,7 @@ if (!isRunning($outputPath)) {
 
         //var_dump($ffmpeg);exit;
         __exec($ffmpeg);
-
+        unlink($localFileDownload_lock);
         error_log("Watermark: download video complete ");
         createSymbolicLinks($localFileDownloadDir, $outputPath);
     }
@@ -566,13 +568,22 @@ function allTSFilesAreSymlinks($dir) {
 }
 
 function canIDownloadVideo($dir) {
+    global $localFileDownload_lock;
+    if(file_exists($localFileDownload_lock)){
+        $time = file_get_contents($localFileDownload_lock);
+        $newerThen10Min = $time > strtotime("-10 min");
+        if($newerThen10Min){
+            return false;
+        }
+    }
+    
     if(getTotalTSFilesInDir($dir)>0){
         return false;
     }
     $localFileDownload_index = "$dir/index.m3u8";
     if (file_exists($localFileDownload_index)) {
-        $olderThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
-        if($olderThen5Min){
+        $newerThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
+        if($newerThen5Min){
             error_log("canIDownloadVideo: index file exists and olderThen5Min");
             if (!filesize($localFileDownload_index)) {
                 error_log("canIDownloadVideo: index is empty ");
