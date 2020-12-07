@@ -121,7 +121,7 @@ if (!isRunning($outputPath)) {
     //$localFileDownloadDir$localFileName = "video.mp4";
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
-    if (!file_exists($localFileDownload_index)) {
+    if (canIDownloadVideo($localFileDownloadDir)) {
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
         $ffmpeg = "ffmpeg -i \"$input\" {$downloadCodec} -f hls -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$localFileDownload_HLS} ";
@@ -583,6 +583,39 @@ function allTSFilesAreSymlinks($dir) {
             //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
             if (!is_link("{$dir}/{$file}")) {
                 error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is a symlynk ");
+                return false;
+            }
+            //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
+        }
+        return true;
+    }
+    return false;
+}
+
+function canIDownloadVideo($dir){
+    $localFileDownload_index = "$dir/index.m3u8";
+    if(file_exists($localFileDownload_index)){
+        if(!filesize($localFileDownload_index)){
+            return filectime($localFileDownload_index)>strtotime("-5 min");
+        }
+        
+        return allTSFilesAreNONZeroB($dir);
+    }
+    return true;
+}
+
+function allTSFilesAreNONZeroB($dir) {
+    if(!is_dir($dir)){
+        return false;
+    }
+    if ($dh = opendir($dir)) {
+        while (($file = readdir($dh)) !== false) {
+            if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
+                continue;
+            }
+            //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
+            if (!filesize("{$dir}/{$file}")) {
+                error_log("allTSFilesAreNONZeroB::Checking: {$dir}/{$file} Is a 0 B ");
                 return false;
             }
             //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
