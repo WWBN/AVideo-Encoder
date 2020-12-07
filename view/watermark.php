@@ -106,6 +106,8 @@ $encFile = "$outputPath/enc_watermarked.key";
 $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
+$localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
+
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
     exit;
@@ -113,7 +115,6 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 
 if (!isRunning($outputPath)) {
 
-    $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
     $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
     $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
