@@ -97,7 +97,7 @@ $obj->resolution = intval($_REQUEST['resolution']);
 if ($obj->resolution < 360) {
     $watermark_fontsize = "(h/20)";
 }
-detectEmptyTS(__LINE__);
+
 $input = "{$_REQUEST['file']}" . ((strpos($_REQUEST['file'], '?') !== false) ? "&" : "?") . "watermark_token={$_REQUEST['watermark_token']}";
 
 $text = $_REQUEST['watermark_text'];
@@ -114,7 +114,7 @@ $encFileURL = "{$outputURL}/enc_watermarked.key";
 
 $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
 $localFileDownload_lock = "$localFileDownloadDir/lock";
-detectEmptyTS(__LINE__);
+
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
     exit;
@@ -133,7 +133,8 @@ if (!isRunning($outputPath)) {
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
     make_path($localFileDownloadDir);
     
-    if (canIDownloadVideo($localFileDownloadDir)) {detectEmptyTS(__LINE__);
+    if (canIDownloadVideo($localFileDownloadDir)) {
+        $startTime = microtime(true);
         file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
@@ -146,8 +147,8 @@ if (!isRunning($outputPath)) {
         __exec($ffmpeg);
         
         unlink($localFileDownload_lock);
-        error_log("Watermark: download video complete ");
-        createSymbolicLinks($localFileDownloadDir, $outputPath);detectEmptyTS(__LINE__);
+        error_log("Watermark: download video complete in ".(microtime(true)-$startTime)." seconds");
+        createSymbolicLinks($localFileDownloadDir, $outputPath);
     }
 
 
