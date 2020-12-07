@@ -309,9 +309,9 @@ function getIndexM3U8($tries = 0) {
             unlink($keyInfoFile);
         }
     } else if (is_dir($outputPath)) {
-        
+
         createSymbolicLinks($localFileDownloadDir, $outputPath);
-        
+
         echo "#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-TARGETDURATION:{$hls_time}
@@ -432,7 +432,7 @@ function isRunning($dir) {
     global $isRunning;
     if (!is_dir($dir)) {
         error_log("isRunning: is not a dir {$dir}");
-        
+
         return false;
     }
     error_log("stopAllPids: Searching {$dir}");
@@ -545,7 +545,7 @@ function createSymbolicLinks($fromDir, $toDir) {
 }
 
 function allTSFilesAreSymlinks($dir) {
-    if(!is_dir($dir)){
+    if (!is_dir($dir)) {
         return true;
     }
     if ($dh = opendir($dir)) {
@@ -565,20 +565,20 @@ function allTSFilesAreSymlinks($dir) {
     return false;
 }
 
-function canIDownloadVideo($dir){
+function canIDownloadVideo($dir) {
     $localFileDownload_index = "$dir/index.m3u8";
-    if(file_exists($localFileDownload_index)){
-        if(!filesize($localFileDownload_index)){
-            return filectime($localFileDownload_index)>strtotime("-5 min");
+    if (file_exists($localFileDownload_index)) {
+        if (!filesize($localFileDownload_index)) {
+            return filectime($localFileDownload_index) > strtotime("-5 min");
         }
-        
+
         return allTSFilesAreNONZeroB($dir);
     }
     return true;
 }
 
 function allTSFilesAreNONZeroB($dir) {
-    if(!is_dir($dir)){
+    if (!is_dir($dir)) {
         return false;
     }
     if ($dh = opendir($dir)) {
@@ -639,11 +639,11 @@ function getRandomSymlinkTSFileArray($dir, $total) {
     $totalTSFiles = getTotalTSFilesInDir($dir);
     error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
     $firstfile = "003.ts";
-    if(!file_exists("{$dir}/{$firstfile}")){
+    if (!file_exists("{$dir}/{$firstfile}")) {
         $firstfile = "000.ts";
     }
-    $lastfile = sprintf('%03d.ts', $totalTSFiles-2);
-    if(!file_exists("{$dir}/{$lastfile}")){
+    $lastfile = sprintf('%03d.ts', $totalTSFiles - 2);
+    if (!file_exists("{$dir}/{$lastfile}")) {
         $lastfile = sprintf('%03d.ts', $totalTSFiles);
     }
     $files = array($firstfile, sprintf('%03d.ts', floor($totalTSFiles / 2)), $lastfile);
@@ -685,18 +685,13 @@ function getRandomSymlinkTSFile($dir) {
 }
 
 function getRandomTSFile($dir) {
-    $ts = rand(0, getTotalTSFilesInDir($dir));
-    //error_log("getRandomSymlinkTSFile: ($ts)");
-    if ($dh = opendir($dir)) {
-        while (($file = readdir($dh)) !== false) {
-            if ($file == '.' || $file == '..' || !preg_match('/([0-9]+)\.ts$/', $file, $matches)) {
-                continue;
-            }
-            $fileNum = intval($matches[1]);
-            if ($ts == $fileNum) {
-                return $file;
-            }
-        }
+    $total = getTotalTSFilesInDir($dir);
+    $ts = rand(0, $total);
+    $file = sprintf('%03d.ts', $ts);
+    $filePath = "{$dir}/{$file}";
+    if (filesize($filePath)) {
+        error_log("getRandomTSFile: filesize is empty $filePath");
+        return $file;
     }
     return false;
 }
