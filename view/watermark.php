@@ -341,7 +341,7 @@ function getIndexM3U8($tries = 0) {
         }
         $files = getTSFiles($outputPath);
         if(empty($files) && $tries<5){
-            sleep(3);
+            sleep(5);
             return getIndexM3U8($tries+1);
         }
         $count = 0;
