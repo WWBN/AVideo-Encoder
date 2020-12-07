@@ -12,7 +12,7 @@ $downloadCodec = " -c copy ";
 $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 $maximumWatermarkPercentage = 100;
 $minimumWatermarkPercentage = 10;
-$maxElements = 1; 
+$maxElements = 1;
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
@@ -106,6 +106,11 @@ $encFile = "$outputPath/enc_watermarked.key";
 $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
+if (!allTSFilesAreSymlinks($outputPath)) {
+    getIndexM3U8();
+    exit;
+}
+
 if (!isRunning($outputPath)) {
 
     $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
@@ -134,13 +139,8 @@ if (!isRunning($outputPath)) {
     $totalPidsRunning = totalPidsRunning($watermarkDir);
     //error_log("totalPidsRunning: $totalPidsRunning");
     if ($totalPidsRunning >= $max_process_at_the_same_time) {
-        if (!allTSFilesAreSymlinks($dir)) {
-            getIndexM3U8();
-            exit;
-        }else{
-            $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
-            die(json_encode($obj));
-        }
+        $obj->msg = "Too many running now, total: $totalPidsRunning from max of $max_process_at_the_same_time";
+        die(json_encode($obj));
     }
 
     $percentageOfWatermark = 100;
@@ -202,7 +202,7 @@ if (!isRunning($outputPath)) {
         $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $total);
 
         error_log("Watermark: we will watermark " . count($watermarkingArray) . " " . json_encode($watermarkingArray));
-        
+
         //$allFiles = array();
         $timeSpent = 0;
         $count = 0;
@@ -226,7 +226,7 @@ if (!isRunning($outputPath)) {
             } else {
                 if (file_exists($encFile)) {
                     $command .= " -c copy -copyts  ";
-                }else{
+                } else {
                     continue; // keep the symlink
                 }
             }
@@ -235,11 +235,11 @@ if (!isRunning($outputPath)) {
             }
             $command .= " {$outputHLS_ts} ";
             $count++;
-            $commands[] = $command;            
+            $commands[] = $command;
         }
-        $totalTimeSpent = microtime(true)-$totalTimeStart;
+        $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
-        
+
         /*
           $ffmpeg = "ffmpeg -i \"$localFilePath\" "
           . " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}': "
@@ -252,13 +252,13 @@ if (!isRunning($outputPath)) {
          */
 
         $obj->ffmpeg = $commands;
-        
+
         $cmd = addcslashes(implode(" ; ", $commands), '"');
         $cmd = "bash -c \"{$cmd}\" ";
-        
+
         error_log("Watermark: execute {$cmd} ");
         $obj->pid = __exec($cmd, true);
-        
+
         file_put_contents($jsonFile, json_encode($obj));
 
         $tries = 0;
@@ -293,12 +293,12 @@ error_log("Watermark: finish");
 
 function getIndexM3U8($tries = 0) {
     global $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
-    if(!empty($getIndexM3U8)){
+    if (!empty($getIndexM3U8)) {
         return "";
     }
     $getIndexM3U8 = 1;
     error_log("Watermark: getIndexM3U8 start");
-    
+
     header('Content-Transfer-Encoding: binary');
     header('Content-Disposition: attachment; filename="index.m3u8"');
     if (file_exists($outputHLS_index) && !isRunning($outputPath)) {
@@ -345,9 +345,9 @@ function getIndexM3U8($tries = 0) {
             echo PHP_EOL . "#EXT-X-KEY:METHOD=AES-128,URI=\"{$encFileURL}\",IV=0x00000000000000000000000000000000" . PHP_EOL;
         }
         $files = getTSFiles($outputPath);
-        if(empty($files) && $tries<5){
+        if (empty($files) && $tries < 5) {
             sleep(5);
-            return getIndexM3U8($tries+1);
+            return getIndexM3U8($tries + 1);
         }
         $count = 0;
         while (empty($files)) {
