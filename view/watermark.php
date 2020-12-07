@@ -14,12 +14,6 @@ $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
-$lockDir = "/var/www/html/AVideo-Encoder/videos/watermark/";
-$lockFileName = uniqid();
-$lockFilePath = "{$lockDir}{$lockFileName}";
-
-startWaretmark();
-
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
@@ -84,6 +78,9 @@ if (empty($obj->videos_id)) {
 //error_log("Watermark: Start " . json_encode($_REQUEST));
 
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
+$lockDir = "{$watermarkDir}lock/";
+$lockFilePath = "{$lockDir}". uniqid();;
+
 
 $dir = "{$watermarkDir}{$domain}/";
 //error_log("Watermark: DIR $dir");
@@ -125,7 +122,7 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 }
 
 if (!isRunning($outputPath)) {
-
+    startWaretmark();
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
     $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
     $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
@@ -279,9 +276,10 @@ if (!isRunning($outputPath)) {
             error_log("Watermark: Update $jsonFile");
         }
     }
+    
+    endWaretmark();
 }
 getIndexM3U8();
-endWaretmark();
 
 error_log("Watermark: finish");
 
