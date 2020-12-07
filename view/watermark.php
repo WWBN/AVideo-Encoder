@@ -565,6 +565,7 @@ function createSymbolicLinks($fromDir, $toDir) {
 
 function allTSFilesAreSymlinks($dir) {
     if (!is_dir($dir)) {
+        error_log("allTSFilesAreSymlinks::Checking: {$dir}  Is NOT a dir ");
         return true;
     }
     if ($dh = opendir($dir)) {
