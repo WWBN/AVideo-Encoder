@@ -219,8 +219,10 @@ if (!isRunning($outputPath)) {
             if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
                 continue;
             }
-            
-            $commands[] = getFFMPEGForSegment($tsFile);
+            $command = getFFMPEGForSegment($tsFile);
+            if(!empty($command)){
+                $commands[] = getFFMPEGForSegment($tsFile);
+            }
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
