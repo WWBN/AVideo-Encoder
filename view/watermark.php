@@ -335,6 +335,9 @@ function getIndexM3U8($tries = 0) {
             unlink($keyInfoFile);
         }
     } else if (is_dir($outputPath)) {
+        
+        createSymbolicLinks($localFileDownloadDir, $outputPath);
+        
         echo "#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-TARGETDURATION:{$hls_time}
@@ -455,6 +458,7 @@ function isRunning($dir) {
     global $isRunning;
     if (!is_dir($dir)) {
         error_log("isRunning: is not a dir {$dir}");
+        
         return false;
     }
     error_log("stopAllPids: Searching {$dir}");
@@ -552,10 +556,11 @@ function createSymbolicLinks($fromDir, $toDir) {
     make_path($toDir);
     if ($dh = opendir($fromDir)) {
         while (($file = readdir($dh)) !== false) {
-            if ($file == '.' || $file == '..') {
+            $destinationFile = "{$toDir}/{$file}";
+            if (file_exists($destinationFile) || $file == '.' || $file == '..') {
                 continue;
             }
-            $cmd = "ln -sf {$fromDir}/{$file} {$toDir}/{$file}";
+            $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
             __exec($cmd);
         }
         closedir($dh);
