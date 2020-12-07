@@ -4,6 +4,7 @@ $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
+$skippFirstSegments = 30; // 5 min
 $max_process_at_the_same_time = 15;
 $encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
 //$downloadCodec = " -c:v libx264 -acodec copy ";
@@ -302,7 +303,7 @@ getIndexM3U8();
 
 error_log("Watermark: finish");
 
-function getIndexM3U8($tries = 0) {
+function getIndexM3U8($tries = 0, $getFirstSegments=0) {
     global $localFileDownloadDir, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
     if (!empty($getIndexM3U8)) {
         return "";
@@ -318,6 +319,7 @@ function getIndexM3U8($tries = 0) {
         //stopAllPids($outputTextPath);
         $handle = fopen($outputHLS_index, "r");
         if ($handle) {
+            $count = 0;
             while (($line = fgets($handle)) !== false) {
                 if (preg_match('/EXT-X-PLAYLIST-TYPE:VOD/', $line)) {
                     if (file_exists($encFile)) {
@@ -326,6 +328,10 @@ function getIndexM3U8($tries = 0) {
                         echo $line;
                     }
                 } else if (preg_match('/[0-9]+.ts/', $line)) {
+                    $count++;
+                    if(!empty($getFirstSegments) && $count>$getFirstSegments){
+                        return false;
+                    }
                     echo "{$outputURL}/{$line}";
                 } else if (preg_match('/enc_watermarked.key/', $line)) {
                     $json = json_decode(file_get_contents($jsonFile));
@@ -693,9 +699,10 @@ function getAllTSFilesInDir($dir) {
 }
 
 function getRandomSymlinkTSFileArray($dir, $total) {
+    global $skippFirstSegments;
     $totalTSFiles = getTotalTSFilesInDir($dir);
     error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
-    $firstfile = "010.ts";
+    $firstfile = "0{$skippFirstSegments}.ts";
     if (!file_exists("{$dir}/{$firstfile}")) {
         $firstfile = "000.ts";
     }
