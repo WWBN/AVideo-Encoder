@@ -433,7 +433,7 @@ function stopAllPids($dir) {
 function isRunning($dir) {
     global $isRunning;
     if (!is_dir($dir)) {
-        error_log("isRunning: is not a dir {$dir}");
+        //error_log("isRunning: is not a dir {$dir}");
 
         return false;
     }
