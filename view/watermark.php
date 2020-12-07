@@ -181,7 +181,7 @@ if (!isRunning($outputPath)) {
             __exec($cmd);
         
         } else {
-            error_log("Watermark: will NOT be encrypted ");
+            //error_log("Watermark: will NOT be encrypted ");
         }
 
         if (file_exists($encFile)) {
@@ -423,7 +423,7 @@ function __exec($cmd, $async = false) {
 
 function stopAllPids($dir) {
     if (!is_dir($dir)) {
-        error_log("stopAllPids: is not a dir {$dir}");
+        //error_log("stopAllPids: is not a dir {$dir}");
         return false;
     }
     //error_log("stopAllPids: Searching {$dir}");
@@ -516,7 +516,7 @@ function canConvert($dir) {
     $jsonFile = "{$dir}/.obj.log";
     $outputHLS_index = "{$dir}/index.m3u8";
     if (file_exists($jsonFile)) {
-        error_log("canConvert: $jsonFile exists");
+        //error_log("canConvert: $jsonFile exists");
         $fileContent = file_get_contents($jsonFile);
         $json = json_decode($fileContent);
         if (is_object($json) && !empty($json->pid)) {
@@ -543,7 +543,7 @@ function canConvert($dir) {
     } else {
         error_log("canConvert: $jsonFile file not found");
     }
-    error_log("canConvert: said yes");
+    //error_log("canConvert: said yes");
     return true;
 }
 
@@ -708,7 +708,7 @@ function getRandomSymlinkTSFileArray($dir, $total) {
     }
     $files = array_unique($files);
     sort($files);
-    error_log("getRandomSymlinkTSFileArray: sort(\$files) " . json_encode($files));
+    //error_log("getRandomSymlinkTSFileArray: sort(\$files) " . json_encode($files));
     return $files;
 }
 
@@ -741,7 +741,6 @@ function getRandomTSFile($dir) {
     $file = sprintf('%03d.ts', $ts);
     $filePath = "{$dir}/{$file}";
     if (filesize($filePath)) {
-        error_log("getRandomTSFile: filesize is empty $filePath");
         return $file;
     }
     return false;
