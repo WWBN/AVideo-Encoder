@@ -726,7 +726,7 @@ function createFirstSegment() {
     $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, true);
     $start = microtime(true);
     __exec($ffmpegCOmmand);
-    error_log("createFirstSegment: took " . (microtime(true) - $start) . " seconds");
+    error_log("createFirstSegment: took " . (microtime(true) - $start) . " seconds {$outputPath}");
 }
 
 function getFFMPEGForSegment($segment, $watermarkIt) {
