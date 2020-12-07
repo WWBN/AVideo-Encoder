@@ -14,7 +14,7 @@ $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
-$lockDir = "/tmp/watermark/";
+$lockDir = "/var/www/html/AVideo-Encoder/videos/watermark/";
 $lockFileName = uniqid();
 $lockFilePath = "{$lockDir}{$lockFileName}";
 
