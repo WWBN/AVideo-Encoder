@@ -219,9 +219,15 @@ if (!isRunning($outputPath)) {
             if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
                 continue;
             }
-            $command = getFFMPEGForSegment($tsFile);
+            
+            $watermark=false;
+            if (in_array($tsFile, $watermarkingArray)) {
+                $watermark=true;
+            }
+            
+            $command = getFFMPEGForSegment($tsFile, $watermark);
             if(!empty($command)){
-                $commands[] = getFFMPEGForSegment($tsFile);
+                $commands[] = $command;
             }
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
@@ -709,13 +715,13 @@ function createFirstSegment() {
         return false;
     }
     
-    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
+    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, true);
     $start = microtime(true);
     __exec($ffmpegCOmmand);
     error_log("createFirstSegment: took ".(microtime(true)-$start)." seconds");
 }
 
-function getFFMPEGForSegment($segment) {
+function getFFMPEGForSegment($segment, $watermarkIt) {
     $segment = intval($segment);
     global $outputPath, $localFileDownloadDir;
     $file = sprintf('%03d.ts', $segment);
@@ -728,16 +734,16 @@ function getFFMPEGForSegment($segment) {
         return false;
     }
     
-    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts);
+    $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt);
     return $ffmpegCOmmand;
 }
 
-function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts) {
+function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt=true) {
     global $watermark_fontsize, $watermark_color, $watermark_opacity, $watermarkCodec, $text, $keyInfoFile, $encFile;
     $randX = random_int(60, 120);
     $randY = random_int(60, 120);
     $command = "ffmpeg -i \"$inputHLS_ts\" ";
-    if (!empty($text)) {
+    if ($watermarkIt) {
         //error_log("Watermark:  {$inputHLS_ts} will have watermark");
         @unlink($outputHLS_ts);
         $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
