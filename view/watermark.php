@@ -106,7 +106,7 @@ $encFile = "$outputPath/enc_watermarked.key";
 $keyInfoFile = "$outputPath/.keyInfo";
 $encFileURL = "{$outputURL}/enc_watermarked.key";
 
-if (!amIrunning($outputPath)) {
+if (!isRunning($outputPath)) {
 
     $localFileDownloadDir = "$dir{$_REQUEST['videos_id']}/{$_REQUEST['resolution']}";
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
@@ -341,7 +341,7 @@ function getIndexM3U8($tries = 0) {
         }
         $files = getTSFiles($outputPath);
         if(empty($files) && $tries<5){
-            sleep(1);
+            sleep(3);
             return getIndexM3U8($tries+1);
         }
         $count = 0;
@@ -447,6 +447,7 @@ function stopAllPids($dir) {
 }
 
 function isRunning($dir) {
+    global $isRunning;
     if (!is_dir($dir)) {
         error_log("isRunning: is not a dir {$dir}");
         return false;
@@ -462,10 +463,6 @@ function isRunning($dir) {
         }
     }
     return false;
-}
-
-function amIrunning($dir) {
-    return isRunning($dir);
 }
 
 function totalPidsRunning($dir) {
