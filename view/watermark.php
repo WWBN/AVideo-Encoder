@@ -542,26 +542,37 @@ function getTSDuration($ts_file) {
     return 0;
 }
 
-function createSymbolicLinks($fromDir, $toDir, $limit=0) {
+function createSymbolicLinks($fromDir, $toDir, $limit = 0) {
     //error_log("createSymbolicLinks($fromDir, $toDir)");
     make_path($toDir);
-    if ($dh = opendir($fromDir)) {
-        $count = 0;
-        while (($file = readdir($dh)) !== false) {
-            if(!empty($limit) && $count>$limit){
-                break;
-            }
-            $count++;
+
+    if (!empty($limit)) {
+        for ($i = 0; $i < $limit; $i++) {
+            $file = sprintf('%03d.ts', $i);
+            $sourceFile = "{$fromDir}/{$file}";
             $destinationFile = "{$toDir}/{$file}";
-            if (file_exists($destinationFile) || $file == '.' || $file == '..') {
+            if (!file_exists($sourceFile) || file_exists($destinationFile) || $file == '.' || $file == '..') {
                 //error_log("createSymbolicLinks: ignored $destinationFile)");
                 continue;
             }
-            $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
+            $cmd = "ln -sf {$sourceFile} $destinationFile";
             //error_log($cmd);
             __exec($cmd);
         }
-        closedir($dh);
+    } else {
+        if ($dh = opendir($fromDir)) {
+            while (($file = readdir($dh)) !== false) {
+                $destinationFile = "{$toDir}/{$file}";
+                if (file_exists($destinationFile) || $file == '.' || $file == '..') {
+                    //error_log("createSymbolicLinks: ignored $destinationFile)");
+                    continue;
+                }
+                $cmd = "ln -sf {$fromDir}/{$file} $destinationFile";
+                //error_log($cmd);
+                __exec($cmd);
+            }
+            closedir($dh);
+        }
     }
 }
 
@@ -579,7 +590,7 @@ function allTSFilesAreSymlinks($dir) {
             //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
             if (!is_link("{$dir}/{$file}")) {
                 $count++;
-                if($count>1){ // make sure you ignore the first segment that is always encode
+                if ($count > 1) { // make sure you ignore the first segment that is always encode
                     error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
                     return false;
                 }
