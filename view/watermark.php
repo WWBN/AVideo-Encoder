@@ -123,12 +123,11 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 }
 
 $totalFFMPEG = getHowManyFFMPEG();
-createFirstSegment();
 if ($totalFFMPEG > $max_process_at_the_same_time) {
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
     error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
-    createSymbolicLinks($localFileDownloadDir, $outputPath);
-    createFirstSegment($text, $keyInfoFile);
+    createSymbolicLinks($localFileDownloadDir, $outputPath, $skippFirstSegments);
+    createFirstSegment();
     getIndexM3U8();
     exit;
 }
@@ -543,11 +542,16 @@ function getTSDuration($ts_file) {
     return 0;
 }
 
-function createSymbolicLinks($fromDir, $toDir) {
+function createSymbolicLinks($fromDir, $toDir, $limit=0) {
     //error_log("createSymbolicLinks($fromDir, $toDir)");
     make_path($toDir);
     if ($dh = opendir($fromDir)) {
+        $count = 0;
         while (($file = readdir($dh)) !== false) {
+            if(!empty($limit) && $limit > $count){
+                break;
+            }
+            $count++;
             $destinationFile = "{$toDir}/{$file}";
             if (file_exists($destinationFile) || $file == '.' || $file == '..') {
                 //error_log("createSymbolicLinks: ignored $destinationFile)");
