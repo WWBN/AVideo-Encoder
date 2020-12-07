@@ -267,7 +267,7 @@ if (!isRunning($outputPath)) {
         $tries = 0;
         while (1) {
             $tries++;
-            error_log("Watermark: checking file ({$tries}) ({$outputPath}) ");
+            //error_log("Watermark: checking file ({$tries}) ({$outputPath}) ");
             if (file_exists("{$outputPath}/000.ts") && $tries > 5) {
                 error_log("Watermark: file 000.ts");
                 break;
