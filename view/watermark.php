@@ -122,7 +122,10 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 
 $totalFFMPEG = getHowManyFFMPEG(); 
 if($totalFFMPEG > $max_process_at_the_same_time){
-    die("Too many FFMPEG processing now {$totalFFMPEG}");
+    //die("Too many FFMPEG processing now {$totalFFMPEG}");
+    createSymbolicLinks($localFileDownloadDir, $outputPath);
+    getIndexM3U8();
+    exit;
 }
 if (!isRunning($outputPath)) {
     startWaretmark();
