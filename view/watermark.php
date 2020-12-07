@@ -220,7 +220,7 @@ if (!isRunning($outputPath)) {
                 continue;
             }
             
-            $commands[] = getFFMPEGForSegment($segment);
+            $commands[] = getFFMPEGForSegment($tsFile);
         }
         $totalTimeSpent = microtime(true) - $totalTimeStart;
         error_log("Watermark: took ($totalTimeSpent) seconds file [$outputHLS_index] ");
@@ -713,10 +713,11 @@ function createFirstSegment() {
 }
 
 function getFFMPEGForSegment($segment) {
+    $segment = intval($segment);
     global $outputPath, $localFileDownloadDir;
     $file = sprintf('%03d.ts', $segment);
     $inputHLS_ts = "{$localFileDownloadDir}/{$file}";
-    if (!file_exists($inputFile)) {
+    if (!file_exists($inputHLS_ts)) {
         return false;
     }
     $outputHLS_ts = "{$outputPath}/{$firstfile}";
