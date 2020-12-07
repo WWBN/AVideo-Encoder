@@ -571,14 +571,18 @@ function allTSFilesAreSymlinks($dir) {
         return true;
     }
     if ($dh = opendir($dir)) {
+        $count = 0;
         while (($file = readdir($dh)) !== false) {
             if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
                 continue;
             }
             //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
             if (!is_link("{$dir}/{$file}")) {
-                error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
-                return false;
+                $count++;
+                if($count>1){ // make sure you ignore the first segment that is always encode
+                    error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file} Is NOT a symlynk ");
+                    return false;
+                }
             }
             //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
         }
