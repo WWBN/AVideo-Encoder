@@ -123,7 +123,7 @@ if (!allTSFilesAreSymlinks($outputPath)) {
 $totalFFMPEG = getHowManyFFMPEG(); 
 if($totalFFMPEG > $max_process_at_the_same_time){
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
-    error_log("Too many FFMPEG processing now {$totalFFMPEG}, using symlinks $outputPath");
+    error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
     createSymbolicLinks($localFileDownloadDir, $outputPath);
     getIndexM3U8();
     exit;
