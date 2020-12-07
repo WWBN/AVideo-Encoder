@@ -548,7 +548,7 @@ function createSymbolicLinks($fromDir, $toDir, $limit=0) {
     if ($dh = opendir($fromDir)) {
         $count = 0;
         while (($file = readdir($dh)) !== false) {
-            if(!empty($limit) && $limit > $count){
+            if(!empty($limit) && $count>$limit){
                 break;
             }
             $count++;
