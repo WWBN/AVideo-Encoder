@@ -3,7 +3,7 @@
 $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
-$hls_time = 30;
+$hls_time = 5;
 $max_process_at_the_same_time = 3;
 $encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
 //$downloadCodec = " -c:v libx264 -acodec copy ";
@@ -12,7 +12,7 @@ $downloadCodec = " -c copy ";
 $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$maximumWatermarkPercentage = 100;
 //$minimumWatermarkPercentage = 10;
-$maxElements = 1;
+$maxElements = 6;
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
@@ -676,7 +676,7 @@ function getAllTSFilesInDir($dir) {
 function getRandomSymlinkTSFileArray($dir, $total) {
     $totalTSFiles = getTotalTSFilesInDir($dir);
     error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
-    $firstfile = "003.ts";
+    $firstfile = "010.ts";
     if (!file_exists("{$dir}/{$firstfile}")) {
         $firstfile = "000.ts";
     }
