@@ -578,6 +578,7 @@ function canIDownloadVideo($dir) {
         }
         return false;
     }
+    error_log("canIDownloadVideo: index does not exists ");
     return true;
 }
 
