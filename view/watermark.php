@@ -209,7 +209,7 @@ detectEmptyTS(__LINE__);
             $outputHLS_ts = "{$outputPath}/{$tsFile}";
             $randX = random_int(60, 120);
             $randY = random_int(60, 120);detectEmptyTS(__LINE__);
-            $command = "ffmpeg -y -i \"$inputHLS_ts\" ";
+            $command = "ffmpeg -i \"$inputHLS_ts\" ";
             if (in_array($tsFile, $watermarkingArray)) {
                 //error_log("Watermark:  {$inputHLS_ts} will have watermark");
                 @unlink($outputHLS_ts);
@@ -227,7 +227,7 @@ detectEmptyTS(__LINE__);
             if (file_exists($encFile)) {
                 $command .= " -hls_key_info_file \"{$keyInfoFile}\" ";
             }
-            $command .= " {$outputHLS_ts} ";
+            $command .= " \"{$outputHLS_ts}\" ";
             $count++;
             if ($count === 1) {
                 // make sure you have the first segment before proceed
