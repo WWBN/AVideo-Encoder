@@ -117,6 +117,8 @@ $localFileDownload_lock = "$localFileDownloadDir/lock";
 $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
 $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
 
+createSymbolicLinks($localFileDownloadDir, $outputPath);
+        
 if (!allTSFilesAreSymlinks($outputPath)) {
     getIndexM3U8();
     exit;
@@ -126,7 +128,6 @@ $totalFFMPEG = getHowManyFFMPEG();
 if ($totalFFMPEG > $max_process_at_the_same_time) {
     //die("Too many FFMPEG processing now {$totalFFMPEG}");
     error_log("Too many FFMPEG processing now {$totalFFMPEG}/{$max_process_at_the_same_time}, using symlinks $outputPath");
-    createSymbolicLinks($localFileDownloadDir, $outputPath);
     createFirstSegment();
     getIndexM3U8();
     exit;
@@ -156,7 +157,6 @@ if (!isRunning($outputPath)) {
 
         unlink($localFileDownload_lock);
         error_log("Watermark: download video complete in " . (microtime(true) - $startDownloadTime) . " seconds");
-        createSymbolicLinks($localFileDownloadDir, $outputPath);
         createFirstSegment();
     }
 
@@ -326,8 +326,6 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
             unlink($keyInfoFile);
         }
     } else if (is_dir($outputPath)) {
-
-        createSymbolicLinks($localFileDownloadDir, $outputPath);
 
         echo "#EXTM3U
 #EXT-X-VERSION:3
