@@ -192,7 +192,7 @@ if (!isRunning($outputPath)) {
             $command = "ffmpeg -y -i \"$inputHLS_ts\" ";
             if (in_array($tsFile, $watermarkingArray)) {
                 //error_log("Watermark:  {$inputHLS_ts} will have watermark");
-                unlink($outputHLS_ts);
+                @unlink($outputHLS_ts);
                 $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
                         . ' :x=if(eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
                         . ' :y=if(eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
@@ -566,6 +566,9 @@ function allTSFilesAreSymlinks($dir) {
 }
 
 function canIDownloadVideo($dir) {
+    if(getTotalTSFilesInDir($dir)>0){
+        return false;
+    }
     $localFileDownload_index = "$dir/index.m3u8";
     if (file_exists($localFileDownload_index)) {
         $olderThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
