@@ -568,11 +568,15 @@ function allTSFilesAreSymlinks($dir) {
 function canIDownloadVideo($dir) {
     $localFileDownload_index = "$dir/index.m3u8";
     if (file_exists($localFileDownload_index)) {
-        if (!filesize($localFileDownload_index)) {
-            return filectime($localFileDownload_index) > strtotime("-5 min");
+        $olderThen5Min = filectime($localFileDownload_index) > strtotime("-5 min");
+        if($olderThen5Min){
+            error_log("canIDownloadVideo: index file exists and it is empty (olderThen5Min = ".($olderThen5Min?"Y":"N").") ");
+            if (!filesize($localFileDownload_index)) {
+                error_log("canIDownloadVideo: index is empty ");
+                return true;
+            }
         }
-
-        return allTSFilesAreNONZeroB($dir);
+        return false;
     }
     return true;
 }
