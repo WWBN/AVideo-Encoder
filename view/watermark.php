@@ -256,7 +256,7 @@ if (!isRunning($outputPath)) {
                 //error_log("Watermark: file 003.ts");
                 break;
             } else if ($tries > 10) {
-                error_log("Watermark: file tries > 10");
+                //error_log("Watermark: file tries > 10");
                 break;
             }
             sleep(1);
