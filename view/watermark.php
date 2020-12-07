@@ -219,14 +219,14 @@ if (!isRunning($outputPath)) {
             if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
                 continue;
             }
-            
-            $watermark=false;
+
+            $watermark = false;
             if (in_array($tsFile, $watermarkingArray)) {
-                $watermark=true;
+                $watermark = true;
             }
-            
+
             $command = getFFMPEGForSegment($tsFile, $watermark);
-            if(!empty($command)){
+            if (!empty($command)) {
                 $commands[] = $command;
             }
         }
@@ -397,7 +397,7 @@ function __exec($cmd, $async = false) {
     if (!$async) {
         exec($cmd . " 2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            error_log("Watermark: " . json_encode($output));
+            error_log("Watermark: exec {$cmd} " . PHP_EOL . json_encode($output));
             return false;
         }
         return true;
@@ -709,16 +709,16 @@ function createFirstSegment() {
     if (!file_exists($inputHLS_ts)) {
         return false;
     }
-    
+
     $outputHLS_ts = "{$outputPath}/{$firstfile}";
     if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
         return false;
     }
-    
+
     $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, true);
     $start = microtime(true);
     __exec($ffmpegCOmmand);
-    error_log("createFirstSegment: took ".(microtime(true)-$start)." seconds");
+    error_log("createFirstSegment: took " . (microtime(true) - $start) . " seconds");
 }
 
 function getFFMPEGForSegment($segment, $watermarkIt) {
@@ -733,12 +733,12 @@ function getFFMPEGForSegment($segment, $watermarkIt) {
     if (file_exists($outputHLS_ts) && !is_link($outputHLS_ts)) {
         return false;
     }
-    
+
     $ffmpegCOmmand = createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt);
     return $ffmpegCOmmand;
 }
 
-function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt=true) {
+function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt = true) {
     global $watermark_fontsize, $watermark_color, $watermark_opacity, $watermarkCodec, $text, $keyInfoFile, $encFile;
     $randX = random_int(60, 120);
     $randY = random_int(60, 120);
