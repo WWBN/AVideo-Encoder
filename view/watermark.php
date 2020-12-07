@@ -547,6 +547,7 @@ function createSymbolicLinks($fromDir, $toDir, $limit = 0) {
     make_path($toDir);
 
     if (!empty($limit)) {
+        error_log("createSymbolicLinks: $fromDir, $toDir, $limit");
         for ($i = 0; $i < $limit; $i++) {
             $file = sprintf('%03d.ts', $i);
             $sourceFile = "{$fromDir}/{$file}";
