@@ -76,8 +76,6 @@ if (empty($obj->videos_id)) {
     die(json_encode($obj));
 }
 
-//error_log("Watermark: Start " . json_encode($_REQUEST));
-
 $watermarkDir = $global['systemRootPath'] . 'videos/watermarked/';
 $lockDir = "{$watermarkDir}lock/";
 $lockFilePath = "{$lockDir}" . uniqid();
@@ -133,6 +131,9 @@ if ($totalFFMPEG > $max_process_at_the_same_time) {
     getIndexM3U8();
     exit;
 }
+
+$startTime = microtime(true);
+error_log("Watermark: start $outputHLS_index");
 if (!isRunning($outputPath)) {
     startWaretmark();
     $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
@@ -141,7 +142,7 @@ if (!isRunning($outputPath)) {
     make_path($localFileDownloadDir);
 
     if (canIDownloadVideo($localFileDownloadDir)) {
-        $startTime = microtime(true);
+        $startDownloadTime = microtime(true);
         file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
@@ -154,7 +155,7 @@ if (!isRunning($outputPath)) {
         __exec($ffmpeg);
 
         unlink($localFileDownload_lock);
-        error_log("Watermark: download video complete in " . (microtime(true) - $startTime) . " seconds");
+        error_log("Watermark: download video complete in " . (microtime(true) - $startDownloadTime) . " seconds");
         createSymbolicLinks($localFileDownloadDir, $outputPath);
         createFirstSegment();
     }
@@ -171,8 +172,7 @@ if (!isRunning($outputPath)) {
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
     }
-
-    error_log("Watermark: $outputHLS_index");
+    
     if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
@@ -249,11 +249,11 @@ if (!isRunning($outputPath)) {
             $tries++;
             //error_log("Watermark: checking file ({$tries}) ({$outputPath}) ");
             if (file_exists("{$outputPath}/000.ts") && $tries > 5) {
-                error_log("Watermark: file 000.ts");
+                //error_log("Watermark: file 000.ts");
                 break;
             } else
             if (file_exists("{$outputPath}/003.ts")) {
-                error_log("Watermark: file 003.ts");
+                //error_log("Watermark: file 003.ts");
                 break;
             } else if ($tries > 10) {
                 error_log("Watermark: file tries > 10");
@@ -274,7 +274,8 @@ if (!isRunning($outputPath)) {
 }
 getIndexM3U8();
 
-error_log("Watermark: finish");
+$endTime = microtime(true)-$startTime;
+error_log("Watermark: finish {$outputHLS_index} took: {$endTime} seconds");
 
 function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
     global $localFileDownloadDir, $localFileDownload_index, $outputHLS_index, $outputPath, $outputURL, $encFile, $encFileURL, $jsonFile, $keyInfoFile, $hls_time, $getIndexM3U8;
