@@ -14,11 +14,6 @@ $watermarkCodec = " -c:v libx264 -acodec copy -movflags +faststart ";
 //$minimumWatermarkPercentage = 10;
 $maxElements = 1;
 
-$totalFFMPEG = getHowManyFFMPEG(); 
-if($totalFFMPEG > $max_process_at_the_same_time){
-    die("Too many FFMPEG process now {$totalFFMPEG}");
-}
-
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
@@ -122,6 +117,10 @@ if (!allTSFilesAreSymlinks($outputPath)) {
     exit;
 }
 
+$totalFFMPEG = getHowManyFFMPEG(); 
+if($totalFFMPEG > $max_process_at_the_same_time){
+    die("Too many FFMPEG processing now {$totalFFMPEG}");
+}
 if (!isRunning($outputPath)) {
     startWaretmark();
     $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
