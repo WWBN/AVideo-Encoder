@@ -483,6 +483,9 @@ function decideFromPlugin() {
     // convert the string to a json object
     $advancedCustom = json_decode($json_file);
     fixAdvancedCustom($advancedCustom);
+    if(!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)){
+        return array("mp4" => 7, "webm" => 8);
+    }
     if (
             empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 80, "webm" => 87);
