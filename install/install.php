@@ -35,6 +35,7 @@ if(!is_dir($_POST['systemRootPath'])){
         $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
     }
 }
+echo "Installing in {$_POST['systemRootPath']}".PHP_EOL;
 $_POST['databaseHost'] = "localhost";
 $_POST['databaseUser'] = $databaseUser;
 $_POST['databasePass'] = $databasePass;
@@ -52,7 +53,7 @@ $_POST['defaultPriority'] = 1;
 
 include './checkConfiguration.php';
 
-$streamerConfiguration = "../../videos/configuration.php";
+$streamerConfiguration = "{$_POST['systemRootPath']}../videos/configuration.php";
 if (file_exists($streamerConfiguration)) {
     require_once $streamerConfiguration;
     $sql = "UPDATE configurations SET "
@@ -61,3 +62,4 @@ if (file_exists($streamerConfiguration)) {
 
     $global['mysqli']->query($sql);
 }
+
