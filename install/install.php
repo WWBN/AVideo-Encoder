@@ -13,7 +13,7 @@ $databasePass = "youphptube";
 if (version_compare(phpversion(), '7.2', '<')) {
     $databaseUser = "root";
 }
-
+ob_start();
 $webSiteRootURL = @$argv[1];
 $databaseUser = empty($argv[2])?$databaseUser:$argv[2];
 $databasePass = empty($argv[3])?$databasePass:$argv[3];
@@ -61,5 +61,7 @@ if (file_exists($streamerConfiguration)) {
             . " WHERE id = 1";
 
     $global['mysqli']->query($sql);
+}else{
+    echo PHP_EOL."File not found {$streamerConfiguration}".PHP_EOL;
 }
 
