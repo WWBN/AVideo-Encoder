@@ -175,7 +175,7 @@ if (!class_exists('Format')) {
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'webm', "converted");
             $obj = self::mp3ToSpectrum($pathFileName, $encoder_queue_id);
             if (!$obj->error) {
-                $obj = static::execOrder(8, $obj->destinationFile, $destinationFile , $encoder_queue_id);
+                $obj = static::execOrder(8, $obj->destinationFile, $destinationFile, $encoder_queue_id);
             }
             if ($obj->error) {
                 error_log("mp3ToSpectrumWEBM: ERROR " . json_encode($obj));
@@ -218,15 +218,15 @@ if (!class_exists('Format')) {
             error_log("AVideo-Encoder Format::runVideoToAudio($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
-            
+
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp3', "converted");
-            
+
             // MP4 to MP3
-            $obj = static::execOrder(60, $pathFileName, $destinationFile , $encoder_queue_id);
+            $obj = static::execOrder(60, $pathFileName, $destinationFile, $encoder_queue_id);
             if (!$obj->error) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'ogg', "converted");
                 //MP4 to OGG
-                $obj = static::execOrder(40, $pathFileName, $destinationFile , $encoder_queue_id);
+                $obj = static::execOrder(40, $pathFileName, $destinationFile, $encoder_queue_id);
             }
             return $obj;
         }
@@ -295,11 +295,11 @@ hd/index.m3u8
         }
 
         static function getResolution($pathFileName) {
-            $command = "ffprobe -v quiet -print_format json -show_format -show_streams '$pathFileName'";
+            $command = get_ffprobe() . " -v quiet -print_format json -show_format -show_streams \"$pathFileName\"";
             error_log("getResolution: {$command}");
             $json = exec($command . " 2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                error_log("getResolution: Error on ffprobe");
+                error_log("getResolution: Error on ffprobe " . json_encode($output));
                 return 1080;
             }
             $json = implode(" ", $output);
@@ -320,6 +320,37 @@ hd/index.m3u8
             error_log("getResolution: success $resolution ({$json})");
 
             return $resolution;
+        }
+
+        static function getAudioTracks($pathFileName) {
+            global $global;
+            if(empty($global['enableMultipleLangs'])){
+                return array();
+            }
+            $command = get_ffprobe() . " -v quiet -print_format json -show_entries stream=index:stream_tags=language -select_streams a \"$pathFileName\"";
+            error_log("getAudioTracks: {$command}");
+            $json = exec($command . " 2>&1", $output, $return_val);
+            if ($return_val !== 0) {
+                error_log("getResolution: Error on ffprobe " . json_encode($output));
+                return 1080;
+            }
+            $json = implode(" ", $output);
+            $jsonObj = json_decode($json);
+
+            if (empty($jsonObj)) {
+                error_log("getResolution: Error on json {$json}");
+                return 1080;
+            }
+
+            $audioTracks = array();
+            foreach ($jsonObj->streams as $stream) {
+                if (!empty($stream->tags) && !empty($stream->tags->language)) {
+                    $audioTracks[] = $stream->tags->language;
+                }
+            }
+            error_log("getAudioTracks: success " . json_encode($audioTracks) . " ({$json})");
+
+            return $audioTracks;
         }
 
         static private function getDynamicCommandFromMP4($pathFileName, $encoder_queue_id) {
@@ -345,6 +376,8 @@ hd/index.m3u8
         static private function getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, $format_id) {
             error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) ");
             $height = self::getResolution($pathFileName);
+            //$audioTracks = self::getAudioTracks($pathFileName);
+
             $resolutions = array(360, 480, 720, 1080, 1440, 2160);
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
@@ -356,26 +389,28 @@ hd/index.m3u8
 
             // create command
             $resolution = 240;
+            $previewsResolution = $resolution;
             $autioBitrate = 128;
             $framerate = " -r 20 ";
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
 
-            $command = get_ffmpeg().' -i {$pathFileName} ';
+            $command = get_ffmpeg() . ' -i {$pathFileName} ';
             $evalCommand = "\$command .= \" $code\";";
             //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
             eval($evalCommand);
 
             foreach ($resolutions as $key => $value) {
-                if ($height >= $value) {
+                if ($height > $previewsResolution) {
                     $resolution = $value;
+                    $previewsResolution = $resolution;
                     $autioBitrate = $audioBitrate[$key];
                     $evalCommand = "\$command .= \" $code\";";
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
                     $framerate = "";
-                    if(!empty($videoFramerate[$key])){
+                    if (!empty($videoFramerate[$key])) {
                         $framerate = " -r {$videoFramerate[$key]} ";
                     }
-                    
+
                     //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
                     eval($evalCommand);
                 }
@@ -398,6 +433,7 @@ hd/index.m3u8
          */
         static private function preProcessDynamicHLS($pathFileName, $destinationFile) {
             $height = self::getResolution($pathFileName);
+            $audioTracks = self::getAudioTracks($pathFileName);
             $resolutions = array(360, 480, 720, 1080, 1440, 2160);
             $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
             //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
@@ -425,12 +461,29 @@ hd/index.m3u8
             $str .= "#EXT-X-STREAM-INF:BANDWIDTH=300000
 res240/index.m3u8
 ";
+            if (is_array($audioTracks) && count($audioTracks) > 1) {
+                // there is more then one audio, add it
+                foreach ($audioTracks as $language) {
+                    mkdir($destinationFile . "res240/{$language}");
+                    $str .= "#EXT-X-MEDIA:TYPE=AUDIO,LANGUAGE=\"{$language}\",URI=\"res240/{$language}/index.m3u8\"" . PHP_EOL;
+                }
+            }
+            
+            $previewsResolution = 240;
             foreach ($resolutions as $key => $value) {
-                if ($height >= $value) {
+                if ($height > $previewsResolution) {
+                    $previewsResolution = $value;
                     mkdir($destinationFile . "res{$value}");
                     $str .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($bandwidth[$key]) . "
 res{$value}/index.m3u8
 ";
+                    if (is_array($audioTracks) && count($audioTracks) > 1) {
+                        // there is more then one audio, add it
+                        foreach ($audioTracks as $language) {
+                            mkdir($destinationFile . "res{$value}/{$language}");
+                            $str .= "#EXT-X-MEDIA:TYPE=AUDIO,LANGUAGE=\"{$language}\",URI=\"res{$value}/{$language}/index.m3u8\"" . PHP_EOL;
+                        }
+                    }
                 }
             }
 
@@ -441,29 +494,48 @@ res{$value}/index.m3u8
 
             // create command
             $value = 240;
-            $resolution = $value;
             $minrate = 200;
             $maxrate = 450;
             $bufsize = 600;
             $autioBitrate = 128;
             $framerate = " -r 20 ";
 
-            $command = get_ffmpeg().' -i {$pathFileName} ';
-            eval("\$command .= \" $code\";");
+            $command = get_ffmpeg() . ' -i {$pathFileName} -max_muxing_queue_size 9999 ';
+            $resolution = $value;
+            $previewsResolution = $resolution;
+            if (is_array($audioTracks) && count($audioTracks) > 1) {
+                foreach ($audioTracks as $language) {
+                    //$resolution = "{$value}/{$language}";
+                    $newCode = str_replace(array("-f hls", "/index.m3u8"), array("-map 0:m:language:{$language} -f hls ", "/{$language}/index.m3u8"), $code);
+                    eval("\$command .= \" $newCode\";");
+                }
+            } else {
+                eval("\$command .= \" $code\";");
+            }
 
             foreach ($resolutions as $key => $value) {
-                if ($height >= $value) {
-                    $resolution = $value;
+                if ($height > $previewsResolution) {
+                    $previewsResolution = $value;
                     $rate = $bandwidth[$key] / 1000;
                     $minrate = ($rate * 0.5);
                     $maxrate = ($rate * 1.5);
                     $bufsize = ($rate * 2);
                     $autioBitrate = $audioBitrate[$key];
                     $framerate = "";
-                    if(!empty($videoFramerate[$key])){
+
+                    $resolution = $value;
+                    if (!empty($videoFramerate[$key])) {
                         $framerate = " -r {$videoFramerate[$key]} ";
                     }
-                    eval("\$command .= \" $code\";");
+                    if (is_array($audioTracks) && count($audioTracks) > 1) {
+                        foreach ($audioTracks as $language) {
+                            //$resolution = "{$value}/{$language}";
+                            $newCode = str_replace(array("-f hls", "/index.m3u8"), array("-map 0 -map -0:a:m:language:{$language} -f hls ", "/{$language}/index.m3u8"), $code);
+                            eval("\$command .= \" $newCode\";");
+                        }
+                    } else {
+                        eval("\$command .= \" $code\";");
+                    }
                 }
             }
 
@@ -475,10 +547,10 @@ res{$value}/index.m3u8
             $encoder = new Encoder($encoder_queue_id);
             $encoder->setStatus("packing");
             $encoder->save();
-            unlink($destinationFile . "keyinfo");
             error_log("posProcessHLS: ZIP start {$destinationFile}");
             $zipPath = zipDirectory($destinationFile);
-            rrmdir($destinationFile);
+            //rrmdir($destinationFile);
+            //unlink($destinationFile . "keyinfo");
             error_log("posProcessHLS: ZIP created {$zipPath} " . humanFileSize(filesize($zipPath)));
             return file_exists($zipPath);
         }
@@ -515,7 +587,7 @@ res{$value}/index.m3u8
                 error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
                 exec($code . " 1> {$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
-                    error_log("AVideo-Encoder Format::exec " . $code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
+                    //error_log("AVideo-Encoder Format::exec " . $code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
                     $obj->msg = print_r($output, true);
                     $encoder = new Encoder($encoder_queue_id);
                     $encoder->setStatus("error");
