@@ -403,14 +403,18 @@ if (!empty($_GET['noNavbar'])) {
                         <div class="panel panel-default">
                             <div class="panel-heading"><i class="fas fa-cogs"></i> Advanced</div>
                             <div class="panel-body">
-                                <label>
-                                    <input type="checkbox" id="inputAudioOnly">
-                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                                </label><br>
+                                <?php if (!empty($advancedCustom->doNotShowExtractAudio)) { ?>
+                                    <label>
+                                        <input type="checkbox" id="inputAudioOnly">
+                                        <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                                    </label><br>
+                                <?php } ?>
+                                <?php if (!empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
                                 <label style="display: none;" id="spectrum">
                                     <input type="checkbox" id="inputAudioSpectrum">
                                     <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                                 </label>
+                                <?php } ?>
                                 <?php
                                 if (empty($global['disableWebM'])) {
                                     ?>
