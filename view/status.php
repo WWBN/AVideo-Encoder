@@ -26,10 +26,7 @@ if(empty($obj->encoding['id'])){
     if(empty($obj->queue_list)){
         $obj->msg = "There is no file on queue";
     }else{
-        $cmd = PHP_BINDIR."/php -f {$global['systemRootPath']}view/run.php > /dev/null 2>/dev/null &";
-        //echo "** executing command {$cmd}\n";
-        exec($cmd);
-        $obj->cmd = $cmd;
+        execRun();
         $obj->msg = "We send the file to encode";
     }
 }else{

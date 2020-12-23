@@ -529,7 +529,7 @@ function canConvert($dir) {
 }
 
 function getTSDuration($ts_file) {
-    $cmd = "ffprobe -loglevel quiet -print_format flat -show_entries format=duration {$ts_file}";
+    $cmd = get_ffprobe()." -loglevel quiet -print_format flat -show_entries format=duration {$ts_file}";
     exec($cmd, $output);
     if (preg_match('/format.duration="([0-9.]+)"/', $output[0], $matches)) {
         if (!empty($matches[1])) {

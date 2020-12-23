@@ -527,6 +527,7 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
+        //error_log("run($try)");
         $row = static::isEncoding();
         if (empty($row['id'])) {
             $row = static::getNext();
@@ -742,6 +743,9 @@ class Encoder extends ObjectYPT {
                 $files = self::getTmpFiles($this->id);
                 error_log("Encoder::send() multiResolutionOrder sendAll found (".count($files).") files");
                 foreach ($files as $file) {
+                    if(is_dir($file)){
+                        continue;
+                    }
                     $format = pathinfo($file, PATHINFO_EXTENSION);
                     preg_match('/([^_]+).'.$format.'$/', $file, $matches);
                     $resolution = @$matches[1];
@@ -1282,7 +1286,7 @@ class Encoder extends ObjectYPT {
             }
         }
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
-        eval('$cmd="ffprobe -i \"{$file}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\'p=0\'";');
+        eval('$cmd=get_ffprobe()." -i \"{$file}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
             error_log('{"status":"error", "msg":' . json_encode($output) . ' ,"return_val":' . json_encode($return_val) . ', "where":"getDuration", "cmd":"' . $cmd . '"}');
@@ -1316,14 +1320,14 @@ class Encoder extends ObjectYPT {
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
         // placing ss before the input is faster https://stackoverflow.com/a/27573049
-        eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
+        eval('$ffmpeg =get_ffmpeg(true)." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
         error_log("getImage: {$ffmpeg}");
-        exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
         error_log("getImage: takes {$execution_time} sec to complete");
-        if ($return_val !== 0) {
-            error_log("Create Image error: {$ffmpeg}");
+        if ($return_val !== 0 && !file_exists($destinationFile)) {
+            error_log("Create Image error: {$ffmpeg} ". json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.jpg";
         } else {
             return $destinationFile;
@@ -1345,27 +1349,28 @@ class Encoder extends ObjectYPT {
         $time_start = microtime(true);
         error_log("getGif: Starts");
         //generate a palette:
-        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$pathFileName}palette.png";');
-        exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        $palleteFile = "{$pathFileName}palette.png";
+        eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFile}";');
+        exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
         error_log("getGif: takes {$execution_time} sec to complete");
-        if ($return_val !== 0) {
-            error_log("Create Pallete Gif Image error: {$ffmpeg}");
+        if ($return_val !== 0 && !file_exists($palleteFile)) {
+            error_log("Create Pallete Gif Image error: {$ffmpeg} ". json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
             // I've discovered that if the ss parameter comes before the input flag, a tremendous time penalty is avoided.
             // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
             // so that they don't get rendered incorrectly on the avideo site. https://superuser.com/a/891478
 
-            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
+            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$palleteFile} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
             //eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
-            exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
-            if ($return_val !== 0) {
+            exec($ffmpeg . " 2>&1", $output, $return_val);
+            if ($return_val !== 0 && !file_exists($destinationFile)) {
                 error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
                 eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
-                exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
-                if ($return_val !== 0) {
+                exec($ffmpeg . " 2>&1", $output, $return_val);
+                if ($return_val !== 0 && !file_exists($destinationFile)) {
                     error_log("Create Gif Image error 2: {$ffmpeg} " . json_encode($output));
                     return $global['systemRootPath'] . "view/img/notfound.gif";
                 } else {
@@ -1393,11 +1398,11 @@ class Encoder extends ObjectYPT {
         error_log("getWebpImage: Starts");
         //generate a palette:
         eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
-        exec($ffmpeg . " < /dev/null 2>&1", $output, $return_val);
+        exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
         error_log("getWebpImage: takes {$execution_time} sec to complete");
-        if ($return_val !== 0) {
+        if ($return_val !== 0 && !file_exists($destinationFile)) {
             error_log("getWebpImage:  Image error : {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
@@ -1451,7 +1456,7 @@ class Encoder extends ObjectYPT {
         $durationParts = explode(":", $str);
         if (empty($durationParts[1]))
             return 0;
-        $minutes = intval(($durationParts[0]) * 60) + intval($durationParts[1]);
+        $minutes = intval(intval($durationParts[0]) * 60) + intval($durationParts[1]);
         return intval($durationParts[2]) + ($minutes * 60);
     }
 

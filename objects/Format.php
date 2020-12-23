@@ -549,7 +549,7 @@ res{$value}/index.m3u8
             $encoder->save();
             error_log("posProcessHLS: ZIP start {$destinationFile}");
             $zipPath = zipDirectory($destinationFile);
-            //rrmdir($destinationFile);
+            rrmdir($destinationFile);
             //unlink($destinationFile . "keyinfo");
             error_log("posProcessHLS: ZIP created {$zipPath} " . humanFileSize(filesize($zipPath)));
             return file_exists($zipPath);

@@ -34,9 +34,9 @@ if (!file_exists($imageFileName)) {
     // display a dummy image
     echo url_get_contents($global['systemRootPath'] . "view/img/creatingImages.jpg");
     //call createsprits
-    $command = ("php '{$global['systemRootPath']}objects/createSpiritsFromVideo.php' '$url' '$step' '$tileWidth' '$tileHeight' '$imageFileName' '$numberOfTiles' '$baseName'");
+    $command = (getPHP()." \"{$global['systemRootPath']}objects/createSpiritsFromVideo.php\" \"$url\" \"$step\" \"$tileWidth\" \"$tileHeight\" \"$imageFileName\" \"$numberOfTiles\" \"$baseName\"");
     error_log("getSpritsFromVideo: {$command}");
-    exec($command . " > /dev/null 2>/dev/null &");
+    execAsync($command);
 } else {
     echo url_get_contents($imageFileName);
     unlink($imageFileName);

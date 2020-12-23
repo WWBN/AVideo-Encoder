@@ -10,10 +10,29 @@ function local_get_contents($path) {
     return @file_get_contents($path);
 }
 
-function get_ffmpeg() {
+function get_ffmpeg($ignoreGPU=false) {
+    global $global;
     //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
-    return 'ffmpeg  ';
+    $ffmpeg = 'ffmpeg  ';
+    if (empty($ignoreGPU) && !empty($global['ffmpegGPU'])) {
+        $ffmpeg .= ' --enable-nvenc ';
+    }
+    if (!empty($global['ffmpeg'])) {
+        $ffmpeg = "{$global['ffmpeg']}{$ffmpeg}";
+    }
+    return $ffmpeg;
+}
+
+function get_ffprobe() {
+    global $global;
+    //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
+    //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
+    $ffmpeg = 'ffprobe  ';
+    if (!empty($global['ffmpeg'])) {
+        $ffmpeg = "{$global['ffmpeg']}{$ffmpeg}";
+    }
+    return $ffmpeg;
 }
 
 function url_set_file_context($Url, $ctx = "") {
@@ -483,7 +502,7 @@ function decideFromPlugin() {
     // convert the string to a json object
     $advancedCustom = json_decode($json_file);
     fixAdvancedCustom($advancedCustom);
-    if(!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)){
+    if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
         return array("mp4" => 7, "webm" => 8);
     }
     if (
@@ -697,6 +716,9 @@ function zipDirectory($destinationFile) {
     $zipPath = rtrim($destinationFile, "/") . ".zip";
     // Initialize archive object
     $zip = new ZipArchive();
+    if(!is_object($zip)){
+        $zip = new \ZipArchive;
+    }
     $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
     // Create recursive directory iterator
@@ -725,7 +747,7 @@ function zipDirectory($destinationFile) {
 function directorysize($dir) {
 
     $command = "du -sb {$dir}";
-    exec($command . " < /dev/null 2>&1", $output, $return_val);
+    exec($command . " 2>&1", $output, $return_val);
     if ($return_val !== 0) {
         $size = 0;
         foreach (glob(rtrim($dir, '/') . '/*', GLOB_NOSORT) as $each) {
@@ -856,17 +878,17 @@ function validateSessionId($PHPSESSID) {
     return false;
 }
 
-function recreateSessionIdIfNotValid(){
+function recreateSessionIdIfNotValid() {
     $PHPSESSID = session_id();
-    if(!validateSessionId($PHPSESSID)){
+    if (!validateSessionId($PHPSESSID)) {
         session_id(getSessionId());
     }
 }
 
-function _session_id($PHPSESSID){
-    if(validateSessionId($PHPSESSID)){
+function _session_id($PHPSESSID) {
+    if (validateSessionId($PHPSESSID)) {
         session_id($PHPSESSID);
-    }else{
+    } else {
         recreateSessionIdIfNotValid();
     }
 }
@@ -938,23 +960,56 @@ function isSameDomain($url1, $url2) {
 function get_domain($url) {
     $pieces = parse_url($url);
     $domain = isset($pieces['host']) ? $pieces['host'] : '';
-    if(empty($domain)){
+    if (empty($domain)) {
         return false;
     }
     if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
         return rtrim($regs['domain'], '/');
-    }else{
-        $isIp = (bool)ip2long($pieces['host']);
-        if($isIp){
+    } else {
+        $isIp = (bool) ip2long($pieces['host']);
+        if ($isIp) {
             return $pieces['host'];
         }
     }
     return false;
 }
 
-function isPIDRunning($pid){
-    if($pid<1){
+function isPIDRunning($pid) {
+    if ($pid < 1) {
         return false;
     }
-    return file_exists( "/proc/$pid" );
+    return file_exists("/proc/$pid");
+}
+
+function execAsync($command) {
+    // If windows, else
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        //$pid = system($command . " > NUL");
+        pclose($pid = popen("start /B ". $command, "r")); 
+    } else {
+        $pid = exec($command . " > /dev/null 2>&1 & echo $!; ");
+    }
+    return $pid;
+}
+
+function execRun() {
+    global $global;
+    $php = getPHP() . " -f";
+    $cmd = "{$php} {$global['systemRootPath']}view/run.php";
+    return execAsync($cmd);
+}
+
+function getPHP() {
+    global $global;
+    if (!empty($global['php'])) {
+        $php = $global['php'];
+        if (file_exists($php)) {
+            return $php;
+        }
+    }
+    $php = PHP_BINDIR . "/php";
+    if (file_exists($php)) {
+        return $php;
+    }
+    return "php";
 }

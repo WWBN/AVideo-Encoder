@@ -56,7 +56,5 @@ if (empty($_POST['rowCount']) && !empty($total)) {
     $_POST['rowCount'] = $total;
 }
 // start queue now
-$cmd = PHP_BINDIR."/php -f {$global['systemRootPath']}view/run.php > /dev/null 2>/dev/null &";
-//echo "** executing command {$cmd}\n";
-exec($cmd);
+execRun();
 echo '{  "current": ' . $_POST['current'] . ',"rowCount": ' . $_POST['rowCount'] . ', "total": ' . ($total) . ', "rows":' . json_encode($rows) . '}';

@@ -323,7 +323,7 @@ function isAudio($source) {
 }
 
 function isVideo($source) {
-    $cmd = "ffprobe -i \"{$source}\" -show_streams -select_streams v:0 -show_entries stream=width,height -loglevel error";
+    $cmd = get_ffprobe()." -i \"{$source}\" -show_streams -select_streams v:0 -show_entries stream=width,height -loglevel error";
     exec($cmd . " 2>&1", $output, $return_val);
     $return = array("width" => 0, "height" => 0);
     if ($return_val !== 0) {

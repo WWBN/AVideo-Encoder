@@ -66,7 +66,5 @@ if(empty($e->getId())){
     $id = $e->save();
 }
 // start queue now
-$cmd = PHP_BINDIR."/php -f {$global['systemRootPath']}view/run.php > /dev/null 2>/dev/null &";
-//echo "** executing command {$cmd}\n";
-exec($cmd);
+execRun();
 echo json_encode($id);
