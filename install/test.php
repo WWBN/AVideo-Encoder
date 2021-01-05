@@ -18,17 +18,16 @@ $filesURL = array(
 
 $_POST['user'] = 'admin';
 $_POST['pass'] = '123';
-$_POST['notifyURL'] = str_replace("Encoder/", "", $_POST['webSiteRootURL']);
+$_POST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
 foreach ($filesURL as $value) {
     $_POST['fileURI'] = $value;
     $path_parts = pathinfo($_POST['fileURI']);
     $_POST['filename'] = str_replace(array(".", "_"), array(" ", " "), $path_parts['basename']);
-    echo "Include: ".json_encode($_POST);
-    include $_POST['systemRootPath'].'view/queue.php';
+    echo "Include: ".json_encode($_POST).PHP_EOL;
+    include $global['systemRootPath'].'view/queue.php';
 }
 
-echo "Bye";
-echo "\n";
+echo "Bye".PHP_EOL;
 die();
 
 
