@@ -15,13 +15,13 @@ if(!empty($_POST['user']) && !empty($_POST['pass']) && !empty($_POST['notifyURL'
         echo $error.PHP_EOL;
     }
     error_log($error);
-    Login::run($_POST['user'], $_POST['pass'], $_POST['notifyURL'], true);
+    Login::run($_POST['user'], $_POST['pass'], $_POST['notifyURL'], isCommandLineInterface()?false:true);
 }
 
 $e = new Encoder(@$_POST['id']);
 if(empty($e->getId())){
     if(!Login::canUpload()){
-        $error = "This user can not upload files";
+        $error = "This user can not upload files User=".Login::getStreamerUser()." URL=".Login::getStreamerURL();
         if (isCommandLineInterface()) {
             echo $error.PHP_EOL;
         }
