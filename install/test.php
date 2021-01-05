@@ -22,9 +22,11 @@ $_POST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
 foreach ($filesURL as $value) {
     $_POST['fileURI'] = $value;
     $path_parts = pathinfo($_POST['fileURI']);
-    $_POST['filename'] = str_replace(array(".", "_"), array(" ", " "), $path_parts['basename']);
-    echo "Include: ".json_encode($_POST).PHP_EOL;
+    $basename = explode(".", $path_parts['basename']);
+    $_POST['filename'] = str_replace(array(".", "_"), array(" ", " "), $basename[0]);
+    echo "Processing: ".json_encode($_POST).PHP_EOL;
     include $global['systemRootPath'].'view/queue.php';
+    echo "Include: {$_POST['filename']}".PHP_EOL;
 }
 
 echo "Bye".PHP_EOL;
