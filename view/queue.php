@@ -9,19 +9,31 @@ if(empty($_POST['fileURI'])){
 }
 
 if(!empty($_POST['user']) && !empty($_POST['pass']) && !empty($_POST['notifyURL'])){
-    error_log("Sent Login variables try to login");
     error_log("login.json: Login::run");
+    $error = "Sent Login variables try to login";
+    if (isCommandLineInterface()) {
+        echo $error.PHP_EOL;
+    }
+    error_log($error);
     Login::run($_POST['user'], $_POST['pass'], $_POST['notifyURL'], true);
 }
 
 $e = new Encoder(@$_POST['id']);
 if(empty($e->getId())){
     if(!Login::canUpload()){
-        error_log("This user can not upload files");
+        $error = "This user can not upload files";
+        if (isCommandLineInterface()) {
+            echo $error.PHP_EOL;
+        }
+        error_log($error);
         exit;
     }
    if (!($streamers_id = Login::getStreamerId())) {
-        error_log("There is no streamer site");
+        $error = "There is no streamer site";
+        if (isCommandLineInterface()) {
+            echo $error.PHP_EOL;
+        }
+        error_log($error);
         exit;
     }
     $e->setStreamers_id($streamers_id);
