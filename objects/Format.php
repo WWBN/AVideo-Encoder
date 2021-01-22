@@ -608,6 +608,23 @@ res{$value}/index.m3u8
         }
 
         static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {
+
+            if (file_exists($destinationFile)) {
+                $src_duration = Encoder::getDurationFromFile($pathFileName);
+                $dst_duration = Encoder::getDurationFromFile($destinationFile);
+                if ($src_duration == $dst_duration) {
+                    $obj = new stdClass();
+                    $obj->error = false;
+                    $obj->destinationFile = $destinationFile;
+                    $obj->pathFileName = $pathFileName;
+                    $obj->msg = "Already done";
+                        error_log($destinationFile . " already done, skip");
+                    return $obj;
+                } else {
+                     unlink($destinationFile);
+                } 
+            }
+
             $o = new Format(0);
             $o->loadFromOrder($format_order);
             // make sure the file extension is correct
