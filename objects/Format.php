@@ -585,6 +585,10 @@ res{$value}/index.m3u8
             } else {
                 $obj->code = $code;
                 error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
+                /* Make sure current process will terminate after us */
+                if (function_exists("apache_child_terminate"))
+                    apache_child_terminate(); 
+
                 exec($code . " 1> {$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
                     //error_log("AVideo-Encoder Format::exec " . $code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
