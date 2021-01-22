@@ -12,4 +12,4 @@ SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 -- support for the chunked transfer between servers
-UPDATE configurations SET  version = '3.1', modified = now() WHERE id = 1;
+UPDATE configurations SET  version = '3.4', modified = now() WHERE id = 1;
