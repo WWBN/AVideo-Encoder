@@ -9,7 +9,7 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends ObjectYPT {
 
-    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
+    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
 
     static function getSearchFieldsNames() {
         return array('filename');
@@ -93,6 +93,10 @@ class Encoder extends ObjectYPT {
         return $this->return_vars;
     }
 
+    function getWorker_pid() {
+        return $this->worker_pid;
+    }
+
     function getPriority() {
         return intval($this->priority);
     }
@@ -127,6 +131,10 @@ class Encoder extends ObjectYPT {
 
     function setReturn_vars($return_vars) {
         $this->return_vars = $return_vars;
+    }
+
+    function setWorker_pid($worker_pid) {
+        $this->worker_pid = $worker_pid;
     }
 
     function setReturn_varsVideos_id($videos_id) {
@@ -431,6 +439,14 @@ class Encoder extends ObjectYPT {
         if ($res) {
             $result = $res->fetch_assoc();
             if (!empty($result)) {
+                $encoder = new Encoder($result['id']);
+                if (!$encoder->isWorkerRunning()) {
+                    $encoder->setStatus("queue");
+                    $encoder->setStatus_obs("Worker died");
+                    $encoder->setWorker_pid(NULL);
+                    $encoder->save();
+                    return false;
+                }
                 $result['return_vars'] = json_decode($result['return_vars']);
                 $s = new Streamer($result['streamers_id']);
                 $result['streamer_site'] = $s->getSiteURL();
@@ -522,6 +538,14 @@ class Encoder extends ObjectYPT {
         return false;
     }
 
+    function isWorkerRunning() {
+        $pid = $this->getWorker_pid();
+	if (!is_numeric($pid) || $pid == 0)
+            return false;
+        exec("kill -0 ".$pid, $output, $retval);
+	return ($retval == 0) ? true : false;
+    }
+
     static function run($try = 0) {
         $try++;
         $obj = new stdClass();
@@ -538,6 +562,7 @@ class Encoder extends ObjectYPT {
                 $return_vars = json_decode($encoder->getReturn_vars());
                 $encoder->setStatus("downloading");
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
+                $encoder->setWorker_pid(getmypid());
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
@@ -546,12 +571,14 @@ class Encoder extends ObjectYPT {
                         error_log($msg);
                         $encoder->setStatus("queue");
                         $encoder->setStatus_obs($msg);
+                        $encoder->setWorker_pid(NULL);
                         $encoder->save();
                         self::run($try);
                     } else {
                         $obj->msg = $objFile->msg;
                         $encoder->setStatus("error");
                         $encoder->setStatus_obs("Could not download the file ");
+                        $encoder->setWorker_pid(NULL);
                         $encoder->save();
                     }
                 } else {
@@ -568,6 +595,7 @@ class Encoder extends ObjectYPT {
                             error_log($msg);
                             $encoder->setStatus("queue");
                             $encoder->setStatus_obs($msg);
+                            $encoder->setWorker_pid(NULL);
                             $encoder->save();
                             static::run($try);
                         } else {
@@ -575,6 +603,7 @@ class Encoder extends ObjectYPT {
                             error_log("Encoder Run: " . json_encode($obj));
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs($obj->msg);
+                            $encoder->setWorker_pid(NULL);
                             $encoder->save();
                         }
                     } else {
@@ -590,6 +619,7 @@ class Encoder extends ObjectYPT {
                             // update queue status
                             $encoder->setStatus("done");
                             $config = new Configuration();
+                            $encoder->setWorker_pid(NULL);
                             if (!empty($config->getAutodelete())) {
                                 $encoder->delete();
                             } else {
@@ -599,6 +629,7 @@ class Encoder extends ObjectYPT {
                         } else {
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs("Send message error = " . $response->msg);
+                            $encoder->setWorker_pid(NULL);
                             $encoder->notifyVideoIsDone(1);
                         }
                         $encoder->save();
@@ -804,6 +835,7 @@ class Encoder extends ObjectYPT {
             $return->sends[] = $r;
         }
         $this->setStatus("done");
+        $this->setWorker_pid(NULL);
         // check if autodelete is enabled
         $config = new Configuration();
         if (!empty($config->getAutodelete())) {
