@@ -24,6 +24,7 @@ class Encoder extends ObjectYPT {
         if (empty($this->id)) {
             $this->setStatus("queue");
         }
+        $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string($this->getTitle()));
         $this->setStatus_obs($global['mysqli']->real_escape_string($this->getStatus_obs()));
         error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
@@ -94,7 +95,7 @@ class Encoder extends ObjectYPT {
     }
 
     function getWorker_pid() {
-        return $this->worker_pid;
+        return intval($this->worker_pid);
     }
 
     function getPriority() {
@@ -589,7 +590,7 @@ class Encoder extends ObjectYPT {
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
-                    if ($resp->error) {
+                    if (!empty($resp->error)) {
                         if ($try < 4) {
                             $msg = "Trying again: [$try] => Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log($msg);
