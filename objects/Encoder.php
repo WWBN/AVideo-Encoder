@@ -428,38 +428,34 @@ class Encoder extends ObjectYPT {
         return $return;
     }
 
-    static function isEncoding() {
+    static function areEncoding() {
         global $global;
+        $i = 0;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' LIMIT 1 ";
+                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
 
         $res = $global['mysqli']->query($sql);
 
-        $sql .= " ORDER BY priority ASC, e.id ASC LIMIT 1";
-
         if ($res) {
-            $result = $res->fetch_assoc();
-            if (!empty($result)) {
+            while ($result = $res->fetch_assoc()) {
                 $encoder = new Encoder($result['id']);
                 if (!$encoder->isWorkerRunning()) {
                     $encoder->setStatus("queue");
                     $encoder->setStatus_obs("Worker died");
                     $encoder->setWorker_pid(NULL);
                     $encoder->save();
-                    return false;
+                    continue;
                 }
                 $result['return_vars'] = json_decode($result['return_vars']);
                 $s = new Streamer($result['streamers_id']);
                 $result['streamer_site'] = $s->getSiteURL();
                 $result['streamer_priority'] = $s->getPriority();
-                return $result;
-            } else {
-                return false;
+                $results[$i++] = $result;
             }
         } else {
             die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
         }
-        return false;
+        return $results;
     }
 
     /*
@@ -548,13 +544,15 @@ class Encoder extends ObjectYPT {
     }
 
     static function run($try = 0) {
+        global $global;
+        $concurrent = isset($global['concurrent']) ? $global['concurrent'] : 1;
         $try++;
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
         //error_log("run($try)");
-        $row = static::isEncoding();
-        if (empty($row['id'])) {
+        $rows = static::areEncoding();
+        if (count($rows) < $concurrent) {
             $row = static::getNext();
             if (empty($row)) {
                 $obj->msg = "There is no file on queue";
@@ -641,7 +639,15 @@ class Encoder extends ObjectYPT {
                 static::run();
             }
         } else {
-            $obj->msg = "The file [{$row['id']}] {$row['filename']} is encoding";
+            $msg = (count($rows) == 1) ? "The file " : "The files ";
+            for ($i = 0; $i < count($rows); $i++) {
+                $row = $rows[$i];
+                $msg .= "[{$row['id']}] {$row['filename']}";
+                if (count($rows) > 1 && $i < count($rows) - 1)
+                    $msg .= ", ";
+            }
+            $msg .= (count($rows) == 1) ? " is encoding" : " are encoding";
+            $obj->msg = $msg;
         }
         return $obj;
     }
