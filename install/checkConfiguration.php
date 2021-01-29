@@ -111,6 +111,7 @@ $content = "<?php
 \$global['disableBulkEncode'] = false;
 \$global['disableImportVideo'] = false;
 \$global['disableWebM'] = false;
+\$global['concurrent'] = 1;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
