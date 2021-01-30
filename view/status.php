@@ -14,15 +14,15 @@ $obj->queue_list = array();
 $obj->msg = "";
 $obj->encoding = new stdClass();
 $obj->cmd = "";
-$obj->encoding_status = "";
+$obj->encoding_status = array();
 $obj->version = $config->getVersion();
 
-$obj->encoding = Encoder::isEncoding();
+$obj->encoding = Encoder::areEncoding();
 //$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
 $obj->queue_size = count($obj->queue_list);
 
-if(empty($obj->encoding['id'])){
+if(count($obj->encoding) == 0) {
     if(empty($obj->queue_list)){
         $obj->msg = "There is no file on queue";
     }else{
@@ -31,9 +31,16 @@ if(empty($obj->encoding['id'])){
     }
 }else{
     $obj->is_encoding = true;
-    $obj->encoding_status = Encoder::getVideoConversionStatus($obj->encoding['id']);
-    $obj->download_status = Encoder::getYoutubeDlProgress($obj->encoding['id']);
-    $obj->msg = "The file [{$obj->encoding['id']}] {$obj->encoding['filename']} is encoding";
+    $msg = (count($obj->encoding) == 1) ? "The file " : "The files ";
+    for ($i = 0; $i < count($obj->encoding); $i++) {
+        $obj->encoding_status[$i] = Encoder::getVideoConversionStatus($obj->encoding[$i]['id']);
+        $obj->download_status[$i] = Encoder::getYoutubeDlProgress($obj->encoding[$i]['id']);
+        $msg .= "[{$obj->encoding[$i]['id']}] {$obj->encoding[$i]['filename']}";
+        if (count($obj->encoding) > 1 && $i < count($obj->encoding) - 1)
+            $msg .= ", ";
+    }
+    $msg .= (count($obj->encoding) == 1) ? " is encoding" : " are encoding";
+    $obj->msg = $msg;
 }
 
 if(!empty($_GET['serverStatus'])){
