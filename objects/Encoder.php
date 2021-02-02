@@ -430,6 +430,7 @@ class Encoder extends ObjectYPT {
 
     static function areEncoding() {
         global $global;
+        $results = array();
         $i = 0;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
                 . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
