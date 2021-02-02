@@ -4,7 +4,7 @@ if (file_exists("../videos/configuration.php")) {
     error_log("Can not create configuration again: ".  json_encode($_SERVER));
     exit;
 }
-$installationVersion = "3.3";
+$installationVersion = "3.4";
 
 header('Content-Type: application/json');
 
@@ -111,6 +111,7 @@ $content = "<?php
 \$global['disableBulkEncode'] = false;
 \$global['disableImportVideo'] = false;
 \$global['disableWebM'] = false;
+\$global['concurrent'] = 1;
 \$global['hideUserGroups'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';

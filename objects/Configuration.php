@@ -83,6 +83,7 @@ if (!class_exists('Configuration')) {
 \$global['disableBulkEncode'] = " . intval($global['disableBulkEncode']) . ";
 \$global['disableWebM'] = " . intval($global['disableWebM']) . ";
 \$global['hideUserGroups'] = " . intval($global['hideUserGroups']) . ";
+\$global['concurrent'] = " . intval($global['concurrent']) . ";
 
 \$mysqlHost = '{$mysqlHost}';
 \$mysqlUser = '{$mysqlUser}';

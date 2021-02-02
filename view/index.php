@@ -443,7 +443,7 @@ if (!empty($_GET['noNavbar'])) {
                 </div>
 
                 <script>
-                    var encodingNowId = "";
+                    var encodingNowIds = new Array();
                     function checkFiles() {
                         var path = $('#path').val();
                         if (!path) {
@@ -480,53 +480,62 @@ if (!empty($_GET['noNavbar'])) {
                                     }
 
                                 }
-                                if (response.encoding) {
-                                    var id = response.encoding.id;
-                                    // if start encode next before get 100%
-                                    if (id !== encodingNowId) {
-                                        $("#encodeProgress" + encodingNowId).slideUp("normal", function () {
-                                            $(this).remove();
-                                        });
-                                        encodingNowId = id;
+                                if (response.encoding.length > 0) {
+                                    var newEncodingNowIds = new Array();
+                                    for (i = 0; i < response.encoding.length; i++) {
+                                        var id = response.encoding[i].id; 
+                                        newEncodingNowIds.push(id);
                                     }
 
-                                    $("#downloadProgress" + id).slideDown();
-
-                                    if (response.download_status && !response.encoding_status.progress) {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [Downloading ...] </strong> " + response.download_status.progress + '%');
-                                    } else {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [" + response.encoding_status.from + " to " + response.encoding_status.to + "] </strong> " + response.encoding_status.progress + '%');
-                                        $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status.progress + '%'});
-                                    }
-                                    if (response.download_status) {
-                                        $("#downloadProgress" + id).find('.progress-bar').css({'width': response.download_status.progress + '%'});
-                                    }
-                                    if (response.encoding_status.progress >= 100) {
-                                        $("#encodingProgress" + id).find('.progress-bar').css({'width': '100%'});
-                                        setTimeout(function () {
-                                            $("#encodeProgress" + id).fadeOut("slow", function () {
+                                    for (i = 0; i < encodingNowIds.length; i++) {
+                                        var id = encodingNowIds[i]; 
+                                        // if start encode next before get 100%
+                                        if (newEncodingNowIds.indexOf(id) == -1) {
+                                            $("#encodeProgress" + id).slideUp("normal", function () {
                                                 $(this).remove();
                                             });
-                                            $("#downloadProgress" + id).slideUp("fast", function () {
-                                                $(this).remove();
-                                            });
-                                        }, 3000);
-                                    } else {
-
+                                        }
                                     }
+                                    encodingNowIds = newEncodingNowIds;
 
+                                    for (i = 0; i < encodingNowIds.length; i++) {
+                                        var id = encodingNowIds[i]; 
+                                        $("#downloadProgress" + id).slideDown();
+
+
+                                        if (response.download_status[i] && !response.encoding_status[i].progress) {
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [Downloading ...] </strong> " + response.download_status[i].progress + '%');
+                                        } else {
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '%');
+                                            $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status[i].progress + '%'});
+                                        }
+                                        if (response.download_status[i]) {
+                                            $("#downloadProgress" + id).find('.progress-bar').css({'width': response.download_status[i].progress + '%'});
+                                        }
+                                        if (response.encoding_status[i].progress >= 100) {
+                                            $("#encodingProgress" + id).find('.progress-bar').css({'width': '100%'});
+                                            setTimeout(function () {
+                                                $("#encodeProgress" + id).fadeOut("slow", function () {
+                                                    $(this).remove();
+                                                });
+                                                $("#downloadProgress" + id).slideUp("fast", function () {
+                                                    $(this).remove();
+                                                });
+                                            }, 3000);
+                                        } else {
+    
+                                        }
+    
+                                    }
                                     setTimeout(function () {
                                         checkProgress();
                                     }, 1000);
-                                } else if (encodingNowId !== "") {
-                                    $("#encodeProgress" + encodingNowId).slideUp("normal", function () {
-                                        $(this).remove();
-                                    });
-                                    encodingNowId = "";
-                                    setTimeout(function () {
-                                        checkProgress();
-                                    }, 5000);
                                 } else {
+                                    while ((id = encodingNowIds.pop()) != null) { 
+                                        $("#encodeProgress" + id).slideUp("normal", function () {
+                                            $(this).remove();
+                                        });
+                                    }
                                     setTimeout(function () {
                                         checkProgress();
                                     }, 5000);
