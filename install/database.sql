@@ -75,6 +75,25 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `upload_queue`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `upload_queue` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `encoders_id` INT NOT NULL,
+  `resolution` VARCHAR(255) NOT NULL,
+  `format` VARCHAR(255) NOT NULL,
+  `videos_id` INT NOT NULL,
+  `status` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_upload_queue_encoders_idx` (`encoders_id` ASC),
+  CONSTRAINT `fk_upload_queue_encoders`
+    FOREIGN KEY (`encoders_id`)
+    REFERENCES `encoder_queue` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+-- -----------------------------------------------------
 -- Table `configurations`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `configurations` (

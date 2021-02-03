@@ -4,6 +4,9 @@ if (!class_exists('Format')) {
     if (!class_exists('ObjectYPT')) {
         require_once 'Object.php';
     }
+    if(!class_exists('Upload')){
+        require_once 'Upload.php';
+    }
 
     class Format extends ObjectYPT {
 
@@ -112,6 +115,9 @@ if (!class_exists('Format')) {
                     $obj = static::execOrder(20, $pathFileName, $destination, $encoder_queue_id);
                 }
             }
+
+            if ($global['progressiveUpload'] == true)
+                Upload::create($encoder_queue_id, $destinationFile);
 
             return $obj;
         }
