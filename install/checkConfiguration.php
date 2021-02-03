@@ -113,6 +113,7 @@ $content = "<?php
 \$global['disableWebM'] = false;
 \$global['concurrent'] = 1;
 \$global['hideUserGroups'] = false;
+\$global['progressiveUpload'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
