@@ -18,7 +18,6 @@ class Upload extends ObjectYPT {
     }
 
     static function loadFromEncoder($encoders_id, $resolution, $format) {
-fprintf(fopen("/tmp/log", "a"), "loadFromEncoder(%d, %s, %s)\n%s\n", $encoders_id, $resolution, $format, print_r(debug_backtrace(), true));
         global $global;
         $sql = "SELECT * FROM " . static::getTableName() . " WHERE  `encoders_id` = $encoders_id AND `resolution` = '$resolution' AND `format`= '$format' LIMIT 1";
         $global['lastQuery'] = $sql;
@@ -38,7 +37,6 @@ fprintf(fopen("/tmp/log", "a"), "loadFromEncoder(%d, %s, %s)\n%s\n", $encoders_i
     }
 
    static function create($encoders_id, $file) {
-fprintf(fopen("/tmp/log", "a"), "create(%d, %s)\n%s\n", $encoders_id, $file, print_r(debug_backtrace(), true));
        preg_match("/tmpFile_converted_([^.]+)\.(.*)$/", $file, $matches);
        if (empty($matches[1]) || empty($matches[2])) {
            error_log("Upload::createIfNotExists filename ".$file." not match");
