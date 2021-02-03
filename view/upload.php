@@ -105,6 +105,10 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         }
         $e->setReturn_vars(json_encode($obj));
 
+        if ($global['progressiveUpload'] == true) {
+            Encoder::sendFile($destinationFile, $obj->videos_id, $format, $e, 'HD');
+        }
+
         $encoders_ids[] = $e->save();
 
         $obj->error = false;
