@@ -856,9 +856,12 @@ class Encoder extends ObjectYPT {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "", $chunkFile = "", $duration = "") {
+    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "", $chunkFile = "", $duration = "", $keep_encoding = null) {
         global $global;
         global $sentImage;
+
+        if (!isset($keep_encoding))
+            $keep_encoding = ($global['progressiveUpload'] == true);
 
         $obj = new stdClass();
         $obj->error = true;
@@ -930,7 +933,8 @@ class Encoder extends ObjectYPT {
             'password' => $pass,
             'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
             'chunkFile' => $chunkFile,
-            'encoderURL' => $global['webSiteRootURL']
+            'encoderURL' => $global['webSiteRootURL'],
+            'keepEncoding' => $keep_encoding ? "1" : "0",
         );
         $count = 0;
         foreach ($usergroups_id as $value) {
@@ -1490,8 +1494,14 @@ class Encoder extends ObjectYPT {
         }
         $this->deleteOriginal();
 
-        if ($global['progressiveUpload'] == true)
+        if ($global['progressiveUpload'] == true) {
+            // telll avideo there is no more encoding left
+            $return_vars = json_decode($this->getReturn_vars());
+            if (!empty($return_vars->videos_id))
+                static::sendFile("", $return_vars->videos_id, "", $this, false);
+
             Upload::deleteFile($this->id);
+        }
 
         return parent::delete();
     }
