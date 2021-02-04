@@ -111,6 +111,7 @@ $content = "<?php
 \$global['disableBulkEncode'] = false;
 \$global['disableImportVideo'] = false;
 \$global['disableWebM'] = false;
+\$global['defaultWebM'] = false;
 \$global['concurrent'] = 1;
 \$global['hideUserGroups'] = false;
 \$global['progressiveUpload'] = false;
