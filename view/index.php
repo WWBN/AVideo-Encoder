@@ -334,7 +334,7 @@ if (!empty($_GET['noNavbar'])) {
                 <div class="col-md-4" id="rightContainer" >
                     <?php
                     include './index_shareVideos.php';
-                    if (!empty($_SESSION['login']->userGroups)) {
+                    if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
                         ?>
                         <div class="panel panel-default">
                             <div class="panel-heading"><i class="fas fa-users"></i> User Groups</div>

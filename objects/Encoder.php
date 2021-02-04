@@ -5,6 +5,7 @@ $sentImage = array();
 require_once $global['systemRootPath'] . 'objects/Format.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/Upload.php';
 require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends ObjectYPT {
@@ -430,6 +431,7 @@ class Encoder extends ObjectYPT {
 
     static function areEncoding() {
         global $global;
+        $results = array();
         $i = 0;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
                 . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
@@ -865,6 +867,17 @@ class Encoder extends ObjectYPT {
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
 
+        if ($global['progressiveUpload'] == true && isset($encoder)) {
+            $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
+);
+            if ($u !== false && $u->getStatus() == "done") {
+                $obj->error = false;
+                $obj->msg = "Already sent";
+                error_log("Encoder::sendFile already sent videos_id=$videos_id, format=$format");
+                return $obj;
+            }
+        }
+
         error_log("Encoder::sendFile videos_id=$videos_id, format=$format");
         if(empty($duration)){
             $duration = static::getDurationFromFile($file);
@@ -961,6 +974,11 @@ class Encoder extends ObjectYPT {
         error_log(json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
         //var_dump($obj);exit;
+
+        if (isset($u) && $u !== false && $obj->error == false) {
+            $u->setStatus("done");
+            $u->save(); 
+        }
         return $obj;
     }
 
@@ -1471,6 +1489,10 @@ class Encoder extends ObjectYPT {
             }
         }
         $this->deleteOriginal();
+
+        if ($global['progressiveUpload'] == true)
+            Upload::deleteFile($this->id);
+
         return parent::delete();
     }
 
