@@ -207,6 +207,9 @@ if (!empty($_GET['noNavbar'])) {
                             $.ajax({
                                 url: 'login',
                                 data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass": encodedPass},
+                                xhrFields: {
+                                    withCredentials: true
+                                },
                                 type: 'post',
                                 success: function (response) {
                                     if (response.error) {
@@ -456,6 +459,9 @@ if (!empty($_GET['noNavbar'])) {
                         $.ajax({
                             url: 'listFiles.json?<?php echo getPHPSessionIDURL(); ?>',
                             data: {"path": path},
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             type: 'post',
                             success: function (response) {
                                 $('#files').empty();
@@ -477,6 +483,9 @@ if (!empty($_GET['noNavbar'])) {
                     function checkProgress() {
                         $.ajax({
                             url: 'status?<?php echo getPHPSessionIDURL(); ?>',
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             success: function (response) {
                                 if (response.queue_list.length) {
                                     for (i = 0; i < response.queue_list.length; i++) {
@@ -591,6 +600,9 @@ if (!empty($_GET['noNavbar'])) {
     ?>
                         $.ajax({
                             url: streamerURL + 'status',
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
                                 streamerMaxFileSize = response.file_upload_max_size;
@@ -626,6 +638,9 @@ if (!empty($_GET['noNavbar'])) {
                                             "usergroups_id": $(".usergroups_id:checked").map(function () {
                                                 return $(this).val();
                                             }).get()
+                                        },
+                                        xhrFields: {
+                                            withCredentials: true
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -666,6 +681,9 @@ if (!empty($_GET['noNavbar'])) {
                                     "allowedStreamers": $("#allowedStreamers").val(),
                                     "defaultPriority": $("#defaultPriority").val(),
                                     "autodelete": $("#autodelete").is(":checked"),
+                                },
+                                xhrFields: {
+                                    withCredentials: true
                                 },
                                 type: 'post',
                                 success: function (response) {
@@ -720,6 +738,9 @@ if (!empty($_GET['noNavbar'])) {
                                                             }).get(),
                                                             "startIndex": $('#startIndex').val(),
                                                             "endIndex": $('#endIndex').val()
+                                                        },
+                                                        xhrFields: {
+                                                            withCredentials: true
                                                         },
                                                         type: 'post',
                                                         success: function (response) {
@@ -778,6 +799,9 @@ if (!empty($_GET['noNavbar'])) {
                                             return $(this).val();
                                         }).get()
                                     },
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         if (response.text) {
@@ -810,6 +834,9 @@ if (!empty($_GET['noNavbar'])) {
                         var grid = $("#grid").bootgrid({
                             ajax: true,
                             url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             formatters: {
                                 "commands": function (column, row) {
                                     var reQueue = '';
@@ -871,6 +898,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id, "fileURI": row.fileURI},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -887,6 +917,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'deleteQueue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -909,6 +942,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'send.json?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -924,6 +960,9 @@ if (!empty($_GET['noNavbar'])) {
                         var gridStreamer = $("#gridStreamer").bootgrid({
                             ajax: true,
                             url: "streamers.json?<?php echo getPHPSessionIDURL(); ?>",
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             formatters: {
                                 "priority": function (column, row) {
                                     var tag = "<select class='priority' rowId='" + row.id + "'>";
@@ -959,6 +998,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'removeStreamer?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#gridStreamer").bootgrid("reload");
@@ -972,6 +1014,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'priority?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "priority": $(this).val()},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         modal.hidePleaseWait();
@@ -984,6 +1029,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "isAdmin": $(this).val()},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         modal.hidePleaseWait();
