@@ -10,7 +10,7 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends ObjectYPT {
 
-    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id;
+    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id, $override_status;
 
     static function getSearchFieldsNames() {
         return array('filename');
@@ -196,6 +196,14 @@ class Encoder extends ObjectYPT {
 
     function setStreamers_id($streamers_id) {
         $this->streamers_id = $streamers_id;
+    }
+
+    function getOverride_status() {
+        return $this->override_status;
+    }
+
+    function setOverride_status($override_status) {
+        $this->override_status = $override_status;
     }
 
     function setFormats_id($formats_id) {
@@ -679,6 +687,10 @@ class Encoder extends ObjectYPT {
                 'password' => $pass,
                 'fail' => $fail
             );
+
+            if (!empty($this->override_status))
+               $postFields['overrideStatus'] = $this->override_status;
+
             $obj->postFields = $postFields;
 
             $curl = curl_init();
@@ -935,6 +947,19 @@ class Encoder extends ObjectYPT {
             'encoderURL' => $global['webSiteRootURL'],
             'keepEncoding' => $keep_encoding ? "1" : "0",
         );
+
+        if (!empty($encoder->override_status)) {
+            $override_status = $encoder->override_status;
+
+            // If unfinished progressive upload, status is
+            // active and coding (k) if active (a) was requested
+            // or encoding (e) otherwise.
+            if ($keep_encoding)
+                $override_status = $override_status == 'a' ? 'k' : 'e';
+
+            $postFields['overrideStatus'] = $override_status;
+        }
+
         $count = 0;
         foreach ($usergroups_id as $value) {
             $postFields["usergroups_id[{$count}]"] = $value;

@@ -556,6 +556,15 @@ if (!empty($_GET['noNavbar'])) {
 
                             }
                         });
+                            <div class="form-group">
+                                <select class="form-control" id="override_status" name="override_status">
+
+                                    <option value="">Override status - Use site default</option>
+                                    <option value="a">Active</option>
+                                    <option value="i">Inactive</option>
+                                    <option value="u">Unlisted</option>
+                                </select>
+                            </div>
                     }
 
                     function createQueueItem(queueItem, queueItemAfter) {
@@ -724,6 +733,7 @@ if (!empty($_GET['noNavbar'])) {
                                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
                                                             "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                                             "webm": $('#inputWebM').is(":checked"),
+                                                            "override_status": $('#override_status').val(),
                                                             "inputHLS": $('#inputHLS').is(":checked"),
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
@@ -786,6 +796,7 @@ if (!empty($_GET['noNavbar'])) {
                                         "audioOnly": $('#inputAudioOnly').is(":checked"),
                                         "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                         "webm": $('#inputWebM').is(":checked"),
+                                        "override_status": $('#override_status').val(),
                                         "inputHLS": $('#inputHLS').is(":checked"),
                                         "inputLow": $('#inputLow').is(":checked"),
                                         "inputSD": $('#inputSD').is(":checked"),

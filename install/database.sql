@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `videoDownloadedLink` VARCHAR(255) NULL,
   `downloadedFileName` VARCHAR(255) NULL,
   `streamers_id` INT NOT NULL,
+  `override_status` VARCHAR(45) NULL
+  `status` VARCHAR(45) NULL,
   `formats_id` INT NOT NULL,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
