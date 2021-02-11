@@ -92,7 +92,8 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 $e->setFormats_id(3);
             }
         }
-
+        if (!empty($_POST['override_status']))
+            $e->setOverride_status($_POST['override_status']);
 
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
