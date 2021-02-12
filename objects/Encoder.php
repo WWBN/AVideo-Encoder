@@ -135,7 +135,7 @@ class Encoder extends ObjectYPT {
         case "downloading":
         case "encoding":
         case "packing":
-        case "transfering":
+        case "transferring":
         default:
             $this->setWorker_pid(getmypid());
             break;
