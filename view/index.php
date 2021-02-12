@@ -94,7 +94,7 @@ if (!empty($_GET['noNavbar'])) {
                 #rightContainer{
                     z-index: 11;
                 }
-                
+                        
     <?php
 }
 ?>
@@ -359,16 +359,18 @@ if (!empty($_GET['noNavbar'])) {
                         <?php
                     }
 
-                    if (empty($advancedCustom->doNotAllowOverwriteStatus)) {
+                    if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
                         ?>
-                        <div class="form-group">
-                            <select class="form-control" id="override_status" name="override_status">
-
-                                <option value="">Override status - Use site default</option>
-                                <option value="a">Active</option>
-                                <option value="i">Inactive</option>
-                                <option value="u">Unlisted</option>
-                            </select>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><i class="fas fa-desktop"></i> Override status</div>
+                            <div class="panel-body">
+                                <select class="form-control" id="override_status" name="override_status">
+                                    <option value="">Use site default</option>
+                                    <option value="a">Active</option>
+                                    <option value="i">Inactive</option>
+                                    <option value="u">Unlisted</option>
+                                </select>
+                            </div>
                         </div>
                         <?php
                     }
