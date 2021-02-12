@@ -62,9 +62,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
         <script src="view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
         <link href="view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
-        
+
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-        
+
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
@@ -94,7 +94,7 @@ if (!empty($_GET['noNavbar'])) {
                 #rightContainer{
                     z-index: 11;
                 }
-            
+                
     <?php
 }
 ?>
@@ -358,6 +358,21 @@ if (!empty($_GET['noNavbar'])) {
                         </div>
                         <?php
                     }
+
+                    if (empty($advancedCustom->doNotAllowOverwriteStatus)) {
+                        ?>
+                        <div class="form-group">
+                            <select class="form-control" id="override_status" name="override_status">
+
+                                <option value="">Override status - Use site default</option>
+                                <option value="a">Active</option>
+                                <option value="i">Inactive</option>
+                                <option value="u">Unlisted</option>
+                            </select>
+                        </div>
+                        <?php
+                    }
+
                     if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
                         ?>
                         <div class="panel panel-default">
@@ -368,8 +383,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label style="" id="">
                                         <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                        $('.mp4Checkbox').prop('checked', false);
-                                    }"> Multi Bitrate HLS
+                                    $('.mp4Checkbox').prop('checked', false);
+                                }"> Multi Bitrate HLS
                                     </label><br>
                                     <?php
                                 }
@@ -377,8 +392,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label style="" id="">
                                         <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> Low
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> Low
                                     </label>
                                     <?php
                                 }
@@ -386,8 +401,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label id="">
                                         <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> SD
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> SD
                                     </label>
                                     <?php
                                 }
@@ -395,8 +410,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label>
                                         <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> HD
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> HD
                                     </label>
                                     <?php
                                 }
@@ -413,10 +428,10 @@ if (!empty($_GET['noNavbar'])) {
                                     </label><br>
                                 <?php } ?>
                                 <?php if (!empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
-                                <label style="display: none;" id="spectrum">
-                                    <input type="checkbox" id="inputAudioSpectrum">
-                                    <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                                </label>
+                                    <label style="display: none;" id="spectrum">
+                                        <input type="checkbox" id="inputAudioSpectrum">
+                                        <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                                    </label>
                                 <?php } ?>
                                 <?php
                                 if (empty($global['disableWebM'])) {
@@ -496,12 +511,12 @@ if (!empty($_GET['noNavbar'])) {
                                 if (response.encoding.length > 0) {
                                     var newEncodingNowIds = new Array();
                                     for (i = 0; i < response.encoding.length; i++) {
-                                        var id = response.encoding[i].id; 
+                                        var id = response.encoding[i].id;
                                         newEncodingNowIds.push(id);
                                     }
 
                                     for (i = 0; i < encodingNowIds.length; i++) {
-                                        var id = encodingNowIds[i]; 
+                                        var id = encodingNowIds[i];
                                         // if start encode next before get 100%
                                         if (newEncodingNowIds.indexOf(id) == -1) {
                                             $("#encodeProgress" + id).slideUp("normal", function () {
@@ -512,7 +527,7 @@ if (!empty($_GET['noNavbar'])) {
                                     encodingNowIds = newEncodingNowIds;
 
                                     for (i = 0; i < encodingNowIds.length; i++) {
-                                        var id = encodingNowIds[i]; 
+                                        var id = encodingNowIds[i];
                                         $("#downloadProgress" + id).slideDown();
 
 
@@ -536,15 +551,15 @@ if (!empty($_GET['noNavbar'])) {
                                                 });
                                             }, 3000);
                                         } else {
-    
+
                                         }
-    
+
                                     }
                                     setTimeout(function () {
                                         checkProgress();
                                     }, 1000);
                                 } else {
-                                    while ((id = encodingNowIds.pop()) != null) { 
+                                    while ((id = encodingNowIds.pop()) != null) {
                                         $("#encodeProgress" + id).slideUp("normal", function () {
                                             $(this).remove();
                                         });
@@ -556,15 +571,6 @@ if (!empty($_GET['noNavbar'])) {
 
                             }
                         });
-                            <div class="form-group">
-                                <select class="form-control" id="override_status" name="override_status">
-
-                                    <option value="">Override status - Use site default</option>
-                                    <option value="a">Active</option>
-                                    <option value="i">Inactive</option>
-                                    <option value="u">Unlisted</option>
-                                </select>
-                            </div>
                     }
 
                     function createQueueItem(queueItem, queueItemAfter) {
