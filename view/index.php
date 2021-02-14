@@ -62,9 +62,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
         <script src="view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
         <link href="view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
-        
+
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
-        
+
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
@@ -94,7 +94,7 @@ if (!empty($_GET['noNavbar'])) {
                 #rightContainer{
                     z-index: 11;
                 }
-            
+                        
     <?php
 }
 ?>
@@ -207,6 +207,9 @@ if (!empty($_GET['noNavbar'])) {
                             $.ajax({
                                 url: 'login',
                                 data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass": encodedPass},
+                                xhrFields: {
+                                    withCredentials: true
+                                },
                                 type: 'post',
                                 success: function (response) {
                                     if (response.error) {
@@ -334,7 +337,7 @@ if (!empty($_GET['noNavbar'])) {
                 <div class="col-md-4" id="rightContainer" >
                     <?php
                     include './index_shareVideos.php';
-                    if (!empty($_SESSION['login']->userGroups)) {
+                    if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
                         ?>
                         <div class="panel panel-default">
                             <div class="panel-heading"><i class="fas fa-users"></i> User Groups</div>
@@ -355,6 +358,23 @@ if (!empty($_GET['noNavbar'])) {
                         </div>
                         <?php
                     }
+
+                    if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
+                        ?>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><i class="fas fa-desktop"></i> Override status</div>
+                            <div class="panel-body">
+                                <select class="form-control" id="override_status" name="override_status">
+                                    <option value="">Use site default</option>
+                                    <option value="a">Active</option>
+                                    <option value="i">Inactive</option>
+                                    <option value="u">Unlisted</option>
+                                </select>
+                            </div>
+                        </div>
+                        <?php
+                    }
+
                     if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
                         ?>
                         <div class="panel panel-default">
@@ -365,8 +385,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label style="" id="">
                                         <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                        $('.mp4Checkbox').prop('checked', false);
-                                    }"> Multi Bitrate HLS
+                                    $('.mp4Checkbox').prop('checked', false);
+                                }"> Multi Bitrate HLS
                                     </label><br>
                                     <?php
                                 }
@@ -374,8 +394,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label style="" id="">
                                         <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> Low
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> Low
                                     </label>
                                     <?php
                                 }
@@ -383,8 +403,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label id="">
                                         <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> SD
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> SD
                                     </label>
                                     <?php
                                 }
@@ -392,8 +412,8 @@ if (!empty($_GET['noNavbar'])) {
                                     ?> 
                                     <label>
                                         <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                $('#inputHLS').prop('checked', false);
-                                                            }"> HD
+                                                    $('#inputHLS').prop('checked', false);
+                                                }"> HD
                                     </label>
                                     <?php
                                 }
@@ -410,16 +430,20 @@ if (!empty($_GET['noNavbar'])) {
                                     </label><br>
                                 <?php } ?>
                                 <?php if (!empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
-                                <label style="display: none;" id="spectrum">
-                                    <input type="checkbox" id="inputAudioSpectrum">
-                                    <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                                </label>
+                                    <label style="display: none;" id="spectrum">
+                                        <input type="checkbox" id="inputAudioSpectrum">
+                                        <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                                    </label>
                                 <?php } ?>
                                 <?php
                                 if (empty($global['disableWebM'])) {
+                                    if (empty($global['defaultWebM']))
+                                        $checked = '';
+                                    else
+                                        $checked = 'checked="checked"';
                                     ?>
                                     <label  id="webm">
-                                        <input type="checkbox" id="inputWebM">
+                                        <input type="checkbox" id="inputWebM" <?php echo $checked; ?>>
                                         <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
                                         <br><small class="label label-warning">
                                             For Chrome Browsers
@@ -443,7 +467,7 @@ if (!empty($_GET['noNavbar'])) {
                 </div>
 
                 <script>
-                    var encodingNowId = "";
+                    var encodingNowIds = new Array();
                     function checkFiles() {
                         var path = $('#path').val();
                         if (!path) {
@@ -452,6 +476,9 @@ if (!empty($_GET['noNavbar'])) {
                         $.ajax({
                             url: 'listFiles.json?<?php echo getPHPSessionIDURL(); ?>',
                             data: {"path": path},
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             type: 'post',
                             success: function (response) {
                                 $('#files').empty();
@@ -473,6 +500,9 @@ if (!empty($_GET['noNavbar'])) {
                     function checkProgress() {
                         $.ajax({
                             url: 'status?<?php echo getPHPSessionIDURL(); ?>',
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             success: function (response) {
                                 if (response.queue_list.length) {
                                     for (i = 0; i < response.queue_list.length; i++) {
@@ -480,53 +510,62 @@ if (!empty($_GET['noNavbar'])) {
                                     }
 
                                 }
-                                if (response.encoding) {
-                                    var id = response.encoding.id;
-                                    // if start encode next before get 100%
-                                    if (id !== encodingNowId) {
-                                        $("#encodeProgress" + encodingNowId).slideUp("normal", function () {
-                                            $(this).remove();
-                                        });
-                                        encodingNowId = id;
+                                if (response.encoding.length > 0) {
+                                    var newEncodingNowIds = new Array();
+                                    for (i = 0; i < response.encoding.length; i++) {
+                                        var id = response.encoding[i].id;
+                                        newEncodingNowIds.push(id);
                                     }
 
-                                    $("#downloadProgress" + id).slideDown();
-
-                                    if (response.download_status && !response.encoding_status.progress) {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [Downloading ...] </strong> " + response.download_status.progress + '%');
-                                    } else {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding.name + " [" + response.encoding_status.from + " to " + response.encoding_status.to + "] </strong> " + response.encoding_status.progress + '%');
-                                        $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status.progress + '%'});
-                                    }
-                                    if (response.download_status) {
-                                        $("#downloadProgress" + id).find('.progress-bar').css({'width': response.download_status.progress + '%'});
-                                    }
-                                    if (response.encoding_status.progress >= 100) {
-                                        $("#encodingProgress" + id).find('.progress-bar').css({'width': '100%'});
-                                        setTimeout(function () {
-                                            $("#encodeProgress" + id).fadeOut("slow", function () {
+                                    for (i = 0; i < encodingNowIds.length; i++) {
+                                        var id = encodingNowIds[i];
+                                        // if start encode next before get 100%
+                                        if (newEncodingNowIds.indexOf(id) == -1) {
+                                            $("#encodeProgress" + id).slideUp("normal", function () {
                                                 $(this).remove();
                                             });
-                                            $("#downloadProgress" + id).slideUp("fast", function () {
-                                                $(this).remove();
-                                            });
-                                        }, 3000);
-                                    } else {
+                                        }
+                                    }
+                                    encodingNowIds = newEncodingNowIds;
+
+                                    for (i = 0; i < encodingNowIds.length; i++) {
+                                        var id = encodingNowIds[i];
+                                        $("#downloadProgress" + id).slideDown();
+
+
+                                        if (response.download_status[i] && !response.encoding_status[i].progress) {
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [Downloading ...] </strong> " + response.download_status[i].progress + '%');
+                                        } else {
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '%');
+                                            $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status[i].progress + '%'});
+                                        }
+                                        if (response.download_status[i]) {
+                                            $("#downloadProgress" + id).find('.progress-bar').css({'width': response.download_status[i].progress + '%'});
+                                        }
+                                        if (response.encoding_status[i].progress >= 100) {
+                                            $("#encodingProgress" + id).find('.progress-bar').css({'width': '100%'});
+                                            setTimeout(function () {
+                                                $("#encodeProgress" + id).fadeOut("slow", function () {
+                                                    $(this).remove();
+                                                });
+                                                $("#downloadProgress" + id).slideUp("fast", function () {
+                                                    $(this).remove();
+                                                });
+                                            }, 3000);
+                                        } else {
+
+                                        }
 
                                     }
-
                                     setTimeout(function () {
                                         checkProgress();
                                     }, 1000);
-                                } else if (encodingNowId !== "") {
-                                    $("#encodeProgress" + encodingNowId).slideUp("normal", function () {
-                                        $(this).remove();
-                                    });
-                                    encodingNowId = "";
-                                    setTimeout(function () {
-                                        checkProgress();
-                                    }, 5000);
                                 } else {
+                                    while ((id = encodingNowIds.pop()) != null) {
+                                        $("#encodeProgress" + id).slideUp("normal", function () {
+                                            $(this).remove();
+                                        });
+                                    }
                                     setTimeout(function () {
                                         checkProgress();
                                     }, 5000);
@@ -578,6 +617,9 @@ if (!empty($_GET['noNavbar'])) {
     ?>
                         $.ajax({
                             url: streamerURL + 'status',
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
                                 streamerMaxFileSize = response.file_upload_max_size;
@@ -613,6 +655,9 @@ if (!empty($_GET['noNavbar'])) {
                                             "usergroups_id": $(".usergroups_id:checked").map(function () {
                                                 return $(this).val();
                                             }).get()
+                                        },
+                                        xhrFields: {
+                                            withCredentials: true
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -654,6 +699,9 @@ if (!empty($_GET['noNavbar'])) {
                                     "defaultPriority": $("#defaultPriority").val(),
                                     "autodelete": $("#autodelete").is(":checked"),
                                 },
+                                xhrFields: {
+                                    withCredentials: true
+                                },
                                 type: 'post',
                                 success: function (response) {
                                     console.log(response);
@@ -693,6 +741,7 @@ if (!empty($_GET['noNavbar'])) {
                                                             "audioOnly": $('#inputAudioOnly').is(":checked"),
                                                             "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                                             "webm": $('#inputWebM').is(":checked"),
+                                                            "override_status": $('#override_status').val(),
                                                             "inputHLS": $('#inputHLS').is(":checked"),
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
@@ -707,6 +756,9 @@ if (!empty($_GET['noNavbar'])) {
                                                             }).get(),
                                                             "startIndex": $('#startIndex').val(),
                                                             "endIndex": $('#endIndex').val()
+                                                        },
+                                                        xhrFields: {
+                                                            withCredentials: true
                                                         },
                                                         type: 'post',
                                                         success: function (response) {
@@ -752,6 +804,7 @@ if (!empty($_GET['noNavbar'])) {
                                         "audioOnly": $('#inputAudioOnly').is(":checked"),
                                         "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                         "webm": $('#inputWebM').is(":checked"),
+                                        "override_status": $('#override_status').val(),
                                         "inputHLS": $('#inputHLS').is(":checked"),
                                         "inputLow": $('#inputLow').is(":checked"),
                                         "inputSD": $('#inputSD').is(":checked"),
@@ -764,6 +817,9 @@ if (!empty($_GET['noNavbar'])) {
                                         "usergroups_id": $(".usergroups_id:checked").map(function () {
                                             return $(this).val();
                                         }).get()
+                                    },
+                                    xhrFields: {
+                                        withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -797,6 +853,9 @@ if (!empty($_GET['noNavbar'])) {
                         var grid = $("#grid").bootgrid({
                             ajax: true,
                             url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             formatters: {
                                 "commands": function (column, row) {
                                     var reQueue = '';
@@ -858,6 +917,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id, "fileURI": row.fileURI},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -874,6 +936,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'deleteQueue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -896,6 +961,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'send.json?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#grid").bootgrid("reload");
@@ -911,6 +979,9 @@ if (!empty($_GET['noNavbar'])) {
                         var gridStreamer = $("#gridStreamer").bootgrid({
                             ajax: true,
                             url: "streamers.json?<?php echo getPHPSessionIDURL(); ?>",
+                            xhrFields: {
+                                withCredentials: true
+                            },
                             formatters: {
                                 "priority": function (column, row) {
                                     var tag = "<select class='priority' rowId='" + row.id + "'>";
@@ -946,6 +1017,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'removeStreamer?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         $("#gridStreamer").bootgrid("reload");
@@ -959,6 +1033,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'priority?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "priority": $(this).val()},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         modal.hidePleaseWait();
@@ -971,6 +1048,9 @@ if (!empty($_GET['noNavbar'])) {
                                 $.ajax({
                                     url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "isAdmin": $(this).val()},
+                                    xhrFields: {
+                                        withCredentials: true
+                                    },
                                     type: 'post',
                                     success: function (response) {
                                         modal.hidePleaseWait();

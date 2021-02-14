@@ -92,7 +92,8 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 $e->setFormats_id(3);
             }
         }
-
+        if (!empty($_POST['override_status']))
+            $e->setOverride_status($_POST['override_status']);
 
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
@@ -104,6 +105,10 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
             $obj->videos_id = $response->response->video_id;
         }
         $e->setReturn_vars(json_encode($obj));
+
+        if ($global['progressiveUpload'] == true) {
+            Encoder::sendFile($destinationFile, $obj->videos_id, $format, $e, 'HD');
+        }
 
         $encoders_ids[] = $e->save();
 
