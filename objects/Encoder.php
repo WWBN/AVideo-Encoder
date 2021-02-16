@@ -430,12 +430,11 @@ class Encoder extends ObjectYPT {
 
     static function areEncoding() {
         global $global;
-        $i = 0;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
                 . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
 
         $res = $global['mysqli']->query($sql);
-
+        $results = array();
         if ($res) {
             while ($result = $res->fetch_assoc()) {
                 $encoder = new Encoder($result['id']);
@@ -450,7 +449,7 @@ class Encoder extends ObjectYPT {
                 $s = new Streamer($result['streamers_id']);
                 $result['streamer_site'] = $s->getSiteURL();
                 $result['streamer_priority'] = $s->getPriority();
-                $results[$i++] = $result;
+                $results[] = $result;
             }
         } else {
             die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
