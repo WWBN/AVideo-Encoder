@@ -19,6 +19,19 @@ if (!empty($_POST['id'])) {
     }
     if (!empty($e->getId())) {
         $obj->error = false;
+        $worker_pid = $e->getWorker_pid();
+        $worker_ppid = $e->getWorker_ppid();
+        $e->setStatus("error");
+        $e->setStatus_obs("deleted from queue");
+        if (!empty($global['killWorkerOnDelete'])) {
+            if (is_numeric($worker_pid) && $worker_pid > 0) {
+                exec("kill ".$worker_pid); // ignore result
+            }
+            if (is_numeric($worker_ppid) && $worker_ppid > 0) {
+                exec("kill ".$worker_ppid); // ignore result
+            }
+        }
+
         $obj->msg = json_encode($e->delete());
     } else {
         $obj->msg = "Queue Item not found";

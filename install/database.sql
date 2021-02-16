@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `status_obs` VARCHAR(255) NULL,
   `return_vars` VARCHAR(255) NULL,
   `worker_pid` INT NULL,
+  `worker_ppid` INT NULL,
   `priority` INT(1) NULL,
   `title` VARCHAR(255) NULL,
   `videoDownloadedLink` VARCHAR(255) NULL,
