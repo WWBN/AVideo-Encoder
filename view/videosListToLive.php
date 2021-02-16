@@ -220,7 +220,7 @@ $cmd = get_ffmpeg() . " " . implode(" ", $ffmpegInputs) . " ";
 if (!file_exists($warermark)) {
     $cmd .= " -filter_complex \"" . implode(" ", $ffmpegFilters1) . " " . implode(" ", $ffmpegFilters2) . " concat=n={$counter}:v=1:a=1:unsafe=1 [v] [a]\" -map \"[v]\" -map \"[a]\" ";
 } else {
-    $cmd .= " -re -i '{$warermark}' ";
+    $cmd .= " -re -i \"{$warermark}\" ";
     $cmd .= " -filter_complex \"" . implode(" ", $ffmpegFilters1) . " " . implode(" ", $ffmpegFilters2) . " concat=n={$counter}:v=1:a=1:unsafe=1 [vv] [a]; [vv][{$counter}:v]overlay=W-w-0:0[v]\" -map \"[v]\" -map \"[a]\" ";
 }
 
@@ -256,7 +256,7 @@ foreach ($videos as $value) {
     $programme->duration_seconds = parseDurationToSeconds($programme->duration);
     $programme->title = $value->title;
     $programme->desc = $value->description;
-    $programme->date = date("Ymd", $programme->start);
+    $programme->date = date("Ymd", @$programme->start);
     $programme->category = $value->category->name;
     $channel->programme[] = $programme;
 }
@@ -266,7 +266,7 @@ $epgfile = "{$epgdir}channel_{$channel->users_id}_playlist_{$json->response->pla
 if (file_exists($epgfile)) {
     _log("EPG File already exists");
     $jsonEPG = json_decode(file_get_contents($epgfile));
-    if (!empty($jsonEPG->pid)) {
+    if (!isWindows() && !empty($jsonEPG->pid)) {
         _log("Old PID found {$jsonEPG->pid}");
         $cmdPid = "kill -9 {$jsonEPG->pid}";
         __exec($cmdPid);
@@ -300,15 +300,25 @@ function __exec($cmd, $async = false) {
     _log($cmd);
     ob_flush();
     if (!$async) {
-        exec($cmd . " 2>&1", $output, $return_val);
-        if ($return_val !== 0) {
-            _log("Error: " . json_encode($output));
-            return false;
+        if (isWindows()) {
+            //$pid = system($command . " > NUL");
+            pclose($pid = popen("start /B ". $cmd, "r")); 
+            $return_val = 0;
+        } else {
+            $pid = exec($cmd . " > /dev/null 2>&1 & echo $!; ", $output, $return_val);
+            if ($return_val !== 0) {
+                _log("Error: " . json_encode($output));
+                return false;
+            }
         }
         return true;
     } else {
         return exec($cmd . ' > /dev/null 2>&1 & echo $!; ', $output);
     }
+}
+
+function isWindows(){
+    return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
 
 function _log($msg) {

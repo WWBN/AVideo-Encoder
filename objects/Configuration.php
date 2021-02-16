@@ -82,6 +82,8 @@ if (!class_exists('Configuration')) {
 \$global['disableConfigurations'] = " . intval($global['disableConfigurations']) . ";
 \$global['disableBulkEncode'] = " . intval($global['disableBulkEncode']) . ";
 \$global['disableWebM'] = " . intval($global['disableWebM']) . ";
+\$global['hideUserGroups'] = " . intval($global['hideUserGroups']) . ";
+\$global['concurrent'] = " . intval($global['concurrent']) . ";
 
 \$mysqlHost = '{$mysqlHost}';
 \$mysqlUser = '{$mysqlUser}';

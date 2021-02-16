@@ -85,7 +85,7 @@ if (!class_exists('Streamer')) {
                 error_log("Verification Creating the Cache {$url}");
                 $verifyURL = "https://search.avideo.com/verify.php?url=" . urlencode($url);
                 $result = url_get_contents($verifyURL);
-                file_put_contents($cacheFile, $result);
+                @file_put_contents($cacheFile, $result);
             } else {
                 error_log("Verification GetFrom Cache {$url}");
                 $result = url_get_contents($cacheFile);
