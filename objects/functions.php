@@ -538,6 +538,7 @@ function decideFromPlugin() {
  * @return int
  */
 function decideFormatOrder() {
+    global $global;
     if (!empty($_GET['webm']) && empty($_POST['webm'])) {
         $_POST['webm'] = $_GET['webm'];
     }

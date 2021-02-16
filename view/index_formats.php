@@ -111,7 +111,7 @@
         </div>
         <?php
     }
-    if (empty($advancedCustom->doNotShowEncoderAutomaticWebm)) {
+    if (empty($global['disableWebM']) && empty($advancedCustom->doNotShowEncoderAutomaticWebm)) {
         ?> 
         <div class="input-container">
             <input type="radio" id="inputAutoWebm" name="format" class="radio-button"
