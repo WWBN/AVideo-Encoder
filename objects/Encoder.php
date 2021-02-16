@@ -1599,7 +1599,7 @@ class Encoder extends ObjectYPT {
         }
         $this->deleteOriginal();
 
-        if ($global['progressiveUpload'] == true) {
+        if (!empty($global['progressiveUpload'])) {
             Upload::deleteFile($this->id);
         }
 
