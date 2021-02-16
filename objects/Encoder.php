@@ -10,7 +10,7 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends ObjectYPT {
 
-    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id, $override_status;
+    protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_ppid, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id, $override_status;
 
     static function getSearchFieldsNames() {
         return array('filename');
@@ -95,6 +95,10 @@ class Encoder extends ObjectYPT {
         return $this->return_vars;
     }
 
+    function getWorker_ppid() {
+        return intval($this->worker_ppid);
+    }
+
     function getWorker_pid() {
         return intval($this->worker_pid);
     }
@@ -130,6 +134,7 @@ class Encoder extends ObjectYPT {
         case "done":
         case "error":
         case "queue":
+            $this->setWorker_ppid(NULL);
             $this->setWorker_pid(NULL);
             break;
         case "downloading":
@@ -137,7 +142,8 @@ class Encoder extends ObjectYPT {
         case "packing":
         case "transferring":
         default:
-            $this->setWorker_pid(getmypid());
+            $this->setWorker_ppid(getmypid());
+            $this->setWorker_pid(NULL);
             break;
         }
     }
@@ -148,6 +154,10 @@ class Encoder extends ObjectYPT {
 
     function setReturn_vars($return_vars) {
         $this->return_vars = $return_vars;
+    }
+
+    function setWorker_ppid($worker_ppid) {
+        $this->worker_ppid = $worker_ppid;
     }
 
     function setWorker_pid($worker_pid) {
@@ -560,11 +570,76 @@ class Encoder extends ObjectYPT {
     }
 
     function isWorkerRunning() {
-        $pid = $this->getWorker_pid();
-	if (!is_numeric($pid) || $pid == 0)
+        $ppid = $this->getWorker_ppid();
+        if (!is_numeric($ppid) || $ppid == 0)
             return false;
-        exec("kill -0 ".$pid, $output, $retval);
-	return ($retval == 0) ? true : false;
+
+        exec("kill -0 ".$ppid, $output, $ppid_retval);
+        if ($ppid_retval != 0)
+            return false;
+
+        $pid = $this->getWorker_pid();
+        if (!is_numeric($pid))
+            return false;
+
+        /*
+         * We have a parent ($ppid != 0) but no child ($pid == 0)
+         * when are between two formats.
+         */
+        if ($pid != 0) {
+            exec("kill -0 ".$pid, $output, $pid_retval);
+            if ($pid_retval != 0)
+                return false;
+        }
+        return true;
+    }
+
+    function exec($cmd, &$output = array(), &$return_val = 0) {
+        if (function_exists("pcntl_fork")) {
+            if (($status = $this->getStatus()) != "encoding") {
+                 error_log("id(".$this->getId().") status(".$status.") abort");
+                 $return_val = 1;
+                 return;
+            }
+            switch ($pid = pcntl_fork()) {
+            case -1:
+                $msg = "fork failed";
+                error_log("id(".$this->getId().") ".$msg);
+                $obj->msg = $msg;
+                $this->setStatus("error");
+                $this->setStatus_obs($msg);
+                $this->save();
+                break;
+            default:
+                $this->setWorker_pid($pid);
+                $this->save();
+                pcntl_wait($status);
+                if (pcntl_wifexited($status))  {
+                    $return_val = pcntl_wexitstatus($status);
+                } else {
+                    $return_val = 1;
+                }
+                if (pcntl_wifsignaled($status))
+                    error_log("id=(".$encoder_queue_id."), process ".$pid." got signal ".pcntl_wtermsig($status));
+                $this->setWorker_pid(NULL);
+                $this->save();
+                break;
+            case 0:
+                $argv = array("-c", $cmd);
+                $envp = array(
+                    "PATH=".getenv("PATH"),
+                    "LD_LIBRARY_PATH=".getenv("LD_LIBRARY_PATH")
+                    );
+                pcntl_exec("/bin/sh", $argv, $envp);
+                error_log("id=(".$encoder_queue_id."), ".$cmd." failed: ".pnctl_strerror(pnctl_get_last_error()));
+                exit(1);
+                break;
+            }
+        } else {
+            exec($cmd, $output, $return_val);
+        }
+    
+        return;
     }
 
     static function run($try = 0) {

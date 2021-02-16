@@ -115,6 +115,7 @@ $content = "<?php
 \$global['concurrent'] = 1;
 \$global['hideUserGroups'] = false;
 \$global['progressiveUpload'] = false;
+\$global['killWorkerOnDelete'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
