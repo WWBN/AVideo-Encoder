@@ -960,7 +960,7 @@ class Encoder extends ObjectYPT {
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
 
-        if ($global['progressiveUpload'] == true && isset($encoder)) {
+        if (!empty($global['progressiveUpload']) && isset($encoder)) {
             $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
 );
             if ($u !== false && $u->getStatus() == "done") {
@@ -1006,7 +1006,7 @@ class Encoder extends ObjectYPT {
         $user = $s->getUser();
         $pass = $s->getPass();
 
-        $keep_encoding = ($global['progressiveUpload'] == true);
+        $keep_encoding = !empty($global['progressiveUpload']);
 
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;

@@ -116,7 +116,7 @@ if (!class_exists('Format')) {
                 }
             }
 
-            if ($global['progressiveUpload'] == true)
+            if (!empty($global['progressiveUpload']))
                 Upload::create($encoder_queue_id, $destinationFile);
 
             return $obj;
