@@ -25,6 +25,9 @@ class Encoder extends ObjectYPT {
         if (empty($this->id)) {
             $this->setStatus("queue");
         }
+        if (empty($this->worker_ppid)) {
+            $this->worker_ppid = 0;
+        }
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string($this->getTitle()));
         $this->setStatus_obs($global['mysqli']->real_escape_string($this->getStatus_obs()));
