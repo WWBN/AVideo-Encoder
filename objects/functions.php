@@ -538,6 +538,7 @@ function decideFromPlugin() {
  * @return int
  */
 function decideFormatOrder() {
+    global $global;
     if (!empty($_GET['webm']) && empty($_POST['webm'])) {
         $_POST['webm'] = $_GET['webm'];
     }
@@ -552,7 +553,7 @@ function decideFormatOrder() {
         $_SESSION['format'] = 'inputAutoMP4';
         return (7);
     } else
-    if (!empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+    if (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
         error_log("decideFormatOrder: auto WebM");
         $_SESSION['format'] = 'inputAutoWebm';
         return (8);

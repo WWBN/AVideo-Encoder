@@ -4,7 +4,7 @@ if (file_exists("../videos/configuration.php")) {
     error_log("Can not create configuration again: ".  json_encode($_SERVER));
     exit;
 }
-$installationVersion = "3.5";
+$installationVersion = "3.6";
 
 header('Content-Type: application/json');
 
@@ -115,6 +115,7 @@ $content = "<?php
 \$global['concurrent'] = 1;
 \$global['hideUserGroups'] = false;
 \$global['progressiveUpload'] = false;
+\$global['killWorkerOnDelete'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
