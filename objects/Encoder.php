@@ -605,7 +605,6 @@ class Encoder extends ObjectYPT {
             case -1:
                 $msg = "fork failed";
                 error_log("id(".$this->getId().") ".$msg);
-                $obj->msg = $msg;
                 $this->setStatus("error");
                 $this->setStatus_obs($msg);
                 $this->save();
@@ -620,7 +619,7 @@ class Encoder extends ObjectYPT {
                     $return_val = 1;
                 }
                 if (pcntl_wifsignaled($status))
-                    error_log("id=(".$encoder_queue_id."), process ".$pid." got signal ".pcntl_wtermsig($status));
+                    error_log("id=(".$this->getId()."), process ".$pid." got signal ".pcntl_wtermsig($status));
                 $this->setWorker_pid(NULL);
                 $this->save();
                 break;
@@ -631,7 +630,7 @@ class Encoder extends ObjectYPT {
                     "LD_LIBRARY_PATH=".getenv("LD_LIBRARY_PATH")
                     );
                 pcntl_exec("/bin/sh", $argv, $envp);
-                error_log("id=(".$encoder_queue_id."), ".$cmd." failed: ".pnctl_strerror(pnctl_get_last_error()));
+                error_log("id=(".$this->getId()."), ".$cmd." failed: ".pnctl_strerror(pnctl_get_last_error()));
                 exit(1);
                 break;
             }
