@@ -57,7 +57,7 @@ if (!class_exists('Format')) {
             } else if ($this->order == 89) {
                 error_log("run:mp3ToSpectrumMP4");
                 $obj = $this->mp3ToSpectrumMP4($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 90) {
+            } else if ($this->order == 90 && empty($global['disableWebM'])) {
                 error_log("run:mp3ToSpectrumWEBM");
                 $obj = $this->mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id);
             } else if ($this->order == 70) {
@@ -94,7 +94,7 @@ if (!class_exists('Format')) {
             if (in_array($order, $global['hasHDOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "HD");
                 $obj = static::execOrder(12, $pathFileName, $destination, $encoder_queue_id);
-                if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
+                if (empty($global['disableWebM']) && in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, 'webm', "HD");
                     $obj = static::execOrder(22, $pathFileName, $destination, $encoder_queue_id);
                 }
@@ -102,7 +102,7 @@ if (!class_exists('Format')) {
             if (in_array($order, $global['hasSDOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "SD");
                 $obj = static::execOrder(11, $pathFileName, $destination, $encoder_queue_id);
-                if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
+                if (empty($global['disableWebM']) && in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, 'webm', "SD");
                     $obj = static::execOrder(21, $pathFileName, $destination, $encoder_queue_id);
                 }
@@ -110,7 +110,7 @@ if (!class_exists('Format')) {
             if (in_array($order, $global['hasLowOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "Low");
                 $obj = static::execOrder(10, $pathFileName, $destination, $encoder_queue_id);
-                if (in_array($order, $global['bothVideosOrder'])) { // make the webm too
+                if (empty($global['disableWebM']) && in_array($order, $global['bothVideosOrder'])) { // make the webm too
                     $destination = Encoder::getTmpFileName($encoder_queue_id, 'webm', "Low");
                     $obj = static::execOrder(20, $pathFileName, $destination, $encoder_queue_id);
                 }
@@ -205,7 +205,7 @@ if (!class_exists('Format')) {
                 error_log("runVideoToSpectrum: MP3 to MP4");
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "converted");
                 $obj = static::execOrder(50, $obj->destinationFile, $destinationFile, $encoder_queue_id);
-                if (!$obj->error) {
+                if (empty($global['disableWebM']) && !$obj->error) {
                     // Spectrum.MP4 to WEBM
                     error_log("runVideoToSpectrum: MP4 to WEBM");
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'webm', "converted");
@@ -245,7 +245,7 @@ if (!class_exists('Format')) {
 
             // Video to MP4
             $obj = static::execOrder(11, $pathFileName, $destinationFile, $encoder_queue_id);
-            if (!$obj->error) {
+            if (empty($global['disableWebM']) && !$obj->error) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'webm', "converted");
                 //MP4 to WEBM
                 $obj = static::execOrder(21, $pathFileName, $destinationFile, $encoder_queue_id);

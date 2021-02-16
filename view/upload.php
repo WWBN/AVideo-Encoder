@@ -81,7 +81,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 error_log("Upload.php set format 33");
                 $e->setFormats_id(34);
             } else
-            if (!empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+            if (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
                 error_log("Upload.php set format 35");
                 $e->setFormats_id(35);
             } else if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
