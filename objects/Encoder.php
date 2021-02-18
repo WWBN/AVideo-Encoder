@@ -642,6 +642,22 @@ class Encoder extends ObjectYPT {
         return;
     }
 
+    function deleteQueue() {
+        $worker_pid = $this->getWorker_pid();
+        $worker_ppid = $this->getWorker_ppid();
+        $this->setStatus("error");
+        $this->setStatus_obs("deleted from queue");
+        if (!empty($global['killWorkerOnDelete'])) {
+            if (is_numeric($worker_pid) && $worker_pid > 0) {
+                exec("kill ".$worker_pid); // ignore result
+            }
+            if (is_numeric($worker_ppid) && $worker_ppid > 0) {
+                exec("kill ".$worker_ppid); // ignore result
+            }
+        }
+        $this->notifyVideoIsDone(1);
+    }
+
     static function run($try = 0) {
         global $global;
         $concurrent = isset($global['concurrent']) ? $global['concurrent'] : 1;
