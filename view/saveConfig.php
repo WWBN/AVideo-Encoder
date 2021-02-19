@@ -34,6 +34,7 @@ if (empty($global['disableConfigurations'])) {
         $config->setAllowedStreamersURL($_POST['allowedStreamers']);
         $config->setDefaultPriority($_POST['defaultPriority']);
         $config->setAutodelete($_POST['autodelete']);
+        $config->setSelectedResolutions($_POST['resolutions']);
         $config->save();
     } else {
         $obj->msg = "formats not found";

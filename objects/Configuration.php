@@ -8,7 +8,7 @@ if (!class_exists('Configuration')) {
 
     class Configuration extends ObjectYPT {
 
-        protected $allowedStreamersURL, $defaultPriority, $version, $autodelete;
+        protected $allowedStreamersURL, $defaultPriority, $version, $autodelete, $resolutions;
 
         static function getSearchFieldsNames() {
             return array('allowedStreamersURL');
@@ -36,6 +36,21 @@ if (!class_exists('Configuration')) {
 
         function setDefaultPriority($defaultPriority) {
             $this->defaultPriority = $defaultPriority;
+        }
+
+        function getSelectedResolutions() {
+            $resolutions = Format::sanitizeResolutions(json_decode($this->resolutions));
+            if (empty($resolutions)) {
+                $resolutions = Format::getAvailableResolutions();
+            }
+            return $resolutions;
+        }
+
+        function setSelectedResolutions($resolutions) {
+            $resolutions = Format::sanitizeResolutions($resolutions);
+            if (!empty($resolutions)) {
+                $this->resolutions = json_encode($resolutions);
+            }
         }
 
         function getVersion() {
