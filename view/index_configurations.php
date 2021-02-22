@@ -23,6 +23,64 @@ if (Login::isAdmin()) {
             }
             ?>
             <hr>
+
+            <div class="form-group">
+                <div>
+                    <label>Resolutions</label>
+                    <small>Will encode all the uploaded MP4 or WEBM video files in the selected formats.
+                    You may select all the formats if you have the <a target="_blank" href="https://plugins.avideo.com/">VideoResolutionSwitcher</a> plugin.</small>
+                </div>
+                <div id="resolutions" class="checkboxes">
+                <?php
+                    $resolutionDisabled = "";
+                    if ($config->currentVersionLowerThen("3.7")) {
+                        $resolutionDisabled = " disabled ";
+                ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        Please upgrade to enable this feature
+                    </div>
+                <?php
+
+                    }
+
+                    $availableResolutions = Format::getAvailableResolutions();
+                    $selectedResolutions = $config->getSelectedResolutions();                                        
+                    foreach($availableResolutions as $key => $resolution) {
+                        $resolutionChecked = (array_search($resolution, $selectedResolutions, true) !== false) || !empty($resolutionDisabled) ? "checked" : "";
+                        echo "<label for='resolution-${resolution}'>".
+                            "<input ${resolutionChecked} ${resolutionDisabled} type='checkbox' name='resolutions' id='resolution-${resolution}' value='${resolution}'>".
+                            "<span>${resolution}p</span>".
+                        "</label>";
+                    }
+                ?>
+                </div>
+
+                <?php 
+                    if (empty($resolutionDisabled)) { 
+                ?>
+
+                <script>
+                    (function($) {
+                        function updateStatus() {
+                            // at least one resolution must be selected
+                            var $item = $("#resolutions input[type='checkbox']:checked");
+                            $item.prop("disabled", $item.length === 1);
+                        }
+                        $(document).ready(function() {                            
+                            $("#resolutions input[type='checkbox']").on("click", function() {
+                                updateStatus();
+                            });
+                            updateStatus();                                 
+                        });
+                    })(jQuery);
+                </script>
+
+                <?php 
+                    }
+                ?>                
+            </div>
+
             <div class="form-group">
                 <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
                 <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>

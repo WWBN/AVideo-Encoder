@@ -99,6 +99,26 @@ if (!empty($_GET['noNavbar'])) {
 }
 ?>
         </style>
+        <style>
+            /* Thanks: https://stackoverflow.com/a/494922 */
+            .checkboxes label {
+                display: inline-block;
+                padding-right: 10px;
+                white-space: nowrap;
+                line-height: normal;
+            }
+            .checkboxes input {
+                vertical-align: middle;
+                margin: 0;
+            }
+            .checkboxes label span {
+                vertical-align: middle;
+                margin-left: 4px;
+            }
+            small {
+                line-height: normal;
+            }
+        </style>
     </head>
 
     <body>    
@@ -691,6 +711,10 @@ if (!empty($_GET['noNavbar'])) {
                                 formats[count++] = [parts[1], $(this).val()];
                             });
 
+                            var resolutions = $("input[name='resolutions']:checked").map(function() {
+                                return $(this).val();
+                            }).toArray();
+
                             $.ajax({
                                 url: 'saveConfig?<?php echo getPHPSessionIDURL(); ?>',
                                 data: {
@@ -698,6 +722,7 @@ if (!empty($_GET['noNavbar'])) {
                                     "allowedStreamers": $("#allowedStreamers").val(),
                                     "defaultPriority": $("#defaultPriority").val(),
                                     "autodelete": $("#autodelete").is(":checked"),
+                                    "resolutions": resolutions
                                 },
                                 xhrFields: {
                                     withCredentials: true

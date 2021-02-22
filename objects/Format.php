@@ -368,83 +368,160 @@ hd/index.m3u8
         }
 
         /**
-          2160p: 3840x2160
-          1440p: 2560x1440
-          1080p: 1920x1080
-          720p: 1280x720
-          480p: 854x480
-          360p: 640x360
-          240p: 426x240
-         * @param type $destinationFile
-         * @param type $resolutions
-         * @return type
+         * 2160p: 3840x2160
+         * 1440p: 2560x1440
+         * 1080p: 1920x1080
+         * 720p: 1280x720
+         * 480p: 854x480
+         * 360p: 640x360
+         * 240p: 426x240 (preview)
          */
+        static private function getAvailableConfigurations() {
+            $resolutions = array(240, 360, 480, 720, 1080, 1440, 2160);
+            $bandwidth = array(300000, 600000, 1000000, 2000000, 4000000, 8000000, 12000000);
+            //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
+            $audioBitrate = array(128, 128, 128, 192, 192, 192, 192);
+            $videoFramerate = array(20, 30, 30, 0, 0, 0, 0);
+
+            return array(
+                "resolutions" => $resolutions,
+                "bandwidth" => $bandwidth,
+                "audioBitrate" => $audioBitrate,
+                "videoFramerate" => $videoFramerate
+            );
+        }
+
+        static function getAvailableResolutions() {
+            return self::getAvailableConfigurations()["resolutions"];
+        }
+
+        static function sanitizeResolutions($resolutions) {
+            if (is_array($resolutions)) {
+                // resolutions need to be int values
+                $resolutions = array_map(
+                    function($value) {
+                        return (int) $value;
+                    },
+                    $resolutions
+                );
+
+                // check if all the int values are real resolutions
+                $availableResolutions = self::getAvailableResolutions();
+                foreach($resolutions as $index => $resolution) {
+                    $key = array_search($resolution, $availableResolutions);
+                    if ($key === false) {
+                        $resolutions[$index] = 0;
+                    }              
+                }
+                
+                // remove all invalid resolutions marked by 0
+                $resolutions = array_unique($resolutions);
+                sort($resolutions);
+
+                // cleanup the invalid value (0)
+                $key = array_search(0, $resolutions);
+                if ($key !== false) {
+                    unset($resolutions[$key]);
+                    $resolutions = array_values($resolutions);
+                }                
+
+                // if the array contains valid $resolutions, then return it     
+                if (!empty($resolutions)) {
+                    return $resolutions;
+                }
+            }            
+            return null;
+        }
+
+        static private function getSelectedResolutions() {
+            $result = self::getAvailableResolutions();
+            $config = new Configuration();
+            if (isset($config)) {
+                $configResolutions = $config->getSelectedResolutions();
+                if (isset($configResolutions)) {
+                    $result = $configResolutions;
+                }
+            }
+            return $result;
+        }
+
+        static private function loadEncoderConfiguration() {
+            $availableConfiguration = self::getAvailableConfigurations();
+
+            $resolutions = array();
+            $bandwidth = array();
+            $audioBitrate = array();
+            $videoFramerate = array();
+
+            $selectedResolutions = self::getSelectedResolutions();
+            sort($selectedResolutions);
+
+            foreach ($selectedResolutions as $index => $value) {
+                $key = array_search($value, $availableConfiguration["resolutions"]);
+
+                array_push($resolutions, $availableConfiguration["resolutions"][$key]);
+                array_push($bandwidth, $availableConfiguration["bandwidth"][$key]);
+                array_push($audioBitrate, $availableConfiguration["audioBitrate"][$key]);
+                array_push($videoFramerate, $availableConfiguration["videoFramerate"][$key]);
+            }
+
+            return array(
+                "resolutions" => $resolutions,
+                "bandwidth" => $bandwidth,
+                "audioBitrate" => $audioBitrate,
+                "videoFramerate" => $videoFramerate
+            );
+        }
+
         static private function getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, $format_id) {
             error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) ");
             $height = self::getResolution($pathFileName);
             //$audioTracks = self::getAudioTracks($pathFileName);
 
-            $resolutions = array(360, 480, 720, 1080, 1440, 2160);
-            $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
-            //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
-            $audioBitrate = array(128, 128, 192, 192, 192, 192);
-            $videoFramerate = array(30, 30, 0, 0, 0, 0);
+            $encoderConfig = self::loadEncoderConfiguration();
+            $resolutions = $encoderConfig['resolutions'];
+            $bandwidth = $encoderConfig['bandwidth'];
+            $audioBitrate = $encoderConfig['audioBitrate'];
+            $videoFramerate = $encoderConfig['videoFramerate'];
 
             $f = new Format($format_id);
-            $code = $f->getCode();
+            $code = $f->getCode(); // encoder command-line switches
 
-            // create command
-            $resolution = 240;
-            $previewsResolution = $resolution;
-            $autioBitrate = 128;
-            $framerate = " -r 20 ";
-            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
-
+            // create command            
             $command = get_ffmpeg() . ' -i {$pathFileName} ';
-            $evalCommand = "\$command .= \" $code\";";
-            //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
-            eval($evalCommand);
-
-            foreach ($resolutions as $key => $value) {
-                if ($height > $previewsResolution) {
-                    $resolution = $value;
-                    $previewsResolution = $resolution;
-                    $autioBitrate = $audioBitrate[$key];
+            
+            $i = 0;
+            $done = false;
+            while(!$done && $i < count($resolutions)) {
+                $resolution = $resolutions[$i];
+                $done = $resolution > $height;
+                if (!$done) {                   
+                    $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);                    
+                    $autioBitrate = $audioBitrate[$i];                    
+                    $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
+                    
+                    // Merge $destinationFile, $autioBitrate and $framerate with $code
                     $evalCommand = "\$command .= \" $code\";";
-                    $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
-                    $framerate = "";
-                    if (!empty($videoFramerate[$key])) {
-                        $framerate = " -r {$videoFramerate[$key]} ";
-                    }
-
-                    //error_log("Encoder:Format:: getDynamicCommandFromFormat::eval($evalCommand) ");
                     eval($evalCommand);
                 }
+                $i++;
             }
+
             error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
             return $command;
         }
 
-        /**
-          2160p: 3840x2160
-          1440p: 2560x1440
-          1080p: 1920x1080
-          720p: 1280x720
-          480p: 854x480
-          360p: 640x360
-          240p: 426x240
-         * @param type $destinationFile
-         * @param type $resolutions
-         * @return type
-         */
         static private function preProcessDynamicHLS($pathFileName, $destinationFile) {
             $height = self::getResolution($pathFileName);
             $audioTracks = self::getAudioTracks($pathFileName);
-            $resolutions = array(360, 480, 720, 1080, 1440, 2160);
-            $bandwidth = array(600000, 1000000, 2000000, 4000000, 8000000, 12000000);
-            //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
-            $audioBitrate = array(128, 128, 192, 192, 192, 192);
-            $videoFramerate = array(30, 30, 0, 0, 0, 0);
+            
+            // TODO: This method should be refactored to use loadEncoderConfiguration instead of getAvailableConfigurations...
+            $encoderConfig = self::getAvailableConfigurations();
+            $resolutions = $encoderConfig['resolutions'];
+            $bandwidth = $encoderConfig['bandwidth'];
+            $audioBitrate = $encoderConfig['audioBitrate'];
+            $videoFramerate = $encoderConfig['videoFramerate'];
+
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
