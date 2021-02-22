@@ -377,11 +377,10 @@ hd/index.m3u8
          * 240p: 426x240 (preview)
          */
         static private function getAvailableConfigurations() {
-            $resolutions = array(240, 360, 480, 720, 1080, 1440, 2160);
-            $bandwidth = array(300000, 600000, 1000000, 2000000, 4000000, 8000000, 12000000);
-            //$videoBitrate = array(472, 872, 1372, 2508, 3000, 4000);
-            $audioBitrate = array(128, 128, 128, 192, 192, 192, 192);
-            $videoFramerate = array(20, 30, 30, 0, 0, 0, 0);
+            $resolutions = array(240, 360, 480, 540, 720, 1080, 1440, 2160);
+            $bandwidth = array(300000, 600000, 1000000, 1500000, 2000000, 4000000, 8000000, 12000000);
+            $audioBitrate = array(128, 128, 128, 192, 192, 192, 192, 192);
+            $videoFramerate = array(20, 30, 30, 0, 0, 0, 0, 0);
 
             return array(
                 "resolutions" => $resolutions,
