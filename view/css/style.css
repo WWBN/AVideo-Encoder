@@ -90,3 +90,21 @@ body {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
+
+#config .checkboxes label {
+    display: inline-block;
+    padding-right: 10px;
+    white-space: nowrap;
+    line-height: normal;
+}
+#config .checkboxes input {
+    vertical-align: middle;
+    margin: 0;
+}
+#config .checkboxes label span {
+    vertical-align: middle;
+    margin-left: 4px;
+}
+#config small {
+    line-height: normal;
+}

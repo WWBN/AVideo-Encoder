@@ -99,26 +99,6 @@ if (!empty($_GET['noNavbar'])) {
 }
 ?>
         </style>
-        <style>
-            /* Thanks: https://stackoverflow.com/a/494922 */
-            .checkboxes label {
-                display: inline-block;
-                padding-right: 10px;
-                white-space: nowrap;
-                line-height: normal;
-            }
-            .checkboxes input {
-                vertical-align: middle;
-                margin: 0;
-            }
-            .checkboxes label span {
-                vertical-align: middle;
-                margin-left: 4px;
-            }
-            small {
-                line-height: normal;
-            }
-        </style>
     </head>
 
     <body>    

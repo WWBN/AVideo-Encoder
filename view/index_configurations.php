@@ -27,8 +27,6 @@ if (Login::isAdmin()) {
             <div class="form-group">
                 <div>
                     <label>Resolutions</label>
-                    <small>Will encode all the uploaded MP4 or WEBM video files in the selected formats.
-                    You may select all the formats if you have the <a target="_blank" href="https://plugins.avideo.com/">VideoResolutionSwitcher</a> plugin.</small>
                 </div>
                 <div id="resolutions" class="checkboxes">
                 <?php

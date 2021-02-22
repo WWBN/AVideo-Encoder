@@ -1452,9 +1452,17 @@ class Encoder extends ObjectYPT {
     }
 
     static function getDurationFromFile($file) {
-        global $config;
+        global $config, $getDurationFromFile;
         if(empty($file)){
             return "EE:EE:EE";
+        }
+        
+        if(!isset($getDurationFromFile)){
+            $getDurationFromFile = array();
+        }
+        
+        if(!empty($getDurationFromFile[$file])){
+            return $getDurationFromFile[$file];
         }
         
         $file = str_replace(".zip", ".mp4", $file);
@@ -1484,6 +1492,9 @@ class Encoder extends ObjectYPT {
             }
         }
         error_log("Duration found: {$duration}");
+        if($duration!=='EE:EE:EE'){
+            $getDurationFromFile[$file] = $duration;
+        }
         return $duration;
     }
 
