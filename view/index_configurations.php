@@ -46,9 +46,22 @@ if (Login::isAdmin()) {
                     $selectedResolutions = $config->getSelectedResolutions();                                        
                     foreach($availableResolutions as $key => $resolution) {
                         $resolutionChecked = (array_search($resolution, $selectedResolutions, true) !== false) || !empty($resolutionDisabled) ? "checked" : "";
+                        
+                        $label = "<span class='label label-default'>{$resolution}p ";
+                        if($resolution == 720){
+                            $label .= '<span class="label label-danger">HD</span>';
+                        }else if($resolution == 1080){
+                            $label .= '<span class="label label-danger">FHD</span>';
+                        }else if($resolution == 1440){
+                            $label .= '<span class="label label-danger">FHD+</span>';
+                        }else if($resolution == 2160){
+                            $label .= '<span class="label label-danger">4K</span>';
+                        }
+                        $label .= " </span>";
+                        
                         echo "<label for='resolution-${resolution}'>".
                             "<input ${resolutionChecked} ${resolutionDisabled} type='checkbox' name='resolutions' id='resolution-${resolution}' value='${resolution}'>".
-                            "<span>${resolution}p</span>".
+                            "{$label}".
                         "</label>";
                     }
                 ?>

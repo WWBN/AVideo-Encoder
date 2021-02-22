@@ -433,7 +433,7 @@ hd/index.m3u8
         }
 
         static private function getSelectedResolutions() {
-            $result = self::getAvailableResolutions();
+            $result = array(480, 720, 1080, 2160);
             $config = new Configuration();
             if (isset($config)) {
                 $configResolutions = $config->getSelectedResolutions();
@@ -453,6 +453,7 @@ hd/index.m3u8
             $videoFramerate = array();
 
             $selectedResolutions = self::getSelectedResolutions();
+            
             sort($selectedResolutions);
 
             foreach ($selectedResolutions as $index => $value) {
