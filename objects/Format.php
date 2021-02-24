@@ -498,7 +498,7 @@ hd/index.m3u8
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
                     eval("\$command .= \" $code\";");
-                } else {
+                } else if ($height != $resolution) {
                     error_log("Encoder:Format:: getDynamicCommandFromFormat resolution {$resolution} was ignored, your upload file is {$height} we wil not up transcode your video");
                     break;
                 }
@@ -549,7 +549,7 @@ hd/index.m3u8
                     mkdir($file);
                     $str .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($bandwidth[$key]) . PHP_EOL . "res{$value}/index.m3u8" . PHP_EOL;
                     error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
-                } else {
+                } else if ($height != $value) {
                     error_log("Encoder:Format:: preProcessDynamicHLS resolution {$value} was ignored, your upload file is {$height}p we wil not up transcode your video");
                 }
             }
@@ -586,7 +586,7 @@ hd/index.m3u8
                     }
                     eval("\$command .= \" $code\";");
                     error_log("Encoder:Format:: 2 preProcessDynamicHLS {$command}");
-                } else {
+                } else if ($height != $value) {
                     error_log("Encoder:Format:: preProcessDynamicHLS 2 resolution {$value} was ignored, your upload file is {$height} we wil not up transcode your video");
                 }
             }
