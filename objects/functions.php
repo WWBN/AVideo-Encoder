@@ -24,6 +24,10 @@ function get_ffmpeg($ignoreGPU=false) {
     return $ffmpeg;
 }
 
+function replaceFFMPEG($cmd){
+    return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
+}
+
 function get_ffprobe() {
     global $global;
     //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';

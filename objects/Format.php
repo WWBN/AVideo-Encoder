@@ -78,7 +78,7 @@ if (!class_exists('Format')) {
                 error_log("run:runMultiResolution" . json_encode($global['sendAll']));
                 $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id, $this->order);
             } else {
-                error_log("run: {$this->order}");
+                error_log("run (else): {$this->order}");
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $path_parts['extension']);
                 $obj = static::execOrder($this->order, $pathFileName, $destinationFile, $encoder_queue_id);
             }
@@ -634,17 +634,18 @@ hd/index.m3u8
             } else if ($format_id == 32) {// it is WebM
                 $fc = self::getDynamicCommandFromWebm($pathFileName, $encoder_queue_id);
             }
-
             eval('$code ="' . addcslashes($fc, '"') . '";');
+            $code = replaceFFMPEG($code);
             if (empty($code)) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
                 $obj->code = $code;
                 error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
                 $encoder = new Encoder($encoder_queue_id);
-                $encoder->exec($code . " 1> {$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt  2>&1", $output, $return_val);
+                $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
+                $encoder->exec($code . " 1> {$progressFile}  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
-                    //error_log("AVideo-Encoder Format::exec " . $code . " --- " . json_encode($output) . " --- ($format_id, $pathFileName, $destinationFile, $encoder_queue_id) ");
+                    error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}".PHP_EOL . json_encode($output));
                     $obj->msg = print_r($output, true);
                     $encoder = new Encoder($encoder_queue_id);
                     if (empty($encoder->getId())) {/* dequeued */

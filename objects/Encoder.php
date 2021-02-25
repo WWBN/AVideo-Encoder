@@ -636,7 +636,7 @@ class Encoder extends ObjectYPT {
                 break;
             }
         } else {
-            exec($cmd, $output, $return_val);
+            exec(replaceFFMPEG($cmd), $output, $return_val);
         }
     
         return;
@@ -702,20 +702,24 @@ class Encoder extends ObjectYPT {
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
                         if ($try < 4) {
-                            $msg = "Trying again: [$try] => Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $msg = "Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log($msg);
                             $encoder->setStatus("queue");
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
                             static::run($try);
                         } else {
-                            $obj->msg = "Execute code error " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $obj->msg = "Execute code error 2 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log("Encoder Run: " . json_encode($obj));
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs($obj->msg);
                             $encoder->save();
                         }
                     } else {
+                        // if is audio send the spectrum image as well
+                        if($encoder->getFormats_id()==6){
+                            self::sendSpectrumFromMP3($objFile->pathFileName, $return_vars->videos_id, $encoder);
+                        }
                         $obj->error = false;
                         $obj->msg = $resp->code;
                         $videos_id = 0;
@@ -1084,7 +1088,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = remove_utf8_bom(curl_exec($curl));
-        error_log("AVideo-Streamer answer {$r}");
+        error_log("AVideo-Streamer answer 1 {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1273,7 +1277,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = remove_utf8_bom(curl_exec($curl));
-        error_log("AVideo-Streamer answer {$r}");
+        error_log("AVideo-Streamer answer 2 {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1350,6 +1354,71 @@ class Encoder extends ObjectYPT {
         error_log("sendImages: curl_exec");
         $r = curl_exec($curl);
         error_log("sendImages: AVideo-Streamer answer {$r}");
+        $obj->postFields = count($postFields);
+        $obj->response_raw = $r;
+        $obj->response = json_decode($r);
+
+        if ($errno = curl_errno($curl)) {
+            $error_message = curl_strerror($errno);
+            //echo "cURL error ({$errno}):\n {$error_message}";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+        } else {
+            $obj->error = false;
+        }
+        curl_close($curl);
+        error_log(json_encode($obj));
+        $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        
+        //var_dump($obj);exit;
+        return $obj;
+    }
+    
+    static function sendSpectrumFromMP3($file, $videos_id, $encoder) {
+        global $global;
+
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->file = $file;
+        error_log("SpectrumFromMP3: Sending image to [$videos_id]");
+        $duration = static::getDurationFromFile($file);
+        $streamers_id = $encoder->getStreamers_id();
+        $s = new Streamer($streamers_id);
+        $aVideoURL = $s->getSiteURL();
+        $user = $s->getUser();
+        $pass = $s->getPass();
+
+        $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
+        $obj->target = $target;
+        error_log("SpectrumFromMP3: AVideo-Encoder sending file to {$target}");
+        error_log("SpectrumFromMP3: AVideo-Encoder reading file from {$file}");
+        $postFields = array(
+            'duration' => $duration,
+            'videos_id' => $videos_id,
+            'user' => $user,
+            'password' => $pass
+        );
+
+        $obj->postFields = $postFields;
+        if (!empty($file)) {
+            $postFields['spectrumimage'] = new CURLFile(static::getSpectrum($file));
+        } else {
+            $obj->msg = "SpectrumFromMP3: File is empty {$file} ";
+            error_log(json_encode($obj));
+            return $obj;
+        }
+        error_log("SpectrumFromMP3: curl_init");
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $target);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        error_log("SpectrumFromMP3: curl_exec");
+        $r = curl_exec($curl);
+        error_log("SpectrumFromMP3: AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1521,6 +1590,29 @@ class Encoder extends ObjectYPT {
         error_log("getImage: takes {$execution_time} sec to complete");
         if ($return_val !== 0 && !file_exists($destinationFile)) {
             error_log("Create Image error: {$ffmpeg} ". json_encode($output));
+            return $global['systemRootPath'] . "view/img/notfound.jpg";
+        } else {
+            return $destinationFile;
+        }
+    }
+
+    static function getSpectrum($pathFileName) {
+        global $global;
+        $destinationFile = "{$pathFileName}_spectrum.jpg";
+        // do not encode again
+        if (file_exists($destinationFile)) {
+            error_log("getImage: file exists {$destinationFile}");
+            return $destinationFile;
+        }
+        $ffmpeg = get_ffmpeg() . " -i \"{$pathFileName}\" -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destinationFile}";
+        $time_start = microtime(true);
+        error_log("getSpectrum: {$ffmpeg}");
+        exec($ffmpeg . " 2>&1", $output, $return_val);
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        error_log("getSpectrum: takes {$execution_time} sec to complete");
+        if ($return_val !== 0 && !file_exists($destinationFile)) {
+            error_log("Create spectrum error: {$ffmpeg} ". json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.jpg";
         } else {
             return $destinationFile;
