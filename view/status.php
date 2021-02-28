@@ -9,6 +9,7 @@ $config = new Configuration();
 //$r = Encoder::sendFile("{$global['systemRootPath']}videos/1_tmpFile.mp4", 1, "mp4");var_dump($r);return;
 $obj = new stdClass();
 $obj->queue_size = 0;
+$obj->concurrent = 1;
 $obj->is_encoding = false;
 $obj->queue_list = array();
 $obj->msg = "";
@@ -16,6 +17,9 @@ $obj->encoding = new stdClass();
 $obj->cmd = "";
 $obj->encoding_status = array();
 $obj->version = $config->getVersion();
+
+if (!empty($global['concurrent']))
+    $obj->concurrent = $global['concurrent'];
 
 $obj->encoding = Encoder::areEncoding();
 //$obj->transferring = Encoder::isTransferring();
