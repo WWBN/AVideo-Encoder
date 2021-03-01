@@ -199,7 +199,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setTitle($title) {
-        $this->title = $title;
+        $this->title = substr($title, 0, 254);
     }
 
     function getVideoDownloadedLink() {
@@ -207,7 +207,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setVideoDownloadedLink($videoDownloadedLink) {
-        $this->videoDownloadedLink = $videoDownloadedLink;
+        $this->videoDownloadedLink = substr($videoDownloadedLink, 0, 254);
     }
 
     function getDownloadedFileName() {
@@ -215,7 +215,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setDownloadedFileName($downloadedFileName) {
-        $this->downloadedFileName = $downloadedFileName;
+        $this->downloadedFileName = substr($downloadedFileName, 0, 254);
     }
 
     function getStreamers_id() {
