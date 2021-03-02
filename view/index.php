@@ -375,6 +375,17 @@ if (!empty($_GET['noNavbar'])) {
                         <?php
                     }
 
+                    if (empty($advancedCustom->doNotAllowUpdateVideoId)) {
+                        ?>
+                        <div class="panel panel-default">
+                            <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
+                            <div class="panel-body">
+                                 <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id">
+                            </div>
+                        </div>
+                        <?php
+                    }
+
                     if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
                         ?>
                         <div class="panel panel-default">
@@ -747,6 +758,7 @@ if (!empty($_GET['noNavbar'])) {
                                                             "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                                             "webm": $('#inputWebM').is(":checked"),
                                                             "override_status": $('#override_status').val(),
+                                                            "update_video_id": $('#update_video_id').val(),
                                                             "inputHLS": $('#inputHLS').is(":checked"),
                                                             "inputLow": $('#inputLow').is(":checked"),
                                                             "inputSD": $('#inputSD').is(":checked"),
@@ -810,6 +822,7 @@ if (!empty($_GET['noNavbar'])) {
                                         "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                         "webm": $('#inputWebM').is(":checked"),
                                         "override_status": $('#override_status').val(),
+                                        "update_video_id": $('#update_video_id').val(),
                                         "inputHLS": $('#inputHLS').is(":checked"),
                                         "inputLow": $('#inputLow').is(":checked"),
                                         "inputSD": $('#inputSD').is(":checked"),
