@@ -32,6 +32,8 @@ if (preg_match('/\.mp3$/i', $parts[0])) {
     $type = 'audio';
 }
 
+$url = str_replace(array('"', "'"), array('', ''), $url);
+
 $url = escapeshellarg($url);
 
 if ($type == 'audio') {

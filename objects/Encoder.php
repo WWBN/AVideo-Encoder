@@ -1598,6 +1598,7 @@ class Encoder extends ObjectYPT {
 
     static function getSpectrum($pathFileName) {
         global $global;
+        $pathFileName = str_replace(array('"', "'"), array('', ''), $pathFileName);
         $destinationFile = "{$pathFileName}_spectrum.jpg";
         // do not encode again
         if (file_exists($destinationFile)) {
