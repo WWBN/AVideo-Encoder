@@ -969,7 +969,7 @@ class Encoder extends ObjectYPT {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "", $chunkFile = "", $duration = "") {
+    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "", $chunkFile = "") {
         global $global;
         global $sentImage;
 
@@ -992,9 +992,20 @@ class Encoder extends ObjectYPT {
         }
 
         error_log("Encoder::sendFile videos_id=$videos_id, format=$format");
-        if(empty($duration)){
-            $duration = static::getDurationFromFile($file);
+
+        $duration = static::getDurationFromFile($file);
+        if ($duration == "EE:EE:EE") {
+            if (isset($u) && $u !== false && $obj->error == false) {
+                $u->setStatus("error");
+                $u->save(); 
+            }
+
+            $obj->error = true;
+            $obj->msg = "Corrupted output";
+            error_log("Encoder::sendFile videos_id=$videos_id, format=$format: discard corrupted output file");
+            return $obj;
         }
+
         if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
         } else {
@@ -1183,8 +1194,7 @@ class Encoder extends ObjectYPT {
             error_log("cURL success, Local file: ". humanFileSize($obj->filesize)." => Transferred file ".humanFileSize($obj->response->filesize));
             $obj->error = false;
             error_log(json_encode($obj));
-            $duration = static::getDurationFromFile($file);
-            return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file, $duration);
+            return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file);
         }
     }
     
