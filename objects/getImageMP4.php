@@ -33,8 +33,8 @@ if (preg_match('/\.mp3$/i', $parts[0])) {
 }
 
 $url = str_replace(array('"', "'"), array('', ''), $url);
-
 $url = escapeshellarg($url);
+error_log("getImageMP4 Starts: {$url}");
 
 if ($type == 'audio') {
     //ffmpeg -i inputfile.mp3 -lavfi showspectrumpic=s=800x400:mode=separate spectrogram.png
