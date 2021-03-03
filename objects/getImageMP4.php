@@ -55,7 +55,7 @@ if ($type == 'audio') {
     }
     //$cmd = get_ffmpeg() . " -i \"{$url}\" -lavfi showspectrumpic=s=800x400:mode=separate {$destination}";
     //$cmd = get_ffmpeg() . " -i \"{$url}\" -filter_complex \"compand,showwavespic=s=1280x720\" -y {$destination}";
-    $cmd = get_ffmpeg() . " -i \"{$url}\" -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destination}";
+    $cmd = get_ffmpeg() . " -i {$url} -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destination}";
     exec($cmd);
     error_log("Create image from audio: {$cmd}");
 } else {
