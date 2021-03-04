@@ -62,7 +62,7 @@ if (!class_exists('Format')) {
                 return true;
             }
 
-            return true;
+            return false;
         }
 
 
