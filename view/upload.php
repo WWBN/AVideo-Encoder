@@ -99,8 +99,13 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
 
-        $response = Encoder::sendFile('', 0, $format, $e); // this always produces an error log but if this 
-        // and the next 3 lines are commented the images don't transfer
+        if (!empty($_POST['update_video_id']))
+            $video_id = $_POST['update_video_id'];
+        else
+            $video_id = 0;
+
+        // This raises an harmless error
+        $response = Encoder::sendFile('', $video_id, $format, $e);
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
         }
