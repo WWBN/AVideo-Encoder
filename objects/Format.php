@@ -44,6 +44,28 @@ if (!class_exists('Format')) {
             return $row;
         }
 
+        static function preferMaster($master, $file) {
+            global $global;
+            
+            if (empty($global['preferSmallerMaster']))
+                return false;
+
+            $path_parts = pathinfo($master);
+            $hdext = "_HD." . $path_parts['extension'];
+            $hdextlen = strlen($hdext);
+
+            if (strrpos($file, $hdext) != strlen($file) - $hdextlen)
+                return false;
+
+            if (filesize($master) < filesize($file)) {
+                error_log("Retain master instead of bigger encoded $file");
+                return true;
+            }
+
+            return true;
+        }
+
+
         // ffmpeg -i {$pathFileName} -vf scale=352:240 -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}
         function run($pathFileName, $encoder_queue_id) {
             error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id)");
@@ -656,6 +678,9 @@ hd/index.m3u8
                         $encoder->save();
                     }
                 } else {
+                    if (self::preferMaster($pathFileName, $destinationFile)) {
+                        copy($pathFileName, $destinationFile);
+                    }
                     $obj->error = false;
                 }
             }

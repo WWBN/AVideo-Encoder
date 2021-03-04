@@ -116,6 +116,7 @@ $content = "<?php
 \$global['hideUserGroups'] = false;
 \$global['progressiveUpload'] = false;
 \$global['killWorkerOnDelete'] = false;
+\$global['preferSmallerMaster'] = false;
 
 \$mysqlHost = '{$_POST['databaseHost']}';
 \$mysqlUser = '{$_POST['databaseUser']}';
