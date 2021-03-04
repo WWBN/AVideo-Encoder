@@ -994,7 +994,7 @@ class Encoder extends ObjectYPT {
         error_log("Encoder::sendFile videos_id=$videos_id, format=$format");
 
         $duration = static::getDurationFromFile($file);
-        if ($duration == "EE:EE:EE") {
+        if ($duration == "EE:EE:EE" && $file != "") {
             if (isset($u) && $u !== false && $obj->error == false) {
                 $u->setStatus("error");
                 $u->save(); 
