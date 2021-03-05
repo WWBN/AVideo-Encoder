@@ -1848,10 +1848,18 @@ class Encoder extends ObjectYPT {
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
+        
+        $returnTmpfname = $tmpfname . ".jpg";
+        if(!@filesize($returnTmpfname)){
+            if(@filesize($returnTmpfname.'.webp')){
+                $returnTmpfname = $returnTmpfname.'.webp';
+            }
+        }
+        
         if ($returnFileName) {
-            return $tmpfname . ".jpg";
+            return $returnTmpfname;
         } else {
-            return url_get_contents($tmpfname . ".jpg");
+            return url_get_contents($returnTmpfname);
         }
     }
 
