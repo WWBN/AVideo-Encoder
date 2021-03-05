@@ -34,8 +34,7 @@ testTime(__LINE__);
 if(preg_match('/(youtube.com|youtu.be|vimeo.com)/', $url)){
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
-    $destination = Encoder::getThumbsFromLink($url, true);
-    die(file_get_contents($destination));
+    die(Encoder::getThumbsFromLink($url));
 }else
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
