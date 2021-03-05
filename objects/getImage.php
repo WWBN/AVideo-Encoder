@@ -31,6 +31,11 @@ $ob_flush = false;
 
 testTime(__LINE__);
 
+if(preg_match('/(youtube.com|youtu.be|vimeo.com)/')){
+    header('Content-Type: image/jpg');
+    $destination = Encoder::getThumbsFromLink($link, true);
+    $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.jpg";
+}else
 if($_GET['format'] === 'png'){
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];
