@@ -1848,7 +1848,11 @@ class Encoder extends ObjectYPT {
         error_log("getThumbsFromLink: {$cmd}");
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
-            return false;
+            if ($returnFileName) {
+                return $tmpfname . ".jpg";
+            } else {
+                return false;
+            }
         } else {
             if ($returnFileName) {
                 return $tmpfname . ".jpg";
