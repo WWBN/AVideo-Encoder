@@ -134,20 +134,20 @@ class Encoder extends ObjectYPT {
         $this->status = $status;
 
         switch ($status) {
-        case "done":
-        case "error":
-        case "queue":
-            $this->setWorker_ppid(NULL);
-            $this->setWorker_pid(NULL);
-            break;
-        case "downloading":
-        case "encoding":
-        case "packing":
-        case "transferring":
-        default:
-            $this->setWorker_ppid(getmypid());
-            $this->setWorker_pid(NULL);
-            break;
+            case "done":
+            case "error":
+            case "queue":
+                $this->setWorker_ppid(NULL);
+                $this->setWorker_pid(NULL);
+                break;
+            case "downloading":
+            case "encoding":
+            case "packing":
+            case "transferring":
+            default:
+                $this->setWorker_ppid(getmypid());
+                $this->setWorker_pid(NULL);
+                break;
         }
     }
 
@@ -385,15 +385,15 @@ class Encoder extends ObjectYPT {
         } catch (Exception $exc) {
             error_log($exc->getMessage());
         }
-        
-        if(!empty($text)){
+
+        if (!empty($text)) {
             preg_match('/Merging formats into "([\/a-z0-9._]+)"/i', $text, $matches);
             if (!empty($matches[1])) {
                 $obj->filename = $matches[1];
             }
             preg_match_all('/\[download\] +([0-9.]+)% of/', $text, $matches, PREG_SET_ORDER);
-    //$m = end($matches);
-    //$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
+            //$m = end($matches);
+            //$obj->progress = empty($m[1]) ? 0 : intval($m[1]);
             foreach ($matches as $m) {
                 $obj->progress = empty($m[1]) ? 0 : intval($m[1]);
                 if ($obj->progress == 100) {
@@ -575,7 +575,7 @@ class Encoder extends ObjectYPT {
         if (!is_numeric($ppid) || $ppid == 0)
             return false;
 
-        exec("kill -0 ".$ppid, $output, $ppid_retval);
+        exec("kill -0 " . $ppid, $output, $ppid_retval);
         if ($ppid_retval != 0)
             return false;
 
@@ -588,7 +588,7 @@ class Encoder extends ObjectYPT {
          * when are between two formats.
          */
         if ($pid != 0) {
-            exec("kill -0 ".$pid, $output, $pid_retval);
+            exec("kill -0 " . $pid, $output, $pid_retval);
             if ($pid_retval != 0)
                 return false;
         }
@@ -598,47 +598,47 @@ class Encoder extends ObjectYPT {
     function exec($cmd, &$output = array(), &$return_val = 0) {
         if (function_exists("pcntl_fork")) {
             if (($status = $this->getStatus()) != "encoding") {
-                 error_log("id(".$this->getId().") status(".$status.") abort");
-                 $return_val = 1;
-                 return;
+                error_log("id(" . $this->getId() . ") status(" . $status . ") abort");
+                $return_val = 1;
+                return;
             }
             switch ($pid = pcntl_fork()) {
-            case -1:
-                $msg = "fork failed";
-                error_log("id(".$this->getId().") ".$msg);
-                $this->setStatus("error");
-                $this->setStatus_obs($msg);
-                $this->save();
-                break;
-            default:
-                $this->setWorker_pid($pid);
-                $this->save();
-                pcntl_wait($status);
-                if (pcntl_wifexited($status))  {
-                    $return_val = pcntl_wexitstatus($status);
-                } else {
-                    $return_val = 1;
-                }
-                if (pcntl_wifsignaled($status))
-                    error_log("id=(".$this->getId()."), process ".$pid." got signal ".pcntl_wtermsig($status));
-                $this->setWorker_pid(NULL);
-                $this->save();
-                break;
-            case 0:
-                $argv = array("-c", $cmd);
-                $envp = array(
-                    "PATH=".getenv("PATH"),
-                    "LD_LIBRARY_PATH=".getenv("LD_LIBRARY_PATH")
+                case -1:
+                    $msg = "fork failed";
+                    error_log("id(" . $this->getId() . ") " . $msg);
+                    $this->setStatus("error");
+                    $this->setStatus_obs($msg);
+                    $this->save();
+                    break;
+                default:
+                    $this->setWorker_pid($pid);
+                    $this->save();
+                    pcntl_wait($status);
+                    if (pcntl_wifexited($status)) {
+                        $return_val = pcntl_wexitstatus($status);
+                    } else {
+                        $return_val = 1;
+                    }
+                    if (pcntl_wifsignaled($status))
+                        error_log("id=(" . $this->getId() . "), process " . $pid . " got signal " . pcntl_wtermsig($status));
+                    $this->setWorker_pid(NULL);
+                    $this->save();
+                    break;
+                case 0:
+                    $argv = array("-c", $cmd);
+                    $envp = array(
+                        "PATH=" . getenv("PATH"),
+                        "LD_LIBRARY_PATH=" . getenv("LD_LIBRARY_PATH")
                     );
-                pcntl_exec("/bin/sh", $argv, $envp);
-                error_log("id=(".$this->getId()."), ".$cmd." failed: ".pnctl_strerror(pnctl_get_last_error()));
-                exit(1);
-                break;
+                    pcntl_exec("/bin/sh", $argv, $envp);
+                    error_log("id=(" . $this->getId() . "), " . $cmd . " failed: " . pnctl_strerror(pnctl_get_last_error()));
+                    exit(1);
+                    break;
             }
         } else {
             exec(replaceFFMPEG($cmd), $output, $return_val);
         }
-    
+
         return;
     }
 
@@ -649,10 +649,10 @@ class Encoder extends ObjectYPT {
         $this->setStatus_obs("deleted from queue");
         if (!empty($global['killWorkerOnDelete'])) {
             if (is_numeric($worker_pid) && $worker_pid > 0) {
-                exec("kill ".$worker_pid); // ignore result
+                exec("kill " . $worker_pid); // ignore result
             }
             if (is_numeric($worker_ppid) && $worker_ppid > 0) {
-                exec("kill ".$worker_ppid); // ignore result
+                exec("kill " . $worker_ppid); // ignore result
             }
         }
         $this->notifyVideoIsDone(1);
@@ -695,7 +695,7 @@ class Encoder extends ObjectYPT {
                 } else {
                     $encoder->setStatus("encoding");
                     $encoder->save();
-                    
+
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -717,7 +717,7 @@ class Encoder extends ObjectYPT {
                         }
                     } else {
                         // if is audio send the spectrum image as well
-                        if($encoder->getFormats_id()==6){
+                        if ($encoder->getFormats_id() == 6) {
                             self::sendSpectrumFromMP3($objFile->pathFileName, $return_vars->videos_id, $encoder);
                         }
                         $obj->error = false;
@@ -791,7 +791,7 @@ class Encoder extends ObjectYPT {
             );
 
             if (!empty($this->override_status))
-               $postFields['overrideStatus'] = $this->override_status;
+                $postFields['overrideStatus'] = $this->override_status;
 
             $obj->postFields = $postFields;
 
@@ -828,39 +828,39 @@ class Encoder extends ObjectYPT {
         $r = static::sendFileChunk($file, $videos_id, $format, $this, $resolution);
         return $r;
     }
-    
-    public static function getTmpFileName($encoder_queue_id, $format, $resolution=''){
+
+    public static function getTmpFileName($encoder_queue_id, $format, $resolution = '') {
         global $global;
-        
+
         $encoder = new Encoder($encoder_queue_id);
         $streamers_id = $encoder->getStreamers_id();
-        
-        if(!empty($resolution)){
+
+        if (!empty($resolution)) {
             $resolution = "_{$resolution}";
         }
-        
+
         $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_{$resolution}.{$format}";
         return $file;
     }
-    
-    public static function getTmpFiles($encoder_queue_id){
+
+    public static function getTmpFiles($encoder_queue_id) {
         global $global;
-        
+
         $encoder = new Encoder($encoder_queue_id);
         $streamers_id = $encoder->getStreamers_id();
         $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_";
-        
+
         $files = glob("{$file}*");
-        
+
         $hlsZipFile = Encoder::getTmpFileName($encoder_queue_id, 'zip', "converted");
         //$hlsZipFile = $global['systemRootPath'] . "videos/{$encoder_queue_id}_tmpFile_converted.zip";
-        if(file_exists($hlsZipFile)){
+        if (file_exists($hlsZipFile)) {
             $files[] = $hlsZipFile;
         }
         return $files;
     }
-    
-    public static function getAllFilesInfo($encoder_queue_id){
+
+    public static function getAllFilesInfo($encoder_queue_id) {
         $files = Encoder::getTmpFiles($encoder_queue_id);
         $info = array();
         foreach ($files as $file) {
@@ -893,23 +893,23 @@ class Encoder extends ObjectYPT {
         error_log("Encoder::send() order_id=$order_id");
         if (in_array($order_id, $global['multiResolutionOrder'])) {
             error_log("Encoder::send() multiResolutionOrder");
-            if(in_array($order_id,$global['sendAll'])){
+            if (in_array($order_id, $global['sendAll'])) {
                 $files = self::getTmpFiles($this->id);
-                error_log("Encoder::send() multiResolutionOrder sendAll found (".count($files).") files");
+                error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
                 foreach ($files as $file) {
-                    if(is_dir($file)){
+                    if (is_dir($file)) {
                         continue;
                     }
                     $format = pathinfo($file, PATHINFO_EXTENSION);
-                    preg_match('/([^_]+).'.$format.'$/', $file, $matches);
+                    preg_match('/([^_]+).' . $format . '$/', $file, $matches);
                     $resolution = @$matches[1];
-                    if($resolution=='converted'){
-                        $resolution='';
+                    if ($resolution == 'converted') {
+                        $resolution = '';
                     }
                     error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
                     $return->sends[] = self::sendFileChunk($file, $videos_id, $format, $this, $resolution);
                 }
-            }else{
+            } else {
                 if (in_array($order_id, $global['hasHDOrder'])) {
                     $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
                     if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
@@ -982,7 +982,7 @@ class Encoder extends ObjectYPT {
 
         if (!empty($global['progressiveUpload']) && isset($encoder)) {
             $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
-);
+            );
             if ($u !== false && $u->getStatus() == "done") {
                 $obj->error = false;
                 $obj->msg = "Already sent";
@@ -997,7 +997,7 @@ class Encoder extends ObjectYPT {
         if ($duration == "EE:EE:EE" && $file != "") {
             if (isset($u) && $u !== false && $obj->error == false) {
                 $u->setStatus("error");
-                $u->save(); 
+                $u->save();
             }
 
             $obj->error = true;
@@ -1117,18 +1117,18 @@ class Encoder extends ObjectYPT {
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus("done");
-            $u->save(); 
+            $u->save();
         }
         return $obj;
     }
 
-    static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+    static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try = 0) {
         $obj = self::sendFileToDownload($file, $videos_id, $format, $encoder, $resolution);
-        if(empty($obj->error)){
+        if (empty($obj->error)) {
             error_log("Encoder:sendFileChunk no need, we could download");
             return $obj;
         }
-        
+
         error_log("Encoder:sendFileChunk($file, $videos_id, $format, object, $resolution, $try)");
         $try++;
         $obj = new stdClass();
@@ -1143,7 +1143,7 @@ class Encoder extends ObjectYPT {
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $aVideoURL = $s->getSiteURL();
-        
+
         $target = trim($aVideoURL . "aVideoEncoderChunk.json");
         $obj->target = $target;
         // Create a curl handle to upload to the file server
@@ -1176,29 +1176,29 @@ class Encoder extends ObjectYPT {
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
         if ($errno || empty($obj->response->filesize) || ($obj->response->filesize < $obj->filesize)) {
-            if(is_object($obj->response) && $obj->response->filesize < $obj->filesize){
-                error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize)." local Encoder file size =  ".humanFileSize($obj->filesize));
-            }else{
+            if (is_object($obj->response) && $obj->response->filesize < $obj->filesize) {
+                error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize) . " local Encoder file size =  " . humanFileSize($obj->filesize));
+            } else {
                 error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target})");
             }
-            if($try<=3){
+            if ($try <= 3) {
                 sleep($try);
                 return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
-            }else{
+            } else {
                 //echo "cURL error ({$errno}):\n {$error_message}";
                 $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})";
                 error_log(json_encode($obj));
                 return self::sendFile($file, $videos_id, $format, $encoder, $resolution, $try);
             }
         } else {
-            error_log("cURL success, Local file: ". humanFileSize($obj->filesize)." => Transferred file ".humanFileSize($obj->response->filesize));
+            error_log("cURL success, Local file: " . humanFileSize($obj->filesize) . " => Transferred file " . humanFileSize($obj->response->filesize));
             $obj->error = false;
             error_log(json_encode($obj));
             return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file);
         }
     }
-    
-    static function sendFileToDownload($file, $videos_id, $format, $encoder = null, $resolution = "", $try=0) {
+
+    static function sendFileToDownload($file, $videos_id, $format, $encoder = null, $resolution = "", $try = 0) {
         global $global;
         global $sentImage;
 
@@ -1209,7 +1209,7 @@ class Encoder extends ObjectYPT {
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
         error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
-        if(empty($duration)){
+        if (empty($duration)) {
             $duration = static::getDurationFromFile($file);
         }
         if (empty($_POST['title'])) {
@@ -1305,7 +1305,6 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-
     static function sendImages($file, $videos_id, $encoder) {
         global $global;
 
@@ -1378,11 +1377,11 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log(json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
-        
+
         //var_dump($obj);exit;
         return $obj;
     }
-    
+
     static function sendSpectrumFromMP3($file, $videos_id, $encoder) {
         global $global;
 
@@ -1532,20 +1531,20 @@ class Encoder extends ObjectYPT {
 
     static function getDurationFromFile($file) {
         global $config, $getDurationFromFile;
-        if(empty($file)){
+        if (empty($file)) {
             return "EE:EE:EE";
         }
-        
-        if(!isset($getDurationFromFile)){
+
+        if (!isset($getDurationFromFile)) {
             $getDurationFromFile = array();
         }
-        
-        if(!empty($getDurationFromFile[$file])){
+
+        if (!empty($getDurationFromFile[$file])) {
             return $getDurationFromFile[$file];
         }
-        
+
         $file = str_replace(".zip", ".mp4", $file);
-        
+
         // get movie duration HOURS:MM:SS.MICROSECONDS
         if (!file_exists($file)) {
             $file_headers = @get_headers($file);
@@ -1571,7 +1570,7 @@ class Encoder extends ObjectYPT {
             }
         }
         error_log("Duration found: {$duration}");
-        if($duration!=='EE:EE:EE'){
+        if ($duration !== 'EE:EE:EE') {
             $getDurationFromFile[$file] = $duration;
         }
         return $duration;
@@ -1599,7 +1598,7 @@ class Encoder extends ObjectYPT {
         $execution_time = ($time_end - $time_start);
         error_log("getImage: takes {$execution_time} sec to complete");
         if ($return_val !== 0 && !file_exists($destinationFile)) {
-            error_log("Create Image error: {$ffmpeg} ". json_encode($output));
+            error_log("Create Image error: {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.jpg";
         } else {
             return $destinationFile;
@@ -1623,7 +1622,7 @@ class Encoder extends ObjectYPT {
         $execution_time = ($time_end - $time_start);
         error_log("getSpectrum: takes {$execution_time} sec to complete");
         if ($return_val !== 0 && !file_exists($destinationFile)) {
-            error_log("Create spectrum error: {$ffmpeg} ". json_encode($output));
+            error_log("Create spectrum error: {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.jpg";
         } else {
             return $destinationFile;
@@ -1652,7 +1651,7 @@ class Encoder extends ObjectYPT {
         $execution_time = ($time_end - $time_start);
         error_log("getGif: takes {$execution_time} sec to complete");
         if ($return_val !== 0 && !file_exists($palleteFile)) {
-            error_log("Create Pallete Gif Image error: {$ffmpeg} ". json_encode($output));
+            error_log("Create Pallete Gif Image error: {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
             // I've discovered that if the ss parameter comes before the input flag, a tremendous time penalty is avoided.
@@ -1848,17 +1847,11 @@ class Encoder extends ObjectYPT {
         error_log("getThumbsFromLink: {$cmd}");
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
-            if ($returnFileName) {
-                return $tmpfname . ".jpg";
-            } else {
-                return false;
-            }
+        }
+        if ($returnFileName) {
+            return $tmpfname . ".jpg";
         } else {
-            if ($returnFileName) {
-                return $tmpfname . ".jpg";
-            } else {
-                return url_get_contents($tmpfname . ".jpg");
-            }
+            return url_get_contents($tmpfname . ".jpg");
         }
     }
 
