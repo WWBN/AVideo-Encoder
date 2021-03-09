@@ -1854,6 +1854,9 @@ class Encoder extends ObjectYPT {
         if(!@filesize($returnTmpfname)){
             if(@filesize($returnTmpfname.'.webp')){
                 $returnTmpfname = $returnTmpfname.'.webp';
+            }else
+            if(@filesize($returnTmpfname.'.jpg')){
+                $returnTmpfname = $returnTmpfname.'.jpg';
             }
         }
         
