@@ -58,6 +58,10 @@ if ($type == 'audio') {
     $cmd = get_ffmpeg() . " -i {$url} -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destination}";
     exec($cmd);
     error_log("Create image from audio: {$cmd}");
+} else if(preg_match('/(youtube.com|youtu.be|vimeo.com)/', $url)){
+    require_once $global['systemRootPath'] . 'objects/Encoder.php';
+    header('Content-Type: image/jpg');
+    die(Encoder::getThumbsFromLink($url));
 } else {
 
     testTime(__LINE__);
