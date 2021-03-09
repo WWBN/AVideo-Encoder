@@ -1841,6 +1841,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getThumbsFromLink($link, $returnFileName = false) {
+        $link = str_replace(array('"', "'"), array('', ''), $link);
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
