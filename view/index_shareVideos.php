@@ -46,7 +46,7 @@
                             <div class="input-group">
                                 <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
                                 <span class="input-group-btn">
-                                    <button class="btn btn-secondary" type="submit">
+                                    <button class="btn btn-primary" type="submit">
                                         <i class="fas fa-check" aria-hidden="true"></i> Share
                                     </button>
                                 </span>
@@ -88,17 +88,17 @@
                         <div class="input-group">
                             <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
                             <span class="input-group-btn">
-                                <button class="btn btn-secondary" id="pathBtn">
+                                <button class="btn btn-primary" id="pathBtn">
                                     <span class="glyphicon glyphicon-list"></span> List Files
                                 </button>
                             </span>
                             <span class="input-group-btn">
-                                <button class="btn btn-secondary" id="checkBtn">
+                                <button class="btn btn-primary" id="checkBtn">
                                     <i class="fas fa-check-square" aria-hidden="true"></i>
                                 </button>
                             </span>
                             <span class="input-group-btn">
-                                <button class="btn btn-secondary" id="uncheckBtn">
+                                <button class="btn btn-primary" id="uncheckBtn">
                                     <i class="far fa-square" aria-hidden="true"></i>
                                 </button>
                             </span>

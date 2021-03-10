@@ -56,9 +56,12 @@ if (!class_exists('Login')) {
                 $object->streamer = false;
                 $object->streamers_id = 0;
                 $object->isLogged = false;
+                $object->isStreamerAdmin = false;
                 $object->isAdmin = false;
                 $object->canUpload = false;
                 $object->canComment = false;
+                $object->canCreateCategory = false;
+                $object->theme = '';
                 $object->categories = array();
                 $object->userGroups = array();
                 error_log("Login::run Error on Login context");
@@ -82,6 +85,7 @@ if (!class_exists('Login')) {
                             return false;
                         }
 
+                        $object->isStreamerAdmin = $object->isAdmin;
                         $object->isAdmin = $s->getIsAdmin();
                         if (!$encodedPass || $encodedPass === 'false') {
                             $pass = encryptPassword($pass, $aVideoURL);
@@ -134,6 +138,10 @@ if (!class_exists('Login')) {
         static function isAdmin() {
             return !empty($_SESSION['login']->isAdmin);
         }
+        
+        static function isStreamerAdmin() {
+            return !empty($_SESSION['login']->isStreamerAdmin);
+        }
 
         static function canBulkEncode() {
             global $global;
@@ -156,10 +164,18 @@ if (!class_exists('Login')) {
         static function canComment() {
             return !empty($_SESSION['login']->canComment);
         }
+        
+        static function canCreateCategory() {
+            return !empty($_SESSION['login']->canCreateCategory);
+        }
+        
+        static function getTheme() {
+            return !empty($_SESSION['login']->theme);
+        }
 
         static function getStreamerURL() {
             if (!static::isLogged()) {
-                return false;
+                return Streamer::getFirstURL();;
             }
             global $global;
             if (!empty($global['forceStreamerSiteURL'])) {

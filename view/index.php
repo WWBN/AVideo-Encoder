@@ -52,19 +52,32 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <meta name="author" content="">
 
         <title>Encoder</title>
-        <link rel="icon" href="view/img/favicon.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
+        <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
+        <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144">
+        <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
+
         <link href="<?php echo Login::getStreamerURL(); ?>view/css/fontawesome-free-5.5.0-web/css/all.min.css"" rel="stylesheet" crossorigin="anonymous">
-        <script src="view/js/jquery-3.2.0.min.js" type="text/javascript"></script>
-        <link href="view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-        <script src="view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-        <link href="view/js/seetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
-        <script src="view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-3.5.1.min.js" type="text/javascript"></script>
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
+        <link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
-        <script src="view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
-        <link href="view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css"" rel="stylesheet" crossorigin="anonymous">
 
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
+        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css">
+        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css">
+        <!-- CSS adjustments for browsers with JavaScript disabled -->
+        <noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css"></noscript>
+        <noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css"></noscript>
+        <link href="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
+        <script src="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
 
+        <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
+        <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
@@ -94,7 +107,7 @@ if (!empty($_GET['noNavbar'])) {
                 #rightContainer{
                     z-index: 11;
                 }
-                        
+                                                                    
     <?php
 }
 ?>
@@ -102,23 +115,18 @@ if (!empty($_GET['noNavbar'])) {
     </head>
 
     <body>    
+        <br>
         <?php
         if (empty($_GET['noNavbar'])) {
             ?>
             <nav class="navbar navbar-default navbar-fixed-top">
                 <div class="container">
                     <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
                         <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>" >
                             <?php
                             if (!empty($_SESSION['login']->siteLogo)) {
                                 ?>
-                                <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img-responsive ">    
+                                <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive " style="width: 178px;">    
                                 <?php
                             }
                             ?>
@@ -140,7 +148,6 @@ if (!empty($_GET['noNavbar'])) {
                     </div><!--/.nav-collapse -->
                 </div>
             </nav>
-
             <?php
         }
         ?>
@@ -271,208 +278,302 @@ if (!empty($_GET['noNavbar'])) {
                 fixAdvancedCustom($advancedCustom);
                 ?>
 
-                <link href="view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css"/>
-                <script src="view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
                 <!-- The main CSS file -->
                 <div class="col-md-8">
                     <div id="noNavbarPlaceholder"></div>
-                    <ul class="nav nav-tabs" id="mainTabs">
-                        <li <?php if (empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#encoding"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a></li>
-                        <li><a data-toggle="tab" href="#log"><span class="glyphicon glyphicon-cog"></span> Queue Log</a></li>
 
-                        <?php
-                        if (Login::isAdmin()) {
-                            if (empty($global['disableConfigurations'])) {
-                                ?>
-                                <li><a data-toggle="tab" href="#config"><span class="glyphicon glyphicon-cog"></span> Configurations</a></li>
-                                <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?>><a data-toggle="tab" href="#update" ><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?><label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?></a></li>
+                    <div class="panel panel-default">
+                        <div class="panel-heading tabbable-line">
+                            <ul class="nav nav-tabs" id="mainTabs">
+                                <li <?php if (empty($_POST['updateFile'])) { ?>class="nav-item active"<?php } ?>>
+                                    <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Queue Log</a>
+                                </li>
+
                                 <?php
-                            }
-                            ?>
-                            <li><a data-toggle="tab" href="#streamers"><span class="glyphicon glyphicon-user"></span> Streamers</a></li>
-                            <?php
-                        }
-                        ?>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div id="encoding" class="tab-pane fade <?php if (empty($_POST['updateFile'])) { ?> in active<?php } ?>">
+                                if (Login::isAdmin()) {
+                                    if (empty($global['disableConfigurations'])) {
+                                        ?>
+                                        <li class="nav-item">
+                                            <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Configurations</a>
+                                        </li>
+                                        <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?> class="nav-item">
+                                            <a data-toggle="tab" href="#update" class="nav-link" ><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?>
+                                                    <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
+                                            </a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <li class="nav-item">
+                                        <a data-toggle="tab" href="#streamers"  class="nav-link"><span class="glyphicon glyphicon-user"></span> Streamers</a>
+                                    </li>
+                                    <?php
+                                }
+                                ?>
+                            </ul>
                         </div>
-                        <div id="log" class="tab-pane fade">
-                            <table id="grid" class="table table-condensed table-hover table-striped">
-                                <thead>
-                                    <tr>
-                                        <th data-column-id="title" data-formatter="title">Title</th>
-                                        <th data-column-id="status" data-formatter="status">Status</th>
-                                        <th data-column-id="created" data-formatter="dates"  data-order="desc">Dates</th>
-                                        <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
-                                    </tr>
-                                </thead>
-                            </table>
-                        </div>
-                        <?php
-                        include './index_configurations.php';
-                        ?>
-                        <?php
-                        if (Login::isAdmin()) {
-                            ?>
-                            <div id="streamers" class="tab-pane fade">
-                                <table id="gridStreamer" class="table table-condensed table-hover table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th data-column-id="siteURL" data-width="40%">URL</th>
-                                            <th data-column-id="user" data-width="30%">User</th>
-                                            <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
-                                            <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
-                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
-                                        </tr>
-                                    </thead>
-                                </table>
+                        <div class="panel-body">
+                            <div class="tab-content">
+                                <div id="encoding" class="tab-pane fade in active">
+                                </div>
+                                <div id="log" class="tab-pane fade">
+                                    <table id="grid" class="table table-condensed table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th data-column-id="title" data-formatter="title">Title</th>
+                                                <th data-column-id="status" data-formatter="status">Status</th>
+                                                <th data-column-id="created" data-formatter="dates"  data-order="desc">Dates</th>
+                                                <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <?php
+                                include './index_configurations.php';
+                                ?>
+                                <?php
+                                if (Login::isAdmin()) {
+                                    ?>
+                                    <div id="streamers" class="tab-pane fade">
+                                        <table id="gridStreamer" class="table table-condensed table-hover table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th data-column-id="siteURL" data-width="40%">URL</th>
+                                                    <th data-column-id="user" data-width="30%">User</th>
+                                                    <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
+                                                    <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
+                                                    <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
                             </div>
-                            <?php
-                        }
-                        ?>
+                        </div>
                     </div>
+
+
                 </div>
                 <div class="col-md-4" id="rightContainer" >
-                    <?php
-                    include './index_shareVideos.php';
-                    if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
-                        ?>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fas fa-users"></i> User Groups</div>
-                            <div class="panel-body">
-                                <?php
-                                foreach ($_SESSION['login']->userGroups as $key => $value) {
-                                    ?>
-                                    <label>
-                                        <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
-                                        <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
-                                    </label><br>
-                                    <?php
-                                }
-                                ?>
-                                <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> Unckeck all to make it public</div>
-
-                            </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading tabbable-line">
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item active">
+                                    <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> Basic</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
+                                </li>
+                            </ul>
                         </div>
-                        <?php
-                    }
-
-                    if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
-                        ?>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fas fa-desktop"></i> Override status</div>
-                            <div class="panel-body">
-                                <select class="form-control" id="override_status" name="override_status">
-                                    <option value="">Use site default</option>
-                                    <option value="a">Active</option>
-                                    <option value="i">Inactive</option>
-                                    <option value="u">Unlisted</option>
-                                </select>
-                            </div>
-                        </div>
-                        <?php
-                    }
-
-                    if (empty($advancedCustom->doNotAllowUpdateVideoId)) {
-                        ?>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
-                            <div class="panel-body">
-                                 <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id">
-                            </div>
-                        </div>
-                        <?php
-                    }
-
-                    if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
-                        ?>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fas fa-desktop"></i> Resolutions</div>
-                            <div class="panel-body">
-                                <?php
-                                if (empty($advancedCustom->doNotShowEncoderHLS)) {
-                                    ?> 
-                                    <label style="" id="">
-                                        <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                    $('.mp4Checkbox').prop('checked', false);
-                                }"> Multi Bitrate HLS
-                                    </label><br>
-                                    <?php
-                                }
-                                if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
-                                    ?> 
-                                    <label style="" id="">
-                                        <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                    $('#inputHLS').prop('checked', false);
-                                                }"> Low
-                                    </label>
-                                    <?php
-                                }
-                                if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-                                    ?> 
-                                    <label id="">
-                                        <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                    $('#inputHLS').prop('checked', false);
-                                                }"> SD
-                                    </label>
-                                    <?php
-                                }
-                                if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-                                    ?> 
-                                    <label>
-                                        <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                    $('#inputHLS').prop('checked', false);
-                                                }"> HD
-                                    </label>
-                                    <?php
-                                }
-                                ?> 
-                            </div>
-                        </div>
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><i class="fas fa-cogs"></i> Advanced</div>
-                            <div class="panel-body">
-                                <?php if (empty($advancedCustom->doNotShowExtractAudio)) { ?>
-                                    <label>
-                                        <input type="checkbox" id="inputAudioOnly">
-                                        <span class="glyphicon glyphicon-headphones"></span> Extract Audio
-                                    </label><br>
-                                <?php } ?>
-                                <?php if (empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
-                                    <label style="display: none;" id="spectrum">
-                                        <input type="checkbox" id="inputAudioSpectrum">
-                                        <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
-                                    </label>
-                                <?php } ?>
-                                <?php
-                                if (empty($global['disableWebM'])) {
-                                    if (empty($global['defaultWebM']))
-                                        $checked = '';
-                                    else
-                                        $checked = 'checked="checked"';
-                                    ?>
-                                    <label  id="webm">
-                                        <input type="checkbox" id="inputWebM" <?php echo $checked; ?>>
-                                        <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
-                                        <br><small class="label label-warning">
-                                            For Chrome Browsers
-                                        </small>
-                                    </label>
-                                    <?php
-                                }
-                                ?>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-                    <div class="panel panel-success">
-                        <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> Streamer info </div>
                         <div class="panel-body">
-                            <i class="fas fa-globe"></i> <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                            <i class="fas fa-user"></i> User: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
+                            <div class="tab-content">
+                                <div id="basicOptions" class="tab-pane fade in active">
+                                    <?php
+                                    include './index_shareVideos.php';
+                                    ?>
+                                </div>
+                                <div id="advancedOptions" class="tab-pane fade">
+
+
+                                    <?php
+                                    if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
+                                        ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading clearfix"><i class="fas fa-users"></i> 
+                                                User Groups
+
+                                                <?php
+                                                if (Login::isStreamerAdmin()) {
+                                                    ?>
+                                                    <button class="btn btn-primary btn-xs pull-right " type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
+                                                    <script>
+                                                        var reloadIfIsNotEditingUserGroupTimeout;
+                                                        function addNewUserGroup() {
+                                                            clearTimeout(reloadIfIsNotEditingUserGroupTimeout);
+                                                            avideoModalIframe('<?php echo $streamerURL; ?>usersGroups');
+                                                            reloadIfIsNotEditingUserGroupTimeout = setTimeout(function () {
+                                                                reloadIfIsNotEditingUserGroup();
+                                                            }, 500);
+                                                        }
+
+                                                        function reloadIfIsNotEditingUserGroup() {
+                                                            clearTimeout(reloadIfIsNotEditingUserGroupTimeout);
+                                                            if (!avideoModalIframeIsVisible()) {
+                                                                loadUserGroups();
+                                                            } else {
+                                                                reloadIfIsNotEditingUserGroupTimeout = setTimeout(function () {
+                                                                    reloadIfIsNotEditingUserGroup();
+                                                                }, 500);
+                                                            }
+                                                        }
+                                                    </script>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </div>
+                                            <div class="panel-body" id="userGroupsList">
+                                                <?php
+                                                foreach ($_SESSION['login']->userGroups as $key => $value) {
+                                                    ?>
+                                                    <label>
+                                                        <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
+                                                        <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
+                                                    </label><br>
+                                                    <?php
+                                                }
+                                                ?>
+                                                <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> Unckeck all to make it public</div>
+
+                                            </div>
+                                        </div>
+                                        <script>
+                                            function loadUserGroups() {
+                                                modal.showPleaseWait();
+                                                $.ajax({
+                                                    url: '<?php echo $streamerURL; ?>objects/usersGroups.json.php',
+                                                    success: function (response) {
+                                                        $('#userGroupsList').empty();
+                                                        for (var item in response.rows) {
+                                                            if (typeof response.rows[item] != 'object') {
+                                                                continue;
+                                                            }
+                                                            $('#userGroupsList').append('<label><input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="' + response.rows[item].id + '"><i class="fas fa-lock"></i> ' + response.rows[item].group_name + '</label><br>');
+                                                        }
+                                                        modal.hidePleaseWait();
+                                                    }
+                                                });
+                                            }
+                                            $(document).ready(function () {
+                                                //loadUserGroups();
+                                            });
+                                        </script>
+                                        <?php
+                                    }
+
+                                    if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
+                                        ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"><i class="fas fa-desktop"></i> Override status</div>
+                                            <div class="panel-body">
+                                                <select class="form-control" id="override_status" name="override_status">
+                                                    <option value="">Use site default</option>
+                                                    <option value="a">Active</option>
+                                                    <option value="i">Inactive</option>
+                                                    <option value="u">Unlisted</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <?php
+                                    }
+
+                                    if (empty($advancedCustom->doNotAllowUpdateVideoId)) {
+                                        ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
+                                            <div class="panel-body">
+                                                <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id">
+                                            </div>
+                                        </div>
+                                        <?php
+                                    }
+
+                                    if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
+                                        ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"><i class="fas fa-desktop"></i> Resolutions</div>
+                                            <div class="panel-body">
+                                                <?php
+                                                if (empty($advancedCustom->doNotShowEncoderHLS)) {
+                                                    ?> 
+                                                    <label style="" id="">
+                                                        <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
+                                                                    $('.mp4Checkbox').prop('checked', false);
+                                                                }"> Multi Bitrate HLS
+                                                    </label><br>
+                                                    <?php
+                                                }
+                                                if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
+                                                    ?> 
+                                                    <label style="" id="">
+                                                        <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                    $('#inputHLS').prop('checked', false);
+                                                                }"> Low
+                                                    </label>
+                                                    <?php
+                                                }
+                                                if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+                                                    ?> 
+                                                    <label id="">
+                                                        <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                    $('#inputHLS').prop('checked', false);
+                                                                }"> SD
+                                                    </label>
+                                                    <?php
+                                                }
+                                                if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+                                                    ?> 
+                                                    <label>
+                                                        <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
+                                                                    $('#inputHLS').prop('checked', false);
+                                                                }"> HD
+                                                    </label>
+                                                    <?php
+                                                }
+                                                ?> 
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"><i class="fas fa-cogs"></i> Advanced</div>
+                                            <div class="panel-body">
+                                                <?php if (empty($advancedCustom->doNotShowExtractAudio)) { ?>
+                                                    <label>
+                                                        <input type="checkbox" id="inputAudioOnly">
+                                                        <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                                                    </label><br>
+                                                <?php } ?>
+                                                <?php if (empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
+                                                    <label style="display: none;" id="spectrum">
+                                                        <input type="checkbox" id="inputAudioSpectrum">
+                                                        <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                                                    </label>
+                                                <?php } ?>
+                                                <?php
+                                                if (empty($global['disableWebM'])) {
+                                                    if (empty($global['defaultWebM']))
+                                                        $checked = '';
+                                                    else
+                                                        $checked = 'checked="checked"';
+                                                    ?>
+                                                    <label  id="webm">
+                                                        <input type="checkbox" id="inputWebM" <?php echo $checked; ?>>
+                                                        <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
+                                                        <br><small class="label label-warning">
+                                                            For Chrome Browsers
+                                                        </small>
+                                                    </label>
+                                                    <?php
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+                                        <?php
+                                    }
+                                    ?>
+                                    <div class="panel panel-success">
+                                        <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> Streamer info </div>
+                                        <div class="panel-body">
+                                            <i class="fas fa-globe"></i> <strong><?php echo Login::getStreamerURL(); ?></strong><br>
+                                            <i class="fas fa-user"></i> User: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -702,7 +803,7 @@ if (!empty($_GET['noNavbar'])) {
                                 formats[count++] = [parts[1], $(this).val()];
                             });
 
-                            var resolutions = $("input[name='resolutions']:checked").map(function() {
+                            var resolutions = $("input[name='resolutions']:checked").map(function () {
                                 return $(this).val();
                             }).toArray();
 

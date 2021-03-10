@@ -1,8 +1,3 @@
-<link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css">
-<link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css">
-<!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css"></noscript>
-<noscript><link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css"></noscript>
 <form id="fileupload" action="https://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <input type="text" class="form-control" id="title" name="title" placeholder="Title">
@@ -14,17 +9,65 @@
     if (!empty($_SESSION['login']->categories)) {
         ?>
         <div class="form-group">
-            <select class="form-control" id="categories_id" name="categories_id">
+            <div style="display: flex;">
+                <select class="form-control" id="categories_id" name="categories_id">
 
-                <option value="0">Category - Use site default</option>
+                    <option value="0">Category - Use site default</option>
+                    <?php
+                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
+                    foreach ($_SESSION['login']->categories as $key => $value) {
+                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
+                    }
+                    ?>
+                </select>
                 <?php
-                array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                foreach ($_SESSION['login']->categories as $key => $value) {
-                    echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
+                if (Login::canCreateCategory()) {
+                    ?>
+                        <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
+                        <script>
+                            var reloadIfIsNotEditingCategoryTimeout;
+                            function addNewCategory() {
+                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                avideoModalIframe('<?php echo $streamerURL; ?>categories');
+                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function(){reloadIfIsNotEditingCategory();}, 500);
+                            }
+                            
+                            function reloadIfIsNotEditingCategory(){
+                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                if(!avideoModalIframeIsVisible()){
+                                    loadCategories();
+                                }else{
+                                    reloadIfIsNotEditingCategoryTimeout = setTimeout(function(){reloadIfIsNotEditingCategory();}, 500);
+                                }
+                            }
+                        </script>
+                    <?php
                 }
                 ?>
-            </select>
+            </div>
         </div> 
+        <script>
+            function loadCategories() {
+                console.log('loadCategories');
+                modal.showPleaseWait();
+                $.ajax({
+                    url: '<?php echo $streamerURL; ?>objects/categories.json.php',
+                    success: function (response) {
+                        $('#categories_id').empty();
+                        for (var item in response.rows) {
+                            if (typeof response.rows[item] != 'object') {
+                                continue;
+                            }
+                            $('#categories_id').append('<option value="' + response.rows[item].id + '"> ' + response.rows[item].hierarchyAndName + '</option>');
+                        }
+                        modal.hidePleaseWait();
+                    }
+                });
+            }
+            $(document).ready(function () {
+                //loadCategories();
+            });
+        </script>
         <?php
     }
     ?>
