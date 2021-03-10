@@ -87,25 +87,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 if (!empty($_GET['noNavbar'])) {
     ?>
                 body{
-                    margin: 0;
-                }
-                .main-container {
-                    margin-top: 0;
-                    padding-top: 5px;
-                }
-                #mainTabs{
-                    position: fixed;
-                    top: 0;
-                    padding-top: 5px;
-                    background-color: #FFF;
-                    z-index: 10;
-                    width: 100%;
-                }
-                #noNavbarPlaceholder{
-                    height: 55px;
-                }
-                #rightContainer{
-                    z-index: 11;
+                    padding: 0;
                 }
                                                                     
     <?php
