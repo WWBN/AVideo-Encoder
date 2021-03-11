@@ -76,7 +76,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
         <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
         <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css"/>
-        
+
         <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css"" rel="stylesheet" crossorigin="anonymous">
         <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css"/>
         <script>
@@ -90,7 +90,7 @@ if (!empty($_GET['noNavbar'])) {
                 body{
                     padding: 0;
                 }
-                                                                    
+                                                                        
     <?php
 }
 ?>
@@ -818,21 +818,18 @@ if (!empty($_GET['noNavbar'])) {
     <?php
     if (Login::canBulkEncode()) {
         ?>
+                                    var span = document.createElement("span");
+                                    span.innerHTML = "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>";
+
                                     swal({
                                         title: "Are you sure?",
-                                        text: "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>",
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#DD6B55',
-                                        confirmButtonText: 'Yes, I am sure!',
-                                        cancelButtonText: "No, cancel it!",
-                                        closeOnConfirm: true,
-                                        closeOnCancel: true,
-                                        html: true,
-                                        dangerMode: true
-                                    },
-                                            function (isConfirm) {
-
-                                                if (isConfirm) {
+                                        content: span,
+                                        icon: "warning",
+                                        buttons: true,
+                                        dangerMode: true,
+                                    })
+                                            .then(function (confirm) {
+                                                if (confirm) {
                                                     modal.showPleaseWait();
                                                     $.ajax({
                                                         url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
@@ -864,35 +861,21 @@ if (!empty($_GET['noNavbar'])) {
                                                         type: 'post',
                                                         success: function (response) {
                                                             if (response.text) {
-                                                                swal({
-                                                                    title: "Channel Import is complete",
-                                                                    text: "All your videos were imported",
-                                                                    type: "success",
-                                                                    html: true});
+                                                                avideoAlertSuccess("All your videos were imported");
                                                             }
                                                             console.log(response);
                                                         }
                                                     });
                                                     setTimeout(function () {
-                                                        swal({
-                                                            title: "Channel Import is on queue",
-                                                            text: "All your videos channel will be process, this may take a while to be complete",
-                                                            type: "success",
-                                                            html: true});
+                                                        avideoAlertInfo("All your videos channel will be process, this may take a while to be complete");
                                                     }, 500);
                                                     modal.hidePleaseWait();
-                                                } else {
-
                                                 }
                                             });
         <?php
     } else {
         ?>
-                                    swal({
-                                        title: "Sorry",
-                                        text: "Channel Import is disabled",
-                                        type: "warning",
-                                        html: true});
+                                    avideoAlertError("Channel Import is disabled");
         <?php
     }
     ?>
@@ -926,11 +909,7 @@ if (!empty($_GET['noNavbar'])) {
                                     type: 'post',
                                     success: function (response) {
                                         if (response.text) {
-                                            swal({
-                                                title: response.title,
-                                                text: response.text,
-                                                type: response.type,
-                                                html: true});
+                                            avideoAlert(response.title, response.text, response.type);
                                         }
                                         console.log(response);
                                         modal.hidePleaseWait();
@@ -1046,11 +1025,7 @@ if (!empty($_GET['noNavbar'])) {
                                         $("#grid").bootgrid("reload");
                                         modal.hidePleaseWait();
                                         if (response.error) {
-                                            swal({
-                                                title: "Ops",
-                                                text: response.msg,
-                                                type: "error",
-                                                html: true});
+                                            avideoAlertError(response.msg);
                                         }
                                     }
                                 });

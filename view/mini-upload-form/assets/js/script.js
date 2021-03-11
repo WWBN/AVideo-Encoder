@@ -78,12 +78,7 @@ $(function () {
         },
         done: function (e, data) {
             if (data.result.error) {
-                swal({
-                    title: "Sorry!",
-                    text: data.result.msg,
-                    html: true,
-                    type: "error"
-                });
+                avideoAlertError(data.result.msg);
                 data.context.addClass('error');
                 data.context.find('p.action').text("Error");
             } else {
