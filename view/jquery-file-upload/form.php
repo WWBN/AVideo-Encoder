@@ -10,7 +10,7 @@
         ?>
         <div class="form-group">
             <div style="display: flex;">
-                <select class="form-control" id="categories_id" name="categories_id">
+                <select class="form-control categories_id" id="categories_id" name="categories_id">
 
                     <option value="0">Category - Use site default</option>
                     <?php
@@ -53,12 +53,12 @@
                 $.ajax({
                     url: '<?php echo $streamerURL; ?>objects/categories.json.php',
                     success: function (response) {
-                        $('#categories_id').empty();
+                        $('.categories_id').empty();
                         for (var item in response.rows) {
                             if (typeof response.rows[item] != 'object') {
                                 continue;
                             }
-                            $('#categories_id').append('<option value="' + response.rows[item].id + '"> ' + response.rows[item].hierarchyAndName + '</option>');
+                            $('.categories_id').append('<option value="' + response.rows[item].id + '"> ' + response.rows[item].hierarchyAndName + '</option>');
                         }
                         modal.hidePleaseWait();
                     }

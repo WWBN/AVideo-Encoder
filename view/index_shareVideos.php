@@ -57,27 +57,57 @@
                         if (!empty($_SESSION['login']->categories)) {
                             ?>
                             <div class="form-group">
-                                <select class="form-control" id="download_categories_id" name="download_categories_id">
+                                <div style="display: flex;">
+                                    <select class="form-control categories_id" id="download_categories_id" name="download_categories_id">
 
-                                    <option value="0">Category - Use site default</option>
+                                        <option value="0">Category - Use site default</option>
+                                        <?php
+                                        array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
+                                        foreach ($_SESSION['login']->categories as $key => $value) {
+                                            echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
+                                        }
+                                        ?>
+                                    </select>
                                     <?php
-                                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                    foreach ($_SESSION['login']->categories as $key => $value) {
-                                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                    }
-                                    ?>
-                                </select>
+                                    if (Login::canCreateCategory()) {
+                                        ?>
+                                        <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
+                                        <script>
+                                            var reloadIfIsNotEditingCategoryTimeout;
+                                            function addNewCategory() {
+                                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                                avideoModalIframe('<?php echo $streamerURL; ?>categories');
+                                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                                    reloadIfIsNotEditingCategory();
+                                                }, 500);
+                                            }
+
+                                            function reloadIfIsNotEditingCategory() {
+                                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                                if (!avideoModalIframeIsVisible()) {
+                                                    loadCategories();
+                                                } else {
+                                                    reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                                        reloadIfIsNotEditingCategory();
+                                                    }, 500);
+                                                }
+                                            }
+                                        </script>
+                                <?php
+                            }
+                            ?>
+                                </div>
                             </div> 
-                            <?php
-                        }
-                        ?>
+        <?php
+    }
+    ?>
                     </form>
                 </div>
 
-                <?php
-            }
-            if (Login::canBulkEncode()) {
-                ?>
+    <?php
+}
+if (Login::canBulkEncode()) {
+    ?>
 
                 <div id="bulk" class="tab-pane fade">
                     <div class="alert alert-info">
@@ -105,29 +135,59 @@
                         </div>
                     </div>
 
-                    <?php
-                    if (!empty($_SESSION['login']->categories)) {
-                        ?>
+    <?php
+    if (!empty($_SESSION['login']->categories)) {
+        ?>
                         <div class="form-group">
-                            <select class="form-control" id="bulk_categories_id" name="bulk_categories_id">
+                            <div style="display: flex;">
+                                <select class="form-control categories_id" id="bulk_categories_id" name="bulk_categories_id">
 
-                                <option value="0">Category - Use site default</option>
-                                <?php
-                                array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                foreach ($_SESSION['login']->categories as $key => $value) {
-                                    echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                }
-                                ?>
-                            </select>
+                                    <option value="0">Category - Use site default</option>
+                                    <?php
+                                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
+                                    foreach ($_SESSION['login']->categories as $key => $value) {
+                                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
+                                    }
+                                    ?>
+                                </select>
+        <?php
+        if (Login::canCreateCategory()) {
+            ?>
+                                    <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
+                                    <script>
+                                        var reloadIfIsNotEditingCategoryTimeout;
+                                        function addNewCategory() {
+                                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                            avideoModalIframe('<?php echo $streamerURL; ?>categories');
+                                            reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                                reloadIfIsNotEditingCategory();
+                                            }, 500);
+                                        }
+
+                                        function reloadIfIsNotEditingCategory() {
+                                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                                            if (!avideoModalIframeIsVisible()) {
+                                                loadCategories();
+                                            } else {
+                                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                                    reloadIfIsNotEditingCategory();
+                                                }, 500);
+                                            }
+                                        }
+                                    </script>
+            <?php
+        }
+        ?>
+                            </div>
                         </div> 
-                        <?php
-                    }
-                    ?>
+        <?php
+    }
+    ?>
                     <ul class="list-group" id="files">
                     </ul>
                     <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
                 </div>
-            <?php } ?>
+<?php } ?>
         </div> 
     </div>
 </div>
