@@ -109,7 +109,7 @@ if (!empty($_GET['noNavbar'])) {
                             <?php
                             if (!empty($_SESSION['login']->siteLogo)) {
                                 ?>
-                                <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive " style="width: 178px;">    
+                                <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive " >    
                                 <?php
                             }
                             ?>
