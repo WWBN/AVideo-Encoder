@@ -55,14 +55,21 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <link rel="apple-touch-icon" sizes="180x180" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
         <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
         <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144">
-        <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
-
-        <link href="<?php echo Login::getStreamerURL(); ?>view/css/fontawesome-free-5.5.0-web/css/all.min.css"" rel="stylesheet" crossorigin="anonymous">
+        <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">        
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+        <!--
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-3.5.1.min.js" type="text/javascript"></script>
-        <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
         <link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
         <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
+        <link href="<?php echo Login::getStreamerURL(); ?>view/css/fontawesome-free-5.5.0-web/css/all.min.css"" rel="stylesheet" crossorigin="anonymous">
+        -->
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
 
         <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
