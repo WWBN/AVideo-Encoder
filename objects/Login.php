@@ -191,6 +191,14 @@ if (!class_exists('Login')) {
             global $global;
             return $_SESSION['login']->user;
         }
+        
+        static function getStreamerPass() {
+            if (!static::isLogged()) {
+                return false;
+            }
+            global $global;
+            return $_SESSION['login']->pass;
+        }
 
         static function getStreamerUserId() {
             if (!static::isLogged()) {

@@ -56,7 +56,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
         <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144">
         <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">        
-        
+
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
@@ -86,6 +86,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
         <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css"" rel="stylesheet" crossorigin="anonymous">
         <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css"/>
+
+
+        <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+        <link href="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
@@ -97,7 +101,7 @@ if (!empty($_GET['noNavbar'])) {
                 body{
                     padding: 0;
                 }
-                                                                        
+                                                                                
     <?php
 }
 ?>
@@ -467,9 +471,54 @@ if (!empty($_GET['noNavbar'])) {
                                         <div class="panel panel-default">
                                             <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
                                             <div class="panel-body">
+                                                <img id="inputNextVideo-poster" src="view/img/notfound.jpg" class="ui-state-default img img-responsive" alt="">
+                                                <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="Search for a video">
                                                 <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id">
                                             </div>
                                         </div>
+
+                                        <script>
+                                            $(function () {
+                                                $("#videoSearch").autocomplete({
+                                                    minLength: 0,
+                                                    source: function (req, res) {
+                                                        $.ajax({
+                                                            url: '<?php echo $streamerURL; ?>objects/videos.json.php?rowCount=6',
+                                                            data: {
+                                                                searchPhrase: req.term,
+                                                                users_id: '<?php echo Login::getStreamerUserId(); ?>',
+                                                                /*
+                                                                 user: '<?php echo Login::getStreamerUser(); ?>', 
+                                                                 pass: '<?php echo Login::getStreamerPass(); ?>', 
+                                                                 encodedPass: true
+                                                                 */
+                                                            },
+                                                            /*
+                                                             xhrFields: {
+                                                             withCredentials: true
+                                                             },
+                                                             */
+                                                            type: 'post',
+                                                            success: function (data) {
+                                                                res(data.rows);
+                                                            }
+                                                        });
+                                                    },
+                                                    focus: function (event, ui) {
+                                                        $("#videoSearch").val(ui.item.title);
+                                                        return false;
+                                                    },
+                                                    select: function (event, ui) {
+                                                        $("#videoSearch").val(ui.item.title);
+                                                        $("#update_video_id").val(ui.item.id);
+                                                        $("#inputNextVideo-poster").attr("src", "<?php echo $streamerURL; ?>videos/" + ui.item.filename + ".jpg");
+                                                        return false;
+                                                    }
+                                                }).autocomplete("instance")._renderItem = function (ul, item) {
+                                                    return $("<li>").append("<div>" + item.title + "</div>").appendTo(ul);
+                                                };
+                                            });
+                                        </script>
                                         <?php
                                     }
 
@@ -483,8 +532,8 @@ if (!empty($_GET['noNavbar'])) {
                                                     ?> 
                                                     <label style="" id="">
                                                         <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                                                    $('.mp4Checkbox').prop('checked', false);
-                                                                }"> Multi Bitrate HLS
+                                                                                $('.mp4Checkbox').prop('checked', false);
+                                                                            }"> Multi Bitrate HLS
                                                     </label><br>
                                                     <?php
                                                 }
@@ -492,8 +541,8 @@ if (!empty($_GET['noNavbar'])) {
                                                     ?> 
                                                     <label style="" id="">
                                                         <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                    $('#inputHLS').prop('checked', false);
-                                                                }"> Low
+                                                                                $('#inputHLS').prop('checked', false);
+                                                                            }"> Low
                                                     </label>
                                                     <?php
                                                 }
@@ -501,8 +550,8 @@ if (!empty($_GET['noNavbar'])) {
                                                     ?> 
                                                     <label id="">
                                                         <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                    $('#inputHLS').prop('checked', false);
-                                                                }"> SD
+                                                                                $('#inputHLS').prop('checked', false);
+                                                                            }"> SD
                                                     </label>
                                                     <?php
                                                 }
@@ -510,8 +559,8 @@ if (!empty($_GET['noNavbar'])) {
                                                     ?> 
                                                     <label>
                                                         <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                    $('#inputHLS').prop('checked', false);
-                                                                }"> HD
+                                                                                $('#inputHLS').prop('checked', false);
+                                                                            }"> HD
                                                     </label>
                                                     <?php
                                                 }
@@ -821,107 +870,22 @@ if (!empty($_GET['noNavbar'])) {
 
                         $('#downloadForm').submit(function (evt) {
                             evt.preventDefault();
-                            if (isAChannel()) {
-    <?php
-    if (Login::canBulkEncode()) {
-        ?>
-                                    var span = document.createElement("span");
-                                    span.innerHTML = "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>";
-
-                                    swal({
-                                        title: "Are you sure?",
-                                        content: span,
-                                        icon: "warning",
-                                        buttons: true,
-                                        dangerMode: true,
-                                    })
-                                            .then(function (confirm) {
-                                                if (confirm) {
-                                                    modal.showPleaseWait();
-                                                    $.ajax({
-                                                        url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
-                                                        data: {
-                                                            "videoURL": $('#inputVideoURL').val(),
-                                                            "audioOnly": $('#inputAudioOnly').is(":checked"),
-                                                            "spectrum": $('#inputAudioSpectrum').is(":checked"),
-                                                            "webm": $('#inputWebM').is(":checked"),
-                                                            "override_status": $('#override_status').val(),
-                                                            "update_video_id": $('#update_video_id').val(),
-                                                            "inputHLS": $('#inputHLS').is(":checked"),
-                                                            "inputLow": $('#inputLow').is(":checked"),
-                                                            "inputSD": $('#inputSD').is(":checked"),
-                                                            "inputHD": $('#inputHD').is(":checked"),
-                                                            "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
-                                                            "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
-                                                            "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
-                                                            "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
-                                                            "categories_id": $('#download_categories_id').val(),
-                                                            "usergroups_id": $(".usergroups_id:checked").map(function () {
-                                                                return $(this).val();
-                                                            }).get(),
-                                                            "startIndex": $('#startIndex').val(),
-                                                            "endIndex": $('#endIndex').val()
-                                                        },
-                                                        xhrFields: {
-                                                            withCredentials: true
-                                                        },
-                                                        type: 'post',
-                                                        success: function (response) {
-                                                            if (response.text) {
-                                                                avideoAlertSuccess("All your videos were imported");
-                                                            }
-                                                            console.log(response);
-                                                        }
-                                                    });
-                                                    setTimeout(function () {
-                                                        avideoAlertInfo("All your videos channel will be process, this may take a while to be complete");
-                                                    }, 500);
-                                                    modal.hidePleaseWait();
-                                                }
-                                            });
-        <?php
-    } else {
-        ?>
-                                    avideoAlertError("Channel Import is disabled");
-        <?php
-    }
-    ?>
+                            var videos_id = $('#update_video_id').val();
+                            if (videos_id) {
+                                swal({
+                                    title: "<?php echo __('You will overwrite the video ID:'); ?> "+videos_id,
+                                    text: "<?php echo __('The video will be replaced with this new file, are you sure you want to proceed?'); ?>",
+                                    icon: "warning",
+                                    buttons: true,
+                                    dangerMode: true,
+                                })
+                                        .then(function (confirm) {
+                                            if (confirm) {
+                                                submitDownloadForm();
+                                            }
+                                        });
                             } else {
-                                modal.showPleaseWait();
-                                $.ajax({
-                                    url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
-                                    data: {
-                                        "videoURL": $('#inputVideoURL').val(),
-                                        "audioOnly": $('#inputAudioOnly').is(":checked"),
-                                        "spectrum": $('#inputAudioSpectrum').is(":checked"),
-                                        "webm": $('#inputWebM').is(":checked"),
-                                        "override_status": $('#override_status').val(),
-                                        "update_video_id": $('#update_video_id').val(),
-                                        "inputHLS": $('#inputHLS').is(":checked"),
-                                        "inputLow": $('#inputLow').is(":checked"),
-                                        "inputSD": $('#inputSD').is(":checked"),
-                                        "inputHD": $('#inputHD').is(":checked"),
-                                        "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
-                                        "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
-                                        "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
-                                        "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
-                                        "categories_id": $('#download_categories_id').val(),
-                                        "usergroups_id": $(".usergroups_id:checked").map(function () {
-                                            return $(this).val();
-                                        }).get()
-                                    },
-                                    xhrFields: {
-                                        withCredentials: true
-                                    },
-                                    type: 'post',
-                                    success: function (response) {
-                                        if (response.text) {
-                                            avideoAlert(response.title, response.text, response.type);
-                                        }
-                                        console.log(response);
-                                        modal.hidePleaseWait();
-                                    }
-                                });
+                                submitDownloadForm();
                             }
                             return false;
                         });
@@ -1145,7 +1109,117 @@ if (!empty($_GET['noNavbar'])) {
                         $('[data-toggle="tooltip"]').tooltip();
                     }
                     );
+                    function submitDownloadForm() {
 
+                        if (isAChannel()) {
+    <?php
+    if (Login::canBulkEncode()) {
+        ?>
+                                var span = document.createElement("span");
+                                span.innerHTML = "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>";
+
+                                swal({
+                                    title: "Are you sure?",
+                                    content: span,
+                                    icon: "warning",
+                                    buttons: true,
+                                    dangerMode: true,
+                                })
+                                        .then(function (confirm) {
+                                            if (confirm) {
+                                                modal.showPleaseWait();
+                                                $.ajax({
+                                                    url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
+                                                    data: {
+                                                        "videoURL": $('#inputVideoURL').val(),
+                                                        "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                                        "spectrum": $('#inputAudioSpectrum').is(":checked"),
+                                                        "webm": $('#inputWebM').is(":checked"),
+                                                        "override_status": $('#override_status').val(),
+                                                        "update_video_id": $('#update_video_id').val(),
+                                                        "inputHLS": $('#inputHLS').is(":checked"),
+                                                        "inputLow": $('#inputLow').is(":checked"),
+                                                        "inputSD": $('#inputSD').is(":checked"),
+                                                        "inputHD": $('#inputHD').is(":checked"),
+                                                        "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                                                        "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                                                        "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                                                        "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
+                                                        "categories_id": $('#download_categories_id').val(),
+                                                        "usergroups_id": $(".usergroups_id:checked").map(function () {
+                                                            return $(this).val();
+                                                        }).get(),
+                                                        "startIndex": $('#startIndex').val(),
+                                                        "endIndex": $('#endIndex').val()
+                                                    },
+                                                    xhrFields: {
+                                                        withCredentials: true
+                                                    },
+                                                    type: 'post',
+                                                    success: function (response) {
+                                                        if (response.text) {
+                                                            avideoAlertSuccess("All your videos were imported");
+                                                        }
+                                                        console.log(response);
+                                                    }
+                                                });
+                                                setTimeout(function () {
+                                                    avideoAlertInfo("All your videos channel will be process, this may take a while to be complete");
+                                                }, 500);
+                                                modal.hidePleaseWait();
+                                            }
+                                        });
+        <?php
+    } else {
+        ?>
+                                avideoAlertError("Channel Import is disabled");
+        <?php
+    }
+    ?>
+                        } else {
+                            modal.showPleaseWait();
+                            $.ajax({
+                                url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
+                                data: {
+                                    "videoURL": $('#inputVideoURL').val(),
+                                    "audioOnly": $('#inputAudioOnly').is(":checked"),
+                                    "spectrum": $('#inputAudioSpectrum').is(":checked"),
+                                    "webm": $('#inputWebM').is(":checked"),
+                                    "override_status": $('#override_status').val(),
+                                    "update_video_id": $('#update_video_id').val(),
+                                    "inputHLS": $('#inputHLS').is(":checked"),
+                                    "inputLow": $('#inputLow').is(":checked"),
+                                    "inputSD": $('#inputSD').is(":checked"),
+                                    "inputHD": $('#inputHD').is(":checked"),
+                                    "inputAutoHLS": $('#inputAutoHLS').is(":checked"),
+                                    "inputAutoMP4": $('#inputAutoMP4').is(":checked"),
+                                    "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
+                                    "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
+                                    "categories_id": $('#download_categories_id').val(),
+                                    "usergroups_id": $(".usergroups_id:checked").map(function () {
+                                        return $(this).val();
+                                    }).get()
+                                },
+                                xhrFields: {
+                                    withCredentials: true
+                                },
+                                type: 'post',
+                                success: function (response) {
+                                    if (response.text) {
+                                        avideoAlert(response.title, response.text, response.type);
+                                    }
+                                    console.log(response);
+                                    modal.hidePleaseWait();
+                                }
+                            });
+                        }
+                    }
+                    
+                    function resetAutocompleteVideosID(){
+                        $("#videoSearch").val('');
+                        $("#update_video_id").val('');
+                        $("#inputNextVideo-poster").attr("src", "view/img/notfound.jpg");
+                    }
                 </script>
                 <?php
             }

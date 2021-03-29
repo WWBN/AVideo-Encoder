@@ -1047,6 +1047,7 @@ class Encoder extends ObjectYPT {
             'duration' => $duration,
             'title' => $title,
             'videos_id' => $videos_id,
+            'first_request' => 1,
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,

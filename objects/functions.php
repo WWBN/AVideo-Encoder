@@ -1018,3 +1018,7 @@ function getPHP() {
     }
     return "php";
 }
+
+function __($msg){
+    return $msg;
+}

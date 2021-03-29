@@ -18,16 +18,39 @@ $(function () {
     $('#fileupload').fileupload({
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
-        url: 'view/jquery-file-upload/server/php/?PHPSESSID='+PHPSESSID,
+        url: 'view/jquery-file-upload/server/php/?PHPSESSID=' + PHPSESSID,
         maxChunkSize: 5000000, // 5 MB
         add: function (e, data) {
+            var videos_id = $('#update_video_id').val();
             var that = this;
-            $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID:PHPSESSID}, function (result) {
-                var file = result.file;
-                data.uploadedBytes = file && file.size;
-                $.blueimp.fileupload.prototype
-                        .options.add.call(that, e, data);
-            });
+            if (videos_id) {
+                swal({
+                    title: "You will overwrite the video ID: " + videos_id,
+                    text: "The video will be replaced with this new file, are you sure you want to proceed?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                        .then(function (confirm) {
+                            if (confirm) {
+                                $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID: PHPSESSID}, function (result) {
+                                    var file = result.file;
+                                    data.uploadedBytes = file && file.size;
+                                    $.blueimp.fileupload.prototype
+                                            .options.add.call(that, e, data);
+                                });
+                            }
+                        });
+            } else {
+                $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID: PHPSESSID}, function (result) {
+                    var file = result.file;
+                    data.uploadedBytes = file && file.size;
+                    $.blueimp.fileupload.prototype
+                            .options.add.call(that, e, data);
+                });
+            }
+
+
         },
         maxRetries: 100,
         retryTimeout: 500,
@@ -36,7 +59,7 @@ $(function () {
             var fu = $(this).data('blueimp-fileupload') || $(this).data('fileupload'),
                     retries = data.context.data('retries') || 0,
                     retry = function () {
-                        $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID:PHPSESSID})
+                        $.getJSON('view/jquery-file-upload/server/php/', {file: data.files[0].name, PHPSESSID: PHPSESSID})
                                 .done(function (result) {
                                     var file = result.file;
                                     data.uploadedBytes = file && file.size;
@@ -113,6 +136,8 @@ $(function () {
         });
     }
     $('#fileupload').bind('fileuploadsubmit', function (e, data) {
+
+
         data.formData = {
             "audioOnly": $('#inputAudioOnly').is(":checked"),
             "spectrum": $('#inputAudioSpectrum').is(":checked"),
@@ -130,14 +155,16 @@ $(function () {
             "title": $('#title').val(),
             "description": $('#description').val(),
             "categories_id": $('#categories_id').val(),
-            "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get(),
-            PHPSESSID:PHPSESSID
+            "usergroups_id": $(".usergroups_id:checked").map(function () {
+                return $(this).val();
+            }).get(),
+            PHPSESSID: PHPSESSID
         };
     }).bind('fileuploaddone', function (e, data) {
         //console.log(e);
         //console.log(data);
         $.ajax({
-            url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php?PHPSESSID='+PHPSESSID,
+            url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php?PHPSESSID=' + PHPSESSID,
             data: {
                 "file": data.result.files[0].name,
                 "audioOnly": $('#inputAudioOnly').is(":checked"),
@@ -156,8 +183,10 @@ $(function () {
                 "title": $('#title').val(),
                 "description": $('#description').val(),
                 "categories_id": $('#categories_id').val(),
-                "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get(),
-                PHPSESSID:PHPSESSID
+                "usergroups_id": $(".usergroups_id:checked").map(function () {
+                    return $(this).val();
+                }).get(),
+                PHPSESSID: PHPSESSID
             },
             type: 'post',
             success: function (response) {
