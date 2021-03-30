@@ -101,3 +101,7 @@
 #config small {
     line-height: normal;
 }
+
+body {
+    padding-top: 50px;
+}
