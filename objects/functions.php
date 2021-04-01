@@ -29,15 +29,6 @@ function get_ffmpeg($ignoreGPU=false) {
 }
 
 function replaceFFMPEG($cmd){
-    global $replacedFFMPEG;
-    if(!isset($replacedFFMPEG)){
-        $replacedFFMPEG = array();
-    }
-    
-    if(!empty($replacedFFMPEG[$cmd])){
-        return $cmd;
-    }
-    $replacedFFMPEG[$cmd] = 1;
     return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
 }
 
