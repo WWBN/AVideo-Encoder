@@ -487,11 +487,9 @@ if (!empty($_GET['noNavbar'])) {
                                                             data: {
                                                                 searchPhrase: req.term,
                                                                 users_id: '<?php echo Login::getStreamerUserId(); ?>',
-                                                                /*
                                                                  user: '<?php echo Login::getStreamerUser(); ?>', 
                                                                  pass: '<?php echo Login::getStreamerPass(); ?>', 
                                                                  encodedPass: true
-                                                                 */
                                                             },
                                                             /*
                                                              xhrFields: {
