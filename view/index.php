@@ -483,7 +483,7 @@ if (!empty($_GET['noNavbar'])) {
                                                     minLength: 0,
                                                     source: function (req, res) {
                                                         $.ajax({
-                                                            url: '<?php echo $streamerURL; ?>objects/videos.json.php?rowCount=6',
+                                                            url: '<?php echo Login::getStreamerURL(); ?>objects/videos.json.php?rowCount=6',
                                                             data: {
                                                                 searchPhrase: req.term,
                                                                 users_id: '<?php echo Login::getStreamerUserId(); ?>',
@@ -509,7 +509,7 @@ if (!empty($_GET['noNavbar'])) {
                                                     select: function (event, ui) {
                                                         $("#videoSearch").val(ui.item.title);
                                                         $("#update_video_id").val(ui.item.id);
-                                                        $("#inputNextVideo-poster").attr("src", "<?php echo $streamerURL; ?>videos/" + ui.item.filename + ".jpg");
+                                                        $("#inputNextVideo-poster").attr("src", "<?php echo Login::getStreamerURL(); ?>videos/" + ui.item.filename + ".jpg");
                                                         return false;
                                                     }
                                                 }).autocomplete("instance")._renderItem = function (ul, item) {
