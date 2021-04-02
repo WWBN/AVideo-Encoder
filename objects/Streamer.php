@@ -42,6 +42,10 @@ if (!class_exists('Streamer')) {
         }
 
         static function getFirstURL() {
+            global $global;
+            if(!empty($global['forceStreamerURL'])){
+                return $global['forceStreamerURL'];
+            }
             $row = static::getFirst();
             return $row['siteURL'];
         }
