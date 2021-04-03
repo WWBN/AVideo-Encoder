@@ -43,9 +43,11 @@ if (!class_exists('Login')) {
             $context = stream_context_create($opts);
             $url = $aVideoURL . 'login?user='. urlencode($user).'&pass='. urlencode($pass).'&encodedPass='. urlencode($encodedPass);
             //echo $url;exit;
+            error_log("Login::run request login user ($user)");
             $result = url_get_contents($url, $context);
+            error_log("Login::run request login complete user ($user)");
             if (empty($result)) {
-                error_log("Get Login fail, try again");
+                error_log("Get Login fail, try again user ($user)");
                 $result = url_get_contents($url, $context);
             }
 
