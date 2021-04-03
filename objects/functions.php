@@ -80,7 +80,7 @@ function getSelfUserAgent($complement = "") {
     return $agent;
 }
 
-function url_get_contents($Url, $ctx = "") {
+function url_get_contents($Url, $ctx = "", $timeout = 0) {
     global $global;
     $agent = getSelfUserAgent();
     if (empty($ctx)) {
@@ -92,6 +92,10 @@ function url_get_contents($Url, $ctx = "") {
                 "allow_self_signed" => true
             )
         );
+        if (!empty($timeout)) {
+            ini_set('default_socket_timeout', $timeout);
+            $opts['http']['timeout'] = $timeout;
+        }
         $context = stream_context_create($opts);
     } else {
         $context = $ctx;

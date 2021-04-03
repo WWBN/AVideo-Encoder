@@ -79,7 +79,8 @@ if (!class_exists('Streamer')) {
         }
 
         function verify() {
-            ini_set('default_socket_timeout', 5); 
+            $timeout = 5;
+            ini_set('default_socket_timeout', $timeout); 
             $url = $this->getSiteURL();
             $cacheFile = sys_get_temp_dir() . "/" . md5($url) . "_verify.log";
             $lifetime = 3600; //1 hour
@@ -88,7 +89,7 @@ if (!class_exists('Streamer')) {
             if (!file_exists($cacheFile) || (time() > (filemtime($cacheFile) + $lifetime))) {
                 error_log("Verification Creating the Cache {$url}");
                 $verifyURL = "https://search.avideo.com/verify.php?url=" . urlencode($url);
-                $result = url_get_contents($verifyURL);
+                $result = url_get_contents($verifyURL, '', 5);
                 @file_put_contents($cacheFile, $result);
             } else {
                 error_log("Verification GetFrom Cache {$url}");
