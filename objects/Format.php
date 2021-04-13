@@ -592,7 +592,7 @@ hd/index.m3u8
             }
 
             $resolution = $height;
-            $code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
+            //$code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
             eval("\$command .= \" $code\";");
 
             return array($destinationFile, $command);
