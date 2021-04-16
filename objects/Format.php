@@ -506,7 +506,7 @@ hd/index.m3u8
             }
 
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
-            $code = ' -c copy  -movflags +faststart -preset veryfast -y {$destinationFile} ';
+            $code = ' -c h264 -movflags +faststart -preset veryfast -y {$destinationFile} ';
             eval("\$command .= \" $code\";");
 
             error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
