@@ -253,10 +253,7 @@ if (!empty($_GET['noNavbar'])) {
                 </script>    
                 <?php
             } else {
-                $aURL = Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php";
-                $json_file = url_get_contents($aURL);
-                // convert the string to a json object
-                $advancedCustom = json_decode($json_file);
+                $advancedCustom = getAdvancedCustomizedObjectData();
                 if (empty($advancedCustom)) {
                     error_log("ERROR on get {$aURL} " . $json_file);
                     $advancedCustom = new stdClass();

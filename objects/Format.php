@@ -476,6 +476,7 @@ hd/index.m3u8
         static private function getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, $format_id) {
             $height = self::getResolution($pathFileName);
             //$audioTracks = self::getAudioTracks($pathFileName);
+            $advancedCustom = getAdvancedCustomizedObjectData();
 
             $encoderConfig = self::loadEncoderConfiguration();
             $resolutions = $encoderConfig['resolutions'];
@@ -490,9 +491,11 @@ hd/index.m3u8
             $command = get_ffmpeg() . ' -i {$pathFileName} ';
 
             $i = 0;
+            $lastHeight = 0;
             while ($i < count($resolutions)) {
                 $resolution = $resolutions[$i];
-                if ($resolution < $height) {
+                if ($resolution <= $height) {
+                    $lastHeight = $resolution;
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
                     $autioBitrate = $audioBitrate[$i];
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
@@ -504,10 +507,12 @@ hd/index.m3u8
                 }
                 $i++;
             }
-
-            $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
-            $code = ' -c copy -movflags +faststart -y {$destinationFile} ';
-            eval("\$command .= \" $code\";");
+            
+            if($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height){
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
+                $code = ' -c copy -movflags +faststart -y {$destinationFile} ';
+                eval("\$command .= \" $code\";");
+            }
 
             error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
             return $command;

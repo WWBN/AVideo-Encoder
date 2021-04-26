@@ -510,10 +510,7 @@ function setSiteSendMessage(&$mail) {
 }
 
 function decideFromPlugin() {
-    $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
-    // convert the string to a json object
-    $advancedCustom = json_decode($json_file);
-    fixAdvancedCustom($advancedCustom);
+    $advancedCustom = getAdvancedCustomizedObjectData();
     if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
         return array("mp4" => 7, "webm" => 8);
     }
@@ -1029,4 +1026,15 @@ function getPHP() {
 
 function __($msg){
     return $msg;
+}
+
+function getAdvancedCustomizedObjectData(){
+    global $advancedCustom;
+    if(empty($advancedCustom)){
+        $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
+        // convert the string to a json object
+        $advancedCustom = json_decode($json_file);
+        fixAdvancedCustom($advancedCustom);
+    }
+    return $advancedCustom;
 }
