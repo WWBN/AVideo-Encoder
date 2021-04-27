@@ -692,10 +692,9 @@ class Encoder extends ObjectYPT {
                         $encoder->setStatus_obs("Could not download the file ");
                         $encoder->save();
                     }
-                } else {
+                } else if(!empty ($return_vars->videos_id)){
                     $encoder->setStatus("encoding");
                     $encoder->save();
-
                     self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -747,6 +746,9 @@ class Encoder extends ObjectYPT {
                         // TODO remove file
                         // run again
                     }
+                }
+                else{
+                    error_log("return_vars->videos_id is empty ". json_encode($return_vars));
                 }
                 static::run();
             }
@@ -1030,7 +1032,7 @@ class Encoder extends ObjectYPT {
         } else {
             $usergroups_id = $_POST['usergroups_id'];
         }
-
+        
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $aVideoURL = $s->getSiteURL();
@@ -1268,7 +1270,6 @@ class Encoder extends ObjectYPT {
             $count++;
         }
         $obj->postFields = $postFields;
-
         if (!empty($file)) {
             if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
                 // do not send image twice
