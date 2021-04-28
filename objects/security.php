@@ -28,12 +28,6 @@ foreach ($scanVars as $value) {
             exit;
         }
     }
-    if (!empty($scanThis['videos_id'])) {
-        $scanThis['videos_id'] = videosHashToID($scanThis['videos_id']);
-    }
-    if (!empty($scanThis['v'])) {
-        $scanThis['v'] = videosHashToID($scanThis['v']);
-    }
 
     foreach ($filterURL as $key => $value) {
         if (!empty($scanThis[$value])) {
