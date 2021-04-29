@@ -31,7 +31,7 @@ class Encoder extends ObjectYPT {
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
         $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
-        error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
+        //error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
         return parent::save();
     }
 
@@ -132,7 +132,7 @@ class Encoder extends ObjectYPT {
 
     function setStatus($status) {
         $this->status = $status;
-
+        //error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
             case "done":
             case "error":
@@ -266,8 +266,6 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
-        error_log("downloadFile: start queue_id = {$queue_id}");
-        error_log("downloadFile: url = {$url}");
         $f = new Format($q->getFormats_id());
         $dstFilepath = $global['systemRootPath'] . "videos/";
         $filename = "{$queue_id}_tmpFile." . $f->getExtension_from();
@@ -278,6 +276,16 @@ class Encoder extends ObjectYPT {
         $obj->error = true;
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
+        
+        if(file_exists($obj->pathFileName)){
+            $obj->error = false;
+            //error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
+            return $obj;
+        }
+        
+        error_log("downloadFile: start queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
+        
+        
         $e = Encoder::getFromFileURI($url);
         if (!empty($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
@@ -296,7 +304,7 @@ class Encoder extends ObjectYPT {
         } else {
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
             if (strpos($url, "http") !== false) {
-                error_log("downloadFile:strpos global['webSiteRootURL'] = {$global['webSiteRootURL']}");
+                //error_log("downloadFile:strpos global['webSiteRootURL'] = {$global['webSiteRootURL']}");
                 if (strpos($url, $global['webSiteRootURL']) === false) {
                     error_log("downloadFile: keep the same URL");
                     $downloadedFile = $url;
@@ -317,12 +325,13 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         if ($obj->error == false) {
-            error_log("downloadFile: success");
+            //error_log("downloadFile: success");
+            $obj->msg = "We downloaded the file with success";
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
         }
         if ($response) {
-            error_log("downloadFile: error");
+            //error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
         }
         error_log("downloadFile: " . json_encode($obj));
@@ -428,33 +437,12 @@ class Encoder extends ObjectYPT {
         $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
         //url_get_contents is what drives the red bar and causes the memory failure
         $return = url_set_file_context($videoURL, $ctx);
-        /* if (!$return) { //OhioVR did this because the encoder quickly runs out of memory
-          $fixedEncodedUrl = utf8_encode($videoURL);
-          error_log("getVideoFile: Try to get UTF8 URL {$fixedEncodedUrl}");
-          $return = url_set_file_context($videoURL, $ctx);
-          if (!$return) {
-          $fixedEncodedUrl = utf8_decode($videoURL);
-          error_log("getVideoFile: Try to get UTF8 decode URL {$fixedEncodedUrl}");
-          $return = url_set_file_context($videoURL, $ctx);
-          }
-          if (!$return) {
-          error_log("getVideoFile: Try url_get_contents {$fixedEncodedUrl}");
-          $data = url_get_contents($downloadedFile);
-          $return = file_put_contents($destinationFile, $data);
-          }
-          if (!$return) {
-          error_log("getVideoFile: ERROR on get URL {$fixedEncodedUrl}");
-          }
-          }
-          error_log("getVideoFile: destinationFile = {$destinationFile}");
-          error_log("getVideoFile: downloadedFile = {$downloadedFile}");
-          error_log("getVideoFile: " . json_encode($return));
-         */
+        
         //And OhioVR also did this:
         $return = url_set_file_context($videoURL, $ctx);
         if (!$return) {
             $fixedEncodedUrl = utf8_encode($videoURL);
-            error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
+            //error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
             $return = url_set_file_context($videoURL, $ctx);
             if (!$return) {
                 $fixedEncodedUrl = utf8_decode($videoURL);
@@ -475,12 +463,15 @@ class Encoder extends ObjectYPT {
         if ($res) {
             while ($result = $res->fetch_assoc()) {
                 $encoder = new Encoder($result['id']);
+                /* Do not auto add to queue here, it was causing an reencode on refresh page
                 if (!$encoder->isWorkerRunning()) {
                     $encoder->setStatus("queue");
                     $encoder->setStatus_obs("Worker died");
                     $encoder->save();
                     continue;
                 }
+                 * 
+                 */
                 $result['return_vars'] = json_decode($result['return_vars']);
                 $s = new Streamer($result['streamers_id']);
                 $result['streamer_site'] = $s->getSiteURL();
@@ -572,7 +563,7 @@ class Encoder extends ObjectYPT {
 
     function isWorkerRunning() {
         $ppid = $this->getWorker_ppid();
-        if (!is_numeric($ppid) || $ppid == 0)
+        if (empty($ppid))
             return false;
 
         exec("kill -0 " . $ppid, $output, $ppid_retval);
@@ -660,12 +651,18 @@ class Encoder extends ObjectYPT {
 
     static function run($try = 0) {
         global $global;
+        $maxTries = 3;
+        
+        if($try > $maxTries){
+            return false;
+        }
+        
         $concurrent = isset($global['concurrent']) ? $global['concurrent'] : 1;
         $try++;
         $obj = new stdClass();
         $obj->error = true;
         // check if is encoding something
-        //error_log("run($try)");
+        //error_log("Encoder::run: try=($try)");
         $rows = static::areEncoding();
         if (count($rows) < $concurrent) {
             $row = static::getNext();
@@ -679,18 +676,21 @@ class Encoder extends ObjectYPT {
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
-                    if ($try < 4) {
-                        $msg = "Trying again: [$try] => Could not download the file ";
+                    if ($try <= $maxTries) {
+                        $msg = "Encoder::run: Trying again: [$try] => Could not download the file ";
                         error_log($msg);
                         $encoder->setStatus("queue");
                         $encoder->setStatus_obs($msg);
                         $encoder->save();
-                        self::run($try);
+                        return self::run($try);
                     } else {
+                        $msg = "Encoder::run: Max tries reached";
+                        error_log($msg);
                         $obj->msg = $objFile->msg;
                         $encoder->setStatus("error");
-                        $encoder->setStatus_obs("Could not download the file ");
+                        $encoder->setStatus_obs($msg);
                         $encoder->save();
+                        return false;
                     }
                 } else if(!empty ($return_vars->videos_id)){
                     $encoder->setStatus("encoding");
@@ -701,18 +701,19 @@ class Encoder extends ObjectYPT {
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
                         if ($try < 4) {
-                            $msg = "Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $msg = "Encoder::run: Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log($msg);
                             $encoder->setStatus("queue");
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
-                            static::run($try);
+                            return static::run($try);
                         } else {
                             $obj->msg = "Execute code error 2 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
-                            error_log("Encoder Run: " . json_encode($obj));
+                            error_log("Encoder::run: Encoder Run: " . json_encode($obj));
                             $encoder->setStatus("error");
                             $encoder->setStatus_obs($obj->msg);
                             $encoder->save();
+                            return false;
                         }
                     } else {
                         // if is audio send the spectrum image as well
@@ -734,23 +735,30 @@ class Encoder extends ObjectYPT {
                             if (!empty($config->getAutodelete())) {
                                 $encoder->delete();
                             } else {
-                                error_log("Autodelete Not active");
+                                error_log("Encoder::run: Autodelete Not active");
                             }
                             $encoder->notifyVideoIsDone();
+                            $encoder->save();
                         } else {
+                            $msg = "Encoder::run: Send message error = " . $response->msg;
+                            error_log($msg);
                             $encoder->setStatus("error");
-                            $encoder->setStatus_obs("Send message error = " . $response->msg);
+                            $encoder->setStatus_obs($msg);
                             $encoder->notifyVideoIsDone(1);
+                            $encoder->save();
+                            return false;
                         }
-                        $encoder->save();
-                        // TODO remove file
-                        // run again
                     }
                 }
                 else{
-                    error_log("return_vars->videos_id is empty ". json_encode($return_vars));
+                    error_log("try [{$try}] return_vars->videos_id is empty ". json_encode($return_vars));
+                    $encoder->setStatus("error");
+                    $encoder->setStatus_obs("try [{$try}] Error on return_vars->videos_id");
+                    $encoder->notifyVideoIsDone(1);
+                    $encoder->save();
+                    return false;
                 }
-                static::run();
+                return static::run($try);
             }
         } else {
             $msg = (count($rows) == 1) ? "The file " : "The files ";
@@ -894,10 +902,10 @@ class Encoder extends ObjectYPT {
         $this->save();
         error_log("Encoder::send() order_id=$order_id");
         if (in_array($order_id, $global['multiResolutionOrder'])) {
-            error_log("Encoder::send() multiResolutionOrder");
+            //error_log("Encoder::send() multiResolutionOrder");
             if (in_array($order_id, $global['sendAll'])) {
                 $files = self::getTmpFiles($this->id);
-                error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
+                //error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
                 foreach ($files as $file) {
                     if (is_dir($file)) {
                         continue;
@@ -908,7 +916,7 @@ class Encoder extends ObjectYPT {
                     if ($resolution == 'converted') {
                         $resolution = '';
                     }
-                    error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
+                    //error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
                     $return->sends[] = self::sendFileChunk($file, $videos_id, $format, $this, $resolution);
                 }
             } else {
@@ -932,13 +940,13 @@ class Encoder extends ObjectYPT {
                 }
             }
         } else {
-            error_log("Encoder::send() NOT multiResolutionOrder");
+            //error_log("Encoder::send() NOT multiResolutionOrder");
             $extension = $f->getExtension();
             if ($formatId == 29 || $formatId == 30) { // if it is HLS send the compacted file
                 $extension = "zip";
             }
             if (empty($global['webmOnly'])) {
-                error_log("Encoder::send webmOnly");
+                //error_log("Encoder::send webmOnly");
                 $file = self::getTmpFileName($this->id, $extension);
                 $r = static::sendFileChunk($file, $videos_id, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
@@ -947,7 +955,7 @@ class Encoder extends ObjectYPT {
             }
             if ($order_id == 70 || $order_id == 50) { // if it is Spectrum send the webm also
                 $extension = "webm";
-                error_log("Encoder::send Spectrum send the web");
+                //error_log("Encoder::send Spectrum send the web");
                 $file = self::getTmpFileName($this->id, $extension);
                 $r = static::sendFileChunk($file, $return->videos_id, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
@@ -965,7 +973,7 @@ class Encoder extends ObjectYPT {
         if (!empty($config->getAutodelete())) {
             $this->delete();
         } else {
-            error_log("Autodelete Not active");
+            //error_log("Encoder::send: Autodelete Not active");
         }
         $this->save();
         return $return;
@@ -1043,8 +1051,7 @@ class Encoder extends ObjectYPT {
 
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
-        error_log("Encoder::sendFile sending file to {$target}");
-        error_log("Encoder::sendFile reading file from {$file}");
+        error_log("Encoder::sendFile sending file to {$target} from {$file}");
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
@@ -1106,7 +1113,7 @@ class Encoder extends ObjectYPT {
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
-        if ($errno = curl_errno($curl) || empty($obj->response)) {
+        if ($errno = curl_errno($curl) || empty($obj->response) || !is_object($obj->response)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
             $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n {$chunkFile} ";
@@ -1115,7 +1122,9 @@ class Encoder extends ObjectYPT {
         }
         curl_close($curl);
         error_log(json_encode($obj));
-        $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        if(is_object($obj->response) && !empty($obj->response->video_id)){
+            $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        }
         //var_dump($obj);exit;
 
         if (isset($u) && $u !== false && $obj->error == false) {
@@ -1211,7 +1220,7 @@ class Encoder extends ObjectYPT {
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
-        error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
+        //error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
         if (empty($duration)) {
             $duration = static::getDurationFromFile($file);
         }
@@ -1248,8 +1257,7 @@ class Encoder extends ObjectYPT {
 
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
-        error_log("Encoder::sendFileToDownload sending file to {$target}");
-        error_log("Encoder::sendFileToDownload reading file from {$file}");
+        //error_log("Encoder::sendFileToDownload sending file to {$target} from {$file}");
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
@@ -1289,7 +1297,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = remove_utf8_bom(curl_exec($curl));
-        error_log("AVideo-Streamer answer 2 {$r}");
+        //error_log("AVideo-Streamer answer 2 {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1301,7 +1309,7 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log(json_encode($obj));
+        error_log("Encoder::sendFileToDownload ".json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
         //var_dump($obj);exit;
         return $obj;
@@ -1313,7 +1321,7 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
-        error_log("sendImages: Sending image to [$videos_id]");
+        //error_log("sendImages: Sending image to [$videos_id]");
         $duration = static::getDurationFromFile($file);
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
@@ -1323,8 +1331,7 @@ class Encoder extends ObjectYPT {
 
         $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
-        error_log("sendImages: AVideo-Encoder sending file to {$target}");
-        error_log("sendImages: AVideo-Encoder reading file from {$file}");
+        //error_log("sendImages: Sending image to videos_id=[$videos_id] {$target} reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
             'videos_id' => $videos_id,
@@ -1352,7 +1359,7 @@ class Encoder extends ObjectYPT {
             error_log(json_encode($obj));
             return $obj;
         }
-        error_log("sendImages: curl_init");
+        //error_log("sendImages: curl_init");
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -1362,9 +1369,9 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        error_log("sendImages: curl_exec");
+        //error_log("sendImages: curl_exec");
         $r = curl_exec($curl);
-        error_log("sendImages: AVideo-Streamer answer {$r}");
+        //error_log("sendImages: AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1377,7 +1384,7 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log(json_encode($obj));
+        error_log("sendImages: ".json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
 
         //var_dump($obj);exit;
@@ -1390,7 +1397,6 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
-        error_log("SpectrumFromMP3: Sending image to [$videos_id]");
         $duration = static::getDurationFromFile($file);
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
@@ -1400,8 +1406,7 @@ class Encoder extends ObjectYPT {
 
         $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
-        error_log("SpectrumFromMP3: AVideo-Encoder sending file to {$target}");
-        error_log("SpectrumFromMP3: AVideo-Encoder reading file from {$file}");
+        error_log("sendSpectrumFromMP3: Sending image to videos_id=[$videos_id] {$target} reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
             'videos_id' => $videos_id,
@@ -1417,7 +1422,7 @@ class Encoder extends ObjectYPT {
             error_log(json_encode($obj));
             return $obj;
         }
-        error_log("SpectrumFromMP3: curl_init");
+        //error_log("SpectrumFromMP3: curl_init");
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $target);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -1427,7 +1432,7 @@ class Encoder extends ObjectYPT {
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        error_log("SpectrumFromMP3: curl_exec");
+        //error_log("SpectrumFromMP3: curl_exec");
         $r = curl_exec($curl);
         error_log("SpectrumFromMP3: AVideo-Streamer answer {$r}");
         $obj->postFields = count($postFields);
@@ -1632,7 +1637,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getGifImage($pathFileName, $seconds = 5, $howLong = 3) {
-        error_log("getGifImage");
+        //error_log("getGifImage");
         global $global;
         $destinationFile = "{$pathFileName}.gif";
         // do not encode again
@@ -1644,7 +1649,7 @@ class Encoder extends ObjectYPT {
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
-        error_log("getGif: Starts");
+        //error_log("getGif: Starts");
         //generate a palette:
         $palleteFile = "{$pathFileName}palette.png";
         eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFile}";');
@@ -1680,7 +1685,7 @@ class Encoder extends ObjectYPT {
     }
 
     static function getWebpImage($pathFileName, $seconds = 5, $howLong = 3) {
-        error_log("getWebpImage");
+        //error_log("getWebpImage");
         global $global;
         $destinationFile = "{$pathFileName}.webp";
         // do not encode again
@@ -1692,7 +1697,7 @@ class Encoder extends ObjectYPT {
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
-        error_log("getWebpImage: Starts");
+        //error_log("getWebpImage: Starts");
         //generate a palette:
         eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
         exec($ffmpeg . " 2>&1", $output, $return_val);

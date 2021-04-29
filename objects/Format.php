@@ -301,6 +301,16 @@ hd/index.m3u8
         }
 
         static function getResolution($pathFileName) {
+            global $_getResolution;
+
+            if (!isset($_getResolution)) {
+                $_getResolution = array();
+            }
+
+            if (!empty($_getResolution[$pathFileName])) {
+                return $_getResolution[$pathFileName];
+            }
+
             $command = get_ffprobe() . " -v quiet -print_format json -show_format -show_streams \"$pathFileName\"";
             error_log("getResolution: {$command}");
             $json = exec($command . " 2>&1", $output, $return_val);
@@ -323,8 +333,8 @@ hd/index.m3u8
                     break;
                 }
             }
-            error_log("getResolution: success $resolution ({$json})");
-
+            error_log("getResolution: success $resolution");
+            $_getResolution[$pathFileName] = $resolution;
             return $resolution;
         }
 
@@ -453,7 +463,7 @@ hd/index.m3u8
             $videoFramerate = array();
 
             $selectedResolutions = self::getSelectedResolutions();
-            
+
             sort($selectedResolutions);
 
             foreach ($selectedResolutions as $index => $value) {
@@ -507,8 +517,8 @@ hd/index.m3u8
                 }
                 $i++;
             }
-            
-            if($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height){
+
+            if ($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
                 $code = ' -c copy -movflags +faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
@@ -624,7 +634,16 @@ hd/index.m3u8
             $obj->pathFileName = $pathFileName;
             $f = new Format($format_id);
             $fc = $f->getCode();
-
+            
+            $encoder = new Encoder($encoder_queue_id);
+            if($encoder->isWorkerRunning()){
+                error_log("AVideo-Encoder Format::exec  queue is alreary running [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
+                $obj->msg = "queue is already running";
+                return $obj;
+            }
+            $encoder->setStatus("encoding");
+            $encoder->save();
+            
             error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) {// it is HLS
                 if (empty($fc) || $format_id == 30) {
@@ -646,11 +665,10 @@ hd/index.m3u8
             } else {
                 $obj->code = $code;
                 error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
-                $encoder = new Encoder($encoder_queue_id);
                 $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
                 $encoder->exec($code . " 1> {$progressFile}  2>&1", $output, $return_val);
-                if ($return_val !== 0) {
-                    error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}".PHP_EOL . json_encode($output));
+                if (self::progressFileHasVideosWithErrors($progressFile)) {
+                    error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));
                     $obj->msg = print_r($output, true);
                     $encoder = new Encoder($encoder_queue_id);
                     if (empty($encoder->getId())) {/* dequeued */
@@ -672,6 +690,74 @@ hd/index.m3u8
                 }
             }
             return $obj;
+        }
+
+        static function progressFileHasVideosWithErrors($progressFilename) {
+            global $global;
+
+            if (empty($progressFilename)) {
+                error_log("progressFileHasVideosWithErrors: file not exists {$progressFilename}");
+                return true;
+            }
+
+            $content = file_get_contents($progressFilename);
+
+            if (empty($content)) {
+                error_log("progressFileHasVideosWithErrors: content is empty");
+                return true;
+            }
+
+            $videos_dir = addcslashes("{$global['systemRootPath']}videos", '/');
+            $pattern = "/output.*to '({$videos_dir}.*)'/i";
+            
+            preg_match_all($pattern, $content, $matches);
+            
+            if(empty($matches[1])){
+                error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors".PHP_EOL.$content);
+                return false;
+            }
+            //error_log("progressFileHasVideosWithErrors: {$pattern} matches= " . json_encode($matches));
+            foreach ($matches[1] as $value) {
+                if (empty($value)) {
+                    continue;
+                }
+                //error_log("progressFileHasVideosWithErrors: value= " . json_encode($value));
+                if (self::videoFileHasErrors($value)) {
+                    error_log("progressFileHasVideosWithErrors: error found {$value}");
+                    return true;
+                }
+            }
+            //error_log("progressFileHasVideosWithErrors: no errors found {$progressFilename}");
+            return false;
+        }
+
+        static function videoFileHasErrors($filename) {
+            if (!file_exists($filename)) {
+                error_log("videoFileHasErrors: file not exists {$filename}");
+                return true;
+            }
+            $errorLogFile = $filename . '.error.log';
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $command = get_ffmpeg() . " -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
+            } else {
+                $command = get_ffmpeg() . " -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
+            }
+            exec($command);
+
+            if (!file_exists($errorLogFile)) {
+                error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
+                return true;
+            }
+
+            $content = file_get_contents($errorLogFile);
+            unlink($errorLogFile);
+
+            if (!empty($content)) {
+                error_log("videoFileHasErrors: error.log file has content " . PHP_EOL . $content);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {

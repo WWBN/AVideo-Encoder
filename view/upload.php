@@ -58,7 +58,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $e->setStatus('queue');
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
-        error_log("Upload.php will set format");
+        //error_log("Upload.php will set format");
         if ($type == "video") {
             if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
                 if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
