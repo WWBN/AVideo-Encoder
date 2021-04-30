@@ -636,17 +636,18 @@ hd/index.m3u8
             $fc = $f->getCode();
             
             $encoder = new Encoder($encoder_queue_id);
+            /*
             if($encoder->isWorkerRunning() && $encoder->getStatus() !== 'error'){
                 error_log("AVideo-Encoder Format::exec  queue is alreary running [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
                 $obj->msg = "this queue running";
                 $obj->error = -1;
-                $encoder->setStatus("encoding");
-                $encoder->save();
+                //$encoder->setStatus("encoding");
+                //$encoder->save();
                 return $obj;
             }
             $encoder->setStatus("encoding");
             $encoder->save();
-            
+            */
             error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) {// it is HLS
                 if (empty($fc) || $format_id == 30) {
