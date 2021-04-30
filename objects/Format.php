@@ -639,7 +639,8 @@ hd/index.m3u8
             if($encoder->isWorkerRunning() && $encoder->getStatus() !== 'error'){
                 error_log("AVideo-Encoder Format::exec  queue is alreary running [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
                 $obj->msg = "this queue running";
-                $obj->error = false;
+                $obj->error = true;
+                $obj->code = '';
                 $encoder->setStatus("encoding");
                 $encoder->save();
                 return $obj;
