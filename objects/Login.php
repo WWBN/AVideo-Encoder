@@ -132,6 +132,7 @@ if (!class_exists('Login')) {
                 error_log("isLogged: false " . json_encode($_SESSION['login']->isLogged));
             }
             if (!empty($_GET['justLogin'])) {
+                $_GET['justLogin'] = $_SESSION['login']->isLogged;
                 error_log("isLogged:: session_login = " . json_encode($_SESSION['login']->isLogged));
             }
             return $isLogged;
