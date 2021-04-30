@@ -1135,6 +1135,18 @@ class Encoder extends ObjectYPT {
     }
 
     static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try = 0) {
+        
+        if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
+            $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
+            error_log($msg);
+            $obj = new stdClass();
+            $obj->error = true;
+            $obj->file = $file;
+            $obj->filesize = filesize($file);
+            $obj->response = $msg;
+            return $obj;
+        }
+        
         $obj = self::sendFileToDownload($file, $videos_id, $format, $encoder, $resolution);
         if (empty($obj->error)) {
             error_log("Encoder:sendFileChunk no need, we could download");
