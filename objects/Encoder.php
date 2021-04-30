@@ -700,7 +700,9 @@ class Encoder extends ObjectYPT {
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
-                        if ($try < 4) {
+                        if ($resp->error === -1) {
+                            return false;
+                        } else if ($try < 4) {
                             $msg = "Encoder::run: Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log($msg);
                             $encoder->setStatus("queue");
