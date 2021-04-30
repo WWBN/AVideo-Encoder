@@ -131,6 +131,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setStatus($status) {
+        
         $this->status = $status;
         //error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
