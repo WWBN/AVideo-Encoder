@@ -696,7 +696,7 @@ class Encoder extends ObjectYPT {
                 } else if(!empty ($return_vars->videos_id)){
                     $encoder->setStatus("encoding");
                     $encoder->save();
-                    self::sendImages($objFile->pathFileName, $return_vars->videos_id, $encoder);
+                    self::sendImages($objFile->pathFileName, $return_vars, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
@@ -721,7 +721,7 @@ class Encoder extends ObjectYPT {
                     } else {
                         // if is audio send the spectrum image as well
                         if ($encoder->getFormats_id() == 6) {
-                            self::sendSpectrumFromMP3($objFile->pathFileName, $return_vars->videos_id, $encoder);
+                            self::sendSpectrumFromMP3($objFile->pathFileName, $return_vars, $encoder);
                         }
                         $obj->error = false;
                         $obj->msg = $resp->code;
@@ -783,6 +783,7 @@ class Encoder extends ObjectYPT {
         $return_vars = json_decode($this->getReturn_vars());
         if (!empty($return_vars->videos_id)) {
             $videos_id = $return_vars->videos_id;
+            $video_id_hash = $return_vars->video_id_hash;
             $obj->error = true;
 
             $streamers_id = $this->getStreamers_id();
@@ -798,6 +799,7 @@ class Encoder extends ObjectYPT {
             error_log("AVideo-Encoder sending confirmation to {$target}");
             $postFields = array(
                 'videos_id' => $videos_id,
+                'video_id_hash' => $video_id_hash,
                 'user' => $user,
                 'password' => $pass,
                 'fail' => $fail
@@ -834,11 +836,11 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    private function multiResolutionSend($resolution, $format, $videos_id) {
+    private function multiResolutionSend($resolution, $format,$return_vars) {
         global $global;
-        error_log("Encoder::multiResolutionSend($resolution, $format, $videos_id)");
+        error_log("Encoder::multiResolutionSend($resolution, $format, {$return_vars->videos_id})");
         $file = self::getTmpFileName($this->id, $format, $resolution);
-        $r = static::sendFileChunk($file, $videos_id, $format, $this, $resolution);
+        $r = static::sendFileChunk($file, $return_vars, $format, $this, $resolution);
         return $r;
     }
 
@@ -920,25 +922,25 @@ class Encoder extends ObjectYPT {
                         $resolution = '';
                     }
                     //error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
-                    $return->sends[] = self::sendFileChunk($file, $videos_id, $format, $this, $resolution);
+                    $return->sends[] = self::sendFileChunk($file, $return_vars, $format, $this, $resolution);
                 }
             } else {
                 if (in_array($order_id, $global['hasHDOrder'])) {
-                    $return->sends[] = $this->multiResolutionSend("HD", "mp4", $videos_id);
+                    $return->sends[] = $this->multiResolutionSend("HD", "mp4", $return_vars);
                     if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                        $return->sends[] = $this->multiResolutionSend("HD", "webm", $videos_id);
+                        $return->sends[] = $this->multiResolutionSend("HD", "webm", $return_vars);
                     }
                 }
                 if (in_array($order_id, $global['hasSDOrder'])) {
-                    $return->sends[] = $this->multiResolutionSend("SD", "mp4", $videos_id);
+                    $return->sends[] = $this->multiResolutionSend("SD", "mp4", $return_vars);
                     if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                        $return->sends[] = $this->multiResolutionSend("SD", "webm", $videos_id);
+                        $return->sends[] = $this->multiResolutionSend("SD", "webm", $return_vars);
                     }
                 }
                 if (in_array($order_id, $global['hasLowOrder'])) {
-                    $return->sends[] = $this->multiResolutionSend("Low", "mp4", $videos_id);
+                    $return->sends[] = $this->multiResolutionSend("Low", "mp4", $return_vars);
                     if (in_array($order_id, $global['bothVideosOrder'])) { // make the webm too
-                        $return->sends[] = $this->multiResolutionSend("Low", "webm", $videos_id);
+                        $return->sends[] = $this->multiResolutionSend("Low", "webm", $return_vars);
                     }
                 }
             }
@@ -951,7 +953,7 @@ class Encoder extends ObjectYPT {
             if (empty($global['webmOnly'])) {
                 //error_log("Encoder::send webmOnly");
                 $file = self::getTmpFileName($this->id, $extension);
-                $r = static::sendFileChunk($file, $videos_id, $extension, $this);
+                $r = static::sendFileChunk($file, $return_vars, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
                 $return->videos_id = $r->response->video_id;
                 $this->setReturn_varsVideos_id($return->videos_id);
@@ -982,7 +984,7 @@ class Encoder extends ObjectYPT {
         return $return;
     }
 
-    static function sendFile($file, $videos_id, $format, $encoder = null, $resolution = "", $chunkFile = "") {
+    static function sendFile($file, $return_vars, $format, $encoder = null, $resolution = "", $chunkFile = "") {
         global $global;
         global $sentImage;
 
@@ -999,12 +1001,12 @@ class Encoder extends ObjectYPT {
             if ($u !== false && $u->getStatus() == "done") {
                 $obj->error = false;
                 $obj->msg = "Already sent";
-                error_log("Encoder::sendFile already sent videos_id=$videos_id, format=$format");
+                error_log("Encoder::sendFile already sent videos_id={$return_vars->videos_id}, format=$format");
                 return $obj;
             }
         }
 
-        error_log("Encoder::sendFile videos_id=$videos_id, format=$format");
+        error_log("Encoder::sendFile videos_id={$return_vars->videos_id}, format=$format");
 
         $duration = static::getDurationFromFile($file);
         if ($duration == "EE:EE:EE" && $file != "") {
@@ -1015,7 +1017,7 @@ class Encoder extends ObjectYPT {
 
             $obj->error = true;
             $obj->msg = "Corrupted output";
-            error_log("Encoder::sendFile videos_id=$videos_id, format=$format: discard corrupted output file");
+            error_log("Encoder::sendFile videos_id={$return_vars->videos_id}, format=$format: discard corrupted output file");
             return $obj;
         }
 
@@ -1055,10 +1057,14 @@ class Encoder extends ObjectYPT {
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target} from {$file}");
+        if(!is_object($return_vars)){
+            error_log('$return_vars is empty -['. json_encode($return_vars).']- '.json_encode(debug_backtrace()));
+        }
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => $videos_id,
+            'videos_id' => $return_vars->videos_id,
+            'video_id_hash' => $return_vars->video_id_hash,
             'first_request' => 1,
             'categories_id' => $categories_id,
             'format' => $format,
@@ -1094,9 +1100,9 @@ class Encoder extends ObjectYPT {
 
         if (!empty($file)) {
             $postFields['video'] = new CURLFile($file);
-            if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
+            if ($format == "mp4" && !in_array($return_vars->videos_id, $sentImage)) {
                 // do not send image twice
-                $sentImage[] = $videos_id;
+                $sentImage[] = $return_vars->videos_id;
                 //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
@@ -1137,7 +1143,7 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function sendFileChunk($file, $videos_id, $format, $encoder = null, $resolution = "", $try = 0) {
+    static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0) {
         
         if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
             $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
@@ -1150,13 +1156,13 @@ class Encoder extends ObjectYPT {
             return $obj;
         }
         
-        $obj = self::sendFileToDownload($file, $videos_id, $format, $encoder, $resolution);
+        $obj = self::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
         if (empty($obj->error)) {
             error_log("Encoder:sendFileChunk no need, we could download");
             return $obj;
         }
 
-        error_log("Encoder:sendFileChunk($file, $videos_id, $format, object, $resolution, $try)");
+        error_log("Encoder:sendFileChunk($file,{$return_vars->videos_id}, $format, object, $resolution, $try)");
         $try++;
         $obj = new stdClass();
         $obj->error = true;
@@ -1210,22 +1216,22 @@ class Encoder extends ObjectYPT {
             }
             if ($try <= 3) {
                 sleep($try);
-                return self::sendFileChunk($file, $videos_id, $format, $encoder, $resolution, $try);
+                return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try);
             } else {
                 //echo "cURL error ({$errno}):\n {$error_message}";
                 $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})";
                 error_log(json_encode($obj));
-                return self::sendFile($file, $videos_id, $format, $encoder, $resolution, $try);
+                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
             }
         } else {
             error_log("cURL success, Local file: " . humanFileSize($obj->filesize) . " => Transferred file " . humanFileSize($obj->response->filesize));
             $obj->error = false;
             error_log(json_encode($obj));
-            return self::sendFile(false, $videos_id, $format, $encoder, $resolution, $obj->response->file);
+            return self::sendFile(false, $return_vars, $format, $encoder, $resolution, $obj->response->file);
         }
     }
 
-    static function sendFileToDownload($file, $videos_id, $format, $encoder = null, $resolution = "", $try = 0) {
+    static function sendFileToDownload($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0) {
         global $global;
         global $sentImage;
 
@@ -1276,7 +1282,8 @@ class Encoder extends ObjectYPT {
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => $videos_id,
+            'videos_id' => $return_vars->videos_id,
+            'video_id_hash' => $return_vars->video_id_hash,
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,
@@ -1294,9 +1301,9 @@ class Encoder extends ObjectYPT {
         }
         $obj->postFields = $postFields;
         if (!empty($file)) {
-            if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
+            if ($format == "mp4" && !in_array($return_vars->videos_id, $sentImage)) {
                 // do not send image twice
-                $sentImage[] = $videos_id;
+                $sentImage[] = $return_vars->videos_id;
                 //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
@@ -1330,13 +1337,13 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function sendImages($file, $videos_id, $encoder) {
+    static function sendImages($file, $return_vars, $encoder) {
         global $global;
 
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
-        //error_log("sendImages: Sending image to [$videos_id]");
+        //error_log("sendImages: Sending image to [$return_vars->videos_id]");
         $duration = static::getDurationFromFile($file);
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
@@ -1346,10 +1353,11 @@ class Encoder extends ObjectYPT {
 
         $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
-        //error_log("sendImages: Sending image to videos_id=[$videos_id] {$target} reading file from {$file}");
+        //error_log("sendImages: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
-            'videos_id' => $videos_id,
+            'videos_id' => $return_vars->videos_id,
+            'video_id_hash' => $return_vars->video_id_hash,
             'user' => $user,
             'password' => $pass
         );
@@ -1406,7 +1414,7 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    static function sendSpectrumFromMP3($file, $videos_id, $encoder) {
+    static function sendSpectrumFromMP3($file, $return_vars, $encoder) {
         global $global;
 
         $obj = new stdClass();
@@ -1421,10 +1429,11 @@ class Encoder extends ObjectYPT {
 
         $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
-        error_log("sendSpectrumFromMP3: Sending image to videos_id=[$videos_id] {$target} reading file from {$file}");
+        error_log("sendSpectrumFromMP3: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
-            'videos_id' => $videos_id,
+            'videos_id' => $return_vars->videos_id,
+            'video_id_hash' => $return_vars->video_id_hash,
             'user' => $user,
             'password' => $pass
         );

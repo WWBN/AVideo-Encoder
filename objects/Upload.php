@@ -61,7 +61,7 @@ class Upload extends ObjectYPT {
        $u->setStatus("queue");
        $u->save();
 
-       $sent = Encoder::sendFile($file, $return_vars->videos_id, $format, $e, $resolution);
+       $sent = Encoder::sendFile($file, $return_vars, $format, $e, $resolution);
 
        return $u;
    }   

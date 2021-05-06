@@ -125,7 +125,7 @@ if (!class_exists('Format')) {
         private function sendImages($file, $encoder_queue_id) {
             $encoder = new Encoder($encoder_queue_id);
             $return_vars = json_decode($encoder->getReturn_vars());
-            return Encoder::sendImages($file, $return_vars->videos_id, $encoder);
+            return Encoder::sendImages($file, $return_vars, $encoder);
         }
 
         private function mp3ToSpectrum($pathFileName, $encoder_queue_id) {

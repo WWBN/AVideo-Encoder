@@ -96,23 +96,28 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
             $e->setOverride_status($_POST['override_status']);
 
         $obj = new stdClass();
+        $obj->videos_id = 0;
+        $obj->video_id_hash = '';
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-
+        
         if (!empty($_POST['update_video_id']))
             $video_id = $_POST['update_video_id'];
         else
             $video_id = 0;
 
         // This raises an harmless error
-        $response = Encoder::sendFile('', $video_id, $format, $e);
+        $response = Encoder::sendFile('', $obj, $format, $e);
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
+        }
+        if (!empty($response->response->video_id_hash)) {
+            $obj->video_id_hash = $response->response->video_id_hash;
         }
         $e->setReturn_vars(json_encode($obj));
 
         if (!empty($global['progressiveUpload'])) {
-            Encoder::sendFile($destinationFile, $obj->videos_id, $format, $e, 'HD');
+            Encoder::sendFile($destinationFile, $obj, $format, $e, 'HD');
         }
 
         $encoders_ids[] = $e->save();
