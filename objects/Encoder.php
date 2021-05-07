@@ -962,7 +962,7 @@ class Encoder extends ObjectYPT {
                 $extension = "webm";
                 //error_log("Encoder::send Spectrum send the web");
                 $file = self::getTmpFileName($this->id, $extension);
-                $r = static::sendFileChunk($file, $return->videos_id, $extension, $this);
+                $r = static::sendFileChunk($file, $return_vars, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
             }
 
