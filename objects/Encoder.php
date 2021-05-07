@@ -1060,11 +1060,17 @@ class Encoder extends ObjectYPT {
         if(!is_object($return_vars)){
             error_log('$return_vars is empty -['. json_encode($return_vars).']- '.json_encode(debug_backtrace()));
         }
+        
+        if(empty($return_vars->video_id_hash) || empty($return_vars->videos_id)){
+            error_log("Encoder::sendFile 1 ".json_encode($return_vars));
+            error_log("Encoder::sendFile 2 ".json_encode(debug_backtrace()));
+        }
+        
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => $return_vars->videos_id,
-            'video_id_hash' => $return_vars->video_id_hash,
+            'videos_id' => @$return_vars->videos_id,
+            'video_id_hash' => @$return_vars->video_id_hash,
             'first_request' => 1,
             'categories_id' => $categories_id,
             'format' => $format,
