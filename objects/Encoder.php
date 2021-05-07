@@ -1445,8 +1445,11 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log("sendImages: ".json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
-        $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
-
+        if(!empty($obj->response->video_id_hash)){
+            $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
+        }else{
+            error_log("sendImages empty video_id_hash: ".json_encode(debug_backtrace()));
+        }
         //var_dump($obj);exit;
         return $obj;
     }
