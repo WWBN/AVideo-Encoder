@@ -1283,7 +1283,7 @@ class Encoder extends ObjectYPT {
             'duration' => $duration,
             'title' => $title,
             'videos_id' => $return_vars->videos_id,
-            'video_id_hash' => $return_vars->video_id_hash,
+            'video_id_hash' => @$return_vars->video_id_hash,
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,
