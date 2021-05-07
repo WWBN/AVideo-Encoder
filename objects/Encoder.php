@@ -1176,13 +1176,20 @@ class Encoder extends ObjectYPT {
 
     static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0) {
         
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->file = $file;
+        $obj->filesize = filesize($file);
+        if(empty($file) || !file_exists($file)){
+            $msg = "sendFileChunk: file ({$file}) is empty or do not exist";
+            error_log($msg);
+            $obj->response = $msg;
+            return $obj;
+        }
+        
         if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
             $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
             error_log($msg);
-            $obj = new stdClass();
-            $obj->error = true;
-            $obj->file = $file;
-            $obj->filesize = filesize($file);
             $obj->response = $msg;
             return $obj;
         }
