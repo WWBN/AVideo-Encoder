@@ -1393,16 +1393,26 @@ class Encoder extends ObjectYPT {
         $downloadLink = $encoder->getVideoDownloadedLink();
         if (!empty($downloadLink)) {
             $destinationFile = self::getThumbsFromLink($downloadLink, true);
-            if (!empty($destinationFile)) {
+            if (!empty($destinationFile) && file_exists($destinationFile)) {
                 $postFields['image'] = new CURLFile($destinationFile);
             }
         }
         if (!empty($file)) {
+            $seconds = intval(static::parseDurationToSeconds($duration) / 2);
             if (empty($postFields['image'])) {
-                $postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
+                $destinationImage = static::getImage($file, $seconds);
+                if(file_exists($destinationImage)){
+                    $postFields['image'] = new CURLFile($destinationImage);
+                }
             }
-            $postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
-            $postFields['webpimage'] = new CURLFile(static::getWebpImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
+            $destinationImage = static::getGifImage($file, $seconds);
+            if(file_exists($destinationImage)){
+                $postFields['gifimage'] = new CURLFile($destinationImage);
+            }
+            $destinationImage = static::getWebpImage($file, $seconds);
+            if(file_exists($destinationImage)){
+                $postFields['webpimage'] = new CURLFile($destinationImage);
+            }
         } else {
             $obj->msg = "sendImages: File is empty {$file} ";
             error_log(json_encode($obj));
