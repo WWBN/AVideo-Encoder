@@ -70,6 +70,9 @@ if(empty($e->getId())){
         if(!empty($response->response->video_id)){
             $obj->videos_id = $response->response->video_id;
         }
+        if (!empty($response->response->video_id_hash)) {
+            $obj->video_id_hash = $response->response->video_id_hash;
+        }
     }
     $e->setReturn_vars(json_encode($obj));
     $id = $e->save();

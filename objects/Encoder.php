@@ -183,6 +183,20 @@ class Encoder extends ObjectYPT {
         return $this->id;
     }
 
+    function setReturn_varsVideo_id_hash($video_id_hash) {
+        if (empty($video_id_hash)) {
+            return false;
+        }
+        $obj = json_decode($this->return_vars);
+        if (empty($obj)) {
+            $obj = new stdClass();
+        }
+        $obj->video_id_hash = $video_id_hash;
+        $this->setReturn_vars(json_encode($obj));
+        $this->id = $this->save();
+        return $this->id;
+    }
+
     function setPriority($priority) {
         $this->priority = intval($priority);
     }
@@ -956,7 +970,9 @@ class Encoder extends ObjectYPT {
                 $r = static::sendFileChunk($file, $return_vars, $extension, $this);
                 error_log("Encoder::send() response " . json_encode($r));
                 $return->videos_id = $r->response->video_id;
+                $return->video_id_hash = $r->response->video_id_hash;
                 $this->setReturn_varsVideos_id($return->videos_id);
+                $this->setReturn_varsVideo_id_hash($return->video_id_hash);
             }
             if ($order_id == 70 || $order_id == 50) { // if it is Spectrum send the webm also
                 $extension = "webm";
@@ -1139,6 +1155,9 @@ class Encoder extends ObjectYPT {
         error_log(json_encode($obj));
         if(is_object($obj->response) && !empty($obj->response->video_id)){
             $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        }
+        if(is_object($obj->response) && !empty($obj->response->video_id_hash)){
+            $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
         }
         //var_dump($obj);exit;
 
@@ -1339,6 +1358,7 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log("Encoder::sendFileToDownload ".json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
         //var_dump($obj);exit;
         return $obj;
     }
@@ -1415,6 +1435,7 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log("sendImages: ".json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
 
         //var_dump($obj);exit;
         return $obj;
@@ -1479,6 +1500,7 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log(json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
         //var_dump($obj);exit;
         return $obj;
     }
