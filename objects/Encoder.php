@@ -1082,6 +1082,12 @@ class Encoder extends ObjectYPT {
             error_log("Encoder::sendFile 2 ".json_encode(debug_backtrace()));
         }
         
+        $downloadURL = '';
+        $dfile = str_replace($global['systemRootPath'], "", $file);
+        if(!empty($dfile)){
+            $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
+        }
+        
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
@@ -1095,7 +1101,7 @@ class Encoder extends ObjectYPT {
             'description' => $description,
             'user' => $user,
             'password' => $pass,
-            'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
+            'downloadURL' => $downloadURL,
             'chunkFile' => $chunkFile,
             'encoderURL' => $global['webSiteRootURL'],
             'keepEncoding' => $keep_encoding ? "1" : "0",
@@ -1304,6 +1310,13 @@ class Encoder extends ObjectYPT {
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
         //error_log("Encoder::sendFileToDownload sending file to {$target} from {$file}");
+        
+        $downloadURL = '';
+        $dfile = str_replace($global['systemRootPath'], "", $file);
+        if(!empty($dfile)){
+            $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
+        }
+        error_log("Encoder::sendFileToDownload [file=$file], [download=$downloadURL]");
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
@@ -1316,7 +1329,7 @@ class Encoder extends ObjectYPT {
             'description' => $description,
             'user' => $user,
             'password' => $pass,
-            'downloadURL' => $global['webSiteRootURL'] . str_replace($global['systemRootPath'], "", $file),
+            'downloadURL' => $downloadURL,
             'encoderURL' => $global['webSiteRootURL']
         );
         $count = 0;
