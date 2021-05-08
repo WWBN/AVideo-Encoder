@@ -1378,7 +1378,7 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         error_log("Encoder::sendFileToDownload ".json_encode($obj));
         if(empty($obj->response) || !is_object($obj->response)){
-            error_log("Encoder::sendFileToDownload response fail ".$obj->response_raw);
+            error_log("Encoder::sendFileToDownload response fail ".$obj->response_raw." ". json_encode(debug_backtrace()));
         }else{
             $encoder->setReturn_varsVideos_id($obj->response->video_id);
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
