@@ -18,7 +18,7 @@ if (!empty($_POST['id'])) {
         }
     }
     if (!empty($e->getId())) {
-        $e->deleteQueue();
+        $e->deleteQueue(false);
         $obj->error = false;
         $obj->msg = json_encode($e->delete());
     } else {

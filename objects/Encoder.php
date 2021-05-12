@@ -648,7 +648,7 @@ class Encoder extends ObjectYPT {
         return;
     }
 
-    function deleteQueue() {
+    function deleteQueue($notifyStreamer=false) {
         $worker_pid = $this->getWorker_pid();
         $worker_ppid = $this->getWorker_ppid();
         $this->setStatus("error");
@@ -661,7 +661,9 @@ class Encoder extends ObjectYPT {
                 exec("kill " . $worker_ppid); // ignore result
             }
         }
-        $this->notifyVideoIsDone(1);
+        if($notifyStreamer){
+            $this->notifyVideoIsDone(1);
+        }
     }
 
     static function run($try = 0) {
