@@ -2,10 +2,10 @@
 
 if (!class_exists('Format')) {
     if (!class_exists('ObjectYPT')) {
-        require_once 'Object.php';
+        require_once $global['systemRootPath'] . 'objects/Object.php';
     }
     if (!class_exists('Upload')) {
-        require_once 'Upload.php';
+        require_once $global['systemRootPath'] . 'objects/Upload.php';
     }
 
     class Format extends ObjectYPT {
