@@ -273,10 +273,10 @@ if (!class_exists('Format')) {
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
             // create a directory
-            mkdir($destinationFile);
-            mkdir($destinationFile . "low");
-            mkdir($destinationFile . "sd");
-            mkdir($destinationFile . "hd");
+            make_path($destinationFile);
+            make_path($destinationFile . "low");
+            make_path($destinationFile . "sd");
+            make_path($destinationFile . "hd");
             // create a encryption key
             $key = openssl_random_pseudo_bytes(16);
             $keyFileName = "enc_" . uniqid() . ".key";

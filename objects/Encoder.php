@@ -1409,7 +1409,7 @@ class Encoder extends ObjectYPT {
         $postFields = array(
             'duration' => $duration,
             'videos_id' => $return_vars->videos_id,
-            'video_id_hash' => $return_vars->video_id_hash,
+            'video_id_hash' => @$return_vars->video_id_hash,
             'user' => $user,
             'password' => $pass
         );

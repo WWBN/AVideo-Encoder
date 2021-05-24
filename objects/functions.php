@@ -1038,3 +1038,11 @@ function getAdvancedCustomizedObjectData(){
     }
     return $advancedCustom;
 }
+
+function hasLastSlash($word) {
+    return substr($word, -1) === '/';
+}
+
+function addLastSlash($word) {
+    return $word . (hasLastSlash($word) ? "" : "/");
+}

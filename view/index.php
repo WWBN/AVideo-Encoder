@@ -32,6 +32,8 @@ $streamerURL = @$_GET['webSiteRootURL'];
 if (empty($streamerURL)) {
     $streamerURL = Streamer::getFirstURL();
 }
+$streamerURL = addLastSlash($streamerURL);
+
 $config = new Configuration();
 
 $updateFiles = getUpdatesFiles();
