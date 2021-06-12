@@ -13,7 +13,7 @@ $filesURL = array(
     'http://4k.ypt.me/1080/Earth_from_Space.mov',
     'http://4k.ypt.me/1080/Snow.mp4',
     'http://4k.ypt.me/4K/Elecard_about_Tomsk_part1_HEVC_UHD.mp4',
-    'http://4k.ypt.me/4K/Stream1_AV1_4K_8.5mbps.webm'
+    //'http://4k.ypt.me/4K/Stream1_AV1_4K_8.5mbps.webm'
 );
 
 $_POST['user'] = 'admin';
