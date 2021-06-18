@@ -502,9 +502,11 @@ hd/index.m3u8
 
             $i = 0;
             $lastHeight = 0;
+            $countResolutions = 0;
             while ($i < count($resolutions)) {
                 $resolution = $resolutions[$i];
                 if ($resolution <= $height) {
+                    $countResolutions++;
                     $lastHeight = $resolution;
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
                     $autioBitrate = $audioBitrate[$i];
@@ -518,7 +520,7 @@ hd/index.m3u8
                 $i++;
             }
 
-            if ($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) {
+            if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
                 $code = ' -c copy -movflags +faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
