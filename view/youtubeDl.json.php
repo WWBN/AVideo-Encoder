@@ -117,7 +117,7 @@ if (!Login::canUpload()) {
             }
             error_log("Process Done Total {$i}");
         } else {
-            $obj = addVideo($_POST['videoURL'], $streamers_id);
+            $obj = addVideo($_POST['videoURL'], $streamers_id, $_POST['videoTitle']);
         }
     }
 }
