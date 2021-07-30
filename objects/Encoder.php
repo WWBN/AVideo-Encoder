@@ -675,6 +675,9 @@ class Encoder extends ObjectYPT {
         }
         
         $concurrent = isset($global['concurrent']) ? $global['concurrent'] : 1;
+        if(empty($concurrent)){
+            $concurrent = 1;
+        }
         $try++;
         $obj = new stdClass();
         $obj->error = true;
