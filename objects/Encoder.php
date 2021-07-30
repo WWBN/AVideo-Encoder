@@ -674,7 +674,7 @@ class Encoder extends ObjectYPT {
             return false;
         }
         
-        $concurrent = isset($global['concurrent']) ? $global['concurrent'] : 1;
+        $concurrent = isset($global['concurrent']) ? intval($global['concurrent']) : 1;
         if(empty($concurrent)){
             $concurrent = 1;
         }

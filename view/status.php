@@ -18,9 +18,9 @@ $obj->cmd = "";
 $obj->encoding_status = array();
 $obj->version = $config->getVersion();
 
-if (!empty($global['concurrent']))
+if (!empty($global['concurrent'])){
     $obj->concurrent = $global['concurrent'];
-
+}
 $obj->encoding = Encoder::areEncoding();
 //$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
