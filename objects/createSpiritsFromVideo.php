@@ -25,18 +25,32 @@ if (is_dir($dirname)) {
     }
 }
 
+$url = str_replace('https://gdrive.local/', 'http://192.168.1.4/', $url);
+
+if(!isURL200($url)){
+    error_log("URL $url is not 200 code");
+    return false;
+}
+
 error_log("CreateSpirits:  creating directory {$dirname}");
 mkdir($dirname);
+
+if(!is_dir($dirname)){
+    error_log("CreateSpirits: Could not create dir $dirname");
+    return false;
+}
 
 $width = $tileWidth + $pxBetweenTiles;
 $height = $tileHeight + $pxBetweenTiles;
 $mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
 $mapHeight = $tileHeight * (ceil($numberOfTiles / 10));
 
-$cmd = get_ffmpeg()." -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step} -s {$tileWidth}x{$tileHeight} {$dirname}out%03d.png";
+$cmd = get_ffmpeg()." -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step} -s {$tileWidth}x{$tileHeight} \"{$dirname}out%03d.png\"  2>&1 ";
 error_log("CreateSpirits: $cmd");
 //var_dump($duration, $videoLength);echo $cmd;exit;
-exec($cmd);
+exec($cmd, $output, $return_var);
+//error_log("CreateSpirits: ". json_encode($output));
+//error_log("CreateSpirits: ". json_encode($return_var));
 
 $images = glob($dirname . "*.png");
 $srcImagePaths = Array();

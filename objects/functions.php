@@ -12,7 +12,8 @@ function local_get_contents($path) {
 
 function get_ffmpeg($ignoreGPU=false) {
     global $global;
-    //return 'ffmpeg -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
+    $complement = '';
+    $complement = ' -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     if(!empty($global['custom_ffmpeg'])){
         $ffmpeg = $global['custom_ffmpeg'];
@@ -25,7 +26,7 @@ function get_ffmpeg($ignoreGPU=false) {
             $ffmpeg = "{$global['ffmpeg']}{$ffmpeg}";
         }
     }
-    return $ffmpeg;
+    return $ffmpeg.$complement;
 }
 
 function replaceFFMPEG($cmd){
@@ -1045,4 +1046,27 @@ function hasLastSlash($word) {
 
 function addLastSlash($word) {
     return $word . (hasLastSlash($word) ? "" : "/");
+}
+
+function isURL200($url, $forceRecheck = false) {
+    global $_isURL200;
+
+    //error_log("isURL200 checking URL {$url}");
+    $headers = @get_headers($url);
+    if (!is_array($headers)) {
+        $headers = array($headers);
+    }
+
+    $result = false;
+    foreach ($headers as $value) {
+        if (
+                strpos($value, '200') ||
+                strpos($value, '302') ||
+                strpos($value, '304')
+        ) {
+            $result = true;
+        } 
+    }
+
+    return $result;
 }
