@@ -357,7 +357,7 @@ class Encoder extends ObjectYPT {
         global $global;
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 -f 'mp4' \"{$videoURL}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' \"{$videoURL}\"";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("getYoutubeDl: Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
