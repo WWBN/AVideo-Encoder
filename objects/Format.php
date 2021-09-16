@@ -583,7 +583,13 @@ hd/index.m3u8
 
 
             $command = get_ffmpeg() . ' -i {$pathFileName} -max_muxing_queue_size 9999 ';
-
+            
+            $rate = 300000;
+            $minrate = ($rate * 0.5);
+            $maxrate = ($rate * 1.5);
+            $bufsize = ($rate * 2);
+            $autioBitrate = 128;
+            
             foreach ($resolutions as $key => $value) {
                 if ($height > $value) {
                     $rate = $bandwidth[$key] / 1000;
