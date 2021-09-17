@@ -111,7 +111,7 @@ if (!class_exists('Login')) {
             _session_start();
             $object->PHPSESSID = session_id(); // to allow cross domain logins
             $_SESSION['login'] = $object;
-            error_log("Login:: done session_id = " . session_id() . " session_login " . json_encode($_SESSION['login']->isLogged));
+            error_log("Login:: done session_id = " . session_id() . " session_login " . json_encode($_SESSION['login']));
         }
 
         static function logoff() {
@@ -129,7 +129,7 @@ if (!class_exists('Login')) {
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['encoder_user'], $_COOKIE['encoder_pass'], $_COOKIE['encoder_aVideoURL'], true);
             } else if (!$isLogged && !empty($_SESSION['login'])) {
-                error_log("isLogged: false " . json_encode($_SESSION['login']->isLogged));
+                error_log("isLogged: false " . json_encode($_SESSION['login']));
             }
             if (!empty($_GET['justLogin'])) {
                 //$_GET['justLogin'] = $_SESSION['login']->isLogged;
