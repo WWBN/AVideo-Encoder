@@ -281,9 +281,18 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
+        
+        //$ext = pathinfo($value, PATHINFO_EXTENSION);
+        
         $f = new Format($q->getFormats_id());
+        $ext = $f->getExtension_from();
+        
+        if(!empty($ext)){
+            $ext = ".{$ext}";
+        }
+        
         $dstFilepath = $global['systemRootPath'] . "videos/";
-        $filename = "{$queue_id}_tmpFile." . $f->getExtension_from();
+        $filename = "{$queue_id}_tmpFile" . $ext;
         if (!is_dir($dstFilepath)) {
             mkdir($dstFilepath);
         }
@@ -675,7 +684,7 @@ class Encoder extends ObjectYPT {
         }
         
         $concurrent = isset($global['concurrent']) ? intval($global['concurrent']) : 1;
-        if(empty($concurrent)){
+        if(empty($concurrent) || $concurrent < 0){
             $concurrent = 1;
         }
         $try++;
