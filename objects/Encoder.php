@@ -353,8 +353,10 @@ class Encoder extends ObjectYPT {
             $obj->msg = "We downloaded the file with success";
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
+        }else{
+            $obj->error = true;
         }
-        if ($response) {
+        if ($response || $obj->error) {
             //error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
         }
