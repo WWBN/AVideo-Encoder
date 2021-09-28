@@ -326,6 +326,7 @@ class Encoder extends ObjectYPT {
             error_log("downloadFile:getYoutubeDl queue_id = {$queue_id}");
             $obj->error = false;
         } else {
+            error_log("downloadFile: not using getYoutubeDl");
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
             if (strpos($url, "http") !== false) {
                 //error_log("downloadFile:strpos global['webSiteRootURL'] = {$global['webSiteRootURL']}");
@@ -359,6 +360,10 @@ class Encoder extends ObjectYPT {
         if ($response || $obj->error) {
             //error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
+            $response = static::getYoutubeDl($url, $queue_id, "{$dstFilepath}{$filename}");
+            error_log("downloadFile: trying getYoutubeDl queue_id = {$queue_id}");
+            $obj->error = false;
+            
         }
         error_log("downloadFile: " . json_encode($obj));
         return $obj;
