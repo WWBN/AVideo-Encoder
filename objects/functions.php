@@ -1,5 +1,10 @@
 <?php
-
+stream_context_set_default( [
+    'ssl' => [
+        'verify_peer' => false,
+        'verify_peer_name' => false,
+    ],
+]);
 function local_get_contents($path) {
     if (function_exists('fopen')) {
         $myfile = fopen($path, "r") or die("Unable to open file!");
@@ -1048,9 +1053,9 @@ function addLastSlash($word) {
     return $word . (hasLastSlash($word) ? "" : "/");
 }
 
-function isURL200($url, $forceRecheck = false) {
+function isURL200($url) {
     global $_isURL200;
-
+    
     //error_log("isURL200 checking URL {$url}");
     $headers = @get_headers($url);
     if (!is_array($headers)) {
