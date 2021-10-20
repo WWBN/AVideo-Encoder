@@ -839,7 +839,7 @@ function rrmdir($dir) {
                     unlink($dir . "/" . $object);
             }
         }
-        rmdir($dir);
+        @rmdir($dir);
     }
 }
 

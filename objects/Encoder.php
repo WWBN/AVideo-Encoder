@@ -1432,7 +1432,6 @@ class Encoder extends ObjectYPT {
             'user' => $user,
             'password' => $pass
         );
-
         $obj->postFields = $postFields;
         // check if you can get the image from youtube
         $downloadLink = $encoder->getVideoDownloadedLink();
@@ -1448,15 +1447,18 @@ class Encoder extends ObjectYPT {
                 $destinationImage = static::getImage($file, $seconds);
                 if(file_exists($destinationImage)){
                     $postFields['image'] = new CURLFile($destinationImage);
+                    $postFields['downloadURL_image'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
                 }
             }
             $destinationImage = static::getGifImage($file, $seconds);
             if(file_exists($destinationImage)){
                 $postFields['gifimage'] = new CURLFile($destinationImage);
+                $postFields['downloadURL_gifimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
             }
             $destinationImage = static::getWebpImage($file, $seconds);
             if(file_exists($destinationImage)){
                 $postFields['webpimage'] = new CURLFile($destinationImage);
+                $postFields['downloadURL_webpimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
             }
         } else {
             $obj->msg = "sendImages: File is empty {$file} ";
@@ -1526,6 +1528,7 @@ class Encoder extends ObjectYPT {
         $obj->postFields = $postFields;
         if (!empty($file)) {
             $postFields['spectrumimage'] = new CURLFile(static::getSpectrum($file));
+            $postFields['downloadURL_spectrumimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $file);
         } else {
             $obj->msg = "SpectrumFromMP3: File is empty {$file} ";
             error_log(json_encode($obj));
