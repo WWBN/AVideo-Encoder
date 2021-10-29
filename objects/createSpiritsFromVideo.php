@@ -26,12 +26,14 @@ if (is_dir($dirname)) {
 }
 
 $url = str_replace('https://gdrive.local/', 'http://192.168.1.4/', $url);
-
+/**
 if(!isURL200($url)){
     $headers = get_headers($url);
     error_log("URL $url is not 200 code ". json_encode($headers));
     return false;
 }
+ * 
+ */
 
 error_log("CreateSpirits:  creating directory {$dirname}");
 mkdir($dirname);
