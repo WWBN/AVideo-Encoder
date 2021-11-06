@@ -93,7 +93,7 @@ if (!class_exists('Login')) {
                             $pass = encryptPassword($pass, $aVideoURL);
                         }
                         // update pass
-                        $s->setPass($pass);
+                        $s->setPass($object->pass);
                         $s->save();
                         $cookieLife = time() + 3600 * 24 * 2; // 2 day
                         setcookie("encoder_user", $user, $cookieLife, "/");
