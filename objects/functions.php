@@ -1001,7 +1001,10 @@ function execAsync($command) {
     // If windows, else
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         //$pid = system($command . " > NUL");
-        pclose($pid = popen("start /B ". $command, "r")); 
+        //pclose($pid = popen("start /B ". $command, "r")); 
+        error_log($command);
+        $pid = exec($command, $output, $retval);
+        error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
         $pid = exec($command . " > /dev/null 2>&1 & echo $!; ");
     }
