@@ -20,8 +20,8 @@ function get_ffmpeg($ignoreGPU=false) {
     $complement = '';
     //$complement = ' -user-agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
-    if(!empty($global['custom_ffmpeg'])){
-        $ffmpeg = $global['custom_ffmpeg'];
+    if(!empty($global['ffmpeg'])){
+        $ffmpeg = $global['ffmpeg'];
     }else{
         $ffmpeg = 'ffmpeg  ';
         if (empty($ignoreGPU) && !empty($global['ffmpegGPU'])) {

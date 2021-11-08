@@ -2010,7 +2010,10 @@ class Encoder extends ObjectYPT {
     }
 
     static function getYouTubeDLCommand() {
-        if (file_exists("/usr/local/bin/youtube-dl")) {
+        global $global;
+        if(!empty($global['youtube-dl'])){
+            return $global['youtube-dl'];
+        }else if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl";
         } else {
             return "youtube-dl";

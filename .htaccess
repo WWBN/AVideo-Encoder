@@ -5,6 +5,7 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine on
 
+    RedirectMatch 404 /\.git
     # Deny access to log files
     RewriteRule ^.*\.log$ - [F,L,NC]
     RewriteRule    ^(.*)enc_watermarked.key$ view/watermarked.key.php?path=$1    [QSA]
