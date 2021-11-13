@@ -522,7 +522,7 @@ hd/index.m3u8
 
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
-                $code = ' -codec:v libx264 -movflags +faststart -y {$destinationFile} ';
+                $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
             }
 
