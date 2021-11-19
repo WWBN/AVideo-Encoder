@@ -131,7 +131,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setStatus($status) {
-        
+
         $this->status = $status;
         //error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
@@ -281,16 +281,16 @@ class Encoder extends ObjectYPT {
         $obj = new stdClass();
         $q = new Encoder($queue_id);
         $url = $q->getFileURI();
-        
+
         //$ext = pathinfo($value, PATHINFO_EXTENSION);
-        
+
         $f = new Format($q->getFormats_id());
         $ext = $f->getExtension_from();
-        
-        if(!empty($ext)){
+
+        if (!empty($ext)) {
             $ext = ".{$ext}";
         }
-        
+
         $dstFilepath = $global['systemRootPath'] . "videos/";
         $filename = "{$queue_id}_tmpFile" . $ext;
         if (!is_dir($dstFilepath)) {
@@ -300,16 +300,16 @@ class Encoder extends ObjectYPT {
         $obj->error = true;
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
-        
-        if(file_exists($obj->pathFileName)){
+
+        if (file_exists($obj->pathFileName)) {
             $obj->error = false;
             //error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
             return $obj;
         }
-        
+
         error_log("downloadFile: start queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
-        
-        
+
+
         $e = Encoder::getFromFileURI($url);
         if (!empty($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
@@ -354,7 +354,7 @@ class Encoder extends ObjectYPT {
             $obj->msg = "We downloaded the file with success";
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
-        }else{
+        } else {
             $obj->error = true;
         }
         if ($response || $obj->error) {
@@ -363,7 +363,6 @@ class Encoder extends ObjectYPT {
             $response = static::getYoutubeDl($url, $queue_id, "{$dstFilepath}{$filename}");
             error_log("downloadFile: trying getYoutubeDl queue_id = {$queue_id}");
             $obj->error = false;
-            
         }
         error_log("downloadFile: " . json_encode($obj));
         return $obj;
@@ -476,7 +475,7 @@ class Encoder extends ObjectYPT {
         $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
         //url_get_contents is what drives the red bar and causes the memory failure
         $return = url_set_file_context($videoURL, $ctx);
-        
+
         //And OhioVR also did this:
         $return = url_set_file_context($videoURL, $ctx);
         if (!$return) {
@@ -503,12 +502,12 @@ class Encoder extends ObjectYPT {
             while ($result = $res->fetch_assoc()) {
                 $encoder = new Encoder($result['id']);
                 /* Do not auto add to queue here, it was causing an reencode on refresh page
-                if (!$encoder->isWorkerRunning()) {
-                    $encoder->setStatus("queue");
-                    $encoder->setStatus_obs("Worker died");
-                    $encoder->save();
-                    continue;
-                }
+                  if (!$encoder->isWorkerRunning()) {
+                  $encoder->setStatus("queue");
+                  $encoder->setStatus_obs("Worker died");
+                  $encoder->save();
+                  continue;
+                  }
                  * 
                  */
                 $result['return_vars'] = json_decode($result['return_vars']);
@@ -672,7 +671,7 @@ class Encoder extends ObjectYPT {
         return;
     }
 
-    function deleteQueue($notifyStreamer=false) {
+    function deleteQueue($notifyStreamer = false) {
         $worker_pid = $this->getWorker_pid();
         $worker_ppid = $this->getWorker_ppid();
         $this->setStatus("error");
@@ -685,7 +684,7 @@ class Encoder extends ObjectYPT {
                 exec("kill " . $worker_ppid); // ignore result
             }
         }
-        if($notifyStreamer){
+        if ($notifyStreamer) {
             $this->notifyVideoIsDone(1);
         }
     }
@@ -693,13 +692,13 @@ class Encoder extends ObjectYPT {
     static function run($try = 0) {
         global $global;
         $maxTries = 3;
-        
-        if($try > $maxTries){
+
+        if ($try > $maxTries) {
             return false;
         }
-        
+
         $concurrent = isset($global['concurrent']) ? intval($global['concurrent']) : 1;
-        if(empty($concurrent) || $concurrent < 0){
+        if (empty($concurrent) || $concurrent < 0) {
             $concurrent = 1;
         }
         $try++;
@@ -736,7 +735,7 @@ class Encoder extends ObjectYPT {
                         $encoder->save();
                         return false;
                     }
-                } else if(!empty ($return_vars->videos_id)){
+                } else if (!empty($return_vars->videos_id)) {
                     $encoder->setStatus("encoding");
                     $encoder->save();
                     self::sendImages($objFile->pathFileName, $return_vars, $encoder);
@@ -795,9 +794,8 @@ class Encoder extends ObjectYPT {
                             return false;
                         }
                     }
-                }
-                else{
-                    error_log("try [{$try}] return_vars->videos_id is empty ". json_encode($return_vars));
+                } else {
+                    error_log("try [{$try}] return_vars->videos_id is empty " . json_encode($return_vars));
                     $encoder->setStatus("error");
                     $encoder->setStatus_obs("try [{$try}] Error on return_vars->videos_id");
                     $encoder->notifyVideoIsDone(1);
@@ -879,7 +877,7 @@ class Encoder extends ObjectYPT {
         return $obj;
     }
 
-    private function multiResolutionSend($resolution, $format,$return_vars) {
+    private function multiResolutionSend($resolution, $format, $return_vars) {
         global $global;
         error_log("Encoder::multiResolutionSend($resolution, $format, {$return_vars->videos_id})");
         $file = self::getTmpFileName($this->id, $format, $resolution);
@@ -1039,19 +1037,19 @@ class Encoder extends ObjectYPT {
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
-
+        $videos_id = $return_vars->videos_id;
         if (!empty($global['progressiveUpload']) && isset($encoder)) {
             $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
             );
             if ($u !== false && $u->getStatus() == "done") {
                 $obj->error = false;
                 $obj->msg = "Already sent";
-                error_log("Encoder::sendFile already sent videos_id={$return_vars->videos_id}, format=$format");
+                error_log("Encoder::sendFile already sent videos_id={$videos_id}, format=$format");
                 return $obj;
             }
         }
 
-        error_log("Encoder::sendFile videos_id={$return_vars->videos_id}, format=$format");
+        error_log("Encoder::sendFile videos_id={$videos_id}, format=$format");
 
         $duration = static::getDurationFromFile($file);
         if ($duration == "EE:EE:EE" && $file != "") {
@@ -1062,7 +1060,7 @@ class Encoder extends ObjectYPT {
 
             $obj->error = true;
             $obj->msg = "Corrupted output";
-            error_log("Encoder::sendFile videos_id={$return_vars->videos_id}, format=$format: discard corrupted output file");
+            error_log("Encoder::sendFile videos_id={$videos_id}, format=$format: discard corrupted output file");
             return $obj;
         }
 
@@ -1090,7 +1088,7 @@ class Encoder extends ObjectYPT {
         } else {
             $usergroups_id = $_POST['usergroups_id'];
         }
-        
+
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $aVideoURL = $s->getSiteURL();
@@ -1102,25 +1100,25 @@ class Encoder extends ObjectYPT {
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target} from {$file}");
-        if(!is_object($return_vars)){
-            error_log('$return_vars is empty -['. json_encode($return_vars).']- '.json_encode(debug_backtrace()));
+        if (!is_object($return_vars)) {
+            error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
-        
-        if(empty($return_vars->video_id_hash) || empty($return_vars->videos_id)){
-            error_log("Encoder::sendFile 1 ".json_encode($return_vars));
-            error_log("Encoder::sendFile 2 ".json_encode(debug_backtrace()));
+
+        if (empty($return_vars->video_id_hash) || empty($videos_id)) {
+            error_log("Encoder::sendFile 1 " . json_encode($return_vars));
+            error_log("Encoder::sendFile 2 " . json_encode(debug_backtrace()));
         }
-        
+
         $downloadURL = '';
         $dfile = str_replace($global['systemRootPath'], "", $file);
-        if(!empty($dfile)){
+        if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
-        
+
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => @$return_vars->videos_id,
+            'videos_id' => $videos_id,
             'video_id_hash' => @$return_vars->video_id_hash,
             'first_request' => 1,
             'categories_id' => $categories_id,
@@ -1157,9 +1155,9 @@ class Encoder extends ObjectYPT {
 
         if (!empty($file)) {
             $postFields['video'] = new CURLFile($file);
-            if ($format == "mp4" && !in_array($return_vars->videos_id, $sentImage)) {
+            if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
                 // do not send image twice
-                $sentImage[] = $return_vars->videos_id;
+                $sentImage[] = $videos_id;
                 //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
@@ -1188,10 +1186,10 @@ class Encoder extends ObjectYPT {
         }
         curl_close($curl);
         error_log(json_encode($obj));
-        if(is_object($obj->response) && !empty($obj->response->video_id)){
+        if (is_object($obj->response) && !empty($obj->response->video_id)) {
             $encoder->setReturn_varsVideos_id($obj->response->video_id);
         }
-        if(is_object($obj->response) && !empty($obj->response->video_id_hash)){
+        if (is_object($obj->response) && !empty($obj->response->video_id_hash)) {
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
         }
         //var_dump($obj);exit;
@@ -1204,25 +1202,25 @@ class Encoder extends ObjectYPT {
     }
 
     static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0) {
-        
+
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
         $obj->filesize = filesize($file);
-        if(empty($file) || !file_exists($file)){
+        if (empty($file) || !file_exists($file)) {
             $msg = "sendFileChunk: file ({$file}) is empty or do not exist";
             error_log($msg);
             $obj->response = $msg;
             return $obj;
         }
-        
+
         if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
             $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
             error_log($msg);
             $obj->response = $msg;
             return $obj;
         }
-        
+
         $obj = self::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
         if (empty($obj->error)) {
             error_log("Encoder:sendFileChunk no need, we could download");
@@ -1346,10 +1344,10 @@ class Encoder extends ObjectYPT {
         $target = trim($aVideoURL . "aVideoEncoder.json");
         $obj->target = $target;
         //error_log("Encoder::sendFileToDownload sending file to {$target} from {$file}");
-        
+
         $downloadURL = '';
         $dfile = str_replace($global['systemRootPath'], "", $file);
-        if(!empty($dfile)){
+        if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
         error_log("Encoder::sendFileToDownload [file=$file], [download=$downloadURL]");
@@ -1405,10 +1403,10 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log("Encoder::sendFileToDownload ".json_encode($obj));
-        if(empty($obj->response) || !is_object($obj->response)){
-            error_log("Encoder::sendFileToDownload response fail ".$obj->response_raw." ". json_encode(debug_backtrace()));
-        }else{
+        error_log("Encoder::sendFileToDownload " . json_encode($obj));
+        if (empty($obj->response) || !is_object($obj->response)) {
+            error_log("Encoder::sendFileToDownload response fail " . $obj->response_raw . " " . json_encode(debug_backtrace()));
+        } else {
             $encoder->setReturn_varsVideos_id($obj->response->video_id);
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
         }
@@ -1453,18 +1451,18 @@ class Encoder extends ObjectYPT {
             $seconds = intval(static::parseDurationToSeconds($duration) / 2);
             if (empty($postFields['image'])) {
                 $destinationImage = static::getImage($file, $seconds);
-                if(file_exists($destinationImage)){
+                if (file_exists($destinationImage)) {
                     $postFields['image'] = new CURLFile($destinationImage);
                     $postFields['downloadURL_image'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
                 }
             }
             $destinationImage = static::getGifImage($file, $seconds);
-            if(file_exists($destinationImage)){
+            if (file_exists($destinationImage)) {
                 $postFields['gifimage'] = new CURLFile($destinationImage);
                 $postFields['downloadURL_gifimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
             }
             $destinationImage = static::getWebpImage($file, $seconds);
-            if(file_exists($destinationImage)){
+            if (file_exists($destinationImage)) {
                 $postFields['webpimage'] = new CURLFile($destinationImage);
                 $postFields['downloadURL_webpimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationImage);
             }
@@ -1498,12 +1496,12 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log("sendImages: ".json_encode($obj));
+        error_log("sendImages: " . json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
-        if(!empty($obj->response->video_id_hash)){
+        if (!empty($obj->response->video_id_hash)) {
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
-        }else{
-            error_log("sendImages empty video_id_hash: ".json_encode(debug_backtrace()));
+        } else {
+            error_log("sendImages empty video_id_hash: " . json_encode(debug_backtrace()));
         }
         //var_dump($obj);exit;
         return $obj;
@@ -1941,7 +1939,11 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTitleFromLink($link) {
-        $cmd = "LC_ALL=en_US.UTF-8 " . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
+        $prepend = '';
+        if (!isWindows()) {
+            $prepend = 'LC_ALL=en_US.UTF-8 ';
+        }
+        $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
@@ -1977,17 +1979,17 @@ class Encoder extends ObjectYPT {
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
-        
+
         $returnTmpfname = $tmpfname . ".jpg";
-        if(!@filesize($returnTmpfname)){
-            if(@filesize($returnTmpfname.'.webp')){
-                $returnTmpfname = $returnTmpfname.'.webp';
-            }else
-            if(@filesize($returnTmpfname.'.jpg')){
-                $returnTmpfname = $returnTmpfname.'.jpg';
+        if (!@filesize($returnTmpfname)) {
+            if (@filesize($returnTmpfname . '.webp')) {
+                $returnTmpfname = $returnTmpfname . '.webp';
+            } else
+            if (@filesize($returnTmpfname . '.jpg')) {
+                $returnTmpfname = $returnTmpfname . '.jpg';
             }
         }
-        
+
         if ($returnFileName) {
             return $returnTmpfname;
         } else {
@@ -2011,9 +2013,9 @@ class Encoder extends ObjectYPT {
 
     static function getYouTubeDLCommand() {
         global $global;
-        if(!empty($global['youtube-dl'])){
+        if (!empty($global['youtube-dl'])) {
             return $global['youtube-dl'];
-        }else if (file_exists("/usr/local/bin/youtube-dl")) {
+        } else if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl";
         } else {
             return "youtube-dl";
