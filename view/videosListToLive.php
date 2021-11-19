@@ -317,10 +317,6 @@ function __exec($cmd, $async = false) {
     }
 }
 
-function isWindows(){
-    return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-}
-
 function _log($msg) {
     global $logFile;
     error_log("videoListToLive: " . $msg);
