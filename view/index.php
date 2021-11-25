@@ -359,9 +359,15 @@ if (!empty($_GET['noNavbar'])) {
                                 <li class="nav-item active">
                                     <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> Basic</a>
                                 </li>
+                               <?php
+                               if (empty($global['hideAdvanced'])) {
+                               ?>
                                 <li class="nav-item">
                                     <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
                                 </li>
+                                <?php
+            }
+                                ?>
                             </ul>
                         </div>
                         <div class="panel-body">
