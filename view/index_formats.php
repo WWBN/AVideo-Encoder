@@ -74,10 +74,12 @@
 
 </style>
 
-<div class="radio-tile-group">
+<div class="radio-tile-group" id="automaticOptions">
     <?php
     $checked = "checked";
+    $countEncodeOptions = 0;
     if (empty($advancedCustom->doNotShowEncoderAutomaticHLS)) {
+        $countEncodeOptions++;
         if (empty($_COOKIE['format'])) {
             $_COOKIE['format'] = 'inputAutoHLS';
         }
@@ -95,6 +97,7 @@
         <?php
     }
     if (empty($advancedCustom->doNotShowEncoderAutomaticMP4)) {
+        $countEncodeOptions++;
         if (empty($_COOKIE['format'])) {
             $_COOKIE['format'] = 'inputAutoMP4';
         }
@@ -112,6 +115,7 @@
         <?php
     }
     if (empty($global['disableWebM']) && empty($advancedCustom->doNotShowEncoderAutomaticWebm)) {
+        $countEncodeOptions++;
         ?> 
         <div class="input-container">
             <input type="radio" id="inputAutoWebm" name="format" class="radio-button"
@@ -126,6 +130,7 @@
         <?php
     }
     if (empty($advancedCustom->doNotShowEncoderAutomaticAudio)) { // disabled for now
+        $countEncodeOptions++;
         ?> 
         <div class="input-container">
             <input type="radio" id="inputAutoAudio" name="format" class="radio-button"
@@ -141,3 +146,10 @@
     }
     ?> 
 </div>
+<?php
+if ($countEncodeOptions <= 1) {
+    ?>
+    <style>#automaticOptions{display: none;}</style>    
+    <?php
+}
+?>
