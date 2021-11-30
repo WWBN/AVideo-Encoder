@@ -750,6 +750,11 @@ hd/index.m3u8
             }
             $errorLogFile = $filename . '.error.log';
             
+            /**
+             * -allowed_extensions ALL  is required
+             * key' is not a common multimedia extension, blocked for security reasons.
+            If you wish to override this adjust allowed_extensions, you can set it to 'ALL' to allow all
+             */
             if (isWindows()) {
                 $command = get_ffmpeg() . " -allowed_extensions ALL -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
             } else {
