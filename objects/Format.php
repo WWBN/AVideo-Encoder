@@ -749,12 +749,13 @@ hd/index.m3u8
                 return true;
             }
             $errorLogFile = $filename . '.error.log';
-            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                $command = get_ffmpeg() . " -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
+            
+            if (isWindows()) {
+                $command = get_ffmpeg() . " -allowed_extensions ALL -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
             } else {
-                $command = get_ffmpeg() . " -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
+                $command = get_ffmpeg() . " -allowed_extensions ALL -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
             }
-            exec($command);
+            exec($command);            
 
             if (!file_exists($errorLogFile)) {
                 error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
