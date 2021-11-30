@@ -18,6 +18,10 @@ function fileOlderThen($file, $ageInSeconds){
     return false;
 }
 
+if(empty($_GET['format'])){
+    $_GET['format'] = 'jpg';
+}
+
 testTime(__LINE__);
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
@@ -75,7 +79,7 @@ if(!is_readable($destination)){
 }else{
     // flush old image then encode
     echo url_get_contents($destination);
-    error_log("getImage {$httpReferer} Destination get Image from {$url} {$_GET['format']}: {$destination}");
+    //error_log("getImage {$httpReferer} Destination get Image from {$url} {$_GET['format']}: {$destination}");
 }
 
 testTime(__LINE__);
