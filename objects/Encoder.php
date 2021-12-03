@@ -153,7 +153,7 @@ class Encoder extends ObjectYPT {
     }
 
     function setStatus_obs($status_obs) {
-        $this->status_obs = $status_obs;
+        $this->status_obs = substr($status_obs, 0, 200);
     }
 
     function setReturn_vars($return_vars) {
