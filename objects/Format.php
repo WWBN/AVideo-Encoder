@@ -743,7 +743,7 @@ hd/index.m3u8
             return false;
         }
 
-        static function videoFileHasErrors($filename) {
+        static function videoFileHasErrors($filename, $allowed_extensions = true) {
             if (!file_exists($filename)) {
                 error_log("videoFileHasErrors: file not exists {$filename}");
                 return true;
@@ -771,6 +771,9 @@ hd/index.m3u8
             unlink($errorLogFile);
 
             if (!empty($content)) {
+                if($allowed_extensions){
+                    return self::videoFileHasErrors($filename, false);
+                }
                 error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
                 return true;
             } else {
