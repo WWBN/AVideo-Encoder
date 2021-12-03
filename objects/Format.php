@@ -755,10 +755,16 @@ hd/index.m3u8
              * key' is not a common multimedia extension, blocked for security reasons.
             If you wish to override this adjust allowed_extensions, you can set it to 'ALL' to allow all
              */
+            
+            $complement = '';
+            if($allowed_extensions){
+                $complement = '-allowed_extensions ALL';
+            }
+            
             if (isWindows()) {
-                $command = get_ffmpeg() . " -allowed_extensions ALL -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
+                $command = get_ffmpeg() . " {$complement} -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
             } else {
-                $command = get_ffmpeg() . " -allowed_extensions ALL -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
+                $command = get_ffmpeg() . " {$complement} -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
             }
             exec($command);            
 
