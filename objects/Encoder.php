@@ -1976,11 +1976,7 @@ class Encoder extends ObjectYPT {
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
-        
-        if(!file_exists("{$tmpfname}.jpg") && file_exists("{$tmpfname}.jpg.jpg")){
-            rename("{$tmpfname}.jpg.jpg", "{$tmpfname}.jpg");
-        }
-        
+                
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
@@ -1998,7 +1994,9 @@ class Encoder extends ObjectYPT {
         if ($returnFileName) {
             return $returnTmpfname;
         } else {
-            return url_get_contents($returnTmpfname);
+            $content = url_get_contents($returnTmpfname);
+            unlink($returnTmpfname);
+            return $content;
         }
     }
 
