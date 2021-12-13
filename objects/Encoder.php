@@ -1964,7 +1964,7 @@ class Encoder extends ObjectYPT {
             if (preg_match('/^[0-9:]+$/', $line)) {
                 return self::formatDuration($line);
             } else {
-                error_log("Could not get duration " . print_r($output, true));
+                error_log("Could not get duration " . json_encode($output));
                 return "EE:EE:EE";
             }
         }
@@ -2010,7 +2010,9 @@ class Encoder extends ObjectYPT {
         if ($return_val !== 0) {
             return false;
         } else {
-            return url_get_contents($tmpfname . ".description");
+            $content = url_get_contents($tmpfname . ".description");
+            unlink($tmpfname . ".description");
+            return $content;
         }
     }
 
