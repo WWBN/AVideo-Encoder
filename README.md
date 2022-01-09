@@ -8,7 +8,7 @@ LiveTV is a video-sharing Platform software, When you use LiveTV Platform, you c
 
 
 * <a href="https://tv.qtune.io/" target="_blank">Build your own Netflix</a>
-  - We provide you a Flix like platform. On this site you can subscribe (with real money on PayPal). this subscription will allow you to watch our private videos. There is an user that you can use to see how it works. user: user and pass: Qtune@101.
+  - We provide you a Flix like platform. On this site you can subscribe (with cryptocurrency or  on PayPal). this subscription will allow you to watch our private videos. There is an user that you can use to see how it works. user: user and pass: Qtune@101.
 
 
 ## Important Information
