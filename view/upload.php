@@ -102,9 +102,9 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $format = $f->getExtension();
         
         if (!empty($_POST['update_video_id']))
-            $video_id = $_POST['update_video_id'];
+            $obj->videos_id = $_POST['update_video_id'];
         else
-            $video_id = 0;
+            $obj->videos_id = 0;
 
         // This raises an harmless error
         $response = Encoder::sendFile('', $obj, $format, $e);
