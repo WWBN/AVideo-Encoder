@@ -1964,7 +1964,7 @@ class Encoder extends ObjectYPT {
             if (preg_match('/^[0-9:]+$/', $line)) {
                 return self::formatDuration($line);
             } else {
-                error_log("Could not get duration " . json_encode($output));
+                error_log("Could not get duration {$cmd} " . json_encode($output));
                 return "EE:EE:EE";
             }
         }

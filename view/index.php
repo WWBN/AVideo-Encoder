@@ -88,6 +88,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
         <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css"" rel="stylesheet" crossorigin="anonymous">
         <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css"/>
+        <link href="<?php echo Login::getStreamerURL(); ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css"/>
 
 
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
@@ -100,10 +101,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 <?php
 if (!empty($_GET['noNavbar'])) {
     ?>
-                body{
+                body, body > div.main-container{
                     padding: 0;
                 }
-                                                                                
+                                                                                            
     <?php
 }
 ?>
@@ -111,7 +112,6 @@ if (!empty($_GET['noNavbar'])) {
     </head>
 
     <body>    
-        <br>
         <?php
         if (empty($_GET['noNavbar'])) {
             ?>
@@ -271,102 +271,21 @@ if (!empty($_GET['noNavbar'])) {
                 fixAdvancedCustom($advancedCustom);
                 ?>
 
-                <!-- The main CSS file -->
-                <div class="col-md-8">
-                    <div id="noNavbarPlaceholder"></div>
-
-                    <div class="panel panel-default">
+                <div class="col-md-4" id="rightContainer" >
+                    <div class="panel panel-default ">
                         <div class="panel-heading tabbable-line">
-                            <ul class="nav nav-tabs" id="mainTabs">
-                                <li <?php if (empty($_POST['updateFile'])) { ?>class="nav-item active"<?php } ?>>
-                                    <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a>
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item active  <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                    <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> Basic</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Queue Log</a>
-                                </li>
-
                                 <?php
-                                if (Login::isAdmin()) {
-                                    if (empty($global['disableConfigurations'])) {
-                                        ?>
-                                        <li class="nav-item">
-                                            <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Configurations</a>
-                                        </li>
-                                        <li <?php if (!empty($_POST['updateFile'])) { ?>class="active"<?php } ?> class="nav-item">
-                                            <a data-toggle="tab" href="#update" class="nav-link" ><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?>
-                                                    <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
-                                            </a>
-                                        </li>
-                                        <?php
-                                    }
+                                if (empty($global['hideAdvanced'])) {
                                     ?>
-                                    <li class="nav-item">
-                                        <a data-toggle="tab" href="#streamers"  class="nav-link"><span class="glyphicon glyphicon-user"></span> Streamers</a>
+                                    <li class="nav-item  <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                        <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
                                     </li>
                                     <?php
                                 }
-                                ?>
-                            </ul>
-                        </div>
-                        <div class="panel-body">
-                            <div class="tab-content">
-                                <div id="encoding" class="tab-pane fade in active">
-                                </div>
-                                <div id="log" class="tab-pane fade">
-                                    <table id="grid" class="table table-condensed table-hover table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th data-column-id="title" data-formatter="title">Title</th>
-                                                <th data-column-id="status" data-formatter="status">Status</th>
-                                                <th data-column-id="created" data-formatter="dates"  data-order="desc">Dates</th>
-                                                <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-                                <?php
-                                include './index_configurations.php';
-                                ?>
-                                <?php
-                                if (Login::isAdmin()) {
-                                    ?>
-                                    <div id="streamers" class="tab-pane fade">
-                                        <table id="gridStreamer" class="table table-condensed table-hover table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th data-column-id="siteURL" data-width="40%">URL</th>
-                                                    <th data-column-id="user" data-width="30%">User</th>
-                                                    <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
-                                                    <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
-                                                    <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
-                                                </tr>
-                                            </thead>
-                                        </table>
-                                    </div>
-                                    <?php
-                                }
-                                ?>
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-                <div class="col-md-4" id="rightContainer" >
-                    <div class="panel panel-default">
-                        <div class="panel-heading tabbable-line">
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item active">
-                                    <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> Basic</a>
-                                </li>
-                               <?php
-                               if (empty($global['hideAdvanced'])) {
-                               ?>
-                                <li class="nav-item">
-                                    <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
-                                </li>
-                                <?php
-            }
                                 ?>
                             </ul>
                         </div>
@@ -417,16 +336,20 @@ if (!empty($_GET['noNavbar'])) {
                                                 ?>
                                             </div>
                                             <div class="panel-body" id="userGroupsList">
-                                                <?php
-                                                foreach ($_SESSION['login']->userGroups as $key => $value) {
-                                                    ?>
-                                                    <label>
-                                                        <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
-                                                        <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
-                                                    </label><br>
+                                                <div class="row">
                                                     <?php
-                                                }
-                                                ?>
+                                                    foreach ($_SESSION['login']->userGroups as $key => $value) {
+                                                        ?>
+                                                        <div class="col-xs-6  <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
+                                                            <label>
+                                                                <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
+                                                                <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
+                                                            </label>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                    ?>
+                                                </div>
                                                 <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> Unckeck all to make it public</div>
 
                                             </div>
@@ -492,9 +415,9 @@ if (!empty($_GET['noNavbar'])) {
                                                             data: {
                                                                 searchPhrase: req.term,
                                                                 users_id: '<?php echo Login::getStreamerUserId(); ?>',
-                                                                 user: '<?php echo Login::getStreamerUser(); ?>', 
-                                                                 pass: '<?php echo Login::getStreamerPass(); ?>', 
-                                                                 encodedPass: true
+                                                                user: '<?php echo Login::getStreamerUser(); ?>',
+                                                                pass: '<?php echo Login::getStreamerPass(); ?>',
+                                                                encodedPass: true
                                                             },
                                                             /*
                                                              xhrFields: {
@@ -619,6 +542,104 @@ if (!empty($_GET['noNavbar'])) {
                         </div>
                     </div>
                 </div>
+                <!-- The main CSS file -->
+                <div class="col-md-8">
+                    <div id="noNavbarPlaceholder"></div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading tabbable-line">
+                            <ul class="nav nav-tabs" id="mainTabs">
+                                <li <?php
+                                if (empty($_POST['updateFile'])) {
+                                    ?>
+                                        class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
+                                        <?php
+                                    } else {
+                                        ?>
+                                        class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
+                                        <?php
+                                    }
+                                    ?>>
+                                    <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a>
+                                </li>
+                                <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                    <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Queue Log</a>
+                                </li>
+
+                                <?php
+                                if (Login::isAdmin()) {
+                                    if (empty($global['disableConfigurations'])) {
+                                        ?>
+                                        <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                            <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Configurations</a>
+                                        </li>
+                                        <li <?php
+                                        if (!empty($_POST['updateFile'])) {
+                                            ?>
+                                                class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
+                                                <?php
+                                            } else {
+                                                ?>
+                                                class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
+                                                <?php
+                                            }
+                                            ?>>
+                                            <a data-toggle="tab" href="#update" class="nav-link" ><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?>
+                                                    <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
+                                            </a>
+                                        </li>
+                                        <?php
+                                    }
+                                    ?>
+                                    <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                        <a data-toggle="tab" href="#streamers"  class="nav-link"><span class="glyphicon glyphicon-user"></span> Streamers</a>
+                                    </li>
+                                    <?php
+                                }
+                                ?>
+                            </ul>
+                        </div>
+                        <div class="panel-body">
+                            <div class="tab-content">
+                                <div id="encoding" class="tab-pane fade in active">
+                                </div>
+                                <div id="log" class="tab-pane fade">
+                                    <table id="grid" class="table table-condensed table-hover table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th data-column-id="title" data-formatter="title">Title</th>
+                                                <th data-column-id="status" data-formatter="status">Status</th>
+                                                <th data-column-id="created" data-formatter="dates"  data-order="desc">Dates</th>
+                                                <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                                <?php
+                                include './index_configurations.php';
+                                ?>
+                                <?php
+                                if (Login::isAdmin()) {
+                                    ?>
+                                    <div id="streamers" class="tab-pane fade">
+                                        <table id="gridStreamer" class="table table-condensed table-hover table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th data-column-id="siteURL" data-width="40%">URL</th>
+                                                    <th data-column-id="user" data-width="30%">User</th>
+                                                    <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
+                                                    <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
+                                                    <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                    </div>
+                                    <?php
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <script>
                     var encodingNowIds = new Array();
@@ -734,7 +755,7 @@ if (!empty($_GET['noNavbar'])) {
                             return false;
                         }
                         console.log(queueItemAfter);
-                        var item = '<div id="encodeProgress' + queueItem.id + '">';
+                        var item = '<div id="encodeProgress' + queueItem.id + '" class="animate__animated animate__flipInX">';
                         item += '<a href="' + queueItem.streamer_site + '" class="btn btn-default btn-xs" target="_blank">' + queueItem.streamer_site + '</a>';
                         item += '<div class="progress progress-striped active encodingProgress" id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
                         item += '<div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">';
@@ -876,7 +897,7 @@ if (!empty($_GET['noNavbar'])) {
                             var videos_id = $('#update_video_id').val();
                             if (videos_id) {
                                 swal({
-                                    title: "<?php echo __('You will overwrite the video ID:'); ?> "+videos_id,
+                                    title: "<?php echo __('You will overwrite the video ID:'); ?> " + videos_id,
                                     text: "<?php echo __('The video will be replaced with this new file, are you sure you want to proceed?'); ?>",
                                     icon: "warning",
                                     buttons: true,
@@ -1217,8 +1238,8 @@ if (!empty($_GET['noNavbar'])) {
                             });
                         }
                     }
-                    
-                    function resetAutocompleteVideosID(){
+
+                    function resetAutocompleteVideosID() {
                         $("#videoSearch").val('');
                         $("#update_video_id").val('');
                         $("#inputNextVideo-poster").attr("src", "view/img/notfound.jpg");

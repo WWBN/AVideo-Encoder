@@ -1,5 +1,5 @@
 
-<div class="panel panel-default">
+<div class="panel panel-default ">
     <div class="panel-heading">
         <?php
         if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
@@ -7,7 +7,7 @@
         }
         ?>
     </div>
-    <div class="panel-body">
+    <div class="panel-body  <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a data-toggle="tab" href="#upload">

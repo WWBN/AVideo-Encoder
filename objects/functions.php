@@ -1082,3 +1082,29 @@ function isURL200($url) {
 function isWindows(){
     return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
+
+
+function getCSSAnimation($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1)
+{
+    global $_getCSSAnimationClassDelay;
+    getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName);
+    return ['class' => 'animate__animated ' . $type, 'style' => "-webkit-animation-delay: {$_getCSSAnimationClassDelay[$loaderSequenceName]}s; animation-delay: {$_getCSSAnimationClassDelay[$loaderSequenceName]}s;"];
+}
+
+function getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName = 'default')
+{
+    global $_getCSSAnimationClassDelay;
+    if (!isset($_getCSSAnimationClassDelay)) {
+        $_getCSSAnimationClassDelay = [];
+    }
+    if (empty($_getCSSAnimationClassDelay[$loaderSequenceName])) {
+        $_getCSSAnimationClassDelay[$loaderSequenceName] = 0;
+    }
+    $_getCSSAnimationClassDelay[$loaderSequenceName] += $delay;
+}
+
+function getCSSAnimationClassAndStyle($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1)
+{
+    $array = getCSSAnimation($type, $loaderSequenceName, $delay);
+    return "{$array['class']}\" style=\"{$array['style']}";
+}

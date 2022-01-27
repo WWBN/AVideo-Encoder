@@ -84,7 +84,7 @@
             $_COOKIE['format'] = 'inputAutoHLS';
         }
         ?> 
-        <div class="input-container">
+        <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoHLS" name="format" class="radio-button" 
                    <?php echo ($_COOKIE['format'] === 'inputAutoHLS') ? 'checked' : ''; ?>>
             <div class="radio-tile">
@@ -102,7 +102,7 @@
             $_COOKIE['format'] = 'inputAutoMP4';
         }
         ?> 
-        <div class="input-container">
+        <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoMP4" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoMP4') ? 'checked' : ''; ?>>
             <div class="radio-tile">
@@ -117,7 +117,7 @@
     if (empty($global['disableWebM']) && empty($advancedCustom->doNotShowEncoderAutomaticWebm)) {
         $countEncodeOptions++;
         ?> 
-        <div class="input-container">
+        <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoWebm" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoWebm') ? 'checked' : ''; ?>>
             <div class="radio-tile">
@@ -132,7 +132,7 @@
     if (empty($advancedCustom->doNotShowEncoderAutomaticAudio)) { // disabled for now
         $countEncodeOptions++;
         ?> 
-        <div class="input-container">
+        <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoAudio" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoAudio') ? 'checked' : ''; ?>>
             <div class="radio-tile">
