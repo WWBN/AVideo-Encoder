@@ -95,6 +95,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <link href="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
+            var webSiteRootURL  = '<?php echo Login::getStreamerURL(); ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
         </script>
         <style>
@@ -104,7 +105,7 @@ if (!empty($_GET['noNavbar'])) {
                 body, body > div.main-container{
                     padding: 0;
                 }
-                                                                                            
+                                                                                                
     <?php
 }
 ?>
