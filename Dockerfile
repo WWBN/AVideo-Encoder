@@ -91,7 +91,7 @@ COPY CNAME /var/www/html
 COPY index.php /var/www/html
 COPY LICENSE /var/www/html
 COPY README.md /var/www/html
-COPY deploy/apache/avideo.conf /etc/apache2/sites-enabled/000-default.conf
+COPY deploy/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 COPY deploy/apache/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.conf
 COPY deploy/docker-entrypoint /usr/local/bin/docker-entrypoint
 COPY deploy/wait-for-db.php /usr/local/bin/wait-for-db.php
