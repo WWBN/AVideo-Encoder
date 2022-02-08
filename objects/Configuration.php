@@ -16,15 +16,16 @@ if (!class_exists('Configuration')) {
 
         static function getTableName() {
             global $global;
-            return $global['tablesPrefix'].'configurations_encoder';
+            return $global['tablesPrefix'] . 'configurations_encoder';
         }
 
         function __construct() {
-            $this->load(1);
-            if(empty($this->version)){
+            if (mysql_query("DESCRIBE `" . static::getTableName() . "`")) {
+                $this->load(1);
+            }
+            if (empty($this->version)) {
                 $this->loadOld();
             }
-            
         }
 
         function getAllowedStreamersURL() {
@@ -91,7 +92,7 @@ if (!class_exists('Configuration')) {
             return version_compare($version, $this->getVersion()) == 0;
         }
 
-        static function rewriteConfigFile($configurationVersion=2) {
+        static function rewriteConfigFile($configurationVersion = 2) {
             global $global, $mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase;
             $content = "<?php
 \$global['configurationVersion'] = {$configurationVersion};
