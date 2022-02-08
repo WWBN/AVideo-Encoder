@@ -21,9 +21,12 @@ if (!class_exists('Configuration')) {
 
         function __construct() {
             global $global;
-            if ($global['mysqli']->query("DESCRIBE `" . static::getTableName() . "`")) {
+            try {
                 $this->load(1);
+            } catch (Exception $exc) {
+                
             }
+
             if (empty($this->version)) {
                 $this->loadOld();
             }
