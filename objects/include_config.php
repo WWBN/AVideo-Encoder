@@ -9,7 +9,11 @@ global $config;
 
 if(empty($global['configurationVersion']) || $global['configurationVersion']<2){
     require_once $global['systemRootPath'].'objects/Configuration.php';
-    Configuration::rewriteConfigFile();
+    Configuration::rewriteConfigFile(2);
+}
+
+if(empty($global['tablesPrefix'])){
+    $global['tablesPrefix'] = '';
 }
 header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 require_once $global['systemRootPath'] . 'objects/security.php';

@@ -15,7 +15,8 @@ if (!class_exists('Configuration')) {
         }
 
         static function getTableName() {
-            return 'configurations_encoder';
+            global $global;
+            return $global['tablesPrefix'].'configurations_encoder';
         }
 
         function __construct() {
@@ -90,10 +91,11 @@ if (!class_exists('Configuration')) {
             return version_compare($version, $this->getVersion()) == 0;
         }
 
-        static function rewriteConfigFile() {
+        static function rewriteConfigFile($configurationVersion=2) {
             global $global, $mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase;
             $content = "<?php
-\$global['configurationVersion'] = 2;
+\$global['configurationVersion'] = {$configurationVersion};
+\$global['tablesPrefix'] = '{$global['tablesPrefix']}';
 \$global['webSiteRootURL'] = '{$global['webSiteRootURL']}';
 \$global['systemRootPath'] = '{$global['systemRootPath']}';
 \$global['webSiteRootPath'] = '" . (@$global['webSiteRootPath']) . "';

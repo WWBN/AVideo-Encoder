@@ -17,7 +17,8 @@ if (!class_exists('Format')) {
         }
 
         static function getTableName() {
-            return 'formats';
+            global $global;
+            return $global['tablesPrefix'] . 'formats';
         }
 
         function loadFromOrder($order) {
@@ -583,13 +584,13 @@ hd/index.m3u8
 
 
             $command = get_ffmpeg() . ' -i {$pathFileName} -max_muxing_queue_size 9999 ';
-            
+
             $rate = 300000;
             $minrate = ($rate * 0.5);
             $maxrate = ($rate * 1.5);
             $bufsize = ($rate * 2);
             $autioBitrate = 128;
-            
+
             foreach ($resolutions as $key => $value) {
                 if ($height > $value) {
                     $rate = $bandwidth[$key] / 1000;
@@ -642,20 +643,20 @@ hd/index.m3u8
             $obj->pathFileName = $pathFileName;
             $f = new Format($format_id);
             $fc = $f->getCode();
-            
+
             $encoder = new Encoder($encoder_queue_id);
             /*
-            if($encoder->isWorkerRunning() && $encoder->getStatus() !== 'error'){
-                error_log("AVideo-Encoder Format::exec  queue is alreary running [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
-                $obj->msg = "this queue running";
-                $obj->error = -1;
-                //$encoder->setStatus("encoding");
-                //$encoder->save();
-                return $obj;
-            }
-            $encoder->setStatus("encoding");
-            $encoder->save();
-            */
+              if($encoder->isWorkerRunning() && $encoder->getStatus() !== 'error'){
+              error_log("AVideo-Encoder Format::exec  queue is alreary running [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
+              $obj->msg = "this queue running";
+              $obj->error = -1;
+              //$encoder->setStatus("encoding");
+              //$encoder->save();
+              return $obj;
+              }
+              $encoder->setStatus("encoding");
+              $encoder->save();
+             */
             error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) {// it is HLS
                 if (empty($fc) || $format_id == 30) {
@@ -721,11 +722,11 @@ hd/index.m3u8
 
             $videos_dir = addcslashes("{$global['systemRootPath']}videos", '/');
             $pattern = "/output.*to '({$videos_dir}.*)'/i";
-            
+
             preg_match_all($pattern, $content, $matches);
-            
-            if(empty($matches[1])){
-                error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors".PHP_EOL.$content);
+
+            if (empty($matches[1])) {
+                error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors" . PHP_EOL . $content);
                 return false;
             }
             //error_log("progressFileHasVideosWithErrors: {$pattern} matches= " . json_encode($matches));
@@ -749,24 +750,23 @@ hd/index.m3u8
                 return true;
             }
             $errorLogFile = $filename . '.error.log';
-            
+
             /**
              * -allowed_extensions ALL  is required
              * key' is not a common multimedia extension, blocked for security reasons.
-            If you wish to override this adjust allowed_extensions, you can set it to 'ALL' to allow all
+              If you wish to override this adjust allowed_extensions, you can set it to 'ALL' to allow all
              */
-            
             $complement = '';
-            if($allowed_extensions){
+            if ($allowed_extensions) {
                 $complement = '-allowed_extensions ALL';
             }
-            
+
             if (isWindows()) {
                 $command = get_ffmpeg() . " {$complement} -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
             } else {
                 $command = get_ffmpeg() . " {$complement} -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
             }
-            exec($command);            
+            exec($command);
 
             if (!file_exists($errorLogFile)) {
                 error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
@@ -777,7 +777,7 @@ hd/index.m3u8
             unlink($errorLogFile);
 
             if (!empty($content)) {
-                if($allowed_extensions){
+                if ($allowed_extensions) {
                     return self::videoFileHasErrors($filename, false);
                 }
                 error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);

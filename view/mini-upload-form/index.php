@@ -57,14 +57,6 @@ if (!User::canUpload()) {
                         </h1>
                     </div>
                     <div class="alert alert-success"><?php printf(__("Your encode video resolution is set to %s !"), $config->getVideo_resolution()); ?></div>
-                    <?php
-                    if (!empty($global['videoStorageLimitMinutes'])) {
-                        $secondsTotal = getMinutesTotalVideosLength();
-                        ?>
-                        <div class="alert alert-warning"><?php printf(__("You have about %s minutes left of video storage!"), ($global['videoStorageLimitMinutes']-$secondsTotal)); ?></div>
-                        <?php
-                    }
-                    ?>
                 </div>
             </div>
 

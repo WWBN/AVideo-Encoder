@@ -56,7 +56,7 @@ include './checkConfiguration.php';
 $streamerConfiguration = "{$_POST['systemRootPath']}../videos/configuration.php";
 if (file_exists($streamerConfiguration)) {
     require_once $streamerConfiguration;
-    $sql = "UPDATE configurations_encoder SET "
+    $sql = "UPDATE {$global['tablesPrefix']}configurations_encoder SET "
             . "encoderURL = '{$global['mysqli']->real_escape_string($webSiteRootURL)}'"
             . " WHERE id = 1";
 

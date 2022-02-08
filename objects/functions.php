@@ -1,10 +1,12 @@
 <?php
-stream_context_set_default( [
+
+stream_context_set_default([
     'ssl' => [
         'verify_peer' => false,
         'verify_peer_name' => false,
     ],
 ]);
+
 function local_get_contents($path) {
     if (function_exists('fopen')) {
         $myfile = fopen($path, "r") or die("Unable to open file!");
@@ -15,14 +17,14 @@ function local_get_contents($path) {
     return @file_get_contents($path);
 }
 
-function get_ffmpeg($ignoreGPU=false) {
+function get_ffmpeg($ignoreGPU = false) {
     global $global;
     $complement = '';
     //$complement = ' -user-agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
-    if(!empty($global['ffmpeg'])){
+    if (!empty($global['ffmpeg'])) {
         $ffmpeg = $global['ffmpeg'];
-    }else{
+    } else {
         $ffmpeg = 'ffmpeg  ';
         if (empty($ignoreGPU) && !empty($global['ffmpegGPU'])) {
             $ffmpeg .= ' --enable-nvenc ';
@@ -31,10 +33,10 @@ function get_ffmpeg($ignoreGPU=false) {
             $ffmpeg = "{$global['ffmpeg']}{$ffmpeg}";
         }
     }
-    return $ffmpeg.$complement;
+    return $ffmpeg . $complement;
 }
 
-function replaceFFMPEG($cmd){
+function replaceFFMPEG($cmd) {
     return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
 }
 
@@ -450,24 +452,6 @@ function croak($statusarray) {
     die;
 }
 
-function getSecondsTotalVideosLength() {
-    $configFile = dirname(__FILE__) . '/../videos/configuration.php';
-    require_once $configFile;
-    global $global;
-    $sql = "SELECT * FROM videos v ";
-    $res = $global['mysqli']->query($sql);
-    $seconds = 0;
-    while ($row = $res->fetch_assoc()) {
-        $seconds += parseDurationToSeconds($row['duration']);
-    }
-    return $seconds;
-}
-
-function getMinutesTotalVideosLength() {
-    $seconds = getSecondsTotalVideosLength();
-    return floor($seconds / 60);
-}
-
 function parseDurationToSeconds($str) {
     $durationParts = explode(":", $str);
     if (empty($durationParts[1]))
@@ -732,7 +716,7 @@ function zipDirectory($destinationFile) {
     $zipPath = rtrim($destinationFile, "/") . ".zip";
     // Initialize archive object
     $zip = new ZipArchive();
-    if(!is_object($zip)){
+    if (!is_object($zip)) {
         $zip = new \ZipArchive;
     }
     $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
@@ -1033,13 +1017,13 @@ function getPHP() {
     return "php";
 }
 
-function __($msg){
+function __($msg) {
     return $msg;
 }
 
-function getAdvancedCustomizedObjectData(){
+function getAdvancedCustomizedObjectData() {
     global $advancedCustom;
-    if(empty($advancedCustom)){
+    if (empty($advancedCustom)) {
         $json_file = url_get_contents(Login::getStreamerURL() . "plugin/CustomizeAdvanced/advancedCustom.json.php");
         // convert the string to a json object
         $advancedCustom = json_decode($json_file);
@@ -1058,7 +1042,7 @@ function addLastSlash($word) {
 
 function isURL200($url) {
     global $_isURL200;
-    
+
     //error_log("isURL200 checking URL {$url}");
     $headers = @get_headers($url);
     if (!is_array($headers)) {
@@ -1073,26 +1057,23 @@ function isURL200($url) {
                 strpos($value, '304')
         ) {
             $result = true;
-        } 
+        }
     }
 
     return $result;
 }
 
-function isWindows(){
+function isWindows() {
     return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
 
-
-function getCSSAnimation($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1)
-{
+function getCSSAnimation($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1) {
     global $_getCSSAnimationClassDelay;
     getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName);
     return ['class' => 'animate__animated ' . $type, 'style' => "-webkit-animation-delay: {$_getCSSAnimationClassDelay[$loaderSequenceName]}s; animation-delay: {$_getCSSAnimationClassDelay[$loaderSequenceName]}s;"];
 }
 
-function getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName = 'default')
-{
+function getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName = 'default') {
     global $_getCSSAnimationClassDelay;
     if (!isset($_getCSSAnimationClassDelay)) {
         $_getCSSAnimationClassDelay = [];
@@ -1103,8 +1084,33 @@ function getCSSAnimationClassAndStyleAddWait($delay, $loaderSequenceName = 'defa
     $_getCSSAnimationClassDelay[$loaderSequenceName] += $delay;
 }
 
-function getCSSAnimationClassAndStyle($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1)
-{
+function getCSSAnimationClassAndStyle($type = 'animate__flipInX', $loaderSequenceName = 'default', $delay = 0.1) {
     $array = getCSSAnimation($type, $loaderSequenceName, $delay);
     return "{$array['class']}\" style=\"{$array['style']}";
+}
+
+function addPrefixIntoQuery($query, $tablesPrefix) {
+    if (!empty($tablesPrefix)) {
+        $search = array(
+            'IF NOT EXISTS `',
+            'INSERT INTO `',
+            'UPDATE `',
+            'ALTER TABLE `',
+            'RENAME TABLE `',
+            'REFERENCES `',
+        );
+
+        foreach ($search as $value) {
+            $query = str_replace($value, $value . $tablesPrefix, $query, $count);
+            if(empty($count)){
+                $cleanValue = str_replace('`', '', $value);
+
+                $query = str_replace($cleanValue, $cleanValue . $tablesPrefix, $query);
+            }
+        }
+        
+        $query = str_replace("ON UPDATE {$tablesPrefix}CASCADE", 'ON UPDATE CASCADE', $query);
+    }
+
+    return $query;
 }

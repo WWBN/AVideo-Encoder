@@ -7,7 +7,7 @@ if (!isCommandLineInterface()) {
     return die('Command Line only');
 }
 
-$sql = "UPDATE encoder_queue SET status = 'queue' where id > 0";
+$sql = "UPDATE {$global['tablesPrefix']}encoder_queue SET status = 'queue' where id > 0";
 echo $sql . PHP_EOL;
 $insert_row = $global['mysqli']->query($sql);
 

@@ -11,7 +11,7 @@ ob_flush();
 $userName = trim(readline(""));
 
 if(!empty($userName)){
-    $sql = "UPDATE streamers SET isAdmin = 1 where user = '".$userName."'";
+    $sql = "UPDATE {$global['tablesPrefix']}streamers SET isAdmin = 1 where user = '".$userName."'";
     echo $sql.PHP_EOL;         
     $insert_row = $global['mysqli']->query($sql);
             

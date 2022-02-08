@@ -17,7 +17,8 @@ class Encoder extends ObjectYPT {
     }
 
     static function getTableName() {
-        return 'encoder_queue';
+        global $global;
+        return $global['tablesPrefix'] . 'encoder_queue';
     }
 
     function save() {
@@ -494,7 +495,7 @@ class Encoder extends ObjectYPT {
     static function areEncoding() {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
+                . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = 'encoding' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
 
         $res = $global['mysqli']->query($sql);
         $results = array();
@@ -526,7 +527,7 @@ class Encoder extends ObjectYPT {
       static function isTransferring() {
       global $global;
       $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-      . " LEFT JOIN formats f ON f.id = formats_id WHERE status = 'transferring' ";
+      . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = 'transferring' ";
 
       $res = $global['mysqli']->query($sql);
 
@@ -554,7 +555,7 @@ class Encoder extends ObjectYPT {
     static function getAllQueue() {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN formats f ON f.id = formats_id WHERE (status = 'encoding' OR  status = 'downloading' OR status = 'queue' OR status = 'error') ";
+                . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE (status = 'encoding' OR  status = 'downloading' OR status = 'queue' OR status = 'error') ";
 
         $sql .= " ORDER BY priority ASC, e.id ASC ";
         $res = $global['mysqli']->query($sql);
@@ -1976,7 +1977,7 @@ class Encoder extends ObjectYPT {
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
-                
+
         if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
@@ -2019,7 +2020,7 @@ class Encoder extends ObjectYPT {
     static function getYouTubeDLCommand() {
         global $global;
         if (!empty($global['youtube-dl'])) {
-            return $global['youtube-dl'].' ';
+            return $global['youtube-dl'] . ' ';
         } else if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl ";
         } else {

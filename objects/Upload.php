@@ -10,7 +10,8 @@ class Upload extends ObjectYPT {
     protected $id, $encoders_id, $resolution, $format, $videos_id, $status;
 
     static function getTableName() {
-        return 'upload_queue';
+        global $global;
+        return $global['tablesPrefix'] . 'upload_queue';
     }
 
     static function getSearchFieldsNames() {
@@ -36,35 +37,35 @@ class Upload extends ObjectYPT {
         return $u;
     }
 
-   static function create($encoders_id, $file) {
-       preg_match("/tmpFile_converted_([^.]+)\.(.*)$/", $file, $matches);
-       if (empty($matches[1]) || empty($matches[2])) {
-           error_log("Upload::createIfNotExists filename ".$file." not match");
-           return false;
-       }
+    static function create($encoders_id, $file) {
+        preg_match("/tmpFile_converted_([^.]+)\.(.*)$/", $file, $matches);
+        if (empty($matches[1]) || empty($matches[2])) {
+            error_log("Upload::createIfNotExists filename " . $file . " not match");
+            return false;
+        }
 
-       $resolution = $matches[1];
-       $format = $matches[2];
- 
-       $e = new Encoder($encoders_id);
-       $return_vars = json_decode($e->getReturn_vars());
-       if (empty($return_vars->videos_id)) {
-           error_log("Upload::createIfNotExists no videos_id");
-           return false;
-       }
- 
-       $u = new Upload("");
-       $u->setEncoders_id($encoders_id);
-       $u->setResolution($resolution);
-       $u->setFormat($format);
-       $u->setVideos_id($return_vars->videos_id);
-       $u->setStatus("queue");
-       $u->save();
+        $resolution = $matches[1];
+        $format = $matches[2];
 
-       $sent = Encoder::sendFile($file, $return_vars, $format, $e, $resolution);
+        $e = new Encoder($encoders_id);
+        $return_vars = json_decode($e->getReturn_vars());
+        if (empty($return_vars->videos_id)) {
+            error_log("Upload::createIfNotExists no videos_id");
+            return false;
+        }
 
-       return $u;
-   }   
+        $u = new Upload("");
+        $u->setEncoders_id($encoders_id);
+        $u->setResolution($resolution);
+        $u->setFormat($format);
+        $u->setVideos_id($return_vars->videos_id);
+        $u->setStatus("queue");
+        $u->save();
+
+        $sent = Encoder::sendFile($file, $return_vars, $format, $e, $resolution);
+
+        return $u;
+    }
 
     static function deleteFile($encoders_id) {
         global $global;

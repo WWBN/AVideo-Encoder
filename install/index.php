@@ -324,29 +324,42 @@ require_once '../objects/functions.php';
                     </div>
                     <div class="col-md-6 ">
                         <form id="configurationForm">
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="webSiteRootURL">Your Site URL</label>
-                                <input type="text" class="form-control" id="webSiteRootURL" placeholder="Enter your URL (http://yoursite.com)" value="<?php echo getURLToApplication(); ?>" required="required">
+                                <input type="url" class="form-control" id="webSiteRootURL" placeholder="Enter your URL (http://yoursite.com)" value="<?php echo getURLToApplication(); ?>" required="required">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="systemRootPath">System Path to Application</label>
                                 <input type="text" class="form-control" id="systemRootPath" placeholder="System Path to Application (/var/www/[application_path])" value="<?php echo getPathToApplication(); ?>" required="required">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="databaseHost">Database Host</label>
                                 <input type="text" class="form-control" id="databaseHost" placeholder="Enter Database Host" value="localhost" required="required">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="databaseUser">Database User</label>
                                 <input type="text" class="form-control" id="databaseUser" placeholder="Enter Database User" value="root" required="required">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="databasePass">Database Password</label>
                                 <input type="password" class="form-control" id="databasePass" placeholder="Enter Database Password">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group col-md-6 ">
                                 <label for="databaseName">Database Name</label>
                                 <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="aVideo-Encoder" required="required">
+                            </div>
+                            <div class="form-group col-md-6 ">
+                                <label for="databaseName">Optional Tables Prefix</label>
+                                <input type="text" class="form-control" id="tablesPrefix" placeholder="Enter Tables Prefix" value="">
+                            </div>
+                            <div class="form-group col-md-6 ">
+                                <label for="createTables">Create database and tables?</label>
+
+                                <select id="createTables"  class="form-control">
+                                    <option value="2">Create database and tables</option>
+                                    <option value="1">Create only tables (Do not create database)</option>
+                                    <option value="0">Do not create any, I will import the script manually</option>
+                                </select>
                             </div>
 
                             <div class="form-group">
@@ -379,15 +392,6 @@ require_once '../objects/functions.php';
                             </div>
 
 
-                            <div class="form-group">
-                                <label for="createTables">Do you want to create database and tables?</label>
-
-                                <select class="" id="createTables">
-                                    <option value="2">Create database and tables</option>
-                                    <option value="1">Create only tables (Do not create database)</option>
-                                    <option value="0">Do not create any, I will import the script manually</option>
-                                </select>
-                            </div>
                             <div class="alert alert-info" id="streamer" >
 
                                 <div class="form-group">
@@ -451,6 +455,7 @@ require_once '../objects/functions.php';
                     var createTables = $('#createTables').val();
                     var allowedStreamers = $('#allowedStreamers').val();
                     var defaultPriority = $('#defaultPriority').val();
+                    var tablesPrefix = $('#tablesPrefix').val();
 
                     var siteURL = $('#siteURL').val();
                     var inputUser = $('#inputUser').val();
@@ -486,7 +491,8 @@ require_once '../objects/functions.php';
                                         inputUser: inputUser,
                                         inputPassword: inputPassword,
                                         allowedStreamers: allowedStreamers,
-                                        defaultPriority: defaultPriority
+                                        defaultPriority: defaultPriority,
+                                        tablesPrefix: tablesPrefix
                                     },
                                     type: 'post',
                                     success: function (response) {

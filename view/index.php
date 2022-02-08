@@ -800,11 +800,6 @@ if (!empty($_GET['noNavbar'])) {
                                 $('#max_file_size').text(response.max_file_size);
                                 streamerMaxFileSize = response.file_upload_max_size;
                                 $('#currentStorageUsage').text((response.currentStorageUsage / 60).toFixed(2) + " Minutes");
-                                if (response.videoStorageLimitMinutes) {
-                                    $('#videoStorageLimitMinutes').text(response.videoStorageLimitMinutes + " Minutes");
-                                } else {
-                                    $('#videoStorageLimitMinutes').text("Unlimited");
-                                }
                             }
                         });
 

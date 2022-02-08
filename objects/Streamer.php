@@ -12,7 +12,8 @@ if (!class_exists('Streamer')) {
         }
 
         static function getTableName() {
-            return 'streamers';
+            global $global;
+            return $global['tablesPrefix'] . 'streamers';
         }
 
         private static function get($user, $siteURL) {
@@ -43,7 +44,7 @@ if (!class_exists('Streamer')) {
 
         static function getFirstURL() {
             global $global;
-            if(!empty($global['forceStreamerURL'])){
+            if (!empty($global['forceStreamerURL'])) {
                 return $global['forceStreamerURL'];
             }
             $row = static::getFirst();
@@ -80,7 +81,7 @@ if (!class_exists('Streamer')) {
 
         function verify() {
             $timeout = 5;
-            ini_set('default_socket_timeout', $timeout); 
+            ini_set('default_socket_timeout', $timeout);
             $url = $this->getSiteURL();
             $cacheFile = sys_get_temp_dir() . "/" . md5($url) . "_verify.log";
             $lifetime = 3600; //1 hour
@@ -142,7 +143,7 @@ if (!class_exists('Streamer')) {
 
         function getSiteURL() {
             global $global;
-            if(!empty($global['forceStreamerSiteURL'])){
+            if (!empty($global['forceStreamerSiteURL'])) {
                 return trim($global['forceStreamerSiteURL']);
             }
             return trim($this->siteURL);
