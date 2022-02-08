@@ -20,6 +20,10 @@ if (!class_exists('Configuration')) {
 
         function __construct() {
             $this->load(1);
+            if(empty($this->version)){
+                $this->loadOld();
+            }
+            
         }
 
         function getAllowedStreamersURL() {
@@ -125,6 +129,29 @@ require_once \$global['systemRootPath'] . 'objects/include_config.php';
             $fp = fopen($global['systemRootPath'] . "videos/configuration.php", "wb");
             fwrite($fp, $content);
             fclose($fp);
+        }
+
+        static function getOldConfig() {
+            global $global;
+            $sql = "SELECT * FROM configurations WHERE  id = 1 LIMIT 1";
+            $global['lastQuery'] = $sql;
+            $res = $global['mysqli']->query($sql);
+            if ($res) {
+                $user = $res->fetch_assoc();
+            } else {
+                $user = false;
+            }
+            return $user;
+        }
+
+        protected function loadOld() {
+            $user = self::getOldConfig();
+            if (empty($user))
+                return false;
+            foreach ($user as $key => $value) {
+                $this->$key = $value;
+            }
+            return true;
         }
 
     }
