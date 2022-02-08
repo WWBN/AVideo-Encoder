@@ -1,6 +1,9 @@
 <?php
+if(php_sapi_name() !== 'cli'){
+  return die('Command Line only');
+}
 
-$_POST["webSiteRootURL"] = "https://".getenv("SERVER_NAME")."/";
+$_POST["webSiteRootURL"] = getenv("SERVER_URL");
 $_POST["systemRootPath"] = "/var/www/html/";
 
 $_POST["databaseHost"] = getenv("DB_MYSQL_HOST");

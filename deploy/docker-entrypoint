@@ -3,6 +3,11 @@
 echo "Starting AVideo Encoder..."
 CONFIG_FILE=/etc/apache2/sites-enabled/000-default.conf
 
+echo "post_max_size = ${PHP_POST_MAX_SIZE}\n" >> /usr/local/etc/php/php.ini
+echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}\n" >> /usr/local/etc/php/php.ini
+echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME}\n" >> /usr/local/etc/php/php.ini
+echo "memory_limit = ${PHP_MEMORY_LIMIT}\n" >> /usr/local/etc/php/php.ini
+
 if [ "_${CREATE_TLS_CERTIFICATE}_" == "_yes_" ]; then
   echo "Generate Certificate..."
   echo "Certificate file: ${TLS_CERTIFICATE_FILE}"
@@ -47,13 +52,6 @@ sed -i 's#SERVER_NAME#'${SERVER_NAME}'#' ${CONFIG_FILE}
 sed -i 's#TLS_CERTIFICATE_FILE#'${TLS_CERTIFICATE_FILE}'#' ${CONFIG_FILE}
 sed -i 's#TLS_CERTIFICATE_KEY#'${TLS_CERTIFICATE_KEY}'#' ${CONFIG_FILE}
 sed -i 's#CONTACT_EMAIL#'${CONTACT_EMAIL}'#' ${CONFIG_FILE}
-
-if [ "_${ENABLE_PHPMYADMIN}_" = "_yes_" ]; then
-  echo "Enabling local PHPMyAdmin on https://${SERVER_NAME}/phpmyadmin"
-  cp /etc/apache2/conf-available/phpmyadmin.conf /etc/apache2/conf-enabled/phpmyadmin.conf
-  a2enmod proxy
-  a2enmod proxy_http
-fi
 
 echo "Waiting for database ${DB_MYSQL_HOST} to be up and running"
 php /usr/local/bin/wait-for-db.php

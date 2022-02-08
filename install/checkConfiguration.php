@@ -4,7 +4,7 @@ if (file_exists("../videos/configuration.php")) {
     error_log("Can not create configuration again: ".  json_encode($_SERVER));
     exit;
 }
-$installationVersion = "3.8";
+$installationVersion = "3.9";
 
 header('Content-Type: application/json');
 
@@ -24,11 +24,6 @@ if (!file_exists($_POST['systemRootPath'] . "index.php")) {
 }
 
 $mysqli = @new mysqli($_POST['databaseHost'], $_POST['databaseUser'], $_POST['databasePass']);
-
-/*
- * This is the "official" OO way to do it,
- * BUT $connect_error was broken until PHP 5.2.9 and 5.3.0.
- */
 if ($mysqli->connect_error) {
     $obj->error = ('Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error);
     echo json_encode($obj);
@@ -45,15 +40,6 @@ if ($_POST['createTables'] == 2) {
 }
 $mysqli->select_db($_POST['databaseName']);
 
-/*
-  $cmd = "mysql -h {$_POST['databaseHost']} -u {$_POST['databaseUser']} -p {$_POST['databasePass']} {$_POST['databaseName']} < {$_POST['systemRootPath']}install/database.sql";
-  exec("{$cmd} 2>&1", $output, $return_val);
-  if ($return_val !== 0) {
-  $obj->error = "Error on command: {$cmd}";
-  echo json_encode($obj);
-  exit;
-  }
- */
 if ($_POST['createTables'] > 0) {
 // Temporary variable, used to store current query
     $templine = '';
@@ -92,7 +78,7 @@ if ($mysqli->query($sql) !== TRUE) {
     exit;
 }
 
-$sql = "INSERT INTO configurations (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
+$sql = "INSERT INTO configurations_encoder (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
 if ($mysqli->query($sql) !== TRUE) {
     $obj->error = "Error creating streamer: " . $mysqli->error;
     echo json_encode($obj);

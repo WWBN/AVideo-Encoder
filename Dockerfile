@@ -10,25 +10,29 @@ LABEL maintainer="TRW <trw@acoby.de>" \
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+ENV SERVER_NAME localhost
+ENV SERVER_URL https://localhost/
+
 ENV DB_MYSQL_HOST database
 ENV DB_MYSQL_PORT 3306
 ENV DB_MYSQL_NAME avideo
 ENV DB_MYSQL_USER avideo
 ENV DB_MYSQL_PASSWORD avideo
 
-ENV SERVER_NAME localhost
-ENV ENABLE_PHPMYADMIN yes
-
 ENV STREAMER_URL https://localhost/
 ENV STREAMER_USER admin
 ENV STREAMER_PASSWORD password
-ENV STREAMER_URL https://localhost/
 ENV STREAMER_PRIORITY 1
 
 ENV CREATE_TLS_CERTIFICATE yes
 ENV TLS_CERTIFICATE_FILE /etc/apache2/ssl/localhost.crt
 ENV TLS_CERTIFICATE_KEY /etc/apache2/ssl/localhost.key
 ENV CONTACT_EMAIL admin@localhost
+
+ENV PHP_POST_MAX_SIZE 100M
+ENV PHP_UPLOAD_MAX_FILESIZE 100M
+ENV PHP_MAX_EXECUTION_TIME 7200
+ENV PHP_MEMORY_LIMIT 512M
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
@@ -74,9 +78,8 @@ RUN apt-get install -y --no-install-recommends \
       /var/tmp/* \
       /root/.cache && \
     a2enmod rewrite && \
-    sed -i "s|Listen 80|Listen 8000|g" /etc/apache2/ports.conf && \
-    sed -i "s|:80|:8000|g" /etc/apache2/sites-available/* && \
-    echo "max_execution_time = 7200\npost_max_size = 10240M\nupload_max_filesize = 10240M\nmemory_limit = 512M" >> /usr/local/etc/php/php.ini && \
+    sed -i "s|Listen 80|Listen 8080|g" /etc/apache2/ports.conf && \
+    sed -i "s|Listen 443|Listen 8443|g" /etc/apache2/ports.conf && \
     pip3 install -U youtube-dl && \
     rm -rf /var/www/html/*
 
@@ -92,16 +95,19 @@ COPY index.php /var/www/html
 COPY LICENSE /var/www/html
 COPY README.md /var/www/html
 COPY deploy/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
-COPY deploy/apache/phpmyadmin.conf /etc/apache2/conf-available/phpmyadmin.conf
 COPY deploy/docker-entrypoint /usr/local/bin/docker-entrypoint
 COPY deploy/wait-for-db.php /usr/local/bin/wait-for-db.php
 
 RUN chown -R www-data /var/www/html && \
     install -d -m 0755 -o www-data -g www-data /var/www/html/videos
+VOLUME ["/var/www/html/videos"]
 
 # set non-root user
 USER www-data
-EXPOSE 8000
+WORKDIR /var/www/html/
 
-VOLUME ["/var/www/html/videos"]
+EXPOSE 8080
+EXPOSE 8443
+
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost:8443/ || exit 1  
