@@ -15,7 +15,7 @@ if (!class_exists('Configuration')) {
         }
 
         static function getTableName() {
-            return 'configurations';
+            return 'configurations_encoder';
         }
 
         function __construct() {

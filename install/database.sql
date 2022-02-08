@@ -96,9 +96,9 @@ CREATE TABLE IF NOT EXISTS `upload_queue` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `configurations`
+-- Table `configurations_encoder`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `configurations` (
+CREATE TABLE IF NOT EXISTS `configurations_encoder` (
   `id` INT NOT NULL,
   `allowedStreamersURL` TEXT NULL,
   `defaultPriority` INT(1) NULL,

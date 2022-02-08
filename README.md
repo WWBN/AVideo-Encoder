@@ -92,3 +92,34 @@ No. We will be providing a public encoder, we will build the encoder in such a w
 
 # Older version
 If you want the old version with Streamer and Encoder together (Version 3.4.1) download it <a href="https://github.com/WWBN/AVideo/releases/tag/3.4.1">here</a>
+
+# Docker
+
+We've created a Docker environment for the AVideo platform together with the 
+AVideo Encoder. You can either run docker build on this git repository or you
+can pull the latest image from Docker hub. It will be updated on any commit
+here. Also there are tags for official releases.
+
+The docker image can be configured automatically via some environment
+variables. The following options are available and should respect the normal
+install GUI.
+
+- `SERVER_NAME` defines the name of the server used for internal configuration - default is `localhost`
+- `SERVER_URL` defines the external URL of the encoder - default is `https://localhost/`
+- `DB_MYSQL_HOST` defines the database hostname - default is `database`
+- `DB_MYSQL_PORT` defines the database port - default is `3306`
+- `DB_MYSQL_NAME` defines the database name - default is `avideo`
+- `DB_MYSQL_USER` defines the database username - default is `avideo`
+- `DB_MYSQL_PASSWORD` defines the database password - default is `avideo`
+- `STREAMER_URL` defines the streamer url - default is `https://localhost/`
+- `STREAMER_USER` defines the streamer username - default is `admin`
+- `STREAMER_PASSWORD` defines the streamer password - default is `password`
+- `STREAMER_PRIORITY` defines the streamer priority - default is `1`
+- `CREATE_TLS_CERTIFICATE` defines, if the image should generate its ssl selfsigned certificate - default is `yes`
+- `TLS_CERTIFICATE_FILE` defines the location of the HTTPS tls certificate - default is `/etc/apache2/ssl/localhost.crt`
+- `TLS_CERTIFICATE_KEY` defines the location of the HTTPS tls certificate key - default is `/etc/apache2/ssl/localhost.key`
+- `CONTACT_EMAIL` defines the contact mail address - default is `admin@localhost`
+- `PHP_POST_MAX_SIZE` defines the PHP max POST size for uploads - default is `100M`
+- `PHP_UPLOAD_MAX_FILESIZE` defines the PHP max upload file size - default is `100M`
+- `PHP_MAX_EXECUTION_TIME` defines the PHP max execution time for threads during encoding - default is `7200`
+- `PHP_MEMORY_LIMIT` defines the PHP memory limit - default is `512M`
