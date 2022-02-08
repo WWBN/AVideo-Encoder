@@ -20,7 +20,8 @@ if (!class_exists('Configuration')) {
         }
 
         function __construct() {
-            if (mysql_query("DESCRIBE `" . static::getTableName() . "`")) {
+            global $global;
+            if ($global['mysqli']->query("DESCRIBE `" . static::getTableName() . "`")) {
                 $this->load(1);
             }
             if (empty($this->version)) {
