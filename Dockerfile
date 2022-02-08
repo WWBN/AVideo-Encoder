@@ -77,7 +77,7 @@ RUN apt-get install -y --no-install-recommends \
       /var/lib/apt/lists/* \
       /var/tmp/* \
       /root/.cache && \
-    a2enmod rewrite && \
+    a2enmod rewrite expires headers ssl && \
     pip3 install -U youtube-dl && \
     rm -rf /var/www/html/*
 
