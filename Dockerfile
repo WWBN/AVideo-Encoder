@@ -78,8 +78,6 @@ RUN apt-get install -y --no-install-recommends \
       /var/tmp/* \
       /root/.cache && \
     a2enmod rewrite && \
-    sed -i "s|Listen 80|Listen 8080|g" /etc/apache2/ports.conf && \
-    sed -i "s|Listen 443|Listen 8443|g" /etc/apache2/ports.conf && \
     pip3 install -U youtube-dl && \
     rm -rf /var/www/html/*
 
@@ -99,15 +97,14 @@ COPY deploy/docker-entrypoint /usr/local/bin/docker-entrypoint
 COPY deploy/wait-for-db.php /usr/local/bin/wait-for-db.php
 
 RUN chown -R www-data /var/www/html && \
+    chmod 755 /usr/local/bin/docker-entrypoint && \
     install -d -m 0755 -o www-data -g www-data /var/www/html/videos
 VOLUME ["/var/www/html/videos"]
 
-# set non-root user
-USER www-data
 WORKDIR /var/www/html/
 
-EXPOSE 8080
-EXPOSE 8443
+EXPOSE 80
+EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost:8443/ || exit 1  
+HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost/ || exit 1  
