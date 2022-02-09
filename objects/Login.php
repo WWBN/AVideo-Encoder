@@ -16,7 +16,11 @@ if (!class_exists('Login')) {
             if (substr($aVideoURL, -1) !== '/') {
                 $aVideoURL .= "/";
             }
-
+            
+            if(!preg_match('/^http/i', $aVideoURL)){
+                $aVideoURL = "https://{$aVideoURL}";
+            }
+            
             $postdata = http_build_query(
                     array(
                         'user' => $user,
