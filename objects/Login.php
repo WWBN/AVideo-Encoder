@@ -17,10 +17,6 @@ if (!class_exists('Login')) {
                 $aVideoURL .= "/";
             }
             
-            if(!preg_match('/^http/i', $aVideoURL)){
-                $aVideoURL = "https://{$aVideoURL}";
-            }
-            
             $postdata = http_build_query(
                     array(
                         'user' => $user,
@@ -46,6 +42,11 @@ if (!class_exists('Login')) {
 
             $context = stream_context_create($opts);
             $url = $aVideoURL . 'login?user='. urlencode($user).'&pass='. urlencode($pass).'&encodedPass='. urlencode($encodedPass);
+            
+            
+            if(!preg_match('/^http/i', $url)){
+                $aVideoURL = "https://{$url}";
+            }
             //echo $url;exit;
             error_log("Login::run request login user ($user)");
             $result = url_get_contents($url, $context);
