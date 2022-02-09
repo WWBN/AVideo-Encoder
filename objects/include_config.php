@@ -38,6 +38,16 @@ if(!function_exists('local_get_contents')){
     require_once $global['systemRootPath'].'objects/Object.php';
 }
 
+
+            
+if(!empty($_REQUEST['notifyURL']) && !preg_match('/^http/i', $_REQUEST['notifyURL'])){
+    $_REQUEST['notifyURL'] = "https://{$_REQUEST['notifyURL']}";
+    $_POST['notifyURL'] = $_REQUEST['notifyURL'];
+    $_GET['notifyURL'] = $_REQUEST['notifyURL'];
+}
+
+
+
 _session_start();
 
 $_SESSION['lastUpdate'] = time();
