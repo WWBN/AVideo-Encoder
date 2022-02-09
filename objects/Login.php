@@ -45,7 +45,7 @@ if (!class_exists('Login')) {
             
             
             if(!preg_match('/^http/i', $url)){
-                $aVideoURL = "https://{$url}";
+                $url = "https://{$url}";
             }
             //echo $url;exit;
             error_log("Login::run request login user ($user)");
