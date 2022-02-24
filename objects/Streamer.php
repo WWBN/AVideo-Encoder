@@ -78,6 +78,13 @@ if (!class_exists('Streamer')) {
                 return false;
             }
         }
+        
+        public function save() {
+            if(!isset($this->priority)){
+                $this->priority = 6;
+            }
+            return parent::save();
+        }
 
         function verify() {
             $timeout = 5;
