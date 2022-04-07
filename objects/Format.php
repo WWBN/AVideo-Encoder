@@ -745,10 +745,16 @@ hd/index.m3u8
         }
 
         static function videoFileHasErrors($filename, $allowed_extensions = true) {
+            global $global;
             if (!file_exists($filename)) {
                 error_log("videoFileHasErrors: file not exists {$filename}");
                 return true;
             }
+            
+            if(!empty($global['byPassVideoFileHasErrors'])){
+                return false;
+            }
+            
             $errorLogFile = $filename . '.error.log';
 
             /**
