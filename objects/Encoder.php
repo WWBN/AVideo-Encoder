@@ -2021,6 +2021,8 @@ class Encoder extends ObjectYPT {
         global $global;
         if (!empty($global['youtube-dl'])) {
             return $global['youtube-dl'] . ' ';
+        } else if (file_exists("/usr/local/bin/yt-dlp")) {
+            return "/usr/local/bin/yt-dlp ";
         } else if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl ";
         } else {
