@@ -46,7 +46,10 @@ function get_ffprobe() {
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     $ffmpeg = 'ffprobe  ';
     if (!empty($global['ffmpeg'])) {
-        $ffmpeg = "{$global['ffmpeg']}{$ffmpeg}";
+        
+        $dir = dirname($global['ffmpeg']);
+        
+        $ffmpeg = "{$dir}/{$ffmpeg}";
     }
     return $ffmpeg;
 }

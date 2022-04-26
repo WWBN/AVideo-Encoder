@@ -7,12 +7,16 @@ ini_set('max_execution_time', $max_execution_time);
 $pxBetweenTiles = 0;
 
 $url = $argv[1];
-$step = $argv[2];
+$step = floatval($argv[2]);
 $tileWidth = $argv[3];
 $tileHeight = $argv[4];
 $imageFileName = $argv[5];
 $numberOfTiles = $argv[6];
 $baseName = $argv[7];
+
+if($step<=0){
+    $step = 0.01;
+}
 
 $dirname = $global['systemRootPath'] . "videos/thumbs_{$baseName}/";
 if (is_dir($dirname)) {
