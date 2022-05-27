@@ -1117,3 +1117,18 @@ function addPrefixIntoQuery($query, $tablesPrefix) {
 
     return $query;
 }
+
+
+function isURLaVODVideo($url){
+    $parts = explode('?', $url);
+    if(preg_match('/m3u8?$/i', $parts[0])){
+        $content = url_get_contents($url);
+        if(empty($content)){
+            return false;
+        }
+        if(!preg_match('/#EXT-X-ENDLIST/i', $content)){
+            return false;
+        }
+    }
+    return true;
+}
