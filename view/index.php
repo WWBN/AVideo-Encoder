@@ -299,7 +299,6 @@ if (!empty($_GET['noNavbar'])) {
                                 </div>
                                 <div id="advancedOptions" class="tab-pane fade">
 
-
                                     <?php
                                     if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
                                         ?>
@@ -823,6 +822,7 @@ if (!empty($_GET['noNavbar'])) {
                                             "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
                                             "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                             "categories_id": $('#bulk_categories_id').val(),
+                                            "callback": $('#callback').val(),
                                             "usergroups_id": $(".usergroups_id:checked").map(function () {
                                                 return $(this).val();
                                             }).get()
@@ -1166,6 +1166,7 @@ if (!empty($_GET['noNavbar'])) {
                                                         "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
                                                         "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                                         "categories_id": $('#download_categories_id').val(),
+                                                        "callback": $('#callback').val(),
                                                         "usergroups_id": $(".usergroups_id:checked").map(function () {
                                                             return $(this).val();
                                                         }).get(),
@@ -1216,6 +1217,7 @@ if (!empty($_GET['noNavbar'])) {
                                     "inputAutoWebm": $('#inputAutoWebm').is(":checked"),
                                     "inputAutoAudio": $('#inputAutoAudio').is(":checked"),
                                     "categories_id": $('#download_categories_id').val(),
+                                    "callback": $('#callback').val(),
                                     "usergroups_id": $(".usergroups_id:checked").map(function () {
                                         return $(this).val();
                                     }).get()

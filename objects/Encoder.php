@@ -1039,6 +1039,11 @@ class Encoder extends ObjectYPT {
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
         $videos_id = $return_vars->videos_id;
+        
+        if(is_object($return_vars) && !empty($_REQUEST['callback'])){
+            $return_vars->callback = $_REQUEST['callback'];
+        }
+        
         if (!empty($global['progressiveUpload']) && isset($encoder)) {
             $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
             );
@@ -1133,6 +1138,7 @@ class Encoder extends ObjectYPT {
             'chunkFile' => $chunkFile,
             'encoderURL' => $global['webSiteRootURL'],
             'keepEncoding' => $keep_encoding ? "1" : "0",
+            'return_vars' => json_encode($return_vars),
         );
 
         if (!empty($encoder->override_status)) {

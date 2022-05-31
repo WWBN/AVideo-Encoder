@@ -190,4 +190,18 @@ if (Login::canBulkEncode()) {
 <?php } ?>
         </div> 
     </div>
+    <div class="panel-footer">
+        <?php
+        if(!empty($_REQUEST['callback'])){
+            $json = json_decode($_REQUEST['callback']);
+            if(!empty($json)){
+                foreach ($json as $key => $value) {
+                    echo '<strong>'.htmlentities($key).'</strong>: '.$value.'<br>';
+                }
+                
+                 echo '<input type="hidden" class="callback" name="callback" id="callback" value="'. base64_encode(json_encode($json)).'">';
+            }
+        }
+        ?>
+    </div>
 </div>
