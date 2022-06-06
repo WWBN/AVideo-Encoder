@@ -437,7 +437,9 @@ if (!empty($_GET['noNavbar'])) {
                                                     select: function (event, ui) {
                                                         $("#videoSearch").val(ui.item.title);
                                                         $("#update_video_id").val(ui.item.id);
-                                                        $("#inputNextVideo-poster").attr("src", "<?php echo Login::getStreamerURL(); ?>videos/" + ui.item.filename + ".jpg");
+                                                        console.log(ui.item.videosURL);
+                                                        console.log(ui.item.videosURL.jpg);
+                                                        $("#inputNextVideo-poster").attr("src", ui.item.videosURL.jpg.url);
                                                         return false;
                                                     }
                                                 }).autocomplete("instance")._renderItem = function (ul, item) {
