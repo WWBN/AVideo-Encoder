@@ -1045,8 +1045,7 @@ class Encoder extends ObjectYPT {
         }
         
         if (!empty($global['progressiveUpload']) && isset($encoder)) {
-            $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $forma
-            );
+            $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $format);
             if ($u !== false && $u->getStatus() == "done") {
                 $obj->error = false;
                 $obj->msg = "Already sent";
