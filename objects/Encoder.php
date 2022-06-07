@@ -1045,7 +1045,13 @@ class Encoder extends ObjectYPT {
         }
         
         if (!empty($global['progressiveUpload']) && isset($encoder)) {
-            $u = Upload::loadFromEncoder($encoder->getId(), $resolution, $format);
+            $encoder_id = $encoder->getId();
+            if(empty($encoder_id)){
+                $obj->msg = "encoder_id is empty";
+                error_log("Encoder::sendFile {$obj->msg} ".json_encode($encoder));
+                return $obj;
+            }
+            $u = Upload::loadFromEncoder($encoder_id, $resolution, $format);
             if ($u !== false && $u->getStatus() == "done") {
                 $obj->error = false;
                 $obj->msg = "Already sent";
