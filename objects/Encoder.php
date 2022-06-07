@@ -927,7 +927,19 @@ class Encoder extends ObjectYPT {
     }
 
     function verify() {
-        $streamer = new Streamer($this->getStreamers_id());
+        $streamers_id = $this->getStreamers_id();
+        if(empty($streamers_id)){
+            error_log("encoder:verify streamer id is empty");
+            return false;
+        }
+
+        $streamer = new Streamer($streamers_id);
+
+        if(empty($streamer->getSiteURL())){
+            error_log("encoder:verify sire URL is empty streamers_id={$streamers_id}");
+            return false;
+        }
+
         return $streamer->verify();
     }
 
