@@ -98,13 +98,32 @@ if (!class_exists('Streamer')) {
                 error_log("Verification Creating the Cache {$url}");
                 $verifyURL = "https://search.avideo.com/verify.php?url=" . urlencode($url);
                 $result = url_get_contents($verifyURL, '', 5);
-                @file_put_contents($cacheFile, $result);
+                $bytes = file_put_contents($cacheFile, $result);
+                $json = json_decode($result);
+                if(empty($json)){
+                    error_log("Verification: error on get result: {$result}");
+                    if(!unlink($cacheFile)){
+                        error_log("Verification: could not delete the file: {$cacheFile}");
+                    }
+                    return false;
+                }
             } else {
                 error_log("Verification GetFrom Cache {$url}");
                 $result = url_get_contents($cacheFile);
+                $json = json_decode($result);
+                if(empty($json)){
+                    error_log("Verification: error on get cached result: {$cacheFile} {$result}");
+                    if(unlink($cacheFile)){
+                        error_log("Verification: try again: {$cacheFile} {$result}");
+                        return $this->verify();
+                    }else{
+                        error_log("Verification: could not delete the file: {$cacheFile} {$result}");
+                        return false;
+                    }
+                }
             }
             error_log("Verification Response ($verifyURL): {$result}");
-            return json_decode($result);
+            return $json;
         }
 
         static function isURLAllowed($siteURL) {
