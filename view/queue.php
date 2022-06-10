@@ -45,6 +45,9 @@ if(empty($e->getId())){
     }
     
     $e->setFileURI($_POST['fileURI']);
+    if(!empty($_POST['videoDownloadedLink'])){
+        $e->setVideoDownloadedLink($_POST['videoDownloadedLink']);
+    }
     $e->setFilename($_POST['filename']);
     $e->setTitle($path_parts['filename']);
     $e->setPriority($s->getPriority());
