@@ -978,6 +978,12 @@ if (!empty($_GET['noNavbar'])) {
                                     }
 
                                     title += '<br>' + row.title;
+                                    
+                                    var json = JSON.parse(row.return_vars)
+                                    if(typeof json.videos_id !== 'undefined'){
+                                        title = '['+json.videos_id+'] '+title;
+                                    }
+                                    
                                     return title;
                                 }
                             }
