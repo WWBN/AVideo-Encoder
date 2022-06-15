@@ -68,7 +68,15 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-        $response = Encoder::sendFile('', 0, $format, $e);
+        
+        $obj = new stdClass();
+        $obj->videos_id = 0;
+        $obj->video_id_hash = '';        
+        if (!empty($_POST['update_video_id'])){
+            $obj->videos_id = $_POST['update_video_id'];
+        }
+        
+        $response = Encoder::sendFile('', $obj, $format, $e);
         //var_dump($response);exit;
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
