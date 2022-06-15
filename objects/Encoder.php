@@ -1693,15 +1693,27 @@ class Encoder extends ObjectYPT {
             return $getDurationFromFile[$file];
         }
 
+        $hls = str_replace(".zip", "/index.m3u8", $file);
         $file = str_replace(".zip", ".mp4", $file);
 
         // get movie duration HOURS:MM:SS.MICROSECONDS
-        if (!file_exists($file)) {
-            $file_headers = @get_headers($file);
+        $videoFile = $file;
+        if (!file_exists($videoFile)) {
+            $file_headers = @get_headers($videoFile);
             if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
-                error_log('{"status":"error", "msg":"getDurationFromFile ERROR, File (' . $file . ') Not Found"}');
-                return "EE:EE:EE";
+                error_log('getDurationFromFile ERROR 1, File (' . $videoFile . ') Not Found');
+                $videoFile = $hls;
             }
+        }
+        if (!file_exists($videoFile)) {
+            $file_headers = @get_headers($videoFile);
+            if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
+                error_log('getDurationFromFile ERROR 2, File (' . $videoFile . ') Not Found');
+                $videoFile = '';
+            }
+        }
+        if (empty($videoFile)) {
+            return "EE:EE:EE";
         }
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
         eval('$cmd=get_ffprobe()." -i \"{$file}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
