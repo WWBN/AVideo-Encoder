@@ -1701,14 +1701,14 @@ class Encoder extends ObjectYPT {
         if (!file_exists($videoFile)) {
             $file_headers = @get_headers($videoFile);
             if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
-                error_log('getDurationFromFile ERROR 1, File (' . $videoFile . ') Not Found');
+                error_log('getDurationFromFile try 1, File (' . $videoFile . ') Not Found');
                 $videoFile = $hls;
             }
         }
         if (!file_exists($videoFile)) {
             $file_headers = @get_headers($videoFile);
             if (!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
-                error_log('getDurationFromFile ERROR 2, File (' . $videoFile . ') Not Found');
+                error_log('getDurationFromFile try 2, File (' . $videoFile . ') Not Found');
                 $videoFile = '';
             }
         }
