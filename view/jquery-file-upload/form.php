@@ -1,4 +1,4 @@
-<form id="fileupload" action="https://jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
+<form id="fileupload" action="" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <input type="text" class="form-control" id="title" name="title" placeholder="Title">
     </div>
@@ -72,7 +72,7 @@
     }
     ?>
     <!-- Redirect browsers with JavaScript disabled to the origin page -->
-    <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
+    <noscript><input type="hidden" name="redirect" value=""></noscript>
     <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
     <div class="row fileupload-buttonbar">
         <div class="col-lg-12">
@@ -182,13 +182,13 @@
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/vendor/jquery.ui.widget.js"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
-<script src="https://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/js/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
-<script src="https://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/js/load-image.all.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
-<script src="https://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/js/canvas-to-blob.min.js"></script>
 <!-- blueimp Gallery script -->
-<script src="https://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
