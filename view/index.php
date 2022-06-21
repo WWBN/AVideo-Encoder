@@ -962,7 +962,7 @@ if (!empty($_GET['noNavbar'])) {
                                     
                                     var remainTimeHuman = '';
                                     if(row.encoding_status.remainTimeHuman){
-                                        remainTimeHuman = '<span class="label label-default">' + row.encoding_status.remainTimeHuman + '</span>';
+                                        remainTimeHuman = '<span class="label label-default">ETA ' + row.encoding_status.remainTimeHuman + '</span>';
                                     }
 
                                     return btn + status + "<br>" + row.status_obs + "<br>" + remainTimeHuman;
