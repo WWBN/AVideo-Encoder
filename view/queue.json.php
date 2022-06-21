@@ -48,6 +48,8 @@ foreach ($rows as $key => $value) {
         $rows[$key]['hls_filesize'] = directorysize($file);
         $rows[$key]['hls_filesize_human'] = humanFileSize($rows[$key]['hls_filesize']);
     }
+    
+    $rows[$key]['encoding_status'] = Encoder::getVideoConversionStatus($rows[$key]['id']);
 }
 $rows = array_values($rows);
 $total = Encoder::getTotal(true);

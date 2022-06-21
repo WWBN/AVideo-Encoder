@@ -710,7 +710,7 @@ if (!empty($_GET['noNavbar'])) {
                                         if (response.download_status[i] && !response.encoding_status[i].progress) {
                                             $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [Downloading ...] </strong> " + response.download_status[i].progress + '%');
                                         } else {
-                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '%');
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '% '+response.encoding_status[i].remainTimeHuman);
                                             $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status[i].progress + '%'});
                                         }
                                         if (response.download_status[i]) {
@@ -959,12 +959,18 @@ if (!empty($_GET['noNavbar'])) {
                                         label = "primary";
                                     }
                                     var status = '<span class="label label-' + label + '">' + row.status + '</span>';
+                                    var remainTimeHuman = '<span class="label label-default">' + row.encoding_status.remainTimeHuman + '</span>';
 
-                                    return btn + status + "<br>" + row.status_obs;
+                                    return btn + status + "<br>" + row.status_obs + "<br>" + remainTimeHuman;
                                 },
                                 "title": function (column, row) {
                                     var l = getLocation(row.streamer);
-                                    var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
+                                    videos_id = 0;
+                                    var json = JSON.parse(row.return_vars)
+                                    if(typeof json.videos_id !== 'undefined'){
+                                        videos_id = json.videos_id;
+                                    }
+                                    var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">['+videos_id+'] ' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format + '</span>';
 
                                     for (const index in row.fileInfo) {
@@ -976,10 +982,6 @@ if (!empty($_GET['noNavbar'])) {
 
                                     title += '<br>' + row.title;
                                     
-                                    var json = JSON.parse(row.return_vars)
-                                    if(typeof json.videos_id !== 'undefined'){
-                                        title = '['+json.videos_id+'] '+title;
-                                    }
                                     
                                     return title;
                                 }
