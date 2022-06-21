@@ -1661,6 +1661,8 @@ class Encoder extends ObjectYPT {
             }
             $obj->duration = $duration;
             $obj->currentTime = $time;
+            $obj->remainTime = $obj->duration - $time;
+            $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime);
             $obj->progress = $progress;
         }
 
@@ -1740,6 +1742,10 @@ class Encoder extends ObjectYPT {
 
     static function getImage($pathFileName, $seconds = 5) {
         global $global;
+        if(preg_match('/\.mp3$/', $pathFileName)){
+            error_log("getImage: do not create files from MP3 ".$pathFileName);
+            return false;
+        }
         $destinationFile = "{$pathFileName}.jpg";
         // do not encode again
         if (file_exists($destinationFile)) {
@@ -1793,6 +1799,12 @@ class Encoder extends ObjectYPT {
 
     static function getGifImage($pathFileName, $seconds = 5, $howLong = 3) {
         //error_log("getGifImage");
+        
+        if(preg_match('/\.mp3$/', $pathFileName)){
+            error_log("getGifImage: do not create files from MP3 ".$pathFileName);
+            return false;
+        }
+        
         global $global;
         $destinationFile = "{$pathFileName}.gif";
         // do not encode again
@@ -1841,6 +1853,10 @@ class Encoder extends ObjectYPT {
 
     static function getWebpImage($pathFileName, $seconds = 5, $howLong = 3) {
         //error_log("getWebpImage");
+        if(preg_match('/\.mp3$/', $pathFileName)){
+            error_log("getWebpImage: do not create files from MP3 ".$pathFileName);
+            return false;
+        }
         global $global;
         $destinationFile = "{$pathFileName}.webp";
         // do not encode again
