@@ -959,7 +959,11 @@ if (!empty($_GET['noNavbar'])) {
                                         label = "primary";
                                     }
                                     var status = '<span class="label label-' + label + '">' + row.status + '</span>';
-                                    var remainTimeHuman = '<span class="label label-default">' + row.encoding_status.remainTimeHuman + '</span>';
+                                    
+                                    var remainTimeHuman = '';
+                                    if(row.encoding_status.remainTimeHuman){
+                                        remainTimeHuman = '<span class="label label-default">' + row.encoding_status.remainTimeHuman + '</span>';
+                                    }
 
                                     return btn + status + "<br>" + row.status_obs + "<br>" + remainTimeHuman;
                                 },
