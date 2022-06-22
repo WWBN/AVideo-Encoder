@@ -1662,7 +1662,7 @@ class Encoder extends ObjectYPT {
             $obj->duration = $duration;
             $obj->currentTime = $time;
             $obj->remainTime = $obj->duration - $time;
-            $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime);
+            $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime/10);
             $obj->progress = $progress;
         }
 
