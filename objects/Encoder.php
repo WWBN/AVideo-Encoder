@@ -1995,15 +1995,18 @@ class Encoder extends ObjectYPT {
         if (!isWindows()) {
             $prepend = 'LC_ALL=en_US.UTF-8 ';
         }
+        $response = array('error'=>true, 'output'=>array());
         $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
-            return false;
+            $response['output'] = $output;
         } else {
             error_log("getTitleFromLink: Get Title: $cmd \n" . print_r($output, true));
-            return end($output);
+            $response['output'] = end($output);
+            $response['error'] = false;
         }
+        return $response;
     }
 
     static function getDurationFromLink($link) {

@@ -19,7 +19,14 @@ $obj->imageGIFLink = "{$global['webSiteRootURL']}getImage/". $_GET['base64Url'].
 //$data = file_get_contents($obj->imageGIFLink);
 //$obj->imageGIF = 'data:image/gif;base64,' . base64_encode($data);
 
-$obj->title = Encoder::getTitleFromLink($link);
+$title = Encoder::getTitleFromLink($link);
+
+$obj->msg = $title['output'];
+$obj->title = $title['output'];
+if($title['error']){
+    $obj->title = false;
+}
+
 $obj->duration = Encoder::getDurationFromLink($link);
 $obj->description = Encoder::getDescriptionFromLink($link);
 

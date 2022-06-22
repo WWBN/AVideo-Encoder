@@ -25,14 +25,27 @@ function addVideo($link, $streamers_id, $title = "") {
     if (substr($link, -1) == '&') {
         $link = substr($link, 0, -1);
     }
+
+    $msg = '';
     if(empty($title)){
-        $title = Encoder::getTitleFromLink($link);
+        $_title = Encoder::getTitleFromLink($link);
+        $msg = $_title['output'];
+        $title = $_title['output'];
+        if($_title['error']){
+            $title = false;
+        }
     }
     if (!$title) {
         $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($link, true);
         $obj->type = "warning";
         $obj->title = "Sorry!";
-        $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/WWBN/AVideo/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
+
+        if(!empty($msg)){
+            $obj->text = $msg;
+        }else{
+            $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/WWBN/AVideo/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
+        }
+
         error_log("youtubeDl::addVideo We could not get the title ($title) of your video ($link)");
     } else {
         $obj->type = "success";
