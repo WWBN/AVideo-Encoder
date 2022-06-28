@@ -4,7 +4,7 @@ if(php_sapi_name() !== 'cli'){
     die('Must be command line');
 }
 
-$cmd = 'ps -u www-data -F';
+$cmd = 'ps -u www-data -o pid,etime,cmd';
 
 $output = shell_exec($cmd);
 foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
