@@ -116,7 +116,7 @@ if ($type == 'audio') {
     } else {
         $cmd = "{$exec}";
         exec($cmd);
-        error_log("Exec get Image: {$cmd} ".__FILE__.' '. json_encode($_SERVER));
+        error_log("Exec get Image: {$cmd} ".__FILE__.' '. json_encode($_SERVER['REMOTE_ADDR']));
     }
 }
 

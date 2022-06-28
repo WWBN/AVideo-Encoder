@@ -100,7 +100,7 @@ if(!file_exists($destination) || fileOlderThen($destination, $cache_life) || !em
         }
     }else{
         execAsync($exec);
-        error_log("Exec get Image: {$exec} ".__FILE__.' '. json_encode($_SERVER));
+        error_log("Exec get Image: {$exec} ".__FILE__.' '. json_encode($_SERVER['REMOTE_ADDR']));
     }
 }else{
     
