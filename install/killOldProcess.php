@@ -15,6 +15,7 @@ foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
         if($etime>100){ // 1 minute
             $pid = intval($matches[1]);
             if(!empty($pid)){
+                echo "Killing {$pid}".PHP_EOL;
                 $cmd = 'kill -9 '.$pid;
                 echo shell_exec($cmd);
                 continue;
@@ -28,6 +29,7 @@ foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
         if($etime>100){ // 1 minute
             $pid = intval($matches[1]);
             if(!empty($pid)){
+                echo "Killing {$pid}".PHP_EOL;
                 $cmd = 'kill -9 '.$pid;
                 echo shell_exec($cmd);
                 continue;
