@@ -8,10 +8,10 @@ $cmd = 'ps -u www-data -F';
 
 $output = shell_exec($cmd);
 foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line){
-    if(str_contains($line, '-f image2 -s')){
+    if(strpos($line, '-f image2 -s') !== false){
         echo $line.PHP_EOL;        
     }
-    if(str_contains($line, '-y -ss 3 -t 3')){
+    if(strpos($line, '-y -ss 3 -t 3') !== false){
         echo $line.PHP_EOL;        
     }
 } 
