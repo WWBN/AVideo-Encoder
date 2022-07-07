@@ -208,7 +208,7 @@ if (!class_exists('Streamer')) {
 
         function setPass($pass) {
             $config = new Configuration();
-            if (!version_compare($config->getVersion(), '4.0') >= 0) {
+            if (version_compare($config->getVersion(), '4.0') < 0) {
                 $pass = substr($pass, 0,45);
             }
             $this->pass = $pass;
