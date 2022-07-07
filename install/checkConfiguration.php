@@ -7,7 +7,7 @@ if (file_exists("../videos/configuration.php")) {
 
 require_once '../objects/functions.php';
 
-$installationVersion = "3.9";
+$installationVersion = "4.0";
 
 header('Content-Type: application/json');
 
