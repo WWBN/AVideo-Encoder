@@ -894,7 +894,8 @@ hd/index.m3u8
         }
 
         function setName($name) {
-            $this->name = $name;
+            global $global;
+            $this->name = $global['mysqli']->real_escape_string($name);
         }
 
         function setCode($code) {
@@ -911,7 +912,8 @@ hd/index.m3u8
         }
 
         function setExtension($extension) {
-            $this->extension = $extension;
+            global $global;
+            $this->extension = $global['mysqli']->real_escape_string($extension);
         }
 
         function getExtension_from() {
