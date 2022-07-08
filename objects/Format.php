@@ -852,6 +852,9 @@ hd/index.m3u8
         }
 
         static function createIfNotExists($name) {
+            if(empty($name)){
+                return false;
+            }
             error_log("createIfNotExists($name) checking");
             $row = static::getFromName($name);
             if (empty($row)) {
