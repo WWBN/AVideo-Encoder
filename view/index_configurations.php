@@ -16,7 +16,7 @@ if (Login::isAdmin()) {
                 }
                 ?>
                 <div class="input-group input-group-sm">
-                    <span class="input-group-addon"><?php echo $value['name']; ?></span>
+                    <span class="input-group-addon">[<?php echo $value['id']; ?>] <?php echo $value['name']; ?></span>
                     <input type="text" class="form-control formats" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo htmlentities($value['code']); ?>">
                 </div>    
                 <?php
