@@ -852,8 +852,10 @@ hd/index.m3u8
         }
 
         static function createIfNotExists($name) {
+            error_log("createIfNotExists($name) checking");
             $row = static::getFromName($name);
             if (empty($row)) {
+                error_log("createIfNotExists($name) not found, create a new one");
                 $f = new Format("");
                 $f->setName($name);
                 $f->setExtension($name);
