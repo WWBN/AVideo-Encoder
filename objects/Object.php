@@ -175,7 +175,8 @@ abstract class ObjectYPT implements ObjectInterface{
             }
             return $id;
         } else {
-            die($sql . ' Error : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+            error_log($sql . ' Error : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+            return false;
         }
     }
     
