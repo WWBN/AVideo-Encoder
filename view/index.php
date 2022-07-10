@@ -64,11 +64,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
         <script src="<?php echo Login::getStreamerURL(); ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
         <link href="<?php echo Login::getStreamerURL(); ?>node_modules/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"/>
-        <link href="<?php echo Login::getStreamerURL(); ?>view/js/jquery-toast/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
-        <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-toast/jquery.toast.min.js" type="text/javascript"></script>
+        <link href="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
+        <script src="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
         
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
-        <script src="<?php echo Login::getStreamerURL(); ?>view/js/js-cookie/js.cookie.js" type="text/javascript"></script>
+        <script src="<?php echo Login::getStreamerURL(); ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
 
         <script src="<?php echo $global['webSiteRootURL']; ?>view/js/polyfill.min.js" type="text/javascript"></script>
         
