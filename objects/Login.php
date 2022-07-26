@@ -55,9 +55,8 @@ if (!class_exists('Login')) {
                 error_log("Login::run request login complete user ($user)");
                 if (empty($result)) {
                     error_log("Get Login fail, try again user ($user)");
-                    $result = url_get_contents($url, $context);
+                    $result = url_get_contents($url);
                 }
-
 
                 //error_log("Login::run response: ($result)");
                 if (empty($result)) {
