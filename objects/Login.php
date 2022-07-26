@@ -83,7 +83,7 @@ if (!class_exists('Login')) {
                         error_log("Login::run got an object");
                         $object->streamer = $aVideoURL;
                         $object->streamers_id = 0;
-                        if (!empty($object->canUpload)) {
+                        if (!empty($object->canUpload) || !empty($object->isAdmin)) {
                             $object->streamers_id = Streamer::createIfNotExists($user, $pass, $aVideoURL, $encodedPass);
                         }
                         if ($object->streamers_id) {
@@ -166,12 +166,12 @@ if (!class_exists('Login')) {
 
         static function canUpload() {
             //error_log("canUpload: ". json_encode($_SESSION['login']));
-            return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
+            return self::isAdmin() || self::isStreamerAdmin() || (self::isLogged() && !empty($_SESSION['login']->canUpload));
         }
 
         static function canStream() {
             //error_log("canUpload: ". json_encode($_SESSION['login']));
-            return self::isAdmin() || (self::isLogged() && !empty($_SESSION['login']->canStream));
+            return self::isAdmin() || self::isStreamerAdmin() || (self::isLogged() && !empty($_SESSION['login']->canStream));
         }
 
         static function canComment() {
@@ -179,7 +179,7 @@ if (!class_exists('Login')) {
         }
 
         static function canCreateCategory() {
-            return !empty($_SESSION['login']->canCreateCategory);
+            return self::isStreamerAdmin() || !empty($_SESSION['login']->canCreateCategory);
         }
 
         static function getTheme() {
