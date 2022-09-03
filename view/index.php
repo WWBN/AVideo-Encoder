@@ -209,7 +209,7 @@ if (!empty($_GET['noNavbar'])) {
                                 url: 'login',
                                 data: {"user": $('#inputUser').val(), "pass": $('#inputPassword').val(), "siteURL": $('#siteURL').val(), "encodedPass": encodedPass},
                                 xhrFields: {
-                                    withCredentials: true
+                                    //withCredentials: true
                                 },
                                 type: 'post',
                                 success: function (response) {
@@ -418,7 +418,7 @@ if (!empty($_GET['noNavbar'])) {
                                                             },
                                                             /*
                                                              xhrFields: {
-                                                             withCredentials: true
+                                                             //withCredentials: true
                                                              },
                                                              */
                                                             type: 'post',
@@ -651,7 +651,7 @@ if (!empty($_GET['noNavbar'])) {
                             url: 'listFiles.json?<?php echo getPHPSessionIDURL(); ?>',
                             data: {"path": path},
                             xhrFields: {
-                                withCredentials: true
+                                //withCredentials: true
                             },
                             type: 'post',
                             success: function (response) {
@@ -675,7 +675,7 @@ if (!empty($_GET['noNavbar'])) {
                         $.ajax({
                             url: 'status?<?php echo getPHPSessionIDURL(); ?>',
                             xhrFields: {
-                                withCredentials: true
+                                //withCredentials: true
                             },
                             success: function (response) {
                                 if (response.queue_list.length) {
@@ -792,7 +792,7 @@ if (!empty($_GET['noNavbar'])) {
                         $.ajax({
                             url: streamerURL + 'status',
                             xhrFields: {
-                                withCredentials: true
+                                //withCredentials: true
                             },
                             success: function (response) {
                                 $('#max_file_size').text(response.max_file_size);
@@ -827,7 +827,7 @@ if (!empty($_GET['noNavbar'])) {
                                             }).get()
                                         },
                                         xhrFields: {
-                                            withCredentials: true
+                                            //withCredentials: true
                                         },
                                         type: 'post',
                                         success: function (response) {
@@ -875,7 +875,7 @@ if (!empty($_GET['noNavbar'])) {
                                     "resolutions": resolutions
                                 },
                                 xhrFields: {
-                                    withCredentials: true
+                                    //withCredentials: true
                                 },
                                 type: 'post',
                                 success: function (response) {
@@ -925,7 +925,7 @@ if (!empty($_GET['noNavbar'])) {
                             ajax: true,
                             url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
                             xhrFields: {
-                                withCredentials: true
+                                //withCredentials: true
                             },
                             formatters: {
                                 "commands": function (column, row) {
@@ -1001,7 +1001,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id, "fileURI": row.fileURI},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1020,7 +1020,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'deleteQueue?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1041,7 +1041,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'send.json?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1059,7 +1059,7 @@ if (!empty($_GET['noNavbar'])) {
                             ajax: true,
                             url: "streamers.json?<?php echo getPHPSessionIDURL(); ?>",
                             xhrFields: {
-                                withCredentials: true
+                                //withCredentials: true
                             },
                             formatters: {
                                 "priority": function (column, row) {
@@ -1097,7 +1097,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'removeStreamer?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": row.id},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1113,7 +1113,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'priority?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "priority": $(this).val()},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1128,7 +1128,7 @@ if (!empty($_GET['noNavbar'])) {
                                     url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
                                     data: {"id": $(this).attr('rowId'), "isAdmin": $(this).val()},
                                     xhrFields: {
-                                        withCredentials: true
+                                        //withCredentials: true
                                     },
                                     type: 'post',
                                     success: function (response) {
@@ -1185,7 +1185,7 @@ if (!empty($_GET['noNavbar'])) {
                                                         "endIndex": $('#endIndex').val()
                                                     },
                                                     xhrFields: {
-                                                        withCredentials: true
+                                                        //withCredentials: true
                                                     },
                                                     type: 'post',
                                                     success: function (response) {
@@ -1234,7 +1234,7 @@ if (!empty($_GET['noNavbar'])) {
                                     }).get()
                                 },
                                 xhrFields: {
-                                    withCredentials: true
+                                    //withCredentials: true
                                 },
                                 type: 'post',
                                 success: function (response) {
