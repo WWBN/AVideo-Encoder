@@ -95,6 +95,7 @@ COPY README.md /var/www/html
 COPY deploy/apache/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 COPY deploy/docker-entrypoint /usr/local/bin/docker-entrypoint
 COPY deploy/wait-for-db.php /usr/local/bin/wait-for-db.php
+COPY node_modules /var/www/html/node_modules
 
 RUN chown -R www-data /var/www/html && \
     chmod 755 /usr/local/bin/docker-entrypoint && \
