@@ -35,10 +35,12 @@ if ($mysqli->connect_error) {
 
 if ($_POST['createTables'] == 2) {
     $sql = "CREATE DATABASE IF NOT EXISTS `{$_POST['databaseName']}`";
-    if ($mysqli->query($sql) !== TRUE) {
-        $obj->error = "Error creating database: " . $mysqli->error;
+    
+    try {
+        $mysqli->query($sql);
+    } catch (Exception $exc) {
+        $obj->error = "Error: " . $mysqli->error;
         echo json_encode($obj);
-        exit;
     }
 }
 $mysqli->select_db($_POST['databaseName']);
@@ -67,8 +69,11 @@ if ($_POST['createTables'] > 0) {
             }
             //echo $templine.PHP_EOL;
             // Perform the query
-            if (!$mysqli->query($templine)) {
-                $obj->error = ('Error performing query \'<strong>' . $templine . '\': ' . $mysqli->error . '<br /><br />');
+            
+            try {
+                $mysqli->query($templine);
+            } catch (Exception $exc) {
+                $obj->error = 'Error performing query \'<strong>' . $templine . '\': ' . $mysqli->error . '<br /><br />';
             }
             // Reset temp variable to empty
             $templine = '';
