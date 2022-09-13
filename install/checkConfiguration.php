@@ -137,7 +137,14 @@ if(empty(\$global['webSiteRootPath'])){
 require_once \$global['systemRootPath'].'objects/include_config.php';
 ";
 
-$fp = fopen($_POST['systemRootPath'] . "videos/configuration.php", "wb");
+
+$videosDir = $_POST['systemRootPath'].'videos/';
+
+if(!is_dir($videosDir)){
+    mkdir($videosDir, 0777, true);
+}
+
+$fp = fopen("{$videosDir}configuration.php", "wb");
 fwrite($fp, $content);
 fclose($fp);
 
