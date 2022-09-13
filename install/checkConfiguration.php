@@ -87,17 +87,19 @@ if (substr($_POST['siteURL'], -1) !== '/') {
 }
 
 $sql = "INSERT INTO {$tablesPrefix}streamers (siteURL, user, pass, priority, created, modified, isAdmin) VALUES ('{$_POST['siteURL']}', '{$_POST['inputUser']}', '{$_POST['inputPassword']}', 1, now(), now(), 1)";
-if ($mysqli->query($sql) !== TRUE) {
-    $obj->error = "Error creating streamer: " . $mysqli->error;
-    echo json_encode($obj);
-    exit;
+
+try {
+    $mysqli->query($sql);
+} catch (Exception $exc) {
+    $obj->error = 'Error: ' . $mysqli->error.PHP_EOL;
 }
 
 $sql = "INSERT INTO {$tablesPrefix}configurations_encoder (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
-if ($mysqli->query($sql) !== TRUE) {
-    $obj->error = "Error creating streamer: " . $mysqli->error;
-    echo json_encode($obj);
-    exit;
+
+try {
+    $mysqli->query($sql);
+} catch (Exception $exc) {
+    $obj->error = 'Error: ' . $mysqli->error.PHP_EOL;
 }
 
 $mysqli->close();
