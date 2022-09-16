@@ -13,7 +13,7 @@ $rows = Encoder::getAllQueue();
 foreach ($rows as $value) {
     echo "Deleting {$value['title']}, {$value['videoDownloadedLink']}".PHP_EOL; 
     $e = new Encoder($value['id']);
-    $e->deleteQueue(false);
+    $e->delete();
 }
 
 echo "Bye";
