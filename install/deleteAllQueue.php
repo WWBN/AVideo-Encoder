@@ -12,13 +12,14 @@ error_reporting(E_ALL);
 
 $rows = Encoder::getAllQueue();
 
+echo "Start".PHP_EOL;
 foreach ($rows as $value) {
-    echo "Deleting {$value['title']}, {$value['videoDownloadedLink']}".PHP_EOL; 
+    echo "Deleting [{$value['id']}]{$value['title']}, {$value['videoDownloadedLink']}".PHP_EOL; 
     $e = new Encoder($value['id']);
     $e->delete();
 }
 
-echo "Bye";
+echo "end".PHP_EOL;
 echo "\n";
 die();
 
