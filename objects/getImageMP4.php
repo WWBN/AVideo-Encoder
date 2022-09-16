@@ -92,7 +92,7 @@ if ($type == 'audio') {
         $cache_life *= 2;
         header('Content-Type: image/webp');
         $destination .= "." . $_GET['format'];
-        $exec = get_ffmpeg() . " -y -ss 3 -t 3 -i {$url} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
+        $exec = get_ffmpeg() . " -y -ss {$duration} -t 3 -i {$url} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
         $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
     } else {
         error_log("ERROR Destination get Image {$_GET['format']} not suported");

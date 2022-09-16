@@ -136,8 +136,6 @@ $(function () {
         });
     }
     $('#fileupload').bind('fileuploadsubmit', function (e, data) {
-
-
         data.formData = {
             "audioOnly": $('#inputAudioOnly').is(":checked"),
             "spectrum": $('#inputAudioSpectrum').is(":checked"),

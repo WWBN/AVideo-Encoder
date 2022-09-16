@@ -40,7 +40,6 @@ $updateFiles = getUpdatesFiles();
 
 $ad = $config->getAutodelete();
 
-
 if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     $_COOKIE['format'] = $_SESSION['format'];
 }
@@ -66,12 +65,12 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <link href="<?php echo Login::getStreamerURL(); ?>node_modules/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"/>
         <link href="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
         <script src="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
-        
+
         <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
         <script src="<?php echo Login::getStreamerURL(); ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
 
         <script src="<?php echo $global['webSiteRootURL']; ?>view/js/polyfill.min.js" type="text/javascript"></script>
-        
+
         <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css">
         <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css">
         <!-- CSS adjustments for browsers with JavaScript disabled -->
@@ -92,7 +91,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <link href="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
         <script>
             var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
-            var webSiteRootURL  = '<?php echo Login::getStreamerURL(); ?>';
+            var webSiteRootURL = '<?php echo Login::getStreamerURL(); ?>';
             var PHPSESSID = '<?php echo session_id(); ?>';
         </script>
         <style>
@@ -102,7 +101,7 @@ if (!empty($_GET['noNavbar'])) {
                 body, body > div.main-container{
                     padding: 0;
                 }
-                                                                                                
+
     <?php
 }
 ?>
@@ -549,7 +548,7 @@ if (!empty($_GET['noNavbar'])) {
                             <ul class="nav nav-tabs" id="mainTabs">
                                 <li <?php
                                 if (empty($_POST['updateFile'])) {
-                                    ?>
+                                        ?>
                                         class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
                                         <?php
                                     } else {
@@ -572,7 +571,7 @@ if (!empty($_GET['noNavbar'])) {
                                             <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Configurations</a>
                                         </li>
                                         <li <?php
-                                        if (!empty($_POST['updateFile'])) {
+                            if (!empty($_POST['updateFile'])) {
                                             ?>
                                                 class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
                                                 <?php
@@ -710,7 +709,7 @@ if (!empty($_GET['noNavbar'])) {
                                         if (response.download_status[i] && !response.encoding_status[i].progress) {
                                             $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [Downloading ...] </strong> " + response.download_status[i].progress + '%');
                                         } else {
-                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '% '+response.encoding_status[i].remainTimeHuman);
+                                            $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '% ' + response.encoding_status[i].remainTimeHuman);
                                             $("#encodingProgress" + id).find('.progress-bar').css({'width': response.encoding_status[i].progress + '%'});
                                         }
                                         if (response.download_status[i]) {
@@ -932,6 +931,8 @@ if (!empty($_GET['noNavbar'])) {
                                     var reQueue = '';
                                     var deleteQueue = '';
                                     var sendFileQueue = '';
+                                    var edit = '';
+                                    var return_vars = JSON.parse(row.return_vars);
 
                                     if (row.status != 'queue' && row.status != 'encoding') {
                                         reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="Re-Queue"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
@@ -940,8 +941,11 @@ if (!empty($_GET['noNavbar'])) {
                                     if (row.status === 'done' || row.status === 'transferring') {
                                         sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="Send Notify"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
                                     }
+                                    if (return_vars.videos_id) {
+                                        edit = '<button type="button" class="btn btn-xs btn-default command-editFile" data-toggle="tooltip" title="Edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
+                                    }
 
-                                    return sendFileQueue + reQueue + deleteQueue;
+                                    return edit + sendFileQueue + reQueue + deleteQueue;
                                 },
                                 "dates": function (column, row) {
                                     return "Created: " + row.created + "<br>Modified: " + row.modified;
@@ -959,9 +963,9 @@ if (!empty($_GET['noNavbar'])) {
                                         label = "primary";
                                     }
                                     var status = '<span class="label label-' + label + '">' + row.status + '</span>';
-                                    
+
                                     var remainTimeHuman = '';
-                                    if(row.encoding_status.remainTimeHuman){
+                                    if (row.encoding_status.remainTimeHuman) {
                                         remainTimeHuman = '<span class="label label-default">ETA ' + row.encoding_status.remainTimeHuman + '</span>';
                                     }
 
@@ -971,10 +975,10 @@ if (!empty($_GET['noNavbar'])) {
                                     var l = getLocation(row.streamer);
                                     videos_id = 0;
                                     var json = JSON.parse(row.return_vars)
-                                    if(typeof json.videos_id !== 'undefined'){
+                                    if (typeof json.videos_id !== 'undefined') {
                                         videos_id = json.videos_id;
                                     }
-                                    var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">['+videos_id+'] ' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
+                                    var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">[' + videos_id + '] ' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
                                     title += '<br><span class="label label-primary">' + row.format + '</span>';
 
                                     for (const index in row.fileInfo) {
@@ -985,8 +989,8 @@ if (!empty($_GET['noNavbar'])) {
                                     }
 
                                     title += '<br>' + row.title;
-                                    
-                                    
+
+
                                     return title;
                                 }
                             }
@@ -1049,6 +1053,12 @@ if (!empty($_GET['noNavbar'])) {
                                         modal.hidePleaseWait();
                                     }
                                 });
+                            });
+                            grid.find(".command-editFile").on("click", function (e) {
+                                var row_index = $(this).closest('tr').index();
+                                var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                                var return_vars = JSON.parse(row.return_vars);
+                                avideoModalIframe('<?php echo $streamerURL; ?>view/managerVideosLight.php?avideoIframe=1&videos_id=' + return_vars.videos_id);
                             });
                             $('[data-toggle="popover"]').popover();
                         });
