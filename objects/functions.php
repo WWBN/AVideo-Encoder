@@ -20,7 +20,7 @@ function local_get_contents($path) {
 function get_ffmpeg($ignoreGPU = false) {
     global $global;
     $complement = '';
-    //$complement = ' -user-agent "'.getSelfUserAgent("FFMPEG").'" ';
+    $complement = ' -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     if (!empty($global['ffmpeg'])) {
         $ffmpeg = $global['ffmpeg'];
