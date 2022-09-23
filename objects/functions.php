@@ -37,6 +37,9 @@ function get_ffmpeg($ignoreGPU = false) {
 }
 
 function replaceFFMPEG($cmd) {
+    if(preg_match('/-user_agent/', $cmd)){
+        return $cmd;
+    }    
     return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
 }
 
