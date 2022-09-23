@@ -217,6 +217,7 @@ $timeLiveStart = microtime(true);
 _log("Live stream it now");
 
 $cmd = get_ffmpeg() . " " . implode(" ", $ffmpegInputs) . " ";
+
 if (!file_exists($warermark)) {
     $cmd .= " -filter_complex \"" . implode(" ", $ffmpegFilters1) . " " . implode(" ", $ffmpegFilters2) . " concat=n={$counter}:v=1:a=1:unsafe=1 [v] [a]\" -map \"[v]\" -map \"[a]\" ";
 } else {
@@ -228,6 +229,7 @@ $rtmpURL = "{$_SESSION['login']->streamServerURL}/{$_SESSION['login']->streamKey
 
 $cmd .= " {$ffmpegParametersRTMP} -f flv {$rtmpURL}";
 
+$cmd = removeUserAgentIfNotURL($cmd);
 
 _log("Create EPG");
 $channel = new stdClass();

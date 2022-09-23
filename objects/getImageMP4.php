@@ -62,6 +62,7 @@ if ($type == 'audio') {
     //$cmd = get_ffmpeg() . " -i {$url} -lavfi showspectrumpic=s=800x400:mode=separate {$destination}";
     //$cmd = get_ffmpeg() . " -i {$url} -filter_complex \"compand,showwavespic=s=1280x720\" -y {$destination}";
     $cmd = get_ffmpeg() . " -i {$url} -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destination}";
+    $cmd = removeUserAgentIfNotURL($cmd);
     exec($cmd);
     error_log("Create image from audio: {$cmd}");
 } else if(preg_match('/(youtube.com|youtu.be|vimeo.com)/', $url)){
@@ -98,10 +99,12 @@ if ($type == 'audio') {
         error_log("ERROR Destination get Image {$_GET['format']} not suported");
         die();
     }
-
+    
+    $exec = removeUserAgentIfNotURL($exec);
     testTime(__LINE__);
     if (!empty($ffmpegPallet)) {
         $cmd = "{$ffmpegPallet}";
+        $cmd = removeUserAgentIfNotURL($cmd);
         exec($cmd);
         error_log("Create Gif Pallet: {$cmd}");
         if (is_readable($destinationPallet)) {
@@ -110,6 +113,7 @@ if ($type == 'audio') {
             error_log("Create Gif with Pallet: {$cmd}");
         } else {
             $cmdGif = get_ffmpeg() . " -ss {$duration} -y -t 3 -i {$url} -vf fps=10,scale=320:-1 {$destination}";
+            $cmdGif = removeUserAgentIfNotURL($cmdGif);
             exec($cmdGif);
             error_log("Create Gif no Pallet: {$cmdGif}");
         }

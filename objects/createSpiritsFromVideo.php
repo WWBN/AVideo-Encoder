@@ -55,6 +55,8 @@ $mapHeight = $tileHeight * (ceil($numberOfTiles / 10));
 $cmd = get_ffmpeg()." -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step} -s {$tileWidth}x{$tileHeight} \"{$dirname}out%03d.png\"  2>&1 ";
 error_log("CreateSpirits: $cmd");
 //var_dump($duration, $videoLength);echo $cmd;exit;
+
+$cmd = removeUserAgentIfNotURL($cmd);
 exec($cmd, $output, $return_var);
 //error_log("CreateSpirits: ". json_encode($output));
 //error_log("CreateSpirits: ". json_encode($return_var));

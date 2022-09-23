@@ -500,7 +500,7 @@ hd/index.m3u8
             $code = $f->getCode(); // encoder command-line switches
             // create command            
             $command = get_ffmpeg() . ' -i "{$pathFileName}" ';
-
+            
             $i = 0;
             $lastHeight = 0;
             $countResolutions = 0;
@@ -526,7 +526,8 @@ hd/index.m3u8
                 $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
             }
-
+            
+            $command = removeUserAgentIfNotURL($command);
             error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
             return $command;
         }
@@ -618,7 +619,8 @@ hd/index.m3u8
             $resolution = $height;
             //$code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
             eval("\$command .= \" $code\";");
-
+            
+            $command = removeUserAgentIfNotURL($command);
             return array($destinationFile, $command);
         }
 
@@ -772,6 +774,7 @@ hd/index.m3u8
             } else {
                 $command = get_ffmpeg() . " {$complement} -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
             }
+            $command = removeUserAgentIfNotURL($command);
             exec($command);
 
             if (!file_exists($errorLogFile)) {
