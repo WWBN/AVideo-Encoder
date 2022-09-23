@@ -37,10 +37,18 @@ function get_ffmpeg($ignoreGPU = false) {
 }
 
 function replaceFFMPEG($cmd) {
+    $cmd = removeUserAgentIfNotURL($cmd);
     if(preg_match('/-user_agent/', $cmd)){
         return $cmd;
     }    
     return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
+}
+
+function removeUserAgentIfNotURL($cmd){
+    if(!preg_match('/ -i "?https?:/', $cmd)){
+        $cmd = preg_replace('/-user_agent "[^"]"/', '', $cmd);
+    }    
+    return $cmd;
 }
 
 function get_ffprobe() {
