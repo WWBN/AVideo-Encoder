@@ -28,7 +28,7 @@ if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pa
 
 $rows = Encoder::getAllQueue();
 $config = new Configuration();
-$streamerURL = @$_GET['webSiteRootURL'];
+$streamerURL = @$_REQUEST['webSiteRootURL'];
 if (empty($streamerURL)) {
     $streamerURL = Streamer::getFirstURL();
 }
@@ -168,7 +168,7 @@ if (!empty($_GET['noNavbar'])) {
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                            <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo @$_GET['user']; ?>" required >
+                                            <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo $_REQUEST['user']; ?>" required >
                                         </div>
                                     </div>
                                 </div>
@@ -179,7 +179,7 @@ if (!empty($_GET['noNavbar'])) {
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="<?php echo @$_GET['pass']; ?>" >
+                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="<?php echo $_REQUEST['pass']; ?>" >
                                         </div>
                                     </div>
                                 </div>
@@ -198,7 +198,7 @@ if (!empty($_GET['noNavbar'])) {
                 <script>
                     var encodedPass = <?php
             // if pass all parameters submit the form
-            echo (!empty($streamerURL) && !empty($_GET['user']) && !empty($_GET['pass'])) ? 'true' : 'false';
+            echo (!empty($streamerURL) && !empty($_REQUEST['user']) && !empty($_REQUEST['pass'])) ? 'true' : 'false';
             ?>;
                     $(document).ready(function () {
                         $('#loginForm').submit(function (evt) {
