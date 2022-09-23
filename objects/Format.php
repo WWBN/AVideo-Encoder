@@ -499,7 +499,7 @@ hd/index.m3u8
             $f = new Format($format_id);
             $code = $f->getCode(); // encoder command-line switches
             // create command            
-            $command = get_ffmpeg() . ' -i {$pathFileName} ';
+            $command = get_ffmpeg() . ' -i "{$pathFileName}" ';
 
             $i = 0;
             $lastHeight = 0;
@@ -679,7 +679,7 @@ hd/index.m3u8
                 $obj->code = $code;
                 error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
                 $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
-                $encoder->exec($code . " 1> {$progressFile}  2>&1", $output, $return_val);
+                $encoder->exec($code . " 1> \"{$progressFile}\"  2>&1", $output, $return_val);
                 if (self::progressFileHasVideosWithErrors($progressFile)) {
                     error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));
                     $obj->msg = print_r($output, true);
