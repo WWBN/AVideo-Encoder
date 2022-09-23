@@ -675,6 +675,7 @@ hd/index.m3u8
             }
             eval('$code ="' . addcslashes($fc, '"') . '";');
             $code = replaceFFMPEG($code);
+            $code = removeUserAgentIfNotURL($code);
             if (empty($code)) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
