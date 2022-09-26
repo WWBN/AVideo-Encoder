@@ -162,6 +162,8 @@ $(function () {
     }).bind('fileuploaddone', function (e, data) {
         //console.log(e);
         //console.log(data);
+        
+        console.log('fileuploaddone',  data.result.files);
         $.ajax({
             url: 'view/jquery-file-upload/server/php/fileuploadchunkdone.php?PHPSESSID=' + PHPSESSID,
             data: {
