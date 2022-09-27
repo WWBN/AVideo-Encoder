@@ -65,35 +65,6 @@ function get_ffprobe() {
     return $ffmpeg;
 }
 
-function url_set_file_context($Url, $ctx = "") {
-    // I wasn't sure what to call this function because I'm not sure exactly what it does.
-    // But I know that it is needed to display the progress indicators
-    // on the main encoder web page.
-    // It has been stripped of file_get_contents and fetch_http_file_contents 
-    // which causes huge memory usage. If you upload a 9GB file the server must have a minimum of 18G 
-    // in the old scheme. Now such large memory requirements are not necessary. 
-    // the encoder has already downloaded the file
-    // it just needs to be symlinked
-    if (empty($ctx)) {
-        $opts = array(
-            "ssl" => array(
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-                "allow_self_signed" => true
-            )
-        );
-        $context = stream_context_create($opts);
-    } else {
-        $context = $ctx;
-    }
-    // some times the path has special chars
-    if (!filter_var($Url, FILTER_VALIDATE_URL)) {
-        if (!file_exists($Url)) {
-            $Url = utf8_decode($Url);
-        }
-    }
-}
-
 function getSelfUserAgent($complement = "") {
     global $global;
     $agent = 'AVideoEncoder ';

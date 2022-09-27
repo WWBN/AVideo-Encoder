@@ -416,7 +416,7 @@ class Encoder extends ObjectYPT {
         //////symlink($file, $destinationFile);
         ////// symlink not allowed without apache configuration
         copy($file, $destinationFile);
-        return url_set_file_context($file);
+        return $file;
     }
 
     static function getYoutubeDlProgress($queue_id) {
@@ -474,22 +474,8 @@ class Encoder extends ObjectYPT {
         $txt = "[download]  100% of all Bytes";
         // save this progress file
         $myfile = file_put_contents($global['systemRootPath'] . 'videos/' . $global['queue_id'] . '_tmpFile_downloadProgress.txt', $txt . PHP_EOL, FILE_APPEND | LOCK_EX);
-        //url_get_contents is what drives the red bar and causes the memory failure
-        $return = url_set_file_context($videoURL, $ctx);
-
-        //And OhioVR also did this:
-        $return = url_set_file_context($videoURL, $ctx);
-        if (!$return) {
-            $fixedEncodedUrl = utf8_encode($videoURL);
-            //error_log("Try to get UTF8 URL {$fixedEncodedUrl}");
-            $return = url_set_file_context($videoURL, $ctx);
-            if (!$return) {
-                $fixedEncodedUrl = utf8_decode($videoURL);
-                error_log("Try to get UTF8 decode URL {$fixedEncodedUrl}");
-                $return = url_set_file_context($videoURL, $ctx);
-            }
-        }
-        return $return;
+        
+        return $myfile;
     }
 
     static function areEncoding() {
