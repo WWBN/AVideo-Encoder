@@ -1143,3 +1143,12 @@ function isURLaVODVideo($url){
     }
     return true;
 }
+
+function _utf8_encode($string){
+    global $global;
+    
+    if(empty($global['doNotUTF8Encode'])){    
+        return utf8_encode($string);
+    }
+    return $string;
+}
