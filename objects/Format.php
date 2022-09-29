@@ -45,7 +45,7 @@ if (!class_exists('Format')) {
             return $row;
         }
 
-        // ffmpeg -i {$pathFileName} -vf scale=352:240 -vcodec h264 -acodec aac -strict -2 -y {$destinationFile}
+        // ffmpeg -i {$pathFileName} -vf scale=352:240 -vcodec h264 -acodec aac  -y {$destinationFile}
         function run($pathFileName, $encoder_queue_id) {
             error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id)");
             global $global;

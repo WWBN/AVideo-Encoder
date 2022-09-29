@@ -2,7 +2,7 @@
 
 $scale_width = 1280;
 $scale_height = 720;
-//$ffmpegParameters = " -preset veryfast -vcodec h264 -acodec aac -strict -2 -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}  -ar 44100";
+//$ffmpegParameters = " -preset veryfast -vcodec h264 -acodec aac  -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}  -ar 44100";
 $ffmpegParameters = " -c:v libx264 -preset medium -b:v 3000k -maxrate 3000k -bufsize 6000k -vf \"scale={$scale_width}:{$scale_height},format=yuv420p\" -g 50 -c:a aac -b:a 128k -ac 2 -ar 44100 ";
 //$ffmpegParametersRTMP = "  -c copy ";
 //$ffmpegParametersRTMP = " -c:v libx264 -b:v 3000k -maxrate 3000k -bufsize 6000k -g 50 -c:a aac -b:a 128k -ac 2 -s {$scale_width}x{$scale_height}  -ar 44100  ";
@@ -11,8 +11,8 @@ $ffmpegParametersRTMP = " -c:v libx264 -b:v 3000k -maxrate 3000k -bufsize 6000k 
 $outputExtension = "flv";
 
 
-//$ffmpegParameters = " -preset veryfast  -vcodec h264 -acodec aac -strict -2 -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}   -r 10 -ab 24k -ar 22050 -bsf:v h264_mp4toannexb -maxrate 750k -bufsize 3000k   -tune zerolatency ";
-//$ffmpegParameters = "  -strict -2  -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}  -tune zerolatency ";
+//$ffmpegParameters = " -preset veryfast  -vcodec h264 -acodec aac  -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}   -r 10 -ab 24k -ar 22050 -bsf:v h264_mp4toannexb -maxrate 750k -bufsize 3000k   -tune zerolatency ";
+//$ffmpegParameters = "    -max_muxing_queue_size 1024 -y -s {$scale_width}x{$scale_height}  -tune zerolatency ";
 
 $complexFilter1 = ' [{$counter}]setdar=16/9,scale='.$scale_width.':'.$scale_height.',fps=30[{$counter}:v]; ';
 $complexFilter2 = ' [{$counter}:v] [{$counter}:a] ';
