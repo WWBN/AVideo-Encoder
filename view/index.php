@@ -168,7 +168,7 @@ if (!empty($_GET['noNavbar'])) {
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                            <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo $_REQUEST['user']; ?>" required >
+                                            <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="<?php echo @$_REQUEST['user']; ?>" required >
                                         </div>
                                     </div>
                                 </div>
@@ -179,7 +179,7 @@ if (!empty($_GET['noNavbar'])) {
                                     <div class="col-md-8 inputGroupContainer">
                                         <div class="input-group">
                                             <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="<?php echo $_REQUEST['pass']; ?>" >
+                                            <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="<?php echo @$_REQUEST['pass']; ?>" >
                                         </div>
                                     </div>
                                 </div>
