@@ -38,7 +38,9 @@ if(!function_exists('local_get_contents')){
     require_once $global['systemRootPath'].'objects/Object.php';
 }
 
-
+$_REQUEST['notifyURL'] = trim(@$_REQUEST['notifyURL']);
+$_POST['notifyURL'] = trim(@$_POST['notifyURL']);
+$_GET['notifyURL'] = trim(@$_GET['notifyURL']);
             
 if(!empty($_REQUEST['notifyURL']) && !preg_match('/^http/i', $_REQUEST['notifyURL'])){
     $_REQUEST['notifyURL'] = "https://{$_REQUEST['notifyURL']}";
