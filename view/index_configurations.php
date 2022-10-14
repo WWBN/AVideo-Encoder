@@ -1,6 +1,6 @@
 <?php
 if (Login::isAdmin()) {
-    
+
     $ffmpegArray = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 29, 30, 31, 32);
     if (empty($global['disableConfigurations'])) {
         ?>
@@ -29,66 +29,50 @@ if (Login::isAdmin()) {
                     <label>Resolutions</label>
                 </div>
                 <div id="resolutions" class="checkboxes">
-                <?php
+                    <?php
                     $resolutionDisabled = "";
                     if ($config->currentVersionLowerThen("3.7")) {
                         $resolutionDisabled = " disabled ";
-                ?>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        Please upgrade to enable this feature
-                    </div>
-                <?php
-
+                        ?>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Please upgrade to enable this feature
+                        </div>
+                        <?php
                     }
+                    $resolutionsInfo = Format::getAvailableResolutionsInfo();
 
-                    $availableResolutions = Format::getAvailableResolutions();
-                    $selectedResolutions = $config->getSelectedResolutions();                                        
-                    foreach($availableResolutions as $key => $resolution) {
-                        $resolutionChecked = (array_search($resolution, $selectedResolutions, true) !== false) || !empty($resolutionDisabled) ? "checked" : "";
-                        
-                        $label = "<span class='label label-default'>{$resolution}p ";
-                        if($resolution == 720){
-                            $label .= '<span class="label label-danger">HD</span>';
-                        }else if($resolution == 1080){
-                            $label .= '<span class="label label-danger">FHD</span>';
-                        }else if($resolution == 1440){
-                            $label .= '<span class="label label-danger">FHD+</span>';
-                        }else if($resolution == 2160){
-                            $label .= '<span class="label label-danger">4K</span>';
-                        }
-                        $label .= " </span>";
-                        
-                        echo "<label for='resolution-${resolution}'>".
-                            "<input ${resolutionChecked} ${resolutionDisabled} type='checkbox' name='resolutions' id='resolution-${resolution}' value='${resolution}'>".
-                            "{$label}".
+                    foreach ($resolutionsInfo as $value) {
+                        echo "<label for='resolution-{$value['resolution']}'>" .
+                        "<input {$value['resolutionChecked']} {$resolutionDisabled} type='checkbox' name='resolutions' id='resolution-{$value['resolution']}' value='{$value['resolution']}'>" .
+                        $value['label'] .
                         "</label>";
                     }
-                ?>
+                    ?>
                 </div>
 
-                <?php 
-                    if (empty($resolutionDisabled)) { 
-                ?>
+                <?php
+                if (empty($resolutionDisabled)) {
+                    ?>
 
-                <script>
-                    (function($) {
-                        function updateStatus() {
-                            // at least one resolution must be selected
-                            var $item = $("#resolutions input[type='checkbox']:checked");
-                            $item.prop("disabled", $item.length === 1);
-                        }
-                        $(document).ready(function() {                            
-                            $("#resolutions input[type='checkbox']").on("click", function() {
+                    <script>
+                        (function ($) {
+                            function updateStatus() {
+                                // at least one resolution must be selected
+                                var $item = $("#resolutions input[type='checkbox']:checked");
+                                $item.prop("disabled", $item.length === 1);
+                            }
+                            $(document).ready(function () {
+                                $("#resolutions input[type='checkbox']").on("click", function () {
+                                    updateStatus();
+                                });
                                 updateStatus();
                             });
-                            updateStatus();                                 
-                        });
-                    })(jQuery);
-                </script>
+                        })(jQuery);
+                    </script>
 
-                <?php 
-                    }
+                    <?php
+                }
                 ?>                
             </div>
 

@@ -107,6 +107,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
             $obj->videos_id = 0;
 
         // This raises an harmless error
+        error_log("Upload.php line: ".__LINE__.' '. json_encode($format));
         $response = Encoder::sendFile('', $obj, $format, $e);
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;

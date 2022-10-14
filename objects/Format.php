@@ -405,13 +405,43 @@ hd/index.m3u8
             return self::getAvailableConfigurations()["resolutions"];
         }
 
+        static function getAvailableResolutionsInfo() {
+            global $config;
+            $resolutions = array();
+            $availableResolutions = Format::getAvailableResolutions();
+            $selectedResolutions = $config->getSelectedResolutions();                                        
+            foreach($availableResolutions as $key => $resolution) {
+                $resolutionChecked = (array_search($resolution, $selectedResolutions, true) !== false) || !empty($resolutionDisabled) ? "checked" : "";
+
+                $label = "<span class='label label-default'>{$resolution}p ";
+                if($resolution == 720){
+                    $label .= '<span class="label label-danger">HD</span>';
+                }else if($resolution == 1080){
+                    $label .= '<span class="label label-danger">FHD</span>';
+                }else if($resolution == 1440){
+                    $label .= '<span class="label label-danger">FHD+</span>';
+                }else if($resolution == 2160){
+                    $label .= '<span class="label label-danger">4K</span>';
+                }
+                $label .= " </span>";
+
+                $resolutions[] = array(
+                    'resolutionChecked'=>$resolutionChecked, 
+                    'label'=>$label, 
+                    'resolution'=>$resolution, 
+                    'resolutionChecked'=>$resolutionChecked, 
+                );
+            }
+            return $resolutions;
+        }
+
         static function sanitizeResolutions($resolutions) {
             if (is_array($resolutions)) {
                 // resolutions need to be int values
                 $resolutions = array_map(
                         function($value) {
-                    return (int) $value;
-                },
+                            return (int) $value;
+                        },
                         $resolutions
                 );
 

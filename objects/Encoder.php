@@ -854,7 +854,7 @@ class Encoder extends ObjectYPT {
             if ($errno = curl_errno($curl)) {
                 $error_message = curl_strerror($errno);
                 //echo "cURL error ({$errno}):\n {$error_message}";
-                $obj->msg = "cURL error ({$errno}):\n {$error_message} ";
+                $obj->msg = "cURL error ({$errno}):\n {$error_message} LINE ".__LINE__;
             } else {
                 $obj->error = false;
             }
@@ -1190,14 +1190,17 @@ class Encoder extends ObjectYPT {
         if ($errno = curl_errno($curl) || empty($obj->response) || !is_object($obj->response)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n {$chunkFile} ";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n {$chunkFile} LINE ".__LINE__;
         } else {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log(json_encode($obj));
-        if (is_object($obj->response) && !empty($obj->response->video_id)) {
-            $encoder->setReturn_varsVideos_id($obj->response->video_id);
+        if (is_object($obj->response)) {
+            $obj->error = $obj->response->error;
+            $obj->msg = $obj->response->msg;
+            if (!empty($obj->response->video_id)){
+                $encoder->setReturn_varsVideos_id($obj->response->video_id);
+            }
         }
         if (is_object($obj->response) && !empty($obj->response->video_id_hash)) {
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
@@ -1207,6 +1210,8 @@ class Encoder extends ObjectYPT {
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus("done");
             $u->save();
+        }else if($obj->error){
+            error_log("AVideo-Streamer sendFile error: ".json_encode($postFields).' <=>'.json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         }
         return $obj;
     }
@@ -1287,14 +1292,14 @@ class Encoder extends ObjectYPT {
             if (is_object($obj->response) && $obj->response->filesize < $obj->filesize) {
                 error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize) . " local Encoder file size =  " . humanFileSize($obj->filesize));
             } else {
-                error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target})");
+                error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE ".__LINE__);
             }
             if ($try <= 3) {
                 sleep($try);
                 return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try);
             } else {
                 //echo "cURL error ({$errno}):\n {$error_message}";
-                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})";
+                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE ".__LINE__;
                 error_log(json_encode($obj));
                 return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
             }
@@ -1408,7 +1413,7 @@ class Encoder extends ObjectYPT {
         if ($errno = curl_errno($curl) || empty($obj->response)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n ";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n  LINE ".__LINE__;
         } else {
             $obj->error = false;
         }
@@ -1501,7 +1506,7 @@ class Encoder extends ObjectYPT {
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target} LINE ".__LINE__;
         } else {
             $obj->error = false;
         }
@@ -1570,7 +1575,7 @@ class Encoder extends ObjectYPT {
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
             //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target}";
+            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target} LINE ".__LINE__;
         } else {
             $obj->error = false;
         }

@@ -191,6 +191,19 @@ if (Login::canBulkEncode()) {
         </div> 
     </div>
     <div class="panel-footer">
+        <div class="availableResolutionsLabels">
+            <?php
+            $resolutionsInfo = Format::getAvailableResolutionsInfo();
+
+            foreach ($resolutionsInfo as $value) {
+                if(empty($value['resolutionChecked'])){
+                    continue;
+                }
+                echo $value['label'];
+            }
+            ?>
+        </div>
+        <div class="clearfix"></div>
         <?php
         if(!empty($_REQUEST['callback'])){
             $json = json_decode($_REQUEST['callback']);
@@ -198,8 +211,7 @@ if (Login::canBulkEncode()) {
                 foreach ($json as $key => $value) {
                     echo '<strong>'.htmlentities($key).'</strong>: '.$value.'<br>';
                 }
-                
-                 echo '<input type="hidden" class="callback" name="callback" id="callback" value="'. base64_encode(json_encode($json)).'">';
+                echo '<input type="hidden" class="callback" name="callback" id="callback" value="'. base64_encode(json_encode($json)).'">';
             }
         }
         ?>
