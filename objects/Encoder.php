@@ -654,6 +654,17 @@ class Encoder extends ObjectYPT {
         }
         return true;
     }
+    
+    private static function setStatusError($queue_id, $msg, $notifyIsDone=false){
+        $q = new Encoder($queue_id);
+        $q->setStatus(Encoder::$STATUS_ERROR);
+        $q->setStatus_obs($msg);
+        $saved = $q->save();
+        if(!empty($notifyIsDone)){
+            $q->notifyVideoIsDone(1);
+        }
+        return $saved;
+    }
 
     function exec($cmd, &$output = array(), &$return_val = 0) {
         if (function_exists("pcntl_fork")) {
@@ -666,9 +677,7 @@ class Encoder extends ObjectYPT {
                 case -1:
                     $msg = "fork failed";
                     error_log("id(" . $this->getId() . ") " . $msg);
-                    $this->setStatus(Encoder::$STATUS_ERROR);
-                    $this->setStatus_obs($msg);
-                    $this->save();
+                    self::setStatusError($this->getId(), $msg);
                     break;
                 default:
                     $this->setWorker_pid($pid);
@@ -705,8 +714,7 @@ class Encoder extends ObjectYPT {
     function deleteQueue($notifyStreamer = false) {
         $worker_pid = $this->getWorker_pid();
         $worker_ppid = $this->getWorker_ppid();
-        $this->setStatus(Encoder::$STATUS_ERROR);
-        $this->setStatus_obs("deleted from queue");
+        self::setStatusError($this->getId(), "deleted from queue");
         if (!empty($global['killWorkerOnDelete'])) {
             if (is_numeric($worker_pid) && $worker_pid > 0) {
                 exec("kill " . $worker_pid); // ignore result
@@ -761,9 +769,7 @@ class Encoder extends ObjectYPT {
                         $msg = "Encoder::run: Max tries reached";
                         error_log($msg);
                         $obj->msg = $objFile->msg;
-                        $encoder->setStatus(Encoder::$STATUS_ERROR);
-                        $encoder->setStatus_obs($msg);
-                        $encoder->save();
+                        self::setStatusError($rowNext['id'], $msg);
                         return false;
                     }
                 } else if (!empty($return_vars->videos_id)) {
@@ -788,9 +794,7 @@ class Encoder extends ObjectYPT {
                         } else {
                             $obj->msg = "Execute code error 2 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log("Encoder::run: Encoder Run: " . json_encode($obj));
-                            $encoder->setStatus(Encoder::$STATUS_ERROR);
-                            $encoder->setStatus_obs($obj->msg);
-                            $encoder->save();
+                            self::setStatusError($encoder->getId(), $obj->msg);
                             return false;
                         }
                     } else {
@@ -820,19 +824,13 @@ class Encoder extends ObjectYPT {
                         } else {
                             $msg = "Encoder::run: Send message error = " . $response->msg;
                             error_log($msg);
-                            $encoder->setStatus(Encoder::$STATUS_ERROR);
-                            $encoder->setStatus_obs($msg);
-                            $encoder->notifyVideoIsDone(1);
-                            $encoder->save();
+                            self::setStatusError($encoder->getId(), $msg, 1);
                             return false;
                         }
                     }
                 } else {
                     error_log("try [{$try}] return_vars->videos_id is empty " . json_encode($return_vars));
-                    $encoder->setStatus(Encoder::$STATUS_ERROR);
-                    $encoder->setStatus_obs("try [{$try}] Error on return_vars->videos_id");
-                    $encoder->notifyVideoIsDone(1);
-                    $encoder->save();
+                    self::setStatusError($encoder->getId(), "try [{$try}] Error on return_vars->videos_id", 1);
                     return false;
                 }
                 return static::run($try);
@@ -1117,8 +1115,7 @@ class Encoder extends ObjectYPT {
         $duration = static::getDurationFromFile($file);
         if ($duration == "EE:EE:EE" && $file != "") {
             if (isset($u) && $u !== false && $obj->error == false) {
-                $u->setStatus(Encoder::$STATUS_ERROR);
-                $u->save();
+                self::setStatusError($encoder->getId(), 'Error on send file');
             }
 
             $obj->error = true;
