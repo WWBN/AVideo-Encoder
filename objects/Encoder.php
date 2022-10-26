@@ -769,6 +769,8 @@ class Encoder extends ObjectYPT {
                 } else if (!empty($return_vars->videos_id)) {
                     $encoder->setStatus(Encoder::$STATUS_ENCODING);
                     $encoder->save();
+                    // run to try to download next
+                    self::run($try);
                     self::sendImages($objFile->pathFileName, $return_vars, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
