@@ -269,7 +269,7 @@ class Encoder extends ObjectYPT {
 
     static function getNext() {
         global $global;
-        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE status = 'queue' ";
+        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE status = 'queue' OR status = 'downloaded' ";
         $sql .= " ORDER BY priority ASC, id ASC LIMIT 1";
 
         $res = $global['mysqli']->query($sql);
