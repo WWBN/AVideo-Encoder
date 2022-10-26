@@ -308,6 +308,9 @@ class Encoder extends ObjectYPT {
             return $obj;
         }
 
+        $q->setStatus("downloading");
+        $q->save();
+        
         error_log("downloadFile: start queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
 
 
@@ -694,14 +697,13 @@ class Encoder extends ObjectYPT {
         // check if is encoding something
         //error_log("Encoder::run: try=($try)");
         $rows = static::areEncoding();
+        $rowNext = static::getNext();
         if (count($rows) < $concurrent) {
-            $row = static::getNext();
-            if (empty($row)) {
+            if (empty($rowNext)) {
                 $obj->msg = "There is no file on queue";
             } else {
-                $encoder = new Encoder($row['id']);
+                $encoder = new Encoder($rowNext['id']);
                 $return_vars = json_decode($encoder->getReturn_vars());
-                $encoder->setStatus("downloading");
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
@@ -781,7 +783,7 @@ class Encoder extends ObjectYPT {
                             return false;
                         }
                     }
-                } else {
+                } else {                    
                     error_log("try [{$try}] return_vars->videos_id is empty " . json_encode($return_vars));
                     $encoder->setStatus("error");
                     $encoder->setStatus_obs("try [{$try}] Error on return_vars->videos_id");
@@ -792,6 +794,9 @@ class Encoder extends ObjectYPT {
                 return static::run($try);
             }
         } else {
+            if (!empty($rowNext)) {
+                $objFile = static::downloadFile($rowNext['id']);
+            }
             $msg = (count($rows) == 1) ? "The file " : "The files ";
             for ($i = 0; $i < count($rows); $i++) {
                 $row = $rows[$i];
