@@ -29,6 +29,10 @@ class Encoder extends ObjectYPT {
         if (empty($this->worker_ppid)) {
             $this->worker_ppid = 0;
         }
+        if (empty($this->fileURI)) {
+            $this->fileURI = '';
+        }
+        
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
         $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
