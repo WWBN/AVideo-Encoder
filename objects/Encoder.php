@@ -737,6 +737,7 @@ class Encoder extends ObjectYPT {
         //error_log("Encoder::run: try=($try)");
         $rows = static::areEncoding();
         $rowNext = static::getNext();
+        $obj->hasNext = !empty($rowNext);
         if (count($rows) < $concurrent) {
             if (empty($rowNext)) {
                 $obj->msg = "There is no file on queue";
@@ -833,9 +834,11 @@ class Encoder extends ObjectYPT {
                 return static::run($try);
             }
         } else {
-            if (!empty($rowNext)) {
+            if ($obj->hasNext) {
                 $rowsDownloading = static::areDownloading();
-                if(empty($rowsDownloading)){
+                $obj->rowsDownloading = !empty($rowsDownloading);
+                if(!$obj->rowsDownloading){
+                    $obj->nextId = $rowNext['id'];
                     $objFile = static::downloadFile($rowNext['id']);
                 }
             }
