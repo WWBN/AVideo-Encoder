@@ -306,7 +306,11 @@ class Encoder extends ObjectYPT {
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
 
-        if (file_exists($obj->pathFileName)) {            
+        if (file_exists($obj->pathFileName)) {  
+            if($q->getStatus()=='queue'){
+                $q->setStatus("downloaded");
+                $q->save();  
+            }
             $obj->error = false;
             //error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
             return $obj;
