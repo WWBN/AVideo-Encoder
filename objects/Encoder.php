@@ -484,7 +484,38 @@ class Encoder extends ObjectYPT {
         
         return $myfile;
     }
+    
+    static function areDownloading() {
+        global $global;
+        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+                . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = 'downloading' ORDER BY priority ASC, e.id ASC ";
 
+        $res = $global['mysqli']->query($sql);
+        $results = array();
+        if ($res) {
+            while ($result = $res->fetch_assoc()) {
+                $encoder = new Encoder($result['id']);
+                /* Do not auto add to queue here, it was causing an reencode on refresh page
+                  if (!$encoder->isWorkerRunning()) {
+                  $encoder->setStatus("queue");
+                  $encoder->setStatus_obs("Worker died");
+                  $encoder->save();
+                  continue;
+                  }
+                 * 
+                 */
+                $result['return_vars'] = json_decode($result['return_vars']);
+                $s = new Streamer($result['streamers_id']);
+                $result['streamer_site'] = $s->getSiteURL();
+                $result['streamer_priority'] = $s->getPriority();
+                $results[] = $result;
+            }
+        } else {
+            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+        }
+        return $results;
+    }
+    
     static function areEncoding() {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
@@ -799,7 +830,11 @@ class Encoder extends ObjectYPT {
             }
         } else {
             if (!empty($rowNext)) {
-                $objFile = static::downloadFile($rowNext['id']);
+                
+                $rowsDownloading = static::areDownloadingg();
+                if(empty($rowsDownloading)){
+                    $objFile = static::downloadFile($rowNext['id']);
+                }
             }
             $msg = (count($rows) == 1) ? "The file " : "The files ";
             for ($i = 0; $i < count($rows); $i++) {
