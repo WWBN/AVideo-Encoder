@@ -373,6 +373,10 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         error_log("downloadFile: " . json_encode($obj));
+        if(empty($obj->error)){
+            $q->setStatus("downloaded");
+            $q->save(); 
+        }
         return $obj;
     }
 
@@ -488,7 +492,7 @@ class Encoder extends ObjectYPT {
     static function areDownloading() {
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-                . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = 'downloading' ORDER BY priority ASC, e.id ASC ";
+                . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE  status = 'downloaded' OR  status = 'downloading' ORDER BY priority ASC, e.id ASC ";
 
         $res = $global['mysqli']->query($sql);
         $results = array();
@@ -830,7 +834,6 @@ class Encoder extends ObjectYPT {
             }
         } else {
             if (!empty($rowNext)) {
-                
                 $rowsDownloading = static::areDownloadingg();
                 if(empty($rowsDownloading)){
                     $objFile = static::downloadFile($rowNext['id']);
