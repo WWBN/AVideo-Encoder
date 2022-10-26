@@ -306,7 +306,7 @@ class Encoder extends ObjectYPT {
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
 
-        if (file_exists($obj->pathFileName)) {
+        if (file_exists($obj->pathFileName)) {            
             $obj->error = false;
             //error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
             return $obj;
@@ -834,7 +834,7 @@ class Encoder extends ObjectYPT {
             }
         } else {
             if (!empty($rowNext)) {
-                $rowsDownloading = static::areDownloadingg();
+                $rowsDownloading = static::areDownloading();
                 if(empty($rowsDownloading)){
                     $objFile = static::downloadFile($rowNext['id']);
                 }
