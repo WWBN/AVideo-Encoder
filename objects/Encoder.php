@@ -50,6 +50,9 @@ class Encoder extends ObjectYPT {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
         if ($onlyMine && !Login::isAdmin()) {
+            if(empty(Login::getStreamerId())){
+                return false;
+            }
             $sql .= " AND streamers_id = " . Login::getStreamerId() . " ";
         }
         $sql .= self::getSqlFromPost();
@@ -2119,11 +2122,11 @@ class Encoder extends ObjectYPT {
         }
     }
 
-    static function getYouTubeDLCommand() {
+    static function getYouTubeDLCommand($forceYoutubeDL=false) {
         global $global;
         if (!empty($global['youtube-dl'])) {
             return $global['youtube-dl'] . ' ';
-        } else if (file_exists("/usr/local/bin/yt-dlp")) {
+        } else if (empty($forceYoutubeDL) && file_exists("/usr/local/bin/yt-dlp")) {
             return "/usr/local/bin/yt-dlp ";
         } else if (file_exists("/usr/local/bin/youtube-dl")) {
             return "/usr/local/bin/youtube-dl ";
