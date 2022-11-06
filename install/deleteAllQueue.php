@@ -11,7 +11,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-$rows = Encoder::getAllQueue();
+//$rows = Encoder::getAllQueue();
+$rows = Encoder::getAll(false);
 
 echo "Start {$global['webSiteRootURL']}".PHP_EOL;
 foreach ($rows as $value) {

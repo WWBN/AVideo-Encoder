@@ -49,7 +49,7 @@ class Encoder extends ObjectYPT {
     static function getAll($onlyMine = false) {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
-        if ($onlyMine && !Login::isAdmin()) {
+        if ($onlyMine && !Login::isAdmin() && !isCommandLineInterface()) {
             if(empty(Login::getStreamerId())){
                 return false;
             }
