@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 
 $rows = Encoder::getAllQueue();
 
-echo "Start".PHP_EOL;
+echo "Start {$global['webSiteRootURL']}".PHP_EOL;
 foreach ($rows as $value) {
     echo "Deleting [{$value['id']}]{$value['title']}, {$value['videoDownloadedLink']}".PHP_EOL; 
     $e = new Encoder($value['id']);
