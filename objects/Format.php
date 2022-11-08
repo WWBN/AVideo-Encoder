@@ -540,6 +540,10 @@ hd/index.m3u8
                     $countResolutions++;
                     $lastHeight = $resolution;
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
+                    if(empty($destinationFile)){
+                        error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
+                        continue;
+                    }
                     $autioBitrate = $audioBitrate[$i];
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
@@ -553,6 +557,10 @@ hd/index.m3u8
 
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
+                if(empty($destinationFile)){
+                    error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
+                    return '';
+                }
                 $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
             }
@@ -828,7 +836,15 @@ hd/index.m3u8
         }
 
         static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {
-
+            if(empty($destinationFile)){
+                $obj = new stdClass();
+                $obj->error = true;
+                $obj->destinationFile = $destinationFile;
+                $obj->pathFileName = $pathFileName;
+                $obj->msg = "destinationFile is empty";
+                error_log("execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) destinationFile");
+                return $obj;
+            }
             if (file_exists($destinationFile)) {
                 $src_duration = Encoder::getDurationFromFile($pathFileName);
                 $dst_duration = Encoder::getDurationFromFile($destinationFile);

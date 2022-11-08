@@ -927,7 +927,7 @@ class Encoder extends ObjectYPT {
         return $r;
     }
 
-    public static function getTmpFileName($encoder_queue_id, $format, $resolution = '') {
+    private static function getTmpFileBaseName($encoder_queue_id) {
         global $global;
 
         $encoder = new Encoder($encoder_queue_id);
@@ -941,22 +941,28 @@ class Encoder extends ObjectYPT {
             $resolution = "_{$resolution}";
         }
 
-        $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_{$resolution}.{$format}";
+        $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_";
+        return $file;
+    }
+    
+    public static function getTmpFileName($encoder_queue_id, $format, $resolution = '') {
+        global $global;
+        $baseName = self::getTmpFileBaseName($encoder_queue_id);
+        if(empty($baseName)){
+            return false;
+        }
+        $file = "{$baseName}{$resolution}.{$format}";
         return $file;
     }
 
     public static function getTmpFiles($encoder_queue_id) {
-        global $global;
-
-        $encoder = new Encoder($encoder_queue_id);
-        $streamers_id = $encoder->getStreamers_id();
-        if(empty($streamers_id)){
-            error_log("getTmpFiles($encoder_queue_id) Empty streamers ID");
-            return false;
+        global $global;        
+        $baseName = self::getTmpFileBaseName($encoder_queue_id);
+        if(empty($baseName)){
+            return array();
         }
-        $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_";
-
-        $files = glob("{$file}*");
+        
+        $files = glob("{$baseName}*");
 
         $hlsZipFile = Encoder::getTmpFileName($encoder_queue_id, 'zip', "converted");
         //$hlsZipFile = $global['systemRootPath'] . "videos/{$encoder_queue_id}_tmpFile_converted.zip";
