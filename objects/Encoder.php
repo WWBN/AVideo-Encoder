@@ -1487,7 +1487,7 @@ class Encoder extends ObjectYPT {
             $obj->error = false;
         }
         curl_close($curl);
-        error_log("Encoder::sendFileToDownload resolution=[{$postFields['resolution']}] "
+        error_log("Encoder::sendFileToDownload format=[{$postFields['format']}] "
         . "videos_id=[{$postFields['videos_id']}] "
         . "video_id_hash=[{$postFields['video_id_hash']}] " . json_encode($obj));
         if (empty($obj->response) || !is_object($obj->response)) {
