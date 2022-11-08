@@ -1434,7 +1434,7 @@ class Encoder extends ObjectYPT {
         if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
-        error_log("Encoder::sendFileToDownload [file=$file], [download=$downloadURL]");
+        error_log("Encoder::sendFileToDownload target=[$target] [file=$file], [download=$downloadURL]");
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
