@@ -376,11 +376,12 @@ class Encoder extends ObjectYPT {
             $obj->error = true;
         }
         if ($response || $obj->error) {
+            $destination = "{$dstFilepath}{$filename}";
             //error_log("downloadFile: error");
-            $obj->msg = "Could not save file {$url} in {$dstFilepath}{$filename}";
-            $response = static::getYoutubeDl($url, $queue_id, "{$dstFilepath}{$filename}");
+            $obj->msg = "Could not save file {$url} in $destination";
+            $response = static::getYoutubeDl($url, $queue_id, $destination);
             error_log("downloadFile: trying getYoutubeDl queue_id = {$queue_id}");
-            $obj->error = false;
+            $obj->error = !file_exists($destination);
         }
         error_log("downloadFile: " . json_encode($obj));
         if (empty($obj->error)) {
@@ -1489,6 +1490,8 @@ class Encoder extends ObjectYPT {
         error_log("Encoder::sendFileToDownload " . json_encode($obj));
         if (empty($obj->response) || !is_object($obj->response)) {
             error_log("Encoder::sendFileToDownload response fail " . $obj->response_raw . " " . json_encode(debug_backtrace()));
+        } else if (empty($obj->response->video_id) && empty($obj->response->video_id_hash)) {
+            error_log("Encoder::sendFileToDownload response fail 2 " . $obj->response_raw . " " . json_encode(debug_backtrace()));
         } else {
             $encoder->setReturn_varsVideos_id($obj->response->video_id);
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
