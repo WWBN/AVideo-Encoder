@@ -933,6 +933,10 @@ class Encoder extends ObjectYPT {
         $encoder = new Encoder($encoder_queue_id);
         $streamers_id = $encoder->getStreamers_id();
 
+        if(empty($streamers_id)){
+            error_log("getTmpFileName($encoder_queue_id, $format, $resolution): Empty streamers ID");
+            return false;
+        }
         if (!empty($resolution)) {
             $resolution = "_{$resolution}";
         }
@@ -946,6 +950,10 @@ class Encoder extends ObjectYPT {
 
         $encoder = new Encoder($encoder_queue_id);
         $streamers_id = $encoder->getStreamers_id();
+        if(empty($streamers_id)){
+            error_log("getTmpFiles($encoder_queue_id) Empty streamers ID");
+            return false;
+        }
         $file = $global['systemRootPath'] . "videos/avideoTmpFile_{$encoder_queue_id}_streamers_id_{$streamers_id}_";
 
         $files = glob("{$file}*");
