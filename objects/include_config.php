@@ -7,6 +7,9 @@ ini_set('error_log', $global['logfile']);
 global $global;
 global $config;
 
+if(!empty($global['ignore_include_config'])){
+    return false;
+}
 if(empty($global['configurationVersion']) || $global['configurationVersion']<2){
     require_once $global['systemRootPath'].'objects/Configuration.php';
     Configuration::rewriteConfigFile(2);
