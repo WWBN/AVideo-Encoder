@@ -35,6 +35,10 @@ if (!class_exists('Format')) {
             error_log("AVideo-Encoder Format::getFromOrder($order)");
             global $global;
             $sql = "SELECT * FROM " . static::getTableName() . " WHERE  `order` = $order LIMIT 1";
+            /**
+             * @var array $global
+             * @var object $global['mysqli']
+             */
             $global['lastQuery'] = $sql;
             $res = $global['mysqli']->query($sql);
             if ($res) {
@@ -52,6 +56,9 @@ if (!class_exists('Format')) {
             $obj = new stdClass();
             $obj->error = true;
             $path_parts = pathinfo($pathFileName);
+            /**
+             * @var array $global
+             */
             if ($this->order == 88) {
                 error_log("run:mp3ToSpectrumHLS");
                 $obj = $this->mp3ToSpectrumHLS($pathFileName, $encoder_queue_id);
@@ -92,6 +99,9 @@ if (!class_exists('Format')) {
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
             $obj = null;
+            /**
+             * @var array $global
+             */
             if (in_array($order, $global['hasHDOrder'])) {
                 $destination = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "HD");
                 $obj = static::execOrder(12, $pathFileName, $destination, $encoder_queue_id);
@@ -117,8 +127,10 @@ if (!class_exists('Format')) {
                 }
             }
 
-            if (!empty($global['progressiveUpload']))
+            if (!empty($global['progressiveUpload'])){
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4');
                 Upload::create($encoder_queue_id, $destinationFile);
+            }
 
             return $obj;
         }
@@ -711,6 +723,7 @@ hd/index.m3u8
             } else if ($format_id == 32) {// it is WebM
                 $fc = self::getDynamicCommandFromWebm($pathFileName, $encoder_queue_id);
             }
+            $code = '';
             eval('$code ="' . addcslashes($fc, '"') . '";');
             $code = replaceFFMPEG($code);
             $code = removeUserAgentIfNotURL($code);
@@ -892,6 +905,10 @@ hd/index.m3u8
             $name = strtolower(trim($name));
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE LOWER(name) = '{$name}' LIMIT 1";
 
+            /**
+             * @var array $global
+             * @var object $global['mysqli']
+             */
             $res = $global['mysqli']->query($sql);
             if ($res) {
                 return $res->fetch_assoc();
@@ -948,11 +965,17 @@ hd/index.m3u8
 
         function setName($name) {
             global $global;
+            /**
+             * @var array $global
+             */
             $this->name = $global['mysqli']->real_escape_string($name);
         }
 
         function setCode($code) {
             global $global;
+            /**
+             * @var array $global
+             */
             $this->code = $global['mysqli']->real_escape_string($code);
         }
 
@@ -966,6 +989,9 @@ hd/index.m3u8
 
         function setExtension($extension) {
             global $global;
+            /**
+             * @var array $global
+             */
             $this->extension = $global['mysqli']->real_escape_string($extension);
         }
 

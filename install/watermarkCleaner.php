@@ -15,6 +15,7 @@ if (is_dir($watermarkDir)) {
 }
 
 function searchObjLog($dir) {
+    $deleteFilesOlderThanHours = 1;
     echo "Searching {$dir}".PHP_EOL;
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {

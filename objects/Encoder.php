@@ -38,7 +38,10 @@ class Encoder extends ObjectYPT {
         if (empty($this->fileURI)) {
             $this->fileURI = '';
         }
-
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
         $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
@@ -57,6 +60,10 @@ class Encoder extends ObjectYPT {
         }
         $sql .= self::getSqlFromPost();
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
         $rows = array();
@@ -80,6 +87,10 @@ class Encoder extends ObjectYPT {
         }
         $sql .= self::getSqlSearchFromPost();
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
 
@@ -98,6 +109,10 @@ class Encoder extends ObjectYPT {
         return $this->filename;
     }
 
+    /**
+     * 
+     * @return string
+     */
     function getStatus() {
         return $this->status;
     }
@@ -131,6 +146,10 @@ class Encoder extends ObjectYPT {
         return $this->modified;
     }
 
+    /**
+     * 
+     * @return int
+     */
     function getFormats_id() {
         return $this->formats_id;
     }
@@ -246,6 +265,10 @@ class Encoder extends ObjectYPT {
         $this->downloadedFileName = substr($downloadedFileName, 0, 254);
     }
 
+    /**
+     * 
+     * @return int
+     */
     function getStreamers_id() {
         return $this->streamers_id;
     }
@@ -280,6 +303,10 @@ class Encoder extends ObjectYPT {
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE status = 'queue' OR status = 'downloaded' ";
         $sql .= " ORDER BY priority ASC, id ASC LIMIT 1";
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         if ($res) {
             return $res->fetch_assoc();
@@ -513,6 +540,10 @@ class Encoder extends ObjectYPT {
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
                 . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE  status = '".Encoder::$STATUS_DOWNLOADED."' OR  status = '".Encoder::$STATUS_DOWNLOADING."' ORDER BY priority ASC, e.id ASC ";
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         $results = array();
         if ($res) {
@@ -535,6 +566,10 @@ class Encoder extends ObjectYPT {
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
                 . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = '".Encoder::$STATUS_ENCODING."' OR  status = '".Encoder::$STATUS_DOWNLOADING."' ORDER BY priority ASC, e.id ASC ";
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         $results = array();
         if ($res) {
@@ -592,6 +627,10 @@ class Encoder extends ObjectYPT {
                         . "status = '".Encoder::$STATUS_ERROR."') ";
 
         $sql .= " ORDER BY priority ASC, e.id ASC ";
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         $rows = array();
         if ($res) {
@@ -612,6 +651,10 @@ class Encoder extends ObjectYPT {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE filename = '$filename' LIMIT 1 ";
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         if ($res) {
             return $res->fetch_assoc();
@@ -625,6 +668,10 @@ class Encoder extends ObjectYPT {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE fileURI = '$fileURI' LIMIT 1 ";
 
+        /**
+         * @var array $global
+         * @var object $global['mysqli']
+         */
         $res = $global['mysqli']->query($sql);
         if ($res) {
             return $res->fetch_assoc();
@@ -703,6 +750,10 @@ class Encoder extends ObjectYPT {
                         "PATH=" . getenv("PATH"),
                         "LD_LIBRARY_PATH=" . getenv("LD_LIBRARY_PATH")
                     );
+                    if(false){
+                        function pnctl_strerror(){}
+                        function pnctl_get_last_error(){}
+                    }
                     pcntl_exec("/bin/sh", $argv, $envp);
                     error_log("id=(" . $this->getId() . "), " . $cmd . " failed: " . pnctl_strerror(pnctl_get_last_error()));
                     exit(1);
@@ -935,7 +986,7 @@ class Encoder extends ObjectYPT {
         $streamers_id = $encoder->getStreamers_id();
 
         if(empty($streamers_id)){
-            error_log("getTmpFileName($encoder_queue_id, $format, $resolution): Empty streamers ID");
+            error_log("getTmpFileBaseName($encoder_queue_id): Empty streamers ID");
             return false;
         }
         if (!empty($resolution)) {
@@ -1016,6 +1067,9 @@ class Encoder extends ObjectYPT {
         $this->setStatus(Encoder::$STATUS_TRANSFERRING);
         $this->save();
         error_log("Encoder::send() order_id=$order_id");
+        /**
+         * @var array $global
+         */
         if (in_array($order_id, $global['multiResolutionOrder'])) {
             //error_log("Encoder::send() multiResolutionOrder");
             if (in_array($order_id, $global['sendAll'])) {
@@ -1784,6 +1838,9 @@ class Encoder extends ObjectYPT {
         if (empty($videoFile)) {
             return "EE:EE:EE";
         }
+        /**
+         * @var string $cmd
+         */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
         eval('$cmd=get_ffprobe()." -i \"{$videoFile}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
@@ -1825,6 +1882,9 @@ class Encoder extends ObjectYPT {
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
+        /**
+         * @var string $ffmpeg
+         */
         // placing ss before the input is faster https://stackoverflow.com/a/27573049
         eval('$ffmpeg =get_ffmpeg(true)." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
@@ -1887,6 +1947,9 @@ class Encoder extends ObjectYPT {
         $time_start = microtime(true);
         //error_log("getGif: Starts");
         //generate a palette:
+        /**
+         * @var string $ffmpeg
+         */
         $palleteFile = "{$pathFileName}palette.png";
         eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFile}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
@@ -1942,6 +2005,9 @@ class Encoder extends ObjectYPT {
         $time_start = microtime(true);
         //error_log("getWebpImage: Starts");
         //generate a palette:
+        /**
+         * @var string $ffmpeg
+         */
         eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);

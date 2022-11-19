@@ -25,7 +25,7 @@ class ServerMonitor {
         $obj->command = "/sbin/sysctl hw.pagesize; /usr/bin/vmstat -t";
         exec($obj->command . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            $obj->error = "Get Memmory ERROR** (".$cmd." failed)";
+            $obj->error = "Get Memmory ERROR** (".$obj->command." failed)";
         } else {
             $obj->output = $output;
 

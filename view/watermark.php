@@ -22,6 +22,11 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 session_write_close();
 
 if (!empty($global['mysqli'])) {
+    
+    /**
+     * @var array $global
+     * @var object $global['mysqli']
+     */
     $global['mysqli']->close();
 }
 ignore_user_abort(true);
@@ -306,7 +311,8 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
                     echo "{$outputURL}/{$line}";
                 } else if (preg_match('/enc_watermarked.key/', $line)) {
                     $json = json_decode(file_get_contents($jsonFile));
-                    if (is_object($json) && $obj->isMobile) {
+                    $isMobile = !empty($_REQUEST['isMobile']);
+                    if (is_object($json) && $isMobile) {
                         echo str_replace("enc_watermarked.key", "enc_watermarked.key?isMobile=1", $line);
                     } else {
                         echo $line;
