@@ -78,9 +78,9 @@ if (!class_exists('Streamer')) {
                 return false;
             }
         }
-        
+
         public function save() {
-            if(!isset($this->priority)){
+            if (!isset($this->priority)) {
                 $this->priority = 6;
             }
             return parent::save();
@@ -100,9 +100,9 @@ if (!class_exists('Streamer')) {
                 $result = url_get_contents($verifyURL, '', 5);
                 $bytes = file_put_contents($cacheFile, $result);
                 $json = json_decode($result);
-                if(empty($json)){
+                if (empty($json)) {
                     error_log("Verification: error on get result: {$result}");
-                    if(!unlink($cacheFile)){
+                    if (!unlink($cacheFile)) {
                         error_log("Verification: could not delete the file: {$cacheFile}");
                     }
                     return false;
@@ -111,12 +111,12 @@ if (!class_exists('Streamer')) {
                 error_log("Verification GetFrom Cache {$url}");
                 $result = url_get_contents($cacheFile);
                 $json = json_decode($result);
-                if(empty($json)){
+                if (empty($json)) {
                     error_log("Verification: error on get cached result: {$cacheFile} {$result}");
-                    if(unlink($cacheFile)){
+                    if (unlink($cacheFile)) {
                         error_log("Verification: try again: {$cacheFile} {$result}");
                         return $this->verify();
-                    }else{
+                    } else {
                         error_log("Verification: could not delete the file: {$cacheFile} {$result}");
                         return false;
                     }
@@ -140,7 +140,12 @@ if (!class_exists('Streamer')) {
             $allowed[] = "http://127.0.0.1/AVideo/";
             $allowed[] = "https://localhost/AVideo/";
             $allowed[] = "https://127.0.0.1/AVideo/";
+
             $return = false;
+            
+            $siteURL = str_replace('https://', '', $siteURL);
+            $siteURL = str_replace('http://', '', $siteURL);
+            
             if (empty($allowed)) {
                 $return = true;
             } else {
@@ -152,6 +157,9 @@ if (!class_exists('Streamer')) {
                     if (substr($value, -1) !== '/') {
                         $value .= "/";
                     }
+                    
+                    $value = str_replace('https://', '', $value);
+                    $value = str_replace('http://', '', $value);
                     //var_dump($siteURL,$value);
                     error_log("$siteURL == $value");
                     if ($siteURL == $value) {
@@ -209,7 +217,7 @@ if (!class_exists('Streamer')) {
         function setPass($pass) {
             $config = new Configuration();
             if (version_compare($config->getVersion(), '4.0') < 0) {
-                $pass = substr($pass, 0,45);
+                $pass = substr($pass, 0, 45);
             }
             $this->pass = $pass;
         }
