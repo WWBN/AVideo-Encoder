@@ -525,7 +525,9 @@ class Encoder extends ObjectYPT {
         $ctx = stream_context_create($arrContextOptions);
         /////whoops! apache has to be taught to use symlinks so this won't work
         /////trying copy instead
+        error_log("getVideoFile start($videoURL, $queue_id, $downloadedFile, $destinationFile)");
         copy($downloadedFile, $destinationFile, $ctx);
+        error_log("getVideoFile done ". humanFileSize(filesize($destinationFile)));
         //copied from stream_contenxt_set_params
         // the file is already 100% downloaded by now
         $txt = "[download]  100% of all Bytes";
@@ -1320,7 +1322,7 @@ class Encoder extends ObjectYPT {
         curl_close($curl);
         if (is_object($obj->response)) {
             $obj->error = $obj->response->error;
-            $obj->msg = $obj->response->msg;
+            $obj->msg = @$obj->response->msg;
             if (!empty($obj->response->video_id)) {
                 $encoder->setReturn_varsVideos_id($obj->response->video_id);
             }
