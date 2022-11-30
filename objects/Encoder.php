@@ -392,7 +392,7 @@ class Encoder extends ObjectYPT {
             error_log("downloadFile: downloadedFile = {$downloadedFile} | url = {$url}");
 
             $response = static::getVideoFile($url, $queue_id, $downloadedFile, $obj->pathFileName);
-            $obj->error = false;
+            $obj->error = empty(filesize($obj->pathFileName));
         }
         if ($obj->error == false && file_exists($obj->pathFileName)) {
             //error_log("downloadFile: success");
