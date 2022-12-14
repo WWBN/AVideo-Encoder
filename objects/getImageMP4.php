@@ -79,21 +79,23 @@ if ($type == 'audio') {
     if ($_GET['format'] === 'jpg') {
         header('Content-Type: image/jpg');
         $destination .= "." . $_GET['format'];
-        $exec = get_ffmpeg() . "  -ss {$duration} -i {$url} -f image2  -s 640x360 -vframes 1 -y {$destination}";
+        $exec = get_ffmpeg() . "  -ss {$duration} -i {$url} -f image2  "
+        . "-vf ".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." "
+                . "-vframes 1 -y {$destination}";
     } else if ($_GET['format'] === 'gif') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/gif');
         $destination .= "." . $_GET['format'];
         //Generate a palette:
-        $ffmpegPallet = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$destinationPallet}";
-        $exec = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
+        $ffmpegPallet = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos,palettegen {$destinationPallet}";
+        $exec = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
     } else if ($_GET['format'] === 'webp') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/webp');
         $destination .= "." . $_GET['format'];
-        $exec = get_ffmpeg() . " -y -ss {$duration} -t 3 -i {$url} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
+        $exec = get_ffmpeg() . " -y -ss {$duration} -t 3 -i {$url} -vcodec libwebp -lossless 1 -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." -q 60 -preset default -loop 0 -an -vsync 0 {$destination}";
         $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
     } else {
         error_log("ERROR Destination get Image {$_GET['format']} not suported");
@@ -112,7 +114,7 @@ if ($type == 'audio') {
             exec($cmdGif);
             error_log("Create Gif with Pallet: {$cmd}");
         } else {
-            $cmdGif = get_ffmpeg() . " -ss {$duration} -y -t 3 -i {$url} -vf fps=10,scale=320:-1 {$destination}";
+            $cmdGif = get_ffmpeg() . " -ss {$duration} -y -t 3 -i {$url} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180)." {$destination}";
             $cmdGif = removeUserAgentIfNotURL($cmdGif);
             exec($cmdGif);
             error_log("Create Gif no Pallet: {$cmdGif}");

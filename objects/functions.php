@@ -36,6 +36,12 @@ function get_ffmpeg($ignoreGPU = false) {
     return $ffmpeg . $complement;
 }
 
+
+function getFFmpegScaleToForceOriginalAspectRatio($width, $heigth) {
+    
+    return "scale={$width}:{$heigth}:force_original_aspect_ratio=decrease,pad={$width}:{$heigth}:-1:-1:color=black";
+}
+
 function replaceFFMPEG($cmd) {
     $cmd = removeUserAgentIfNotURL($cmd);
     if(preg_match('/-user_agent/', $cmd)){
@@ -751,12 +757,31 @@ function directorysize($dir) {
     }
 }
 
-function make_path($path) {
-    if (!is_dir($path)) {
-        mkdir($path, 0755, true);
+/**
+ * Get the directory size
+ * @param  string $directory
+ * @return integer
+ */
+function dirSize($directory) {
+    $size = 0;
+    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file){
+        $size+=$file->getSize();
     }
-}
+    return $size;
+} 
 
+function make_path($path) {
+    $created = false;
+    if (substr($path, -1) !== DIRECTORY_SEPARATOR) {
+        $path = pathinfo($path, PATHINFO_DIRNAME);
+    }
+    if (!is_dir($path)) {
+        $created = mkdir($path, 0777, true);
+    } else {
+        $created = true;
+    }
+    return $created;
+}
 /**
  * Overwrite all advanced custom configurations with the $global configuration
  * @global type $global

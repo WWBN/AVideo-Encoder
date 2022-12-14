@@ -1969,7 +1969,6 @@ class Encoder extends ObjectYPT {
 
             eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$palleteFile} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
             $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
-            //eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
             exec($ffmpeg . " 2>&1", $output, $return_val);
             if ($return_val !== 0 && !file_exists($destinationFile)) {
                 error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
@@ -2010,7 +2009,9 @@ class Encoder extends ObjectYPT {
         /**
          * @var string $ffmpeg
          */
-        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 -vf fps=10,scale=640:-1 -q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
+        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 '
+                . '-vf fps=10,'.getFFmpegScaleToForceOriginalAspectRatio(640, 360).' '
+                . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
