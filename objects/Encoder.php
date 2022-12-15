@@ -42,6 +42,9 @@ class Encoder extends ObjectYPT
         if (empty($this->fileURI)) {
             $this->fileURI = '';
         }
+        if (empty($this->filename)) {
+            $this->filename = '';
+        }
         /**
          * @var array $global
          * @var object $global['mysqli']
