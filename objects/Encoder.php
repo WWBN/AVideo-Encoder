@@ -898,7 +898,7 @@ class Encoder extends ObjectYPT
                     $encoder->setStatus(Encoder::$STATUS_ENCODING);
                     $encoder->save();
                     // run to try to download next
-                    self::run($try);
+                    self::run(0);
                     self::sendImages($objFile->pathFileName, $return_vars, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
@@ -955,7 +955,7 @@ class Encoder extends ObjectYPT
                     self::setStatusError($encoder->getId(), "try [{$try}] Error on return_vars->videos_id", 1);
                     return false;
                 }
-                return static::run($try);
+                return static::run(0);
             }
         } else {
             if ($obj->hasNext) {
