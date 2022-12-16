@@ -881,14 +881,14 @@ class Encoder extends ObjectYPT
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
                     if ($try <= $maxTries) {
-                        $msg = "Encoder::run: Trying again: [$try] => Could not download the file ";
+                        $msg = "Encoder::run: Trying again: [$try] => Could not download the file ". json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
                         $encoder->setStatus_obs($msg);
                         $encoder->save();
                         return self::run($try);
                     } else {
-                        $msg = "Encoder::run: Max tries reached";
+                        $msg = "Encoder::run: Max tries reached {$objFile->msg}";
                         error_log($msg);
                         $obj->msg = $objFile->msg;
                         self::setStatusError($rowNext['id'], $msg);
