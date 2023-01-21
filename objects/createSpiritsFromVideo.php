@@ -30,7 +30,7 @@ if (is_dir($dirname)) {
     }
 }
 
-$url = str_replace('https://gdrive.local/', 'http://192.168.1.4/', $url);
+$url = str_replace('https://gdrive.local/', 'http://192.168.0.2/', $url);
 /**
   if(!isURL200($url)){
   $headers = get_headers($url);

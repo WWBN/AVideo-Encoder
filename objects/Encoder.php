@@ -56,7 +56,7 @@ class Encoder extends ObjectYPT
         return parent::save();
     }
 
-    static function getAll($onlyMine = false)
+    static function getAll($onlyMine = false, $errorOnly = false)
     {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
@@ -65,6 +65,9 @@ class Encoder extends ObjectYPT
                 return false;
             }
             $sql .= " AND streamers_id = " . Login::getStreamerId() . " ";
+        }
+        if ($errorOnly) {
+            $sql .= " AND status = '" . Encoder::$STATUS_ERROR . "' ";
         }
         $sql .= self::getSqlFromPost();
 
