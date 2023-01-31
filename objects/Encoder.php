@@ -480,6 +480,7 @@ class Encoder extends ObjectYPT
     static function getYoutubeDl($videoURL, $queue_id, $destinationFile)
     {
         global $global;
+        $videoURL = escapeshellarg($videoURL);
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' \"{$videoURL}\"";
@@ -1909,6 +1910,7 @@ class Encoder extends ObjectYPT
         $hls = str_replace(".zip", "/index.m3u8", $file);
         $file = str_replace(".zip", ".mp4", $file);
 
+        $file = escapeshellarg($file);
         // get movie duration HOURS:MM:SS.MICROSECONDS
         $videoFile = $file;
         if (!file_exists($videoFile)) {
@@ -1973,6 +1975,8 @@ class Encoder extends ObjectYPT
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
+        
+        $destinationFile = escapeshellarg($destinationFile);
         /**
          * @var string $ffmpeg
          */
@@ -2002,6 +2006,7 @@ class Encoder extends ObjectYPT
             error_log("getImage: file exists {$destinationFile}");
             return $destinationFile;
         }
+        $destinationFile = escapeshellarg($destinationFile);
         $ffmpeg = get_ffmpeg() . " -i \"{$pathFileName}\" -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destinationFile}";
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         $time_start = microtime(true);
@@ -2033,6 +2038,8 @@ class Encoder extends ObjectYPT
         if (file_exists($destinationFile)) {
             return $destinationFile;
         }
+        
+        $pathFileName = escapeshellarg($pathFileName);
         if ($seconds > 600) {
             $seconds = 600;
         }
@@ -2086,6 +2093,7 @@ class Encoder extends ObjectYPT
             return false;
         }
         global $global;
+        $pathFileName = escapeshellarg($pathFileName);
         $destinationFile = "{$pathFileName}.webp";
         // do not encode again
         if (file_exists($destinationFile)) {
@@ -2216,6 +2224,7 @@ class Encoder extends ObjectYPT
      */
     static function getReverseVideosJsonListFromLink($link)
     {
+        $link = escapeshellarg($link);
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
         error_log("Get ReverseVideosJsonListFromLink List $cmd \n");
         exec($cmd . "  2>&1", $output, $return_val);
@@ -2237,6 +2246,7 @@ class Encoder extends ObjectYPT
         if (!isWindows()) {
             $prepend = 'LC_ALL=en_US.UTF-8 ';
         }
+        $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => array());
         $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
@@ -2253,6 +2263,7 @@ class Encoder extends ObjectYPT
 
     static function getDurationFromLink($link)
     {
+        $link = escapeshellarg($link);
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -2271,6 +2282,7 @@ class Encoder extends ObjectYPT
     static function getThumbsFromLink($link, $returnFileName = false)
     {
         $link = str_replace(array('"', "'"), array('', ''), $link);
+        $link = escapeshellarg($link);
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
@@ -2304,6 +2316,7 @@ class Encoder extends ObjectYPT
         if (empty($link)) {
             return '';
         }
+        $link = escapeshellarg($link);
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" \"{$link}\"";
         exec($cmd . "  2>&1", $output, $return_val);
