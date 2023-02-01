@@ -483,21 +483,21 @@ class Encoder extends ObjectYPT
         $videoURL = escapeshellarg($videoURL);
         $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' \"{$videoURL}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("getYoutubeDl: Getting from Youtube DL {$cmd}");
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             error_log($cmd . "\n" . print_r($output, true));
-            $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 \"{$videoURL}\"";
+            $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
             //echo "\n**Trying Youtube DL **".$cmd;
             error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
                 error_log($cmd . "\n" . print_r($output, true));
-                $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 \"{$videoURL}\"";
+                $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
                 //echo "\n**Trying Youtube DL **".$cmd;
                 error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                 exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -1910,7 +1910,6 @@ class Encoder extends ObjectYPT
         $hls = str_replace(".zip", "/index.m3u8", $file);
         $file = str_replace(".zip", ".mp4", $file);
 
-        $file = escapeshellarg($file);
         // get movie duration HOURS:MM:SS.MICROSECONDS
         $videoFile = $file;
         if (!file_exists($videoFile)) {
@@ -1930,11 +1929,12 @@ class Encoder extends ObjectYPT
         if (empty($videoFile)) {
             return "EE:EE:EE";
         }
+        $videoFile = escapeshellarg($videoFile);
         /**
          * @var string $cmd
          */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
-        eval('$cmd=get_ffprobe()." -i \"{$videoFile}\" -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
+        eval('$cmd=get_ffprobe()." -i {$videoFile} -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
             error_log('{"status":"error", "msg":' . json_encode($output) . ' ,"return_val":' . json_encode($return_val) . ', "where":"getDuration", "cmd":"' . $cmd . '"}');
@@ -1976,12 +1976,12 @@ class Encoder extends ObjectYPT
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
         
-        $destinationFile = escapeshellarg($destinationFile);
+        $destinationFileE = escapeshellarg($destinationFile);
         /**
          * @var string $ffmpeg
          */
         // placing ss before the input is faster https://stackoverflow.com/a/27573049
-        eval('$ffmpeg =get_ffmpeg(true)." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y \"{$destinationFile}\"";');
+        eval('$ffmpeg =get_ffmpeg(true)." -ss {$duration} -i \"{$pathFileName}\" -vframes 1 -y {$destinationFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         error_log("getImage: {$ffmpeg}");
         exec($ffmpeg . " 2>&1", $output, $return_val);
@@ -2006,8 +2006,8 @@ class Encoder extends ObjectYPT
             error_log("getImage: file exists {$destinationFile}");
             return $destinationFile;
         }
-        $destinationFile = escapeshellarg($destinationFile);
-        $ffmpeg = get_ffmpeg() . " -i \"{$pathFileName}\" -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destinationFile}";
+        $destinationFileE = escapeshellarg($destinationFile);
+        $ffmpeg = get_ffmpeg() . " -i \"{$pathFileName}\" -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destinationFileE}";
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         $time_start = microtime(true);
         error_log("getSpectrum: {$ffmpeg}");
@@ -2039,7 +2039,6 @@ class Encoder extends ObjectYPT
             return $destinationFile;
         }
         
-        $pathFileName = escapeshellarg($pathFileName);
         if ($seconds > 600) {
             $seconds = 600;
         }
@@ -2051,7 +2050,10 @@ class Encoder extends ObjectYPT
          * @var string $ffmpeg
          */
         $palleteFile = "{$pathFileName}palette.png";
-        eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFile}";');
+        $pathFileNameE = escapeshellarg($pathFileName);
+        $palleteFileE = escapeshellarg($palleteFile);
+        $destinationFileE = escapeshellarg($destinationFile);
+        eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
@@ -2065,12 +2067,12 @@ class Encoder extends ObjectYPT
             // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
             // so that they don't get rendered incorrectly on the avideo site. https://superuser.com/a/891478
 
-            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$palleteFile} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFile}";');
+            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileNameE} -i {$palleteFileE} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFileE}";');
             $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
             exec($ffmpeg . " 2>&1", $output, $return_val);
             if ($return_val !== 0 && !file_exists($destinationFile)) {
                 error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
-                eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileName} -i {$pathFileName}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFile}";');
+                eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileNameE} -i {$pathFileNameE}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFileE}";');
                 $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
                 exec($ffmpeg . " 2>&1", $output, $return_val);
                 if ($return_val !== 0 && !file_exists($destinationFile)) {
@@ -2093,7 +2095,6 @@ class Encoder extends ObjectYPT
             return false;
         }
         global $global;
-        $pathFileName = escapeshellarg($pathFileName);
         $destinationFile = "{$pathFileName}.webp";
         // do not encode again
         if (file_exists($destinationFile)) {
@@ -2109,9 +2110,11 @@ class Encoder extends ObjectYPT
         /**
          * @var string $ffmpeg
          */
-        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileName} -vcodec libwebp -lossless 1 '
+        $pathFileNameE = escapeshellarg($pathFileName);
+        $destinationFileE = escapeshellarg($destinationFile);
+        eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vcodec libwebp -lossless 1 '
                 . '-vf fps=10,'.getFFmpegScaleToForceOriginalAspectRatio(640, 360).' '
-                . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFile}";');
+                . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
@@ -2225,7 +2228,7 @@ class Encoder extends ObjectYPT
     static function getReverseVideosJsonListFromLink($link)
     {
         $link = escapeshellarg($link);
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  {$link}";
         error_log("Get ReverseVideosJsonListFromLink List $cmd \n");
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -2248,7 +2251,7 @@ class Encoder extends ObjectYPT
         }
         $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => array());
-        $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e \"{$link}\"";
+        $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
@@ -2264,7 +2267,7 @@ class Encoder extends ObjectYPT
     static function getDurationFromLink($link)
     {
         $link = escapeshellarg($link);
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
@@ -2284,7 +2287,7 @@ class Encoder extends ObjectYPT
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
 
@@ -2318,7 +2321,7 @@ class Encoder extends ObjectYPT
         }
         $link = escapeshellarg($link);
         $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" \"{$link}\"";
+        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             return false;
