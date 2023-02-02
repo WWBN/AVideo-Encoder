@@ -41,7 +41,7 @@ class Encoder extends ObjectYPT
             'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash', 
             'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', '69', 'fux', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube');
         foreach ($array as $value) {
-            if(str_contains($string, $value)){
+            if(stripos($string, $value) !== false){
                 return true;
             }
         }
