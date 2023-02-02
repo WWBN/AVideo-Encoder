@@ -52,6 +52,9 @@ class Encoder extends ObjectYPT
     {
         global $global;
         if (empty($this->streamers_id)) {
+            if(!empty($this->id)){
+                return $this->delete();
+            }
             return false;
         }
         if (empty($this->id)) {
