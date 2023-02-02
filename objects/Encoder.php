@@ -70,7 +70,7 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
         
-        if(self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title)){
+        if(empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))){
             return false;
         }
         
