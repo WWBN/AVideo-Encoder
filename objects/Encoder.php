@@ -29,6 +29,24 @@ class Encoder extends ObjectYPT
         global $global;
         return $global['tablesPrefix'] . 'encoder_queue';
     }
+    
+    static function isPorn($string){
+        if(empty($string) || !is_string($string)){
+            return false;
+        }
+        $string = strtolower($string);
+        $array = array('xvideos', 'porn', 'xhamster', 'xnxx', 'draftsex', 'beeg', 'spankbang', 'xmovies', 'youjizz', 'motherless', 'redtube', '4tube', '3movs', 
+            'tube8', 'cumloud', 'xxx', 'bellesa', 'tnaflix', 'whores', 'paradisehill', 'xfreehd', 'drtuber', 'netfapx', 'jerk', 'xmegadrive', 'brazzers', 'hitprn', 
+            'czechvideo', 'reddit', 'plusone8', 'xleech', 'povaddict', 'freeomovie', 'cliphunter', 'xtape', 'xkeez', 'sextvx', 'pandamovie', 'palimas', 'pussy', 
+            'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash', 
+            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', '69', 'fux', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube');
+        foreach ($array as $value) {
+            if(str_contains($string, $value)){
+                return true;
+            }
+        }
+        return false;
+    }
 
     function save()
     {
@@ -45,6 +63,11 @@ class Encoder extends ObjectYPT
         if (empty($this->filename)) {
             $this->filename = '';
         }
+        
+        if(self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title)){
+            return false;
+        }
+        
         /**
          * @var array $global
          * @var object $global['mysqli']
@@ -2261,6 +2284,7 @@ class Encoder extends ObjectYPT
             $response['output'] = end($output);
             $response['error'] = false;
         }
+        
         return $response;
     }
 
