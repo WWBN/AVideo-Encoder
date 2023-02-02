@@ -51,6 +51,9 @@ class Encoder extends ObjectYPT
     function save()
     {
         global $global;
+        if (empty($this->streamers_id)) {
+            return false;
+        }
         if (empty($this->id)) {
             $this->setStatus(Encoder::$STATUS_QUEUE);
         }
