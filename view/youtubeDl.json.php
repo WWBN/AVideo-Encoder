@@ -89,6 +89,8 @@ function addVideo($link, $streamers_id, $title = "") {
             $obj->videos_id = $_POST['update_video_id'];
         }
         
+        $obj->releaseDate = @$_REQUEST['releaseDate'];
+        
         $response = Encoder::sendFile('', $obj, $format, $e);
         //var_dump($response);exit;
         if (!empty($response->response->video_id)) {

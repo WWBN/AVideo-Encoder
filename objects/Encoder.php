@@ -1034,6 +1034,8 @@ class Encoder extends ObjectYPT
             $obj->target = $target;
             error_log("AVideo-Encoder sending confirmation to {$target}");
             $postFields = array(
+                'return_vars' => json_encode($return_vars),
+                'releaseDate' => $return_vars->releaseDate,
                 'videos_id' => $videos_id,
                 'video_id_hash' => $video_id_hash,
                 'user' => $user,
@@ -1308,11 +1310,17 @@ class Encoder extends ObjectYPT
             error_log("Encoder::sendFile videos_id={$videos_id}, format=$format: discard corrupted output file");
             return $obj;
         }
-
+        $title = '';
         if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
-        } else {
-            $title = $_POST['title'];
+        } else if(!empty($_REQUEST['title'])){
+            $title = $_REQUEST['title'];
+        }else if(empty($title) && !empty($obj->videoDownloadedLink)){
+            $_title = Encoder::getTitleFromLink($obj->videoDownloadedLink);
+            $title = $_title['output'];
+            if($_title['error']){
+                $title = '';
+            }
         }
         if (empty($_POST['description'])) {
             if (!empty($obj->videoDownloadedLink)) {
@@ -1359,12 +1367,13 @@ class Encoder extends ObjectYPT
         if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
-
+        $return_vars_str = json_encode($return_vars);
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
             'videos_id' => $videos_id,
             'video_id_hash' => @$return_vars->video_id_hash,
+            'releaseDate' => @$return_vars->releaseDate,
             'first_request' => 1,
             'categories_id' => $categories_id,
             'format' => $format,
@@ -1377,7 +1386,7 @@ class Encoder extends ObjectYPT
             'chunkFile' => $chunkFile,
             'encoderURL' => $global['webSiteRootURL'],
             'keepEncoding' => $keep_encoding ? "1" : "0",
-            'return_vars' => json_encode($return_vars),
+            'return_vars' => $return_vars_str,
         );
 
         if (!empty($encoder->override_status)) {
@@ -1419,7 +1428,7 @@ class Encoder extends ObjectYPT
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $r = remove_utf8_bom(curl_exec($curl));
-        error_log("AVideo-Streamer answer 1 {$r}");
+        error_log("AVideo-Streamer answer 1 return_vars_str={$return_vars_str} response={$r}");
         $obj->postFields = count($postFields);
         $obj->response_raw = $r;
         $obj->response = json_decode($r);
@@ -1603,11 +1612,13 @@ class Encoder extends ObjectYPT
         if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
-        error_log("Encoder::sendFileToDownload target=[$target] [file=$file], [download=$downloadURL]");
+        //error_log("Encoder::sendFileToDownload target=[$target] [file=$file], [download=$downloadURL]");
+        @$return_vars_str = json_encode($return_vars);
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
             'videos_id' => $return_vars->videos_id,
+            'releaseDate' => @$return_vars->releaseDate,
             'video_id_hash' => @$return_vars->video_id_hash,
             'categories_id' => $categories_id,
             'format' => $format,
@@ -1617,7 +1628,8 @@ class Encoder extends ObjectYPT
             'user' => $user,
             'password' => $pass,
             'downloadURL' => $downloadURL,
-            'encoderURL' => $global['webSiteRootURL']
+            'encoderURL' => $global['webSiteRootURL'],
+            'return_vars' => @$return_vars_str,
         );
         $count = 0;
         foreach ($usergroups_id as $value) {
@@ -1656,7 +1668,7 @@ class Encoder extends ObjectYPT
             $obj->error = false;
         }
         curl_close($curl);
-        error_log("Encoder::sendFileToDownload target=[$target] "
+        error_log("Encoder::sendFileToDownload return_vars_str={$return_vars_str} target=[$target] "
             . "format=[{$postFields['format']}] "
             . "videos_id=[{$postFields['videos_id']}] "
             . "video_id_hash=[{$postFields['video_id_hash']}] " . json_encode($obj));
@@ -1692,7 +1704,10 @@ class Encoder extends ObjectYPT
         $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
         //error_log("sendImages: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
+        $return_vars_str = json_encode($return_vars);
         $postFields = array(
+            'releaseDate' => @$return_vars->releaseDate,
+            'return_vars' => $return_vars_str,
             'duration' => $duration,
             'videos_id' => $return_vars->videos_id,
             'video_id_hash' => @$return_vars->video_id_hash,
@@ -1757,7 +1772,7 @@ class Encoder extends ObjectYPT
             $obj->error = false;
         }
         curl_close($curl);
-        error_log("sendImages: " . json_encode($obj));
+        error_log("sendImages: return_vars={$return_vars_str} response=" . json_encode($obj));
         $encoder->setReturn_varsVideos_id($obj->response->video_id);
         if (!empty($obj->response->video_id_hash)) {
             $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);

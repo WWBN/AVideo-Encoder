@@ -52,7 +52,11 @@
                                 </span>
                             </div>
                         </div>
-
+                        <?php
+                        $releaseDateId = 'download_releaseDate';
+                        include $global['systemRootPath'] . 'view/releaseDate.php';
+                        ?>
+                        <div class="clearfix"></div>
                         <?php
                         if (!empty($_SESSION['login']->categories)) {
                             ?>
@@ -93,21 +97,21 @@
                                                 }
                                             }
                                         </script>
-                                <?php
-                            }
-                            ?>
+                                        <?php
+                                    }
+                                    ?>
                                 </div>
                             </div> 
-        <?php
-    }
-    ?>
+                            <?php
+                        }
+                        ?>
                     </form>
                 </div>
 
-    <?php
-}
-if (Login::canBulkEncode()) {
-    ?>
+                <?php
+            }
+            if (Login::canBulkEncode()) {
+                ?>
 
                 <div id="bulk" class="tab-pane fade">
                     <div class="alert alert-info">
@@ -134,10 +138,14 @@ if (Login::canBulkEncode()) {
                             </span>
                         </div>
                     </div>
-
-    <?php
-    if (!empty($_SESSION['login']->categories)) {
-        ?>
+                    <?php
+                    $releaseDateId = 'bulk_releaseDate';
+                    include $global['systemRootPath'] . 'view/releaseDate.php';
+                    ?>
+                    <div class="clearfix"></div>
+                    <?php
+                    if (!empty($_SESSION['login']->categories)) {
+                        ?>
                         <div class="form-group">
                             <div style="display: flex;">
                                 <select class="form-control categories_id" id="bulk_categories_id" name="bulk_categories_id">
@@ -150,9 +158,9 @@ if (Login::canBulkEncode()) {
                                     }
                                     ?>
                                 </select>
-        <?php
-        if (Login::canCreateCategory()) {
-            ?>
+                                <?php
+                                if (Login::canCreateCategory()) {
+                                    ?>
                                     <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
                                     <script>
                                         var reloadIfIsNotEditingCategoryTimeout;
@@ -175,19 +183,19 @@ if (Login::canBulkEncode()) {
                                             }
                                         }
                                     </script>
-            <?php
-        }
-        ?>
+                                    <?php
+                                }
+                                ?>
                             </div>
                         </div> 
-        <?php
-    }
-    ?>
+                        <?php
+                    }
+                    ?>
                     <ul class="list-group" id="files">
                     </ul>
                     <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
                 </div>
-<?php } ?>
+            <?php } ?>
         </div> 
     </div>
     <div class="panel-footer">
@@ -196,7 +204,7 @@ if (Login::canBulkEncode()) {
             $resolutionsInfo = Format::getAvailableResolutionsInfo();
 
             foreach ($resolutionsInfo as $value) {
-                if(empty($value['resolutionChecked'])){
+                if (empty($value['resolutionChecked'])) {
                     continue;
                 }
                 echo $value['label'];
@@ -205,13 +213,13 @@ if (Login::canBulkEncode()) {
         </div>
         <div class="clearfix"></div>
         <?php
-        if(!empty($_REQUEST['callback'])){
+        if (!empty($_REQUEST['callback'])) {
             $json = json_decode($_REQUEST['callback']);
-            if(!empty($json)){
+            if (!empty($json)) {
                 foreach ($json as $key => $value) {
-                    echo '<strong>'.htmlentities($key).'</strong>: '.$value.'<br>';
+                    echo '<strong>' . htmlentities($key) . '</strong>: ' . $value . '<br>';
                 }
-                echo '<input type="hidden" class="callback" name="callback" id="callback" value="'. base64_encode(json_encode($json)).'">';
+                echo '<input type="hidden" class="callback" name="callback" id="callback" value="' . base64_encode(json_encode($json)) . '">';
             }
         }
         ?>

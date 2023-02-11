@@ -6,6 +6,12 @@
         <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
     </div>
     <?php
+    $releaseDateId = 'releaseDate';
+    include $global['systemRootPath'].'view/releaseDate.php';
+    ?>
+    <div class="clearfix"></div>
+    <?php
+    
     if (!empty($_SESSION['login']->categories)) {
         ?>
         <div class="form-group">
@@ -23,24 +29,28 @@
                 <?php
                 if (Login::canCreateCategory()) {
                     ?>
-                        <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
-                        <script>
-                            var reloadIfIsNotEditingCategoryTimeout;
-                            function addNewCategory() {
-                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                avideoModalIframe('<?php echo $streamerURL; ?>categories');
-                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function(){reloadIfIsNotEditingCategory();}, 500);
+                    <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
+                    <script>
+                        var reloadIfIsNotEditingCategoryTimeout;
+                        function addNewCategory() {
+                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                            avideoModalIframe('<?php echo $streamerURL; ?>categories');
+                            reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                reloadIfIsNotEditingCategory();
+                            }, 500);
+                        }
+
+                        function reloadIfIsNotEditingCategory() {
+                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
+                            if (!avideoModalIframeIsVisible()) {
+                                loadCategories();
+                            } else {
+                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
+                                    reloadIfIsNotEditingCategory();
+                                }, 500);
                             }
-                            
-                            function reloadIfIsNotEditingCategory(){
-                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                if(!avideoModalIframeIsVisible()){
-                                    loadCategories();
-                                }else{
-                                    reloadIfIsNotEditingCategoryTimeout = setTimeout(function(){reloadIfIsNotEditingCategory();}, 500);
-                                }
-                            }
-                        </script>
+                        }
+                    </script>
                     <?php
                 }
                 ?>

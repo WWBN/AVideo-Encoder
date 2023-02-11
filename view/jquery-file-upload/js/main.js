@@ -184,6 +184,7 @@ $(function () {
                 "title": $('#title').val(),
                 "description": $('#description').val(),
                 "categories_id": $('#categories_id').val(),
+                "releaseDate": $('#releaseDate').val(),
                 "callback": $('#callback').val(),
                 "usergroups_id": $(".usergroups_id:checked").map(function () {
                     return $(this).val();

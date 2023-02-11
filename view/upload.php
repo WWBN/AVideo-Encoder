@@ -101,10 +101,13 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
         
-        if (!empty($_POST['update_video_id']))
+        if (!empty($_POST['update_video_id'])){
             $obj->videos_id = $_POST['update_video_id'];
-        else
+        }else{
             $obj->videos_id = 0;
+        }
+        
+        $obj->releaseDate = @$_REQUEST['releaseDate'];
 
         // This raises an harmless error
         error_log("Upload.php line: ".__LINE__.' '. json_encode($format));
