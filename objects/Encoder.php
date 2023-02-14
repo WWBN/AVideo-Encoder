@@ -1663,7 +1663,9 @@ class Encoder extends ObjectYPT {
         } else {
             if (is_object($obj->response)) {
                 $obj->error = $obj->response->error;
-                $obj->msg = $obj->response->msg;
+                if(!empty($obj->response->msg)){
+                    $obj->msg = $obj->response->msg;
+                }
             } else {
                 $obj->msg = 'Response was not an json object';
             }
