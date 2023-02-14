@@ -1308,17 +1308,9 @@ class Encoder extends ObjectYPT
 
         $keep_encoding = !empty($global['progressiveUpload']);
 
-        $target = trim("aVideoEncoder.json");
+        $target = "aVideoEncoder.json";
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target} from {$file}");
-        if (!is_object($return_vars)) {
-            error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
-        }
-
-        if (empty($return_vars->video_id_hash) || empty($videos_id)) {
-            error_log("Encoder::sendFile 1 " . json_encode($return_vars));
-            error_log("Encoder::sendFile 2 " . json_encode(debug_backtrace()));
-        }
 
         $downloadURL = '';
         $dfile = str_replace($global['systemRootPath'], "", $file);
@@ -1518,7 +1510,7 @@ class Encoder extends ObjectYPT
             $usergroups_id = $_POST['usergroups_id'];
         }
 
-        $target = trim("aVideoEncoder.json");
+        $target = "aVideoEncoder.json";
         $obj->target = $target;
         //error_log("Encoder::sendFileToDownload sending file to {$target} from {$file}");
 
@@ -1577,7 +1569,6 @@ class Encoder extends ObjectYPT
         $postFields = array(
             'duration' => $duration,
         );
-        $obj->postFields = $postFields;
         // check if you can get the image from youtube
         $downloadLink = $encoder->getVideoDownloadedLink();
         if (!empty($downloadLink)) {
@@ -1685,6 +1676,8 @@ class Encoder extends ObjectYPT
 
     static function sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)
     {
+        $time_start = microtime(true);
+        error_log("sendToStreamer to {$target} ");
         $removeAfterSend = array('spectrumimage', 'rawVideo', 'image', 'gifimage', 'webpimage', 'video');
         if (!empty($encoder)) {
             if (empty($return_vars)) {
@@ -1713,6 +1706,8 @@ class Encoder extends ObjectYPT
             if (!empty($return_vars->video_id_hash)) {
                 $postFields['video_id_hash'] = $return_vars->video_id_hash;
             }
+        }else{
+            error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
 
         $url = addLastSlash($aVideoURL) . trim($target);
@@ -1753,7 +1748,9 @@ class Encoder extends ObjectYPT
         foreach ($removeAfterSend  as $value) {
             unset($obj->postFields[$value]);
         }
-        error_log("sendToStreamer {$url} " . json_encode($obj));
+        $time_end = microtime(true);
+        $execution_time = number_format($time_end - $time_start,3);
+        error_log("sendToStreamer {$url} in {$execution_time} seconds " . json_encode($obj));
         //var_dump($obj);exit;
         return $obj;
     }
