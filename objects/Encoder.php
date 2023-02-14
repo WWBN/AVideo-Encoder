@@ -1733,7 +1733,7 @@ class Encoder extends ObjectYPT
             $error_message = curl_strerror($errno);
             $obj->msg = "sendFileToEncoder cURL error ({$errno}): {$error_message} => {$target} ";
         } else {
-            $obj->error = false;
+            $obj->error = is_object($obj->response) && empty($obj->response->error);
         }
         curl_close($curl);
         error_log(json_encode($obj));
