@@ -29,19 +29,22 @@ class Encoder extends ObjectYPT
         global $global;
         return $global['tablesPrefix'] . 'encoder_queue';
     }
-    
-    static function isPorn($string){
-        if(empty($string) || !is_string($string)){
+
+    static function isPorn($string)
+    {
+        if (empty($string) || !is_string($string)) {
             return false;
         }
         $string = strtolower($string);
-        $array = array('xvideos', 'porn', 'xhamster', 'xnxx', 'draftsex', 'beeg', 'spankbang', 'xmovies', 'youjizz', 'motherless', 'redtube', '4tube', '3movs', 
-            'tube8', 'cumloud', 'xxx', 'bellesa', 'tnaflix', 'whores', 'paradisehill', 'xfreehd', 'drtuber', 'netfapx', 'jerk', 'xmegadrive', 'brazzers', 'hitprn', 
-            'czechvideo', 'reddit', 'plusone8', 'xleech', 'povaddict', 'freeomovie', 'cliphunter', 'xtape', 'xkeez', 'sextvx', 'pandamovie', 'palimas', 'pussy', 
-            'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash', 
-            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', '69', 'fux', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube');
+        $array = array(
+            'xvideos', 'porn', 'xhamster', 'xnxx', 'draftsex', 'beeg', 'spankbang', 'xmovies', 'youjizz', 'motherless', 'redtube', '4tube', '3movs',
+            'tube8', 'cumloud', 'xxx', 'bellesa', 'tnaflix', 'whores', 'paradisehill', 'xfreehd', 'drtuber', 'netfapx', 'jerk', 'xmegadrive', 'brazzers', 'hitprn',
+            'czechvideo', 'reddit', 'plusone8', 'xleech', 'povaddict', 'freeomovie', 'cliphunter', 'xtape', 'xkeez', 'sextvx', 'pandamovie', 'palimas', 'pussy',
+            'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash',
+            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', '69', 'fux', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube'
+        );
         foreach ($array as $value) {
-            if(stripos($string, $value) !== false){
+            if (stripos($string, $value) !== false) {
                 return true;
             }
         }
@@ -52,7 +55,7 @@ class Encoder extends ObjectYPT
     {
         global $global;
         if (empty($this->streamers_id)) {
-            if(!empty($this->id)){
+            if (!empty($this->id)) {
                 return $this->delete();
             }
             return false;
@@ -69,11 +72,11 @@ class Encoder extends ObjectYPT
         if (empty($this->filename)) {
             $this->filename = '';
         }
-        
-        if(empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))){
+
+        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {
             return false;
         }
-        
+
         /**
          * @var array $global
          * @var object $global['mysqli']
@@ -914,7 +917,7 @@ class Encoder extends ObjectYPT
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
                     if ($try <= $maxTries) {
-                        $msg = "Encoder::run: Trying again: [$try] => Could not download the file ". json_encode($objFile);
+                        $msg = "Encoder::run: Trying again: [$try] => Could not download the file " . json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
                         $encoder->setStatus_obs($msg);
@@ -933,6 +936,7 @@ class Encoder extends ObjectYPT
                     // run to try to download next
                     self::run(0);
                     self::sendImages($objFile->pathFileName, $return_vars, $encoder);
+                    //self::sendRawVideo($objFile->pathFileName, $return_vars, $encoder);
                     // get the encode code and convert it
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
@@ -1016,61 +1020,21 @@ class Encoder extends ObjectYPT
     {
         global $global;
         $obj = new stdClass();
+        $obj->error = true;
         $return_vars = json_decode($this->getReturn_vars());
         if (!empty($return_vars->videos_id)) {
-            $videos_id = $return_vars->videos_id;
-            $video_id_hash = $return_vars->video_id_hash;
-            $obj->error = true;
-
-            $streamers_id = $this->getStreamers_id();
-            $s = new Streamer($streamers_id);
-            $user = $s->getUser();
-            $pass = $s->getPass();
-
-            $s = new Streamer($streamers_id);
-            $aVideoURL = $s->getSiteURL();
-
-            $target = $aVideoURL . "objects/aVideoEncoderNotifyIsDone.json.php";
-            $obj->target = $target;
+            $target = "objects/aVideoEncoderNotifyIsDone.json.php";
             error_log("AVideo-Encoder sending confirmation to {$target}");
             $postFields = array(
-                'return_vars' => json_encode($return_vars),
-                'releaseDate' => $return_vars->releaseDate,
-                'videos_id' => $videos_id,
-                'video_id_hash' => $video_id_hash,
-                'user' => $user,
-                'password' => $pass,
                 'fail' => $fail
             );
 
-            if (!empty($this->override_status))
+            if (!empty($this->override_status)) {
                 $postFields['overrideStatus'] = $this->override_status;
-
-            $obj->postFields = $postFields;
-
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $target);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-            $r = curl_exec($curl);
-            error_log("AVideo-Streamer confirmation answer {$r}");
-            $obj->response_raw = $r;
-            $obj->response = json_decode($r);
-            if ($errno = curl_errno($curl)) {
-                $error_message = curl_strerror($errno);
-                //echo "cURL error ({$errno}):\n {$error_message}";
-                $obj->msg = "cURL error ({$errno}):\n {$error_message} LINE " . __LINE__;
-            } else {
-                $obj->error = false;
             }
-            curl_close($curl);
+            $obj = self::sendToStreamer($target, $postFields, $return_vars, $this);
         }
-        error_log(json_encode($obj));
+
         return $obj;
     }
 
@@ -1313,12 +1277,12 @@ class Encoder extends ObjectYPT
         $title = '';
         if (empty($_POST['title'])) {
             $title = $encoder->getTitle();
-        } else if(!empty($_REQUEST['title'])){
+        } else if (!empty($_REQUEST['title'])) {
             $title = $_REQUEST['title'];
-        }else if(empty($title) && !empty($obj->videoDownloadedLink)){
+        } else if (empty($title) && !empty($obj->videoDownloadedLink)) {
             $_title = Encoder::getTitleFromLink($obj->videoDownloadedLink);
             $title = $_title['output'];
-            if($_title['error']){
+            if ($_title['error']) {
                 $title = '';
             }
         }
@@ -1342,15 +1306,9 @@ class Encoder extends ObjectYPT
             $usergroups_id = $_POST['usergroups_id'];
         }
 
-        $streamers_id = $encoder->getStreamers_id();
-        $s = new Streamer($streamers_id);
-        $aVideoURL = $s->getSiteURL();
-        $user = $s->getUser();
-        $pass = $s->getPass();
-
         $keep_encoding = !empty($global['progressiveUpload']);
 
-        $target = trim($aVideoURL . "aVideoEncoder.json");
+        $target = trim("aVideoEncoder.json");
         $obj->target = $target;
         error_log("Encoder::sendFile sending file to {$target} from {$file}");
         if (!is_object($return_vars)) {
@@ -1367,26 +1325,19 @@ class Encoder extends ObjectYPT
         if (!empty($dfile)) {
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
-        $return_vars_str = json_encode($return_vars);
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => $videos_id,
-            'video_id_hash' => @$return_vars->video_id_hash,
-            'releaseDate' => @$return_vars->releaseDate,
             'first_request' => 1,
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,
             'videoDownloadedLink' => $obj->videoDownloadedLink,
             'description' => $description,
-            'user' => $user,
-            'password' => $pass,
             'downloadURL' => $downloadURL,
             'chunkFile' => $chunkFile,
             'encoderURL' => $global['webSiteRootURL'],
             'keepEncoding' => $keep_encoding ? "1" : "0",
-            'return_vars' => $return_vars_str,
         );
 
         if (!empty($encoder->override_status)) {
@@ -1416,41 +1367,11 @@ class Encoder extends ObjectYPT
                 //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
-            $obj->videoFileSize = humanFileSize(filesize($file));
         }
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $target);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        $r = remove_utf8_bom(curl_exec($curl));
-        error_log("AVideo-Streamer answer 1 return_vars_str={$return_vars_str} response={$r}");
-        $obj->postFields = count($postFields);
-        $obj->response_raw = $r;
-        $obj->response = json_decode($r);
-        if ($errno = curl_errno($curl) || empty($obj->response) || !is_object($obj->response)) {
-            $error_message = curl_strerror($errno);
-            //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n {$chunkFile} LINE " . __LINE__;
-        } else {
-            $obj->error = false;
-        }
-        curl_close($curl);
-        if (is_object($obj->response)) {
-            $obj->error = $obj->response->error;
-            $obj->msg = @$obj->response->msg;
-            if (!empty($obj->response->video_id)) {
-                $encoder->setReturn_varsVideos_id($obj->response->video_id);
-            }
-        }
-        if (is_object($obj->response) && !empty($obj->response->video_id_hash)) {
-            $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
-        }
-        //var_dump($obj);exit;
+
+        $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $obj->file = $file;
+        $obj->videoFileSize = humanFileSize(filesize($file));
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus(Encoder::$STATUS_DONE);
@@ -1597,13 +1518,7 @@ class Encoder extends ObjectYPT
             $usergroups_id = $_POST['usergroups_id'];
         }
 
-        $streamers_id = $encoder->getStreamers_id();
-        $s = new Streamer($streamers_id);
-        $aVideoURL = $s->getSiteURL();
-        $user = $s->getUser();
-        $pass = $s->getPass();
-
-        $target = trim($aVideoURL . "aVideoEncoder.json");
+        $target = trim("aVideoEncoder.json");
         $obj->target = $target;
         //error_log("Encoder::sendFileToDownload sending file to {$target} from {$file}");
 
@@ -1613,30 +1528,22 @@ class Encoder extends ObjectYPT
             $downloadURL = "{$global['webSiteRootURL']}{$dfile}";
         }
         //error_log("Encoder::sendFileToDownload target=[$target] [file=$file], [download=$downloadURL]");
-        @$return_vars_str = json_encode($return_vars);
         $postFields = array(
             'duration' => $duration,
             'title' => $title,
-            'videos_id' => $return_vars->videos_id,
-            'releaseDate' => @$return_vars->releaseDate,
-            'video_id_hash' => @$return_vars->video_id_hash,
             'categories_id' => $categories_id,
             'format' => $format,
             'resolution' => $resolution,
             'videoDownloadedLink' => $obj->videoDownloadedLink,
             'description' => $description,
-            'user' => $user,
-            'password' => $pass,
             'downloadURL' => $downloadURL,
             'encoderURL' => $global['webSiteRootURL'],
-            'return_vars' => @$return_vars_str,
         );
         $count = 0;
         foreach ($usergroups_id as $value) {
             $postFields["usergroups_id[{$count}]"] = $value;
             $count++;
         }
-        $obj->postFields = $postFields;
         if (!empty($file)) {
             if ($format == "mp4" && !in_array($return_vars->videos_id, $sentImage)) {
                 // do not send image twice
@@ -1646,42 +1553,9 @@ class Encoder extends ObjectYPT
             }
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $target);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        $r = remove_utf8_bom(curl_exec($curl));
-        //error_log("AVideo-Streamer answer 2 {$r}");
-        $obj->postFields = count($postFields);
-        $obj->response_raw = $r;
-        $obj->response = json_decode($r);
-        if ($errno = curl_errno($curl) || empty($obj->response)) {
-            $error_message = curl_strerror($errno);
-            //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target})\n  LINE " . __LINE__;
-        } else {
-            $obj->error = false;
-        }
-        curl_close($curl);
-        error_log("Encoder::sendFileToDownload return_vars_str={$return_vars_str} target=[$target] "
-            . "format=[{$postFields['format']}] "
-            . "videos_id=[{$postFields['videos_id']}] "
-            . "video_id_hash=[{$postFields['video_id_hash']}] " . json_encode($obj));
-        if (empty($obj->response) || !is_object($obj->response)) {
-            error_log("Encoder::sendFileToDownload response fail " . $obj->response_raw . " " . json_encode(debug_backtrace()));
-            $obj->error = true;
-        } else if (empty($obj->response->video_id) && empty($obj->response->video_id_hash)) {
-            error_log("Encoder::sendFileToDownload response fail 2 " . $obj->response_raw . " " . json_encode(debug_backtrace()));
-            $obj->error = true;
-        } else {
-            $encoder->setReturn_varsVideos_id($obj->response->video_id);
-            $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
-        }
+
+        $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $obj->file = $file;
         //var_dump($obj);exit;
         return $obj;
     }
@@ -1695,24 +1569,13 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         //error_log("sendImages: Sending image to [$return_vars->videos_id]");
         $duration = static::getDurationFromFile($file);
-        $streamers_id = $encoder->getStreamers_id();
-        $s = new Streamer($streamers_id);
-        $aVideoURL = $s->getSiteURL();
-        $user = $s->getUser();
-        $pass = $s->getPass();
 
-        $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
+        $target =  "objects/aVideoEncoderReceiveImage.json.php";
         $obj->target = $target;
         //error_log("sendImages: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
         $return_vars_str = json_encode($return_vars);
         $postFields = array(
-            'releaseDate' => @$return_vars->releaseDate,
-            'return_vars' => $return_vars_str,
             'duration' => $duration,
-            'videos_id' => $return_vars->videos_id,
-            'video_id_hash' => @$return_vars->video_id_hash,
-            'user' => $user,
-            'password' => $pass
         );
         $obj->postFields = $postFields;
         // check if you can get the image from youtube
@@ -1747,41 +1610,47 @@ class Encoder extends ObjectYPT
             error_log(json_encode($obj));
             return $obj;
         }
-        //error_log("sendImages: curl_init");
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $target);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        //error_log("sendImages: curl_exec");
-        $r = curl_exec($curl);
-        //error_log("sendImages: AVideo-Streamer answer {$r}");
-        $obj->postFields = count($postFields);
-        $obj->response_raw = $r;
-        $obj->response = json_decode($r);
 
-        if ($errno = curl_errno($curl)) {
-            $error_message = curl_strerror($errno);
-            //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target} LINE " . __LINE__;
-        } else {
-            $obj->error = false;
-        }
-        curl_close($curl);
-        error_log("sendImages: return_vars={$return_vars_str} response=" . json_encode($obj));
-        $encoder->setReturn_varsVideos_id($obj->response->video_id);
-        if (!empty($obj->response->video_id_hash)) {
-            $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
-        } else {
-            error_log("sendImages empty video_id_hash: " . json_encode(debug_backtrace()));
-        }
+        $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $obj->file = $file;
         //var_dump($obj);exit;
         return $obj;
     }
+
+
+    static function sendRawVideo($file, $return_vars, $encoder)
+    {
+        global $global;
+
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->file = $file;
+        $duration = static::getDurationFromFile($file);
+
+        $target = "objects/aVideoEncoder.json.php";
+        //error_log("sendImages: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
+        $postFields = array(
+            'duration' => $duration,
+        );
+        if (!empty($file)) {
+            $destinationVideo = static::getRawVideo($file);
+            if (!empty($destinationVideo) && file_exists($destinationVideo)) {
+                $postFields['rawVideo'] = new CURLFile($destinationVideo);
+                $postFields['downloadURL_rawVideo'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $destinationVideo);
+            }
+        } else {
+            $obj->msg = "sendRawVideo: File is empty {$file} ";
+            error_log(json_encode($obj));
+            return $obj;
+        }
+
+        $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $obj->file = $file;
+
+        //var_dump($obj);exit;
+        return $obj;
+    }
+
 
     static function sendSpectrumFromMP3($file, $return_vars, $encoder)
     {
@@ -1791,24 +1660,13 @@ class Encoder extends ObjectYPT
         $obj->error = true;
         $obj->file = $file;
         $duration = static::getDurationFromFile($file);
-        $streamers_id = $encoder->getStreamers_id();
-        $s = new Streamer($streamers_id);
-        $aVideoURL = $s->getSiteURL();
-        $user = $s->getUser();
-        $pass = $s->getPass();
 
-        $target = $aVideoURL . "objects/aVideoEncoderReceiveImage.json.php";
-        $obj->target = $target;
+        $target = "objects/aVideoEncoderReceiveImage.json.php";
         error_log("sendSpectrumFromMP3: Sending image to videos_id=[$return_vars->videos_id] {$target} reading file from {$file}");
         $postFields = array(
             'duration' => $duration,
-            'videos_id' => $return_vars->videos_id,
-            'video_id_hash' => $return_vars->video_id_hash,
-            'user' => $user,
-            'password' => $pass
         );
 
-        $obj->postFields = $postFields;
         if (!empty($file)) {
             $postFields['spectrumimage'] = new CURLFile(static::getSpectrum($file));
             $postFields['downloadURL_spectrumimage'] = str_replace(array('\\', $global['systemRootPath']), array('/', $global['webSiteRootURL']), $file);
@@ -1817,34 +1675,84 @@ class Encoder extends ObjectYPT
             error_log(json_encode($obj));
             return $obj;
         }
-        //error_log("SpectrumFromMP3: curl_init");
+
+        $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $obj->file = $file;
+
+        //var_dump($obj);exit;
+        return $obj;
+    }
+
+    static function sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)
+    {
+        $removeAfterSend = array('spectrumimage', 'rawVideo', 'image', 'gifimage', 'webpimage', 'video');
+        if (!empty($encoder)) {
+            if (empty($return_vars)) {
+                $return_vars = json_decode($encoder->getReturn_vars());
+            }
+            $streamers_id = $encoder->getStreamers_id();
+            $s = new Streamer($streamers_id);
+            $aVideoURL = $s->getSiteURL();
+            $user = $s->getUser();
+            $pass = $s->getPass();
+
+            $postFields['streamers_id'] = $streamers_id;
+            $postFields['user'] = $user;
+            $postFields['pass'] = $pass;
+        }
+
+        if (is_object($return_vars)) {
+            $return_vars_str = json_encode($return_vars);
+            $postFields['return_vars'] = $return_vars_str;
+            if (!empty($return_vars->releaseDate)) {
+                $postFields['releaseDate'] = $return_vars->releaseDate;
+            }
+            if (!empty($return_vars->videos_id)) {
+                $postFields['videos_id'] = $return_vars->videos_id;
+            }
+            if (!empty($return_vars->video_id_hash)) {
+                $postFields['video_id_hash'] = $return_vars->video_id_hash;
+            }
+        }
+
+        $url = addLastSlash($aVideoURL) . trim($target);
+
+        $obj = new stdClass();
+        $obj->error = true;
+        $obj->target = $target;
+        $obj->postFields = $postFields;
+
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $target);
+        curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
         curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+        //curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        //error_log("SpectrumFromMP3: curl_exec");
         $r = curl_exec($curl);
-        error_log("SpectrumFromMP3: AVideo-Streamer answer {$r}");
-        $obj->postFields = count($postFields);
-        $obj->response_raw = $r;
-        $obj->response = json_decode($r);
 
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
-            //echo "cURL error ({$errno}):\n {$error_message}";
-            $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n {$target} LINE " . __LINE__;
+            $obj->msg = "sendFileToEncoder cURL error ({$errno}): {$error_message} => {$target} ";
         } else {
             $obj->error = false;
         }
         curl_close($curl);
         error_log(json_encode($obj));
-        $encoder->setReturn_varsVideos_id($obj->response->video_id);
-        $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
+        if (!empty($encoder)) {
+            if (!empty($obj->response->video_id)) {
+                $encoder->setReturn_varsVideos_id($obj->response->video_id);
+            }
+            if (!empty($obj->response->video_id_hash)) {
+                $encoder->setReturn_varsVideo_id_hash($obj->response->video_id_hash);
+            }
+        }
+        foreach ($removeAfterSend  as $value) {
+            unset($obj->postFields[$value]);
+        }
+        error_log("sendToStreamer {$url} " . json_encode($obj));
         //var_dump($obj);exit;
         return $obj;
     }
@@ -2019,7 +1927,7 @@ class Encoder extends ObjectYPT
         }
         $duration = static::parseSecondsToDuration($seconds);
         $time_start = microtime(true);
-        
+
         $destinationFileE = escapeshellarg($destinationFile);
         /**
          * @var string $ffmpeg
@@ -2035,6 +1943,44 @@ class Encoder extends ObjectYPT
         if ($return_val !== 0 && !file_exists($destinationFile)) {
             error_log("Create Image error: {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.jpg";
+        } else {
+            return $destinationFile;
+        }
+    }
+
+    static function getRawVideo($pathFileName)
+    {
+        global $global;
+        if (preg_match('/\.mp3$/', $pathFileName)) {
+            error_log("getRawVideo: do not create files from MP3 " . $pathFileName);
+            return false;
+        }
+        $destinationFile = "{$pathFileName}.raw.mp4";
+        // do not encode again
+        if (file_exists($destinationFile)) {
+            error_log("getRawVideo: file exists {$destinationFile}");
+            return $destinationFile;
+        }
+        $time_start = microtime(true);
+
+        $destinationFileE = escapeshellarg($destinationFile);
+        $pathFileNameE = escapeshellarg($pathFileName);
+
+        /**
+         * @var string $ffmpeg
+         */
+        // placing ss before the input is faster https://stackoverflow.com/a/27573049
+        //eval('$ffmpeg =get_ffmpeg(true)." -ss {$duration} -i {$pathFileNameE} -vframes 1 -y {$destinationFileE}";');
+        $ffmpeg = get_ffmpeg(true) . " -i {$pathFileNameE} -c:v libx264 -b:v 1000k -c:a aac -b:a 128k -threads 0 {$destinationFileE}";
+        $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
+        error_log("getRawVideo: {$ffmpeg}");
+        exec($ffmpeg . " 2>&1", $output, $return_val);
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        error_log("getRawVideo: takes {$execution_time} sec to complete");
+        if ($return_val !== 0 && !file_exists($destinationFile)) {
+            error_log("getRawVideo error: {$ffmpeg} " . json_encode($output));
+            return false;
         } else {
             return $destinationFile;
         }
@@ -2082,7 +2028,7 @@ class Encoder extends ObjectYPT
         if (file_exists($destinationFile)) {
             return $destinationFile;
         }
-        
+
         if ($seconds > 600) {
             $seconds = 600;
         }
@@ -2157,8 +2103,8 @@ class Encoder extends ObjectYPT
         $pathFileNameE = escapeshellarg($pathFileName);
         $destinationFileE = escapeshellarg($destinationFile);
         eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vcodec libwebp -lossless 1 '
-                . '-vf fps=10,'.getFFmpegScaleToForceOriginalAspectRatio(640, 360).' '
-                . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFileE}";');
+            . '-vf fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360) . ' '
+            . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
@@ -2266,7 +2212,7 @@ class Encoder extends ObjectYPT
 
     /**
      *
-     * @param type $link channel link
+     * @param string $link channel link
      * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
      */
     static function getReverseVideosJsonListFromLink($link)
@@ -2305,7 +2251,7 @@ class Encoder extends ObjectYPT
             $response['output'] = end($output);
             $response['error'] = false;
         }
-        
+
         return $response;
     }
 
