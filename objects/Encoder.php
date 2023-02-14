@@ -1731,7 +1731,8 @@ class Encoder extends ObjectYPT
         curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        $obj->response = curl_exec($curl);
+        $obj->response_raw = curl_exec($curl);
+        $obj->response = json_decode($obj->response_raw);
 
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
