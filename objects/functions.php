@@ -20,7 +20,7 @@ function local_get_contents($path) {
 function get_ffmpeg($ignoreGPU = false) {
     global $global;
     $complement = '';
-    $complement = ' -user_agent "'.getSelfUserAgent("FFMPEG").'" ';
+    $complement = ' -user_agent "' . getSelfUserAgent("FFMPEG") . '" ';
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     if (!empty($global['ffmpeg'])) {
         $ffmpeg = $global['ffmpeg'];
@@ -36,24 +36,23 @@ function get_ffmpeg($ignoreGPU = false) {
     return $ffmpeg . $complement;
 }
 
-
 function getFFmpegScaleToForceOriginalAspectRatio($width, $heigth) {
-    
+
     return "scale={$width}:{$heigth}:force_original_aspect_ratio=decrease,pad={$width}:{$heigth}:-1:-1:color=black";
 }
 
 function replaceFFMPEG($cmd) {
     $cmd = removeUserAgentIfNotURL($cmd);
-    if(preg_match('/-user_agent/', $cmd)){
+    if (preg_match('/-user_agent/', $cmd)) {
         return $cmd;
-    }    
+    }
     return preg_replace('/^ffmpeg/i', get_ffmpeg(), $cmd);
 }
 
-function removeUserAgentIfNotURL($cmd){
-    if(!preg_match('/ -i "?https?:/', $cmd)){
+function removeUserAgentIfNotURL($cmd) {
+    if (!preg_match('/ -i "?https?:/', $cmd)) {
         $cmd = preg_replace('/-user_agent "[^"]+"/', '', $cmd);
-    }    
+    }
     return $cmd;
 }
 
@@ -63,9 +62,9 @@ function get_ffprobe() {
     //return 'ffmpeg -headers "User-Agent: '.getSelfUserAgent("FFMPEG").'" ';
     $ffmpeg = 'ffprobe  ';
     if (!empty($global['ffmpeg'])) {
-        
+
         $dir = dirname($global['ffmpeg']);
-        
+
         $ffmpeg = "{$dir}/{$ffmpeg}";
     }
     return $ffmpeg;
@@ -432,9 +431,9 @@ function status($statusarray) {
         }
     } else {
         echo json_encode(array_map(
-                        function($text) {
-                    return nl2br($text);
-                }
+                        function ($text) {
+                            return nl2br($text);
+                        }
                         , $statusarray));
     }
 }
@@ -770,11 +769,11 @@ function directorysize($dir) {
  */
 function dirSize($directory) {
     $size = 0;
-    foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file){
-        $size+=$file->getSize();
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
+        $size += $file->getSize();
     }
     return $size;
-} 
+}
 
 function make_path($path) {
     $created = false;
@@ -788,6 +787,7 @@ function make_path($path) {
     }
     return $created;
 }
+
 /**
  * Overwrite all advanced custom configurations with the $global configuration
  * @global type $global
@@ -1118,39 +1118,52 @@ function addPrefixIntoQuery($query, $tablesPrefix) {
 
         foreach ($search as $value) {
             $query = str_replace($value, $value . $tablesPrefix, $query, $count);
-            if(empty($count)){
+            if (empty($count)) {
                 $cleanValue = str_replace('`', '', $value);
 
                 $query = str_replace($cleanValue, $cleanValue . $tablesPrefix, $query);
             }
         }
-        
+
         $query = str_replace("ON UPDATE {$tablesPrefix}CASCADE", 'ON UPDATE CASCADE', $query);
     }
 
     return $query;
 }
 
-
-function isURLaVODVideo($url){
+function isURLaVODVideo($url) {
     $parts = explode('?', $url);
-    if(preg_match('/m3u8?$/i', $parts[0])){
+    if (preg_match('/m3u8?$/i', $parts[0])) {
         $content = url_get_contents($url);
-        if(empty($content)){
+        if (empty($content)) {
             return false;
         }
-        if(!preg_match('/#EXT-X-ENDLIST/i', $content)){
+        if (!preg_match('/#EXT-X-ENDLIST/i', $content)) {
             return false;
         }
     }
     return true;
 }
 
-function _utf8_encode($string){
+function _utf8_encode($string) {
     global $global;
-    
-    if(empty($global['doNotUTF8Encode'])){    
+
+    if (empty($global['doNotUTF8Encode'])) {
         return utf8_encode($string);
     }
     return $string;
+}
+
+function _rename($originalFile, $newName) {
+    // Attempt to rename the file
+    if (rename($originalFile, $newName)) {
+        return true;
+    } else {
+        // Rename failed, try to copy and delete
+        if (copy($originalFile, $newName) && unlink($originalFile)) {
+            return true;
+        }
+    }
+
+    return false;
 }

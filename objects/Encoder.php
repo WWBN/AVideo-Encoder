@@ -511,7 +511,7 @@ class Encoder extends ObjectYPT {
         // the file is just symlinked
         //////symlink($file, $destinationFile);
         ////// symlink not allowed without apache configuration
-        copy($file, $destinationFile);
+        _rename($file, $destinationFile);
         return $file;
     }
 
@@ -565,7 +565,7 @@ class Encoder extends ObjectYPT {
         /////whoops! apache has to be taught to use symlinks so this won't work
         /////trying copy instead
         error_log("getVideoFile start($videoURL, $queue_id, $downloadedFile, $destinationFile)");
-        copy($downloadedFile, $destinationFile, $ctx);
+        _rename($downloadedFile, $destinationFile, $ctx);
         error_log("getVideoFile done " . humanFileSize(filesize($destinationFile)));
         //copied from stream_contenxt_set_params
         // the file is already 100% downloaded by now
@@ -1508,6 +1508,7 @@ class Encoder extends ObjectYPT {
             $destinationFile = self::getThumbsFromLink($downloadLink, true);
             if (!empty($destinationFile) && file_exists($destinationFile)) {
                 $postFields['image'] = new CURLFile($destinationFile);
+                unlink($destinationFile);
             }
         }
         if (!empty($file)) {
@@ -2229,6 +2230,7 @@ class Encoder extends ObjectYPT {
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
+            unlink($tmpfname . ".description");
             return false;
         } else {
             $content = url_get_contents($tmpfname . ".description");
