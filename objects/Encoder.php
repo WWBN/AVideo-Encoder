@@ -1688,7 +1688,7 @@ class Encoder extends ObjectYPT {
                 error_log("sendToStreamer $value not set");
             }
             try {
-                $obj->postFields[$value] = humanFileSize($obj->postFields[$value]->getSize());
+                $obj->postFields[$value] = humanFileSize(filesize($obj->postFields[$value]->name));
             } catch (Exception $exc) {
                 error_log("sendToStreamer error $value " . $exc->getMessage());
             }
