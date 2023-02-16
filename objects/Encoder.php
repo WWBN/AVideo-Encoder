@@ -1663,7 +1663,7 @@ class Encoder extends ObjectYPT {
         } else {
             if (is_object($obj->response)) {
                 $obj->error = $obj->response->error;
-                if(!empty($obj->response->msg)){
+                if (!empty($obj->response->msg)) {
                     $obj->msg = $obj->response->msg;
                 }
             } else {
@@ -1681,20 +1681,19 @@ class Encoder extends ObjectYPT {
             }
         }
         foreach ($removeAfterSend as $value) {
-            if(!isset($obj->postFields[$value])){
+            if (!isset($obj->postFields[$value])) {
                 error_log("sendToStreamer $value not set");
                 continue;
             }
-            if(!file_exists($obj->postFields[$value]->name)){
+            if (!file_exists($obj->postFields[$value]->name)) {
                 error_log("sendToStreamer error $value {$obj->postFields[$value]->name} does not exists");
-            }else{
+            } else {
                 try {
                     $obj->postFields[$value] = humanFileSize(filesize($obj->postFields[$value]->name));
                 } catch (Exception $exc) {
                     error_log("sendToStreamer error $value " . $exc->getMessage());
                 }
             }
-
         }
         $time_end = microtime(true);
         $execution_time = number_format($time_end - $time_start, 3);
@@ -2225,15 +2224,13 @@ class Encoder extends ObjectYPT {
     static function getThumbsFromLink($link, $returnFileName = false) {
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
-        
-        
-        
+
         $tmpfname = _get_temp_file('thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
 
-        if ($return_val !== 0 || !file_exists("{$tmpfname}.jpg")) {
+        if (!file_exists("{$tmpfname}.jpg")) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
 
