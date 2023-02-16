@@ -467,7 +467,7 @@ class Encoder extends ObjectYPT {
     static function getYoutubeDl($videoURL, $queue_id, $destinationFile) {
         global $global;
         $videoURL = escapeshellarg($videoURL);
-        $tmpfname = tempnam(sys_get_temp_dir(), 'youtubeDl');
+        $tmpfname = _get_temp_file('youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
@@ -2225,7 +2225,10 @@ class Encoder extends ObjectYPT {
     static function getThumbsFromLink($link, $returnFileName = false) {
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
-        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
+        
+        
+        
+        $tmpfname = _get_temp_file('thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
@@ -2258,7 +2261,7 @@ class Encoder extends ObjectYPT {
             return '';
         }
         $link = escapeshellarg($link);
-        $tmpfname = tempnam(sys_get_temp_dir(), 'thumbs');
+        $tmpfname = _get_temp_file('thumbs');
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {

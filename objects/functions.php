@@ -1167,3 +1167,25 @@ function _rename($originalFile, $newName) {
 
     return false;
 }
+
+function _sys_get_temp_dir(){
+    global $global, $_sys_get_temp_dir;
+    if(isset($_sys_get_temp_dir)){
+        return $_sys_get_temp_dir;
+    }
+    $dir = sys_get_temp_dir();
+    $tmpfname = tempnam($dir, 'test');
+    if(!file_put_contents(time(), $tmpfname)){
+        $dir = "{$global['systemRootPath']}videos/tmp/";
+        if(!is_dir($dir)){
+            mkdir($dir, 0777, true);
+        }
+    }
+    unlink($tmpfname);
+    $_sys_get_temp_dir = $dir;
+    return $dir;
+}
+
+function _get_temp_file($prefix=''){
+    return tempnam(_sys_get_temp_dir(), $prefix);
+}

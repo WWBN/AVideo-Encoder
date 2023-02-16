@@ -90,7 +90,7 @@ if (!class_exists('Streamer')) {
             $timeout = 5;
             ini_set('default_socket_timeout', $timeout);
             $url = $this->getSiteURL();
-            $cacheFile = sys_get_temp_dir() . "/" . md5($url) . "_verify.log";
+            $cacheFile = _sys_get_temp_dir() . "/" . md5($url) . "_verify.log";
             $lifetime = 3600; //1 hour
             error_log("Verification Start {$url}");
             $verifyURL = "";

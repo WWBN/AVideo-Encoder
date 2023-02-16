@@ -28,7 +28,7 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 header('Access-Control-Allow-Origin: *');
 $url = base64_decode($_GET['base64Url']);
 $destinationFile = md5($url);
-$destination = sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
+$destination = _sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
 $destinationPallet = "{$destination}palette.png";
 $cache_life = '600'; //caching time, in seconds
 $ob_flush = false;
