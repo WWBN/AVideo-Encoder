@@ -1683,14 +1683,17 @@ class Encoder extends ObjectYPT {
         }
         foreach ($removeAfterSend as $value) {
             if(!isset($obj->postFields[$value])){
-                continue;
-            }else{
                 error_log("sendToStreamer $value not set");
+                continue;
             }
-            try {
-                $obj->postFields[$value] = humanFileSize(filesize($obj->postFields[$value]->name));
-            } catch (Exception $exc) {
-                error_log("sendToStreamer error $value " . $exc->getMessage());
+            if(!file_exists($obj->postFields[$value]->name)){
+                error_log("sendToStreamer error $value {$obj->postFields[$value]->name} does not exists");
+            }else{
+                try {
+                    $obj->postFields[$value] = humanFileSize(filesize($obj->postFields[$value]->name));
+                } catch (Exception $exc) {
+                    error_log("sendToStreamer error $value " . $exc->getMessage());
+                }
             }
 
         }
