@@ -1855,6 +1855,10 @@ class Encoder extends ObjectYPT {
             error_log("getImage: do not create files from MP3 " . $pathFileName);
             return false;
         }
+        if (!file_exists($pathFileName)) {
+            error_log("getImage: error file not exists " . $pathFileName);
+            return false;
+        }
         $destinationFile = "{$pathFileName}.jpg";
         // do not encode again
         if (file_exists($destinationFile)) {
@@ -1894,6 +1898,10 @@ class Encoder extends ObjectYPT {
             error_log("getRawVideo: do not create files from MP3 " . $pathFileName);
             return false;
         }
+        if (!file_exists($pathFileName)) {
+            error_log("getRawVideo: error file not exists " . $pathFileName);
+            return false;
+        }
         $destinationFile = "{$pathFileName}.raw.mp4";
         // do not encode again
         if (file_exists($destinationFile)) {
@@ -1927,6 +1935,10 @@ class Encoder extends ObjectYPT {
 
     static function getSpectrum($pathFileName) {
         global $global;
+        if (!file_exists($pathFileName)) {
+            error_log("getSpectrum: error file not exists " . $pathFileName);
+            return false;
+        }
         $pathFileName = str_replace(array('"', "'"), array('', ''), $pathFileName);
         $destinationFile = "{$pathFileName}_spectrum.jpg";
         // do not encode again
@@ -1956,6 +1968,10 @@ class Encoder extends ObjectYPT {
 
         if (preg_match('/\.mp3$/', $pathFileName)) {
             error_log("getGifImage: do not create files from MP3 " . $pathFileName);
+            return false;
+        }
+        if (!file_exists($pathFileName)) {
+            error_log("getGifImage: error file not exists " . $pathFileName);
             return false;
         }
 
@@ -2020,6 +2036,10 @@ class Encoder extends ObjectYPT {
             error_log("getWebpImage: do not create files from MP3 " . $pathFileName);
             return false;
         }
+        if (!file_exists($pathFileName)) {
+            error_log("getWebpImage: error file not exists " . $pathFileName);
+            return false;
+        }
         global $global;
         $destinationFile = "{$pathFileName}.webp";
         // do not encode again
@@ -2045,7 +2065,7 @@ class Encoder extends ObjectYPT {
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
-        error_log("getWebpImage: takes {$execution_time} sec to complete");
+        error_log("getWebpImage: takes {$execution_time} sec to complete {$destinationFile}");
         if ($return_val !== 0 && !file_exists($destinationFile)) {
             error_log("getWebpImage:  Image error : {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.gif";
