@@ -1672,7 +1672,7 @@ class Encoder extends ObjectYPT {
             }
         }
         curl_close($curl);
-        error_log(json_encode($obj));
+        //error_log(json_encode($obj));
         if (!empty($encoder)) {
             if (!empty($obj->response->video_id)) {
                 $encoder->setReturn_varsVideos_id($obj->response->video_id);
@@ -1684,6 +1684,8 @@ class Encoder extends ObjectYPT {
         foreach ($removeAfterSend as $value) {
             if(!isset($obj->postFields[$value])){
                 continue;
+            }else{
+                error_log("sendToStreamer $value not set");
             }
             try {
                 $obj->postFields[$value] = humanFileSize($obj->postFields[$value]->getSize());
