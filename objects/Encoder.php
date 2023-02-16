@@ -2248,7 +2248,7 @@ class Encoder extends ObjectYPT {
             return $returnTmpfname;
         } else {
             $content = url_get_contents($returnTmpfname);
-            unlink($returnTmpfname);
+            //unlink($returnTmpfname);
             return $content;
         }
     }
