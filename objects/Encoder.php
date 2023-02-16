@@ -1660,7 +1660,7 @@ class Encoder extends ObjectYPT {
 
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
-            $obj->msg = "sendFileToEncoder cURL error ({$errno}): {$error_message} => {$target} ";
+            $obj->msg = "sendToStreamer cURL error ({$errno}): {$error_message} => {$target} ";
         } else {
             if (is_object($obj->response)) {
                 $obj->error = $obj->response->error;
@@ -1682,7 +1682,15 @@ class Encoder extends ObjectYPT {
             }
         }
         foreach ($removeAfterSend as $value) {
-            unset($obj->postFields[$value]);
+            if(!isset($obj->postFields[$value])){
+                continue;
+            }
+            try {
+                $obj->postFields[$value] = humanFileSize($obj->postFields[$value]->getSize());
+            } catch (Exception $exc) {
+                error_log("sendToStreamer error $value " . $exc->getMessage());
+            }
+
         }
         $time_end = microtime(true);
         $execution_time = number_format($time_end - $time_start, 3);
