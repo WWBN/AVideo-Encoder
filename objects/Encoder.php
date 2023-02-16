@@ -1508,7 +1508,6 @@ class Encoder extends ObjectYPT {
             $destinationFile = self::getThumbsFromLink($downloadLink, true);
             if (!empty($destinationFile) && file_exists($destinationFile)) {
                 $postFields['image'] = new CURLFile($destinationFile);
-                unlink($destinationFile);
             }
         }
         if (!empty($file)) {
