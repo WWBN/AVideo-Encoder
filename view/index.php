@@ -608,7 +608,7 @@ if (!empty($_GET['noNavbar'])) {
                                                 <th data-column-id="title" data-formatter="title">Title</th>
                                                 <th data-column-id="status" data-formatter="status">Status</th>
                                                 <th data-column-id="created" data-formatter="dates"  data-order="desc">Dates</th>
-                                                <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="100px"></th>
+                                                <th data-column-id="commands" data-formatter="commands" data-sortable="false"  data-width="120px"></th>
                                             </tr>
                                         </thead>
                                     </table>
