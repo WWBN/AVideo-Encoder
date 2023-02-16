@@ -1175,7 +1175,7 @@ function _sys_get_temp_dir(){
     }
     $dir = sys_get_temp_dir();
     $tmpfname = tempnam($dir, 'test');
-    if(!file_put_contents(time(), $tmpfname)){
+    if(!file_put_contents($tmpfname, time())){
         $dir = "{$global['systemRootPath']}videos/tmp/";
         if(!is_dir($dir)){
             mkdir($dir, 0777, true);
