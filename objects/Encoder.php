@@ -2230,7 +2230,7 @@ class Encoder extends ObjectYPT {
         exec($cmd . "  2>&1", $output, $return_val);
         error_log("getThumbsFromLink: {$cmd}");
 
-        if (!file_exists("{$tmpfname}.jpg")) {
+        if ($return_val !== 0) {
             error_log("getThumbsFromLink: Error: " . json_encode($output));
         }
 
