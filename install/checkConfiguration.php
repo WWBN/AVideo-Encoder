@@ -43,6 +43,7 @@ if ($_POST['createTables'] == 2) {
         echo json_encode($obj);
     }
 }
+error_log("CheckConfiguration: createTables={$_POST['createTables']} databaseName={$_POST['databaseName']} ");
 $mysqli->select_db($_POST['databaseName']);
 
 $tablesPrefix = '';
