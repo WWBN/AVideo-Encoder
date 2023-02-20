@@ -4,7 +4,7 @@ if (file_exists("../videos/configuration.php")) {
     error_log("Can not create configuration again: ".  json_encode($_SERVER));
     exit;
 }
-
+$_POST['databaseName'] = str_replace('-', '_', $_POST['databaseName']);
 require_once '../objects/functions.php';
 
 $installationVersion = "4.0";

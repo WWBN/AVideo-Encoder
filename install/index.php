@@ -346,7 +346,7 @@ require_once '../objects/functions.php';
                             </div>
                             <div class="form-group col-md-6 ">
                                 <label for="databaseName">Database Name</label>
-                                <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="aVideo-Encoder" required="required">
+                                <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="aVideo_Encoder" required="required">
                             </div>
                             <div class="form-group col-md-6 ">
                                 <label for="databaseName">Optional Tables Prefix</label>
