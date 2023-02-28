@@ -695,6 +695,7 @@ hd/index.m3u8
             $newPathFileName = $pathFileName . '.error';
             rename($pathFileName, $newPathFileName);
             $command = get_ffmpeg() . " -copyts -fflags +genpts -i {$newPathFileName} -map 0:v -c:v copy {$pathFileName} ";
+            //$command = replaceFFMPEG($command);
             $command = removeUserAgentIfNotURL($command);
             $encoder->exec($command, $output, $return_val);
             
