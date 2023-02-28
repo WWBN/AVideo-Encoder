@@ -126,7 +126,7 @@ if (!class_exists('Format')) {
                 }
             }
 
-            if (!empty($global['progressiveUpload'])){
+            if (!empty($global['progressiveUpload'])) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4');
                 Upload::create($encoder_queue_id, $destinationFile);
             }
@@ -420,27 +420,27 @@ hd/index.m3u8
             global $config;
             $resolutions = array();
             $availableResolutions = Format::getAvailableResolutions();
-            $selectedResolutions = $config->getSelectedResolutions();                                        
-            foreach($availableResolutions as $key => $resolution) {
+            $selectedResolutions = $config->getSelectedResolutions();
+            foreach ($availableResolutions as $key => $resolution) {
                 $resolutionChecked = (array_search($resolution, $selectedResolutions, true) !== false) || !empty($resolutionDisabled) ? "checked" : "";
 
                 $label = "<span class='label label-default'>{$resolution}p ";
-                if($resolution == 720){
+                if ($resolution == 720) {
                     $label .= '<span class="label label-danger">HD</span>';
-                }else if($resolution == 1080){
+                } else if ($resolution == 1080) {
                     $label .= '<span class="label label-danger">FHD</span>';
-                }else if($resolution == 1440){
+                } else if ($resolution == 1440) {
                     $label .= '<span class="label label-danger">FHD+</span>';
-                }else if($resolution == 2160){
+                } else if ($resolution == 2160) {
                     $label .= '<span class="label label-danger">4K</span>';
                 }
                 $label .= " </span>";
 
                 $resolutions[] = array(
-                    'resolutionChecked'=>$resolutionChecked, 
-                    'label'=>$label, 
-                    'resolution'=>$resolution, 
-                    'resolutionChecked'=>$resolutionChecked, 
+                    'resolutionChecked' => $resolutionChecked,
+                    'label' => $label,
+                    'resolution' => $resolution,
+                    'resolutionChecked' => $resolutionChecked,
                 );
             }
             return $resolutions;
@@ -450,7 +450,7 @@ hd/index.m3u8
             if (is_array($resolutions)) {
                 // resolutions need to be int values
                 $resolutions = array_map(
-                        function($value) {
+                        function ($value) {
                             return (int) $value;
                         },
                         $resolutions
@@ -541,7 +541,7 @@ hd/index.m3u8
             $code = $f->getCode(); // encoder command-line switches
             // create command            
             $command = get_ffmpeg() . ' -i "{$pathFileName}" ';
-            
+
             $i = 0;
             $lastHeight = 0;
             $countResolutions = 0;
@@ -551,7 +551,7 @@ hd/index.m3u8
                     $countResolutions++;
                     $lastHeight = $resolution;
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
-                    if(empty($destinationFile)){
+                    if (empty($destinationFile)) {
                         error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
                         continue;
                     }
@@ -568,14 +568,14 @@ hd/index.m3u8
 
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
-                if(empty($destinationFile)){
+                if (empty($destinationFile)) {
                     error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
                     return '';
                 }
                 $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
             }
-            
+
             $command = removeUserAgentIfNotURL($command);
             error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
             return $command;
@@ -632,7 +632,6 @@ hd/index.m3u8
             $f = new Format(30);
             $code = $f->getCode();
 
-
             $command = get_ffmpeg() . ' -i {$pathFileName} -max_muxing_queue_size 9999 ';
 
             $rate = 300000;
@@ -668,7 +667,7 @@ hd/index.m3u8
             $resolution = $height;
             //$code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
             eval("\$command .= \" $code\";");
-            
+
             $command = removeUserAgentIfNotURL($command);
             return array($destinationFile, $command);
         }
@@ -686,7 +685,29 @@ hd/index.m3u8
             return file_exists($zipPath);
         }
 
-        static private function exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id) {
+        static private function fixFile($pathFileName, $encoder_queue_id) {
+            // zip the directory
+            $encoder = new Encoder($encoder_queue_id);
+            $encoder->setStatus("trying to fix");
+            $encoder->save();
+            error_log("fixFile: start {$pathFileName}" . humanFileSize(filesize($pathFileName)));
+            // try to fix the file in case you want to try again
+            $newPathFileName = $pathFileName . '.error';
+            rename($pathFileName, $newPathFileName);
+            $command = get_ffmpeg() . " -copyts -fflags +genpts -i {$newPathFileName} -map 0:v -c:v copy {$pathFileName} ";
+            $command = removeUserAgentIfNotURL($command);
+            $encoder->exec($command, $output, $return_val);
+            
+            if ($return_val !== 0) {
+                error_log("fixFile: Error " . json_encode($output));
+                return false;
+            }else{
+                error_log("fixFile: done {$pathFileName} " . humanFileSize(filesize($pathFileName)));
+            }
+            return file_exists($pathFileName);
+        }
+
+        static private function exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try = 0) {
             global $global;
             $obj = new stdClass();
             $obj->error = true;
@@ -740,9 +761,15 @@ hd/index.m3u8
                     if (empty($encoder->getId())) {/* dequeued */
                         error_log("id=(" . $encoder_queue_id . ") dequeued");
                     } else {
-                        $encoder->setStatus("error");
-                        $encoder->setStatus_obs(json_encode($output));
-                        $encoder->save();
+                        
+                        if(empty($try) && self::fixFile($pathFileName, $encoder_queue_id)){
+                            self::exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try+1);
+                        }else{
+                            $encoder->setStatus("error");
+                            $encoder->setStatus_obs(json_encode($output));
+                            $encoder->save();
+                        }
+                        
                     }
                 } else {
                     $obj->error = false;
@@ -803,11 +830,11 @@ hd/index.m3u8
                 error_log("videoFileHasErrors: file not exists {$filename}");
                 return true;
             }
-            
-            if(!empty($global['byPassVideoFileHasErrors'])){
+
+            if (!empty($global['byPassVideoFileHasErrors'])) {
                 return false;
             }
-            
+
             $errorLogFile = $filename . '.error.log';
 
             /**
@@ -848,7 +875,7 @@ hd/index.m3u8
         }
 
         static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) {
-            if(empty($destinationFile)){
+            if (empty($destinationFile)) {
                 $obj = new stdClass();
                 $obj->error = true;
                 $obj->destinationFile = $destinationFile;
@@ -918,7 +945,7 @@ hd/index.m3u8
         }
 
         static function createIfNotExists($name) {
-            if(empty($name)){
+            if (empty($name)) {
                 return false;
             }
             error_log("createIfNotExists($name) checking");
