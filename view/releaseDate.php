@@ -69,7 +69,7 @@ if (!isset($releaseDateJSandCSSAdded)) {
 
 <div class="form-group col-sm-5">
     <label for="<?php echo $releaseDateId; ?>"><?php echo __("Date Time"); ?>:</label>
-    <input type="text" id="<?php echo $releaseDateId; ?>" class="form-control input-sm" placeholder="<?php echo __("Date Time"); ?>" required>
+    <input type="text" id="<?php echo $releaseDateId; ?>" class="form-control input-sm" placeholder="<?php echo __("Date Time"); ?>" value='<?php echo date('Y-m-d H:i'); ?>' required>
 </div>
 <div class="clearfix"></div>
 <script>
