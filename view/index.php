@@ -675,6 +675,33 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     return /^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/gm.test($('#inputVideoURL').val());
                 }
 
+                function setDownloadProgress(id, progress) {
+                    var selector = "#downloadProgress" + id;
+                    progress = parseFloat(progress);
+
+                    $(selector).slideDown();
+                    if (progress < 0) {
+                        progress = 0;
+                    } else if (progress > 100) {
+                        progress = 100;
+                    }
+                    if (progress < 100) {
+                        $(selector).addClass('active');
+                        $(selector).find('.progress-bar').removeClass('progress-bar-info');
+                        $(selector).find('.progress-bar').addClass('progress-bar-danger');
+                    } else {
+                        $(selector).removeClass('active');
+                        $(selector).find('.progress-bar').removeClass('progress-bar-danger');
+                        $(selector).find('.progress-bar').addClass('progress-bar-info');
+                    }
+                    //console.log('progress-bar', progress);
+                    $(selector).find('.progress-bar').css({
+                        'width': progress + '%'
+                    });
+
+                }
+
+                var checkProgressTimeout = 3000; //4 secongs
                 function checkProgress() {
                     $.ajax({
                         url: 'status?<?php echo getPHPSessionIDURL(); ?>',
@@ -708,7 +735,6 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
                                 for (i = 0; i < encodingNowIds.length; i++) {
                                     var id = encodingNowIds[i];
-                                    $("#downloadProgress" + id).slideDown();
 
 
                                     if (response.download_status[i] && !response.encoding_status[i].progress) {
@@ -720,9 +746,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         });
                                     }
                                     if (response.download_status[i]) {
-                                        $("#downloadProgress" + id).find('.progress-bar').css({
-                                            'width': response.download_status[i].progress + '%'
-                                        });
+                                        setDownloadProgress(id, response.download_status[i].progress);
                                     }
                                     if (response.encoding_status[i].progress >= 100) {
                                         $("#encodingProgress" + id).find('.progress-bar').css({
@@ -741,9 +765,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     }
 
                                 }
+
                                 setTimeout(function() {
                                     checkProgress();
-                                }, 1000);
+                                }, checkProgressTimeout);
                             } else {
                                 while ((id = encodingNowIds.pop()) != null) {
                                     $("#encodeProgress" + id).slideUp("normal", function() {
@@ -752,7 +777,14 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }
                                 setTimeout(function() {
                                     checkProgress();
-                                }, 5000);
+                                }, checkProgressTimeout * 2);
+                            }
+                            if (response.downloaded.length > 0) {
+                                for (i = 0; i < response.downloaded.length; i++) {
+                                    var id = response.downloaded[i].id;
+                                    setDownloadProgress(id, 100);
+                                }
+
                             }
 
                         }

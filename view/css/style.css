@@ -2,7 +2,8 @@
     position: relative;
     height: 25px;
 }
-.progress > .progress-type {
+
+.progress>.progress-type {
     position: absolute;
     left: 0px;
     font-weight: 800;
@@ -10,42 +11,51 @@
     color: rgb(255, 255, 255);
     background-color: rgba(25, 25, 25, 0.2);
 }
-.progress > .progress-completed {
+
+.progress>.progress-completed {
     position: absolute;
     right: 0px;
     font-weight: 800;
     padding: 3px 10px 2px;
 }
+
 .progress-bar {
-    -webkit-transition: width 2.5s ease;
-    -o-transition: width 2.5s ease;
-    transition: width 2.5s ease;
+    -webkit-transition: width 6s ease;
+    -o-transition: width 6s ease;
+    transition: width 6s ease;
 }
 
-.material-switch > input[type="checkbox"] {
-    display: none;   
+.progress-bar.progress-bar-info {
+    -webkit-transition: width 1.5s ease;
+    -o-transition: width 1.5s ease;
+    transition: width 1.5s ease;
 }
 
-.material-switch > label {
+.material-switch>input[type="checkbox"] {
+    display: none;
+}
+
+.material-switch>label {
     cursor: pointer;
     height: 0px;
-    position: relative; 
-    width: 40px;  
+    position: relative;
+    width: 40px;
 }
 
-.material-switch > label::before {
+.material-switch>label::before {
     background: rgb(0, 0, 0);
     box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
     border-radius: 8px;
     content: '';
     height: 16px;
     margin-top: -8px;
-    position:absolute;
+    position: absolute;
     opacity: 0.3;
     transition: all 0.4s ease-in-out;
     width: 40px;
 }
-.material-switch > label::after {
+
+.material-switch>label::after {
     background: rgb(255, 255, 255);
     border-radius: 16px;
     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
@@ -58,28 +68,34 @@
     transition: all 0.3s ease-in-out;
     width: 24px;
 }
-.material-switch > input[type="checkbox"]:checked + label::before {
+
+.material-switch>input[type="checkbox"]:checked+label::before {
     background: inherit;
     opacity: 0.5;
 }
-.material-switch > input[type="checkbox"]:checked + label::after {
+
+.material-switch>input[type="checkbox"]:checked+label::after {
     background: inherit;
     left: 20px;
 }
 
 .navbar-brand {
-    padding: 0px !important; /* firefox bug fix */
+    padding: 0px !important;
+    /* firefox bug fix */
     margin-left: 10px !important;
 }
+
 .navbar-brand>img {
     height: 100%;
     width: auto;
 }
-.encodingProgress{
+
+.encodingProgress {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
-.downloadProgress{
+
+.downloadProgress {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
@@ -90,14 +106,17 @@
     white-space: nowrap;
     line-height: normal;
 }
+
 #config .checkboxes input {
     vertical-align: middle;
     margin: 0;
 }
+
 #config .checkboxes label span {
     vertical-align: middle;
     margin-left: 4px;
 }
+
 #config small {
     line-height: normal;
 }
@@ -106,9 +125,10 @@ body {
     padding-top: 50px;
 }
 
-.availableResolutionsLabels{
+.availableResolutionsLabels {
     text-align: center;
 }
-.availableResolutionsLabels .label{
+
+.availableResolutionsLabels .label {
     margin: 1px 2px;
 }
