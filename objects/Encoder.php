@@ -667,8 +667,8 @@ class Encoder extends ObjectYPT
     static function getQueue($status = array())
     {
         global $global;
-        if(empty($status)){
-            $status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING)
+        if (empty($status)) {
+            $status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING);
         }
 
         $statusIn = implode("', '", $status);
