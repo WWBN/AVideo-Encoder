@@ -656,9 +656,24 @@ class Encoder extends ObjectYPT
 
     static function areEncoding()
     {
+        return self::getQueue($status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING));
+    }
+
+    static function areDownloaded()
+    {
+        return self::getQueue($status = array(Encoder::$STATUS_DOWNLOADED));
+    }
+
+    static function getQueue($status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING))
+    {
         global $global;
+
+        $statusIn = implode("', '", $status);
+
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-            . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE status = '" . Encoder::$STATUS_ENCODING . "' OR  status = '" . Encoder::$STATUS_DOWNLOADING . "' ORDER BY priority ASC, e.id ASC ";
+            . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE 
+            status IN ('{$statusIn}') 
+            ORDER BY priority ASC, e.id ASC ";
 
         /**
          * @var array $global
