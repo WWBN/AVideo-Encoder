@@ -19,7 +19,7 @@ class Encoder extends ObjectYPT
     static $STATUS_DONE = 'done';
     static $STATUS_TRANSFERRING = 'transferring';
     static $STATUS_PACKING = 'packing';
-    static $STATUS_FIXING = 'Fixing';
+    static $STATUS_FIXING = 'fixing';
     protected $id, $fileURI, $filename, $status, $status_obs, $return_vars, $worker_ppid, $worker_pid, $priority, $created, $modified, $formats_id, $title, $videoDownloadedLink, $downloadedFileName, $streamers_id, $override_status;
 
     static function getSearchFieldsNames()
