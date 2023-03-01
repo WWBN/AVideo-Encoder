@@ -9,7 +9,7 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 session_write_close();
 
-if(!empty($_GET['videoURL']) && empty($_POST['videoURL'])){
+if (!empty($_GET['videoURL']) && empty($_POST['videoURL'])) {
     $_POST['videoURL'] = $_GET['videoURL'];
 }
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
@@ -17,7 +17,8 @@ if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pa
     Login::run($_GET['user'], $_GET['pass'], $_GET['webSiteRootURL'], true);
 }
 
-function addVideo($link, $streamers_id, $title = "") {
+function addVideo($link, $streamers_id, $title = "")
+{
     $obj = new stdClass();
     // remove list parameter from
     $link = preg_replace('~(\?|&)list=[^&]*~', '$1', $link);
@@ -27,11 +28,11 @@ function addVideo($link, $streamers_id, $title = "") {
     }
 
     $msg = '';
-    if(empty($title)){
+    if (empty($title)) {
         $_title = Encoder::getTitleFromLink($link);
         $msg = $_title['output'];
         $title = $_title['output'];
-        if($_title['error']){
+        if ($_title['error']) {
             $title = false;
         }
     }
@@ -40,9 +41,9 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj->type = "warning";
         $obj->title = "Sorry!";
 
-        if(!empty($msg)){
+        if (!empty($msg)) {
             $obj->text = $msg;
-        }else{
+        } else {
             $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/WWBN/AVideo/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
         }
 
@@ -63,7 +64,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $e->setFileURI($link);
         $e->setVideoDownloadedLink($link);
         $e->setFilename($filename);
-        $e->setStatus('queue');
+        $e->setStatus(Encoder::$STATUS_QUEUE);
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
 
@@ -81,16 +82,16 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj = new stdClass();
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-        
+
         $obj = new stdClass();
         $obj->videos_id = 0;
-        $obj->video_id_hash = '';        
-        if (!empty($_POST['update_video_id'])){
+        $obj->video_id_hash = '';
+        if (!empty($_POST['update_video_id'])) {
             $obj->videos_id = $_POST['update_video_id'];
         }
-        
+
         $obj->releaseDate = @$_REQUEST['releaseDate'];
-        
+
         $response = Encoder::sendFile('', $obj, $format, $e);
         //var_dump($response);exit;
         if (!empty($response->response->video_id)) {
@@ -114,27 +115,27 @@ if (!Login::canUpload()) {
         // if it is a channel
         $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
         if (preg_match($rexexp, $_POST['videoURL'])) {
-            if (!Login::canBulkEncode()){
+            if (!Login::canBulkEncode()) {
                 $obj->msg = "Channel Import is disabled";
                 die(json_encode($obj));
             }
             $start = 0;
             $end = 100;
-            if(!empty($_POST['startIndex'])){
-                $start = $current = intval($_POST['startIndex']);                
+            if (!empty($_POST['startIndex'])) {
+                $start = $current = intval($_POST['startIndex']);
             }
-            if(!empty($_POST['endIndex'])){
+            if (!empty($_POST['endIndex'])) {
                 $end = intval($_POST['endIndex']);
-            }            
+            }
             error_log("Processing Channel {$start} to {$end}");
             $list = Encoder::getReverseVideosJsonListFromLink($_POST['videoURL']);
-            $i=$start;
-            for(; $i<=$end;$i++){
-                if(is_object($list[$i]) && empty($list[$i]->id)){
-                    error_log(($i)." Not Object ".  print_r($list[$i], true));
+            $i = $start;
+            for (; $i <= $end; $i++) {
+                if (is_object($list[$i]) && empty($list[$i]->id)) {
+                    error_log(($i) . " Not Object " .  print_r($list[$i], true));
                     continue;
                 }
-                error_log(($i)." Process Video {$list[$i]->id}");
+                error_log(($i) . " Process Video {$list[$i]->id}");
                 $url = "https://www.youtube.com/watch?v={$list[$i]->url}";
                 $obj = addVideo($url, $streamers_id, $list[$i]->title);
             }
