@@ -716,7 +716,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         } else if (progress > 100) {
                             progress = 100;
                         }
-                        $(selector).find('.progress-completed').html("<strong>" + text + "</strong> " + progress + '%');
+                        $(selector).find('.progress-completed').html("<strong>" + text + "</strong> <span class=\"badge\">" + progress + '%</span>');
                         $(selector).find('.progress-bar').css({
                             'width': progress + '%'
                         });
@@ -811,6 +811,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                 }
 
                 var checkProgressRemoveTimeout = [];
+                var createQueueTemplate = <?php echo json_encode(file_get_contents($global['systemRootPath'].'view/encodeProgressTemplate.html')); ?>;
 
                 function createQueueItem(queueItem, queueItemAfter) {
                     clearTimeout(checkProgressRemoveTimeout[queueItem.id]);
@@ -818,13 +819,16 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         return false;
                     }
                     console.log(queueItemAfter);
-                    var item = '<div id="encodeProgress' + queueItem.id + '" class="animate__animated animate__flipInX">';
-                    item += '<a href="' + queueItem.streamer_site + '" class="btn btn-default btn-xs" target="_blank">' + queueItem.streamer_site + '</a>';
-                    item += '<div class="progress progress-striped active encodingProgress" id="encodingProgress' + queueItem.id + '" style="margin: 0;">';
-                    item += '<div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;">';
-                    item += '<span class="sr-only">0% Complete</span></div><span class="progress-type"><span class="badge ">Priority ' + queueItem.streamer_priority + '</span> ' + queueItem.title + '</span><span class="progress-completed">' + queueItem.name + '</span>';
-                    item += '</div><div class="progress progress-striped active downloadProgress" id="downloadProgress' + queueItem.id + '" style="height: 10px;"><div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0;"></div></div> ';
-                    item += '</div>';
+
+                    var itemsArray = {};
+                    itemsArray.id = queueItem.id;
+                    itemsArray.site = queueItem.streamer_site;
+                    itemsArray.priority = queueItem.streamer_priority;
+                    itemsArray.title = queueItem.title;
+                    itemsArray.name = queueItem.name;
+
+                    var item = arrayToTemplate(itemsArray, createQueueTemplate);
+                    
                     if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
                         $("#encoding").append(item);
                     } else {

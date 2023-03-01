@@ -3,20 +3,38 @@
     height: 25px;
 }
 
+.text-Outline-black {
+    text-shadow:
+      -1px -1px 0 #000, /* top-left */
+      1px -1px 0 #000,  /* top-right */
+      -1px 1px 0 #000,  /* bottom-left */
+      1px 1px 0 #000;   /* bottom-right */
+  }
+  .text-Outline-white {
+      text-shadow:
+        -1px -1px 0 #FFF, /* top-left */
+        1px -1px 0 #FFF,  /* top-right */
+        -1px 1px 0 #FFF,  /* bottom-left */
+        1px 1px 0 #FFF;   /* bottom-right */
+    }
+
 .progress>.progress-type {
-    position: absolute;
-    left: 0px;
-    font-weight: 800;
-    padding: 3px 30px 2px 10px;
-    color: rgb(255, 255, 255);
-    background-color: rgba(25, 25, 25, 0.2);
+    color: #FFF; 
+    text-shadow: 0px 0px 5px #000;
+    padding: 3px 10px 2px !important;
+    white-space: nowrap; /* Prevents the text from wrapping */
+    overflow: hidden; /* Hides the overflowing text */
+    text-overflow: ellipsis; /* Adds the ellipsis to the end of the text */
 }
 
 .progress>.progress-completed {
     position: absolute;
     right: 0px;
     font-weight: 800;
-    padding: 3px 10px 2px;
+    padding: 3px 10px 2px !important;
+    text-align: right;
+    color: #000; 
+    text-shadow: 0px 0px 5px #FFF;
 }
 
 .progress-bar {
