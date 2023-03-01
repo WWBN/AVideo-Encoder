@@ -20,16 +20,17 @@
 }
 
 .progress-bar {
+    -webkit-transition: width 1.5s ease;
+    -o-transition: width 1.5s ease;
+    transition: width 1.5s ease;
+}
+
+.progress-bar.active {
     -webkit-transition: width 6s ease;
     -o-transition: width 6s ease;
     transition: width 6s ease;
 }
 
-.progress-bar.progress-bar-info {
-    -webkit-transition: width 1.5s ease;
-    -o-transition: width 1.5s ease;
-    transition: width 1.5s ease;
-}
 
 .material-switch>input[type="checkbox"] {
     display: none;

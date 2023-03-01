@@ -663,6 +663,10 @@ class Encoder extends ObjectYPT
     {
         return self::getQueue($status = array(Encoder::$STATUS_DOWNLOADED));
     }
+    static function areTransferring()
+    {
+        return self::getQueue($status = array(Encoder::$STATUS_TRANSFERRING));
+    }
 
     static function getQueue($status = array())
     {

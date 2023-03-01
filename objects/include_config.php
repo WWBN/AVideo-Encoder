@@ -4,10 +4,15 @@ if ($_SERVER["HTTP_HOST"] == "localhost") {
     error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', 1);
 }
-if (empty($global['logfile'])) {
+$global['docker_vars'] = '/var/www/docker_vars.json';
+if (file_exists($global['docker_vars'])) {
+    $global['logfile'] = 'php://stdout';
+} else if (empty($global['logfile'])) {
     $global['logfile'] = $global['systemRootPath'] . 'videos/avideo.log';
 }
+
 ini_set('error_log', $global['logfile']);
+
 global $global;
 global $config;
 

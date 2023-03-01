@@ -675,9 +675,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     return /^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/gm.test($('#inputVideoURL').val());
                 }
 
-                function setDownloadProgress(id, progress) {
+                function setDownloadProgress(id, progress, setText) {
                     var selector = "#downloadProgress" + id;
-                    progress = parseFloat(progress);
+                    progress = parseInt(progress);
 
                     $(selector).slideDown();
                     if (progress < 0) {
@@ -685,20 +685,53 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     } else if (progress > 100) {
                         progress = 100;
                     }
+                    var text = "<strong>Downloading</strong> " + progress + '%';
                     if (progress < 100) {
                         $(selector).addClass('active');
-                        $(selector).find('.progress-bar').removeClass('progress-bar-info');
+                        $(selector).find('.progress-bar').removeClass('progress-bar-success');
                         $(selector).find('.progress-bar').addClass('progress-bar-danger');
                     } else {
+                        text = "<strong>Downloaded</strong>";
                         $(selector).removeClass('active');
                         $(selector).find('.progress-bar').removeClass('progress-bar-danger');
-                        $(selector).find('.progress-bar').addClass('progress-bar-info');
+                        $(selector).find('.progress-bar').addClass('progress-bar-success');
                     }
+                    if (setText) {
+                        $("#encodingProgress" + id).find('.progress-completed').html(text);
+                    }
+
                     //console.log('progress-bar', progress);
                     $(selector).find('.progress-bar').css({
                         'width': progress + '%'
                     });
+                }
 
+                function setEncodingProgress(id, progress, text) {
+                    var selector = "#encodingProgress" + id;
+                    if (!isNaN(progress)) {
+                        progress = parseInt(progress);
+                        $(selector).slideDown();
+                        if (progress < 0) {
+                            progress = 0;
+                        } else if (progress > 100) {
+                            progress = 100;
+                        }
+                        $(selector).find('.progress-completed').html("<strong>" + text + "</strong> " + progress + '%');
+                        $(selector).find('.progress-bar').css({
+                            'width': progress + '%'
+                        });
+                        if (progress > 0) {
+                            $(selector).addClass('active');
+                            $(selector).find('.progress-bar').removeClass('progress-bar-success');
+                            $(selector).find('.progress-bar').addClass('progress-bar-primary');
+
+                        } else {
+                            $(selector).removeClass('active');
+                            $(selector).find('.progress-bar').removeClass('progress-bar-primary');
+                            $(selector).find('.progress-bar').addClass('progress-bar-success');
+
+                        }
+                    }
                 }
 
                 var checkProgressTimeout = 3000; //4 secongs
@@ -715,6 +748,12 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }
 
                             }
+                            if (response.downloaded.length > 0) {
+                                for (i = 0; i < response.downloaded.length; i++) {
+                                    var id = response.downloaded[i].id;
+                                    setDownloadProgress(id, 100, true);
+                                }
+                            }
                             if (response.encoding.length > 0) {
                                 var newEncodingNowIds = new Array();
                                 for (i = 0; i < response.encoding.length; i++) {
@@ -726,9 +765,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     var id = encodingNowIds[i];
                                     // if start encode next before get 100%
                                     if (newEncodingNowIds.indexOf(id) == -1) {
-                                        $("#encodeProgress" + id).slideUp("normal", function() {
-                                            $(this).remove();
-                                        });
+                                        removeQueueItem(id);
                                     }
                                 }
                                 encodingNowIds = newEncodingNowIds;
@@ -736,34 +773,19 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 for (i = 0; i < encodingNowIds.length; i++) {
                                     var id = encodingNowIds[i];
 
-
-                                    if (response.download_status[i] && !response.encoding_status[i].progress) {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [Downloading ...] </strong> " + response.download_status[i].progress + '%');
-                                    } else {
-                                        $("#encodingProgress" + id).find('.progress-completed').html("<strong>" + response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] </strong> " + response.encoding_status[i].progress + '% ' + response.encoding_status[i].remainTimeHuman);
-                                        $("#encodingProgress" + id).find('.progress-bar').css({
-                                            'width': response.encoding_status[i].progress + '%'
-                                        });
+                                    var text = response.encoding[i].name + " [Downloading ...]";
+                                    if (response.download_status[i] && response.encoding_status[i].progress) {
+                                        text = response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] " + response.encoding_status[i].remainTimeHuman;
                                     }
+                                    var setText = true;
+                                    if (response.encoding_status[i].progress) {
+                                        setText = false;
+                                        setEncodingProgress(id, response.encoding_status[i].progress, text);
+                                    }
+
                                     if (response.download_status[i]) {
-                                        setDownloadProgress(id, response.download_status[i].progress);
+                                        setDownloadProgress(id, response.download_status[i].progress, setText);
                                     }
-                                    if (response.encoding_status[i].progress >= 100) {
-                                        $("#encodingProgress" + id).find('.progress-bar').css({
-                                            'width': '100%'
-                                        });
-                                        setTimeout(function() {
-                                            $("#encodeProgress" + id).fadeOut("slow", function() {
-                                                $(this).remove();
-                                            });
-                                            $("#downloadProgress" + id).slideUp("fast", function() {
-                                                $(this).remove();
-                                            });
-                                        }, 3000);
-                                    } else {
-
-                                    }
-
                                 }
 
                                 setTimeout(function() {
@@ -771,27 +793,27 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }, checkProgressTimeout);
                             } else {
                                 while ((id = encodingNowIds.pop()) != null) {
-                                    $("#encodeProgress" + id).slideUp("normal", function() {
-                                        $(this).remove();
-                                    });
+                                    removeQueueItem(id);
                                 }
                                 setTimeout(function() {
                                     checkProgress();
                                 }, checkProgressTimeout * 2);
                             }
-                            if (response.downloaded.length > 0) {
-                                for (i = 0; i < response.downloaded.length; i++) {
-                                    var id = response.downloaded[i].id;
-                                    setDownloadProgress(id, 100);
+                            if (response.transferring.length > 0) {
+                                for (i = 0; i < response.transferring.length; i++) {
+                                    var id = response.transferring[i].id;
+                                    removeQueueItem(id);
                                 }
-
                             }
 
                         }
                     });
                 }
 
+                var checkProgressRemoveTimeout = [];
+
                 function createQueueItem(queueItem, queueItemAfter) {
+                    clearTimeout(checkProgressRemoveTimeout[queueItem.id]);
                     if ($('#encodeProgress' + queueItem.id).length) {
                         return false;
                     }
@@ -808,6 +830,17 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     } else {
                         $(item).insertAfter("#" + queueItemAfter.id);
                     }
+                }
+
+                function removeQueueItem(id) {
+                    checkProgressRemoveTimeout[id] = setTimeout(function() {
+                        $("#encodeProgress" + id).fadeOut("slow", function() {
+                            $(this).remove();
+                        });
+                        $("#downloadProgress" + id).slideUp("fast", function() {
+                            $(this).remove();
+                        });
+                    }, 3000);
                 }
 
                 var streamerMaxFileSize = 0;
