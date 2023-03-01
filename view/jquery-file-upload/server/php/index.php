@@ -17,7 +17,7 @@ if (!Login::isLogged()) {
     die("Not login");
 }
 
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL & ~E_DEPRECATED);
 if (!empty($_FILES) && !empty($_FILES['files'])) {
     //var_dump($_FILES['files']['name']);
     if (!empty($_FILES['files']['name'])) {

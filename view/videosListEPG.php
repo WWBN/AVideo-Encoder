@@ -2,12 +2,12 @@
 
 if (!function_exists('isPIDRunning')) {
 
-    function isPIDRunning($pid) {
+    function isPIDRunning($pid)
+    {
         return file_exists("/proc/$pid");
     }
-
 }
-error_reporting(E_ALL);
+error_reporting(E_ALL & ~E_DEPRECATED);
 if (!empty($_REQUEST['date_default_timezone'])) {
     $dt = new DateTime();
     $dt->setTimezone(new DateTimeZone($_REQUEST['date_default_timezone']));

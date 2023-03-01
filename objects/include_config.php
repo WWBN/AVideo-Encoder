@@ -1,7 +1,7 @@
 <?php
 ini_set('log_errors_max_len', '1024');
 if ($_SERVER["HTTP_HOST"] == "localhost") {
-    error_reporting(E_ALL);
+    error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', 1);
 }
 if (empty($global['logfile'])) {
