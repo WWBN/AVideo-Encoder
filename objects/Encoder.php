@@ -493,12 +493,12 @@ class Encoder extends ObjectYPT
         } else {
             $obj->error = true;
         }
-        if ($response || $obj->error) {
+        if ($obj->error) {
             $destination = "{$dstFilepath}{$filename}";
             //error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in $destination";
-            $response = static::getYoutubeDl($url, $queue_id, $destination);
             error_log("downloadFile: trying getYoutubeDl queue_id = {$queue_id}");
+            $response = static::getYoutubeDl($url, $queue_id, $destination);
             $obj->error = !file_exists($destination);
         }
         error_log("downloadFile: " . json_encode($obj));
