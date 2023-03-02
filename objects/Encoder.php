@@ -453,8 +453,14 @@ class Encoder extends ObjectYPT
         if (!empty($q->getVideoDownloadedLink())) {
             //begin youtube-dl downloading and symlink it to the video temp file
             $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
-            error_log("downloadFile:getYoutubeDl queue_id = {$queue_id}");
-            $obj->error = false;
+            if(!empty($response)){
+                error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
+                $obj->pathFileName = $response;
+                $obj->error = false;
+            }else{
+                error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
+                $obj->error = false;
+            }
         } else {
             error_log("downloadFile: not using getYoutubeDl");
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
@@ -560,8 +566,11 @@ class Encoder extends ObjectYPT
         // the file is just symlinked
         //////symlink($file, $destinationFile);
         ////// symlink not allowed without apache configuration
-        _rename($file, $destinationFile);
-        return $file;
+        if(_rename($file, $destinationFile)){
+            return $destinationFile;
+        }else{
+            return $file;
+        }
     }
 
     static function getYoutubeDlProgress($queue_id)
