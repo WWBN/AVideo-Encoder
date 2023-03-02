@@ -1,13 +1,13 @@
 <?php
 $global['docker_vars'] = '/var/www/docker_vars.json';
 if (file_exists($global['docker_vars'])) {
-    $global['logfile'] = 'php://stderr';   
+    $global['logfile'] = 'php://stdout';   
     error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', 1);
-    ini_set('log_errors_max_len', '1024');
 }
 if (empty($global['logfile'])) {
     $global['logfile'] = $global['systemRootPath'] . 'videos/avideo.log';
+    ini_set('log_errors_max_len', '1024');
 }
 //$global['logfile'] = $global['systemRootPath'] . 'videos/avideo.log';
 ini_set('error_log', $global['logfile']);

@@ -7,6 +7,9 @@ require_once '../objects/Login.php';
 header('Content-Type: application/json');
 $rows = Encoder::getAll(true);
 $resolutions = array('Low', 'SD', 'HD');
+if(!is_array($rows)){
+    $rows = array();
+}
 foreach ($rows as $key => $value) {
     $f = new Format($rows[$key]['formats_id']);
     $rows[$key]['format'] = $f->getName();
