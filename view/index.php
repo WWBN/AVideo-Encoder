@@ -53,9 +53,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <meta name="author" content="">
 
     <title>Encoder</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
-    <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
-    <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png" />
+    <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png" />
+    <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
     <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
 
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/jquery/dist/jquery.min.js" type="text/javascript"></script>
@@ -71,22 +71,22 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/polyfill.min.js" type="text/javascript"></script>
 
-    <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css">
-    <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css">
+    <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload.css" />
+    <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui.css" />
     <!-- CSS adjustments for browsers with JavaScript disabled -->
     <noscript>
-        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css">
+        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-noscript.css" />
     </noscript>
     <noscript>
-        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css">
+        <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css" />
     </noscript>
     <link href="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
 
-    <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/js/main.js"); ?>" type="text/javascript"></script>
-    <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . "view/css/style.css"); ?>" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/js/main.js'); ?>" type="text/javascript"></script>
+    <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . 'view/css/style.css'); ?>" rel="stylesheet" type="text/css" />
 
-    <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css"" rel=" stylesheet" crossorigin="anonymous">
+    <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
     <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css" />
     <link href="<?php echo Login::getStreamerURL(); ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css" />
 
@@ -123,7 +123,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         <?php
                         if (!empty($_SESSION['login']->siteLogo)) {
                         ?>
-                            <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive ">
+                            <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive" />
                         <?php
                         }
                         ?>
@@ -277,7 +277,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         ?>
 
             <div class="col-md-4" id="rightContainer">
-                <div class="panel panel-default ">
+                <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">
                         <ul class="nav nav-tabs">
                             <li class="nav-item active  <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
@@ -286,7 +286,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             <?php
                             if (empty($global['hideAdvanced'])) {
                             ?>
-                                <li class="nav-item  <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
                                     <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
                                 </li>
                             <?php
@@ -313,7 +313,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             <?php
                                             if (Login::isStreamerAdmin()) {
                                             ?>
-                                                <button class="btn btn-primary btn-xs pull-right " type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
+                                                <button class="btn btn-primary btn-xs pull-right" type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
                                                 <script>
                                                     var reloadIfIsNotEditingUserGroupTimeout;
 
@@ -345,7 +345,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <?php
                                                 foreach ($_SESSION['login']->userGroups as $key => $value) {
                                                 ?>
-                                                    <div class="col-xs-6  <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
+                                                    <div class="col-xs-6 <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
                                                         <label>
                                                             <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
                                                             <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
@@ -405,9 +405,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     <div class="panel panel-default">
                                         <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
                                         <div class="panel-body">
-                                            <img id="inputNextVideo-poster" src="view/img/notfound.jpg" class="ui-state-default img img-responsive" alt="">
-                                            <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="Search for a video">
-                                            <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id">
+                                            <img id="inputNextVideo-poster" src="view/img/notfound.jpg" class="ui-state-default img img-responsive" alt="" />
+                                            <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="Search for a video" />
+                                            <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id" />
                                         </div>
                                     </div>
 
@@ -467,7 +467,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label style="" id="">
                                                     <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
                                                                                 $('.mp4Checkbox').prop('checked', false);
-                                                                            }"> Multi Bitrate HLS
+                                                                            }" /> Multi Bitrate HLS
                                                 </label><br>
                                             <?php
                                             }
@@ -476,7 +476,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label style="" id="">
                                                     <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }"> Low
+                                                                            }" /> Low
                                                 </label>
                                             <?php
                                             }
@@ -485,7 +485,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label id="">
                                                     <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }"> SD
+                                                                            }" /> SD
                                                 </label>
                                             <?php
                                             }
@@ -494,7 +494,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label>
                                                     <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }"> HD
+                                                                            }" /> HD
                                                 </label>
                                             <?php
                                             }
@@ -512,7 +512,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             <?php } ?>
                                             <?php if (empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
                                                 <label style="display: none;" id="spectrum">
-                                                    <input type="checkbox" id="inputAudioSpectrum">
+                                                    <input type="checkbox" id="inputAudioSpectrum" />
                                                     <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
                                                 </label>
                                             <?php } ?>
@@ -524,7 +524,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                     $checked = 'checked="checked"';
                                             ?>
                                                 <label id="webm">
-                                                    <input type="checkbox" id="inputWebM" <?php echo $checked; ?>>
+                                                    <input type="checkbox" id="inputWebM" <?php echo $checked; ?> />
                                                     <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
                                                     <br><small class="label label-warning">
                                                         For Chrome Browsers
@@ -559,10 +559,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             <li <?php
                                 if (empty($_POST['updateFile'])) {
                                 ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                } else {
-                                                                                                                                                    ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                ?>>
+                                } else {
+                                ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
+                                <?php
+                                } ?>>
                                 <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
@@ -579,10 +579,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     <li <?php
                                         if (!empty($_POST['updateFile'])) {
                                         ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                        } else {
-                                                                                                                                                            ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                        ?>>
+                                        } else {
+                                        ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
+                                        } ?>>
                                         <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
