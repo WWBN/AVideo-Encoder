@@ -719,7 +719,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         $(selector).find('.progress-bar').css({
                             'width': progress + '%'
                         });
-                        if (progress > 0) {
+                        if (progress < 100) {
                             $(selector).addClass('active');
                             $(selector).find('.progress-bar').removeClass('progress-bar-success');
                             $(selector).find('.progress-bar').addClass('progress-bar-primary');
