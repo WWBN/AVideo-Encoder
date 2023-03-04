@@ -730,6 +730,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             $(selector).find('.progress-bar').addClass('progress-bar-success');
 
                         }
+                        setDownloadProgress(id, 100, false);
                     }
                 }
 
