@@ -1767,9 +1767,15 @@ class Encoder extends ObjectYPT
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         if(empty($curl)){
-            return false;
+            $obj->msg = "sendToStreamer cURL is empty ";
+            return $obj;
         }
-        $obj->response_raw = curl_exec($curl);
+        try {
+            $obj->response_raw = curl_exec($curl);
+        } catch (\Throwable $th) {
+            $obj->msg = $th->getMessage();
+            return $obj;
+        }
         $obj->response = json_decode($obj->response_raw);
 
         if ($errno = curl_errno($curl)) {
