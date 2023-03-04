@@ -1766,6 +1766,9 @@ class Encoder extends ObjectYPT
         }
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+        if(empty($curl)){
+            return false;
+        }
         $obj->response_raw = curl_exec($curl);
         $obj->response = json_decode($obj->response_raw);
 
