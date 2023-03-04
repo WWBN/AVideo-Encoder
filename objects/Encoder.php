@@ -453,11 +453,11 @@ class Encoder extends ObjectYPT
         if (!empty($q->getVideoDownloadedLink())) {
             //begin youtube-dl downloading and symlink it to the video temp file
             $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
-            if(!empty($response)){
+            if (!empty($response)) {
                 error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
                 $obj->pathFileName = $response;
                 $obj->error = false;
-            }else{
+            } else {
                 error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
                 $obj->error = false;
             }
@@ -526,7 +526,7 @@ class Encoder extends ObjectYPT
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
-        error_log("getYoutubeDl: Getting from Youtube DL {$cmd} ". json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        error_log("getYoutubeDl: Getting from Youtube DL {$cmd} " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
@@ -566,9 +566,9 @@ class Encoder extends ObjectYPT
         // the file is just symlinked
         //////symlink($file, $destinationFile);
         ////// symlink not allowed without apache configuration
-        if(_rename($file, $destinationFile)){
+        if (_rename($file, $destinationFile)) {
             return $destinationFile;
-        }else{
+        } else {
             return $file;
         }
     }
@@ -1751,26 +1751,26 @@ class Encoder extends ObjectYPT
         $obj->target = $target;
         $obj->postFields = $postFields;
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
         try {
-            if(!empty($postFields) && is_array($postFields)){
-                curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-                curl_setopt($curl, CURLOPT_POST, 1);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+            try {
+                if (!empty($postFields) && is_array($postFields)) {
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+                    curl_setopt($curl, CURLOPT_POST, 1);
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+                }
+            } catch (\Throwable $th) {
+                error_log("sendToStreamer($target,  " . json_encode($postFields));
             }
-        } catch (\Throwable $th) {
-            error_log("sendToStreamer($target,  " . json_encode($postFields));
-        }
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
-        if(empty($curl)){
-            $obj->msg = "sendToStreamer cURL is empty ";
-            return $obj;
-        }
-        try {
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+            if (empty($curl)) {
+                $obj->msg = "sendToStreamer cURL is empty ";
+                return $obj;
+            }
             $obj->response_raw = curl_exec($curl);
         } catch (\Throwable $th) {
             $obj->msg = $th->getMessage();
