@@ -1757,8 +1757,10 @@ class Encoder extends ObjectYPT
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-        if(!empty($postFields)){
+        try {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        } catch (\Throwable $th) {
+            error_log("sendToStreamer($target,  " . json_encode($postFields));
         }
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
