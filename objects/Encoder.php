@@ -1757,7 +1757,9 @@ class Encoder extends ObjectYPT
         curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        if(!empty($postFields)){
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
+        }
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
         $obj->response_raw = curl_exec($curl);
