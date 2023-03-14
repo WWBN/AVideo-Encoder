@@ -1275,7 +1275,9 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
-        $videos_id = $return_vars->videos_id;
+        if(!empty($return_vars->videos_id)){
+            $videos_id = $return_vars->videos_id;
+        }
 
         if (is_object($return_vars) && !empty($_REQUEST['callback'])) {
             $return_vars->callback = $_REQUEST['callback'];
