@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 header('Content-Type: application/json');
-
+$global['allowed'] = array_unique($global['allowed']);
 $files = array();
 if(Login::canBulkEncode()){
     if (!empty($_POST['path'])) {
