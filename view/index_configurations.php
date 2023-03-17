@@ -17,8 +17,8 @@ if (Login::isAdmin()) {
                 ?>
                 <div class="input-group input-group-sm">
                     <span class="input-group-addon">[<?php echo $value['id']; ?>] <?php echo $value['name']; ?></span>
-                    <input type="text" class="form-control formats" placeholder="Code" id="format_<?php echo $value['id']; ?>" value="<?php echo htmlentities($value['code']); ?>">
-                </div>    
+                    <input type="text" class="form-control formats" placeholder="<?php echo __('Code'); ?>" id="format_<?php echo $value['id']; ?>" value="<?php echo htmlentities($value['code']); ?>" />
+                </div>
                 <?php
             }
             ?>
@@ -26,7 +26,7 @@ if (Login::isAdmin()) {
 
             <div class="form-group">
                 <div>
-                    <label>Resolutions</label>
+                    <label><?php echo __('Resolutions'); ?></label>
                 </div>
                 <div id="resolutions" class="checkboxes">
                     <?php
@@ -36,7 +36,7 @@ if (Login::isAdmin()) {
                         ?>
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i>
-                            Please upgrade to enable this feature
+                            <?php echo __('Please upgrade to enable this feature'); ?>
                         </div>
                         <?php
                     }
@@ -73,16 +73,16 @@ if (Login::isAdmin()) {
 
                     <?php
                 }
-                ?>                
+                ?>
             </div>
 
             <div class="form-group">
-                <label for="allowedStreamers">Allowed Streamers Sites (One per line. Leave blank for public)</label>
-                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
+                <label for="allowedStreamers"><?php echo __('Allowed Streamers Sites (One per line. Leave blank for public)'); ?></label>
+                <textarea class="form-control" id="allowedStreamers" placeholder="<?php echo __('Leave Blank for Public'); ?>" required="required"><?php echo $config->getAllowedStreamersURL(); ?></textarea>
             </div>
 
             <div class="form-group">
-                <label for="defaultPriority">Default Priority</label>
+                <label for="defaultPriority"><?php echo __('Default Priority'); ?></label>
                 <select class="" id="defaultPriority">
                     <?php
                     $priority = $config->getDefaultPriority();
@@ -94,12 +94,12 @@ if (Login::isAdmin()) {
             </div>
 
             <div class="form-group">
-                <label for="defaultPriority">Auto remove</label>
-                <input type="checkbox" class="" id="autodelete" value="1" <?php if (!empty($ad)) { ?>checked="true"<?php } ?>>
-                <small>Will remove queue and the files when the encoder process is done</small>
+                <label for="defaultPriority"><?php echo __('Auto remove'); ?></label>
+                <input type="checkbox" class="" id="autodelete" value="1" <?php if (!empty($ad)) { ?>checked="true"<?php } ?> />
+                <small><?php echo __('Will remove queue and the files when the encoder process is done'); ?></small>
             </div>
 
-            <button class="btn btn-success btn-block" id="saveConfig"> Save </button>
+            <button class="btn btn-success btn-block" id="saveConfig"> <?php echo __('Save'); ?> </button>
         </div>
         <div id="update" class="tab-pane fade <?php if (!empty($_POST['updateFile'])) { ?>in active<?php } ?>">
             <?php
