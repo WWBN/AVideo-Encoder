@@ -1,5 +1,5 @@
 
-<div class="panel panel-default ">
+<div class="panel panel-default">
     <div class="panel-heading">
         <?php
         if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
@@ -7,24 +7,24 @@
         }
         ?>
     </div>
-    <div class="panel-body  <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
+    <div class="panel-body <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a data-toggle="tab" href="#upload">
                     <center>
-                        <i class="fas fa-file" aria-hidden="true"></i><br>From File
+                        <i class="fas fa-file" aria-hidden="true"></i><br><?php echo __('From File'); ?>
                     </center>
                 </a>
             </li>
             <?php
             if (empty($global['disableImportVideo'])) {
                 ?>
-                <li ><a data-toggle="tab" href="#download"><center><i class="fas fa-globe" aria-hidden="true"></i><br>Import Video</center></a></li>
+                <li><a data-toggle="tab" href="#download"><center><i class="fas fa-globe" aria-hidden="true"></i><br><?php echo __('Import Video'); ?></center></a></li>
                 <?php
             }
             if (Login::canBulkEncode()) {
                 ?>
-                <li><a data-toggle="tab" href="#bulk"><center><span class="glyphicon glyphicon-duplicate"></span><br>Bulk Encode</center></a></li>
+                <li><a data-toggle="tab" href="#bulk"><center><span class="glyphicon glyphicon-duplicate"></span><br><?php echo __('Bulk Encode'); ?></center></a></li>
             <?php } ?>
         </ul>
         <div class="tab-content" style="padding: 10px 0;">
@@ -39,15 +39,15 @@
                 ?>
                 <div id="download" class="tab-pane fade">
                     <div class="alert alert-info">
-                        <span class="glyphicon glyphicon-info-sign"></span> Share videos from YouTube and a few <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank">more sites</a>.
+                        <span class="glyphicon glyphicon-info-sign"></span> <?php echo __('Share videos from YouTube and a few'); ?> <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank"><?php echo __('more sites'); ?></a>.
                     </div>
                     <form id="downloadForm" onsubmit="">
                         <div class="form-group">
                             <div class="input-group">
-                                <input type="url" class="form-control" id="inputVideoURL" placeholder="http://...">
+                                <input type="url" class="form-control" id="inputVideoURL" placeholder="http://..." />
                                 <span class="input-group-btn">
                                     <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-check" aria-hidden="true"></i> Share
+                                        <i class="fas fa-check" aria-hidden="true"></i> <?php echo __('Share'); ?>
                                     </button>
                                 </span>
                             </div>
@@ -64,7 +64,7 @@
                                 <div style="display: flex;">
                                     <select class="form-control categories_id" id="download_categories_id" name="download_categories_id">
 
-                                        <option value="0">Category - Use site default</option>
+                                        <option value="0"><?php echo __('Category - Use site default'); ?></option>
                                         <?php
                                         array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
                                         foreach ($_SESSION['login']->categories as $key => $value) {
@@ -101,7 +101,7 @@
                                     }
                                     ?>
                                 </div>
-                            </div> 
+                            </div>
                             <?php
                         }
                         ?>
@@ -115,15 +115,15 @@
 
                 <div id="bulk" class="tab-pane fade">
                     <div class="alert alert-info">
-                        <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> Bulk add your server local files on queue.
+                        <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> <?php echo __('Bulk add your server local files on queue.'); ?>
                     </div>
 
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="text" id="path"  class="form-control" placeholder="Local Path of videos i.e. /media/videos"/>
+                            <input type="text" id="path"  class="form-control" placeholder="<?php echo __('Local Path of videos i.e. /media/videos'); ?>" />
                             <span class="input-group-btn">
                                 <button class="btn btn-primary" id="pathBtn">
-                                    <span class="glyphicon glyphicon-list"></span> List Files
+                                    <span class="glyphicon glyphicon-list"></span> <?php echo __('List Files'); ?>
                                 </button>
                             </span>
                             <span class="input-group-btn">
@@ -150,7 +150,7 @@
                             <div style="display: flex;">
                                 <select class="form-control categories_id" id="bulk_categories_id" name="bulk_categories_id">
 
-                                    <option value="0">Category - Use site default</option>
+                                    <option value="0"><?php echo __('Category - Use site default'); ?></option>
                                     <?php
                                     array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
                                     foreach ($_SESSION['login']->categories as $key => $value) {
@@ -187,16 +187,16 @@
                                 }
                                 ?>
                             </div>
-                        </div> 
+                        </div>
                         <?php
                     }
                     ?>
                     <ul class="list-group" id="files">
                     </ul>
-                    <button class="btn btn-block btn-primary" id="addQueueBtn">Add on Queue</button>
+                    <button class="btn btn-block btn-primary" id="addQueueBtn"><?php echo __('Add on Queue'); ?></button>
                 </div>
             <?php } ?>
-        </div> 
+        </div>
     </div>
     <div class="panel-footer">
         <div class="availableResolutionsLabels">
