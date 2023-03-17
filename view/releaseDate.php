@@ -11,39 +11,39 @@ if (!isset($releaseDateJSandCSSAdded)) {
     $releaseDateJSandCSSAdded = 1;
 }
 ?><div class="form-group col-sm-7">
-    <label for="<?php echo $releaseDateId; ?>Option"><?php echo __("Release Date"); ?></label>
+    <label for="<?php echo $releaseDateId; ?>Option"><?php echo __('Release Date'); ?></label>
     <select class="form-control" id="<?php echo $releaseDateId; ?>Option">
-        <option value='<?php echo date('Y-m-d H:i'); ?>'><?php echo __('Now'); ?> (<?php echo date('Y-m-d H:i'); ?>)</option>
-        <optgroup label="Hours">
+        <option value="<?php echo date('Y-m-d H:i'); ?>"><?php echo __('Now'); ?> (<?php echo date('Y-m-d H:i'); ?>)</option>
+        <optgroup label="<?php echo __('Hours'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 Hour';
+            $relaseOptions[] = '1 ' . __('Hour');
             for ($i = 2; $i < 24; $i++) {
-                $relaseOptions[] = "{$i} Hours";
+                $relaseOptions[] = "{$i} " . __('Hours');
             }
             foreach ($relaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
-        <optgroup label="Days">
+        <optgroup label="<?php echo __('Days'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 Day';
+            $relaseOptions[] = '1 ' . __('Day');
             for ($i = 2; $i < 31; $i++) {
-                $relaseOptions[] = "{$i} Days";
+                $relaseOptions[] = "{$i} " . __('Days');
             }
             foreach ($relaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
-        <optgroup label="Months">
+        <optgroup label="<?php echo __('Months'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 Month';
+            $relaseOptions[] = '1 ' . __('Month');
             for ($i = 2; $i < 12; $i++) {
-                $relaseOptions[] = "{$i} Months";
+                $relaseOptions[] = "{$i} " . __('Months');
             }
 
             foreach ($relaseOptions as $value) {
@@ -51,12 +51,12 @@ if (!isset($releaseDateJSandCSSAdded)) {
             }
             ?>
         </optgroup>
-        <optgroup label="Years">
+        <optgroup label="<?php echo __('Years'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 Year';
+            $relaseOptions[] = '1 ' . __('Year');
             for ($i = 2; $i < 10; $i++) {
-                $relaseOptions[] = "{$i} Years";
+                $relaseOptions[] = "{$i} " . __('Years');
             }
 
             foreach ($relaseOptions as $value) {
@@ -68,8 +68,8 @@ if (!isset($releaseDateJSandCSSAdded)) {
 </div>
 
 <div class="form-group col-sm-5">
-    <label for="<?php echo $releaseDateId; ?>"><?php echo __("Date Time"); ?>:</label>
-    <input type="text" id="<?php echo $releaseDateId; ?>" class="form-control input-sm" placeholder="<?php echo __("Date Time"); ?>" value='<?php echo date('Y-m-d H:i'); ?>' required>
+    <label for="<?php echo $releaseDateId; ?>"><?php echo __('Date Time'); ?>:</label>
+    <input type="text" id="<?php echo $releaseDateId; ?>" class="form-control input-sm" placeholder="<?php echo __('Date Time'); ?>" value="<?php echo date('Y-m-d H:i'); ?>" required />
 </div>
 <div class="clearfix"></div>
 <script>
