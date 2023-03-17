@@ -1033,8 +1033,22 @@ function getPHP() {
     return "php";
 }
 
-function __($msg) {
-    return $msg;
+//function __($msg) {
+//    return $msg;
+//}
+function __($msg, $allowHTML = false) {
+    global $t;
+    if (empty($t[$msg])) {
+        if ($allowHTML) {
+            return $msg;
+        }
+        return str_replace(array("'", '"', "<", '>'), array('&apos;', '&quot;', '&lt;', '&gt;'), $msg);
+    } else {
+        if ($allowHTML) {
+            return $t[$msg];
+        }
+        return str_replace(array("'", '"', "<", '>'), array('&apos;', '&quot;', '&lt;', '&gt;'), $t[$msg]);
+    }
 }
 
 function getAdvancedCustomizedObjectData() {
