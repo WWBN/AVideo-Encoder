@@ -1,10 +1,10 @@
 <link href="view/mini-upload-form/assets/css/style.css" rel="stylesheet" />
 <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
     <div class="form-group">
-        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+        <input type="text" class="form-control" id="title" name="title" placeholder="<?php echo __('Title'); ?>" />
     </div>
     <div class="form-group">
-        <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
+        <textarea class="form-control" id="description" name="description" placeholder="<?php echo __('Description'); ?>"></textarea>
     </div>
     <?php
     if (!empty($_SESSION['login']->categories)) {
@@ -13,7 +13,7 @@
             <div style="display: flex;">
                 <select class="form-control categories_id" id="categories_id" name="categories_id">
 
-                    <option value="0">Category - Use site default</option>
+                    <option value="0"><?php echo __('Category - Use site default'); ?></option>
                     <?php
                     array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
                     foreach ($_SESSION['login']->categories as $key => $value) {
@@ -50,15 +50,15 @@
         }
         ?>
             </div>
-        </div> 
+        </div>
     <?php
 }
 ?>
     <hr>
     <div id="drop">
-        Drop Your Files Here
+        <?php echo __('Drop Your Files Here'); ?>
 
-        <a>Browse</a>
+        <a><?php echo __('Browse'); ?></a>
         <input type="file" name="upl" multiple />
     </div>
 
