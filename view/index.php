@@ -20,6 +20,7 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
+require_once '../locale/function.php';
 
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
@@ -44,7 +45,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?php echo strtolower($_SESSION['lang']); ?>">
 
 <head>
     <meta charset="utf-8">
@@ -98,6 +99,17 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         var webSiteRootURL = '<?php echo Login::getStreamerURL(); ?>';
         var PHPSESSID = '<?php echo session_id(); ?>';
     </script>
+
+<link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+<link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+<script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
+
+<script>
+ function changeLang(){
+  document.getElementById('form_lang').submit();
+ }
+</script>
+
     <style>
         <?php
         if (!empty($_GET['noNavbar'])) {
@@ -109,6 +121,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <?php
         }
         ?>
+        .bootstrap-select button.dropdown-toggle span.lanG {display:none}
+        .buttonLogoff {padding: 8px 12px !important; margin-top: 5px !important; border-radius: 4px !important;}
+        .select_lang {padding:5px 0 0 10px; }
+        .select_lang .lanG {font-size:11px; padding-left:10px}
+        .select_lang .dropdown-menu>li>a {padding: 3px 10px !important;}
     </style>
 </head>
 
@@ -137,14 +154,38 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             <!--
                                     <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
                                 -->
-                            <li><a href="logoff"><span class="glyphicon glyphicon-log-out"></span> Logoff</a></li>
-                        <?php
+                            <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
+				<li>
+			<div class="select_lang">
+		<form method="post" action="" id="form_lang">
+	<select class="selectpicker" data-width="fit" name="lang" onchange='changeLang();'>
+<?php
+$dir_lang = '../locale';
+	if (file_exists($dir_lang) && is_dir($dir_lang) ) {
+		$scan_arr = scandir($dir_lang);
+      $files_arr = array_diff($scan_arr, array('.','..', 'function.php', 'locale.json.php'));
+			foreach ($files_arr as $file_lang) {
+				$t_lang = basename($file_lang, '.php');
+				display_lang(json_decode($langs_codes, true), $t_lang);
+			}
+  }
+?>
+	</select>
+		</form>
+			</div>
+				</li>
+								<?php
                         }
                         ?>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
+<script>
+$(document).ready(function(){
+$('.selectpicker').selectpicker();
+});
+</script>
     <?php
     }
     ?>
@@ -157,40 +198,40 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                 <div class="col-xs-10 col-md-8 ">
                     <form class="form-compact well form-horizontal" id="loginForm">
                         <fieldset>
-                            <legend>Please sign in</legend>
+                            <legend><?php echo __('Please sign in'); ?></legend>
                             <div class="form-group">
-                                <label class="col-md-4 control-label">Streamer Site</label>
+                                <label class="col-md-4 control-label"><?php echo __('Streamer Site'); ?></label>
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                        <input id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control" type="url" value="<?php echo $streamerURL; ?>" required>
+                                        <input id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control" type="url" value="<?php echo $streamerURL; ?>" required />
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="col-md-4 control-label">User</label>
+                                <label class="col-md-4 control-label"><?php echo __('User'); ?></label>
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                        <input id="inputUser" placeholder="User" class="form-control" type="text" value="<?php echo @$_REQUEST['user']; ?>" required>
+                                        <input id="inputUser" placeholder="<?php echo __('User'); ?>" class="form-control" type="text" value="<?php echo @$_REQUEST['user']; ?>" required />
                                     </div>
                                 </div>
                             </div>
 
 
                             <div class="form-group">
-                                <label class="col-md-4 control-label">Password</label>
+                                <label class="col-md-4 control-label"><?php echo __('Password'); ?></label>
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                        <input id="inputPassword" placeholder="Password" class="form-control" type="password" value="<?php echo @$_REQUEST['pass']; ?>">
+                                        <input id="inputPassword" placeholder="<?php echo __('Password'); ?>" class="form-control" type="password" value="<?php echo @$_REQUEST['pass']; ?>" />
                                     </div>
                                 </div>
                             </div>
                             <!-- Button -->
                             <div class="form-group">
                                 <div class="col-md-12">
-                                    <button type="submit" class="btn btn-success  btn-block" id="mainButton"><span class="fas fa-sign-in"></span> Sign in</button>
+                                    <button type="submit" class="btn btn-success  btn-block" id="mainButton"><span class="fas fa-sign-in"></span> <?php echo __('Sign in'); ?></button>
                                 </div>
                             </div>
                         </fieldset>
@@ -223,14 +264,14 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             success: function(response) {
                                 if (response.error) {
                                     modal.hidePleaseWait();
-                                    swal("Sorry!", response.error, "error");
+                                    swal("<?php echo __('Sorry!'); ?>", response.error, "error");
                                 } else
                                 if (!response.streamer) {
                                     modal.hidePleaseWait();
-                                    swal("Sorry!", "We could not find your streamer site!", "error");
+                                    swal("<?php echo __('Sorry!'); ?>", "<?php echo __('We could not find your streamer site!'); ?>", "error");
                                 } else if (!response.isLogged) {
                                     modal.hidePleaseWait();
-                                    swal("Sorry!", "Your user or password is wrong!", "error");
+                                    swal("<?php echo __('Sorry!'); ?>", "<?php echo __('Your user or password is wrong!'); ?>", "error");
                                 } else {
                                     var url = new URL(document.location);
                                     url.searchParams.append('justLogin', 1);
@@ -281,13 +322,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     <div class="panel-heading tabbable-line">
                         <ul class="nav nav-tabs">
                             <li class="nav-item active  <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> Basic</a>
+                                <a data-toggle="tab" href="#basicOptions" class="nav-link"><i class="fas fa-cog"></i> <?php echo __('Basic'); ?></a>
                             </li>
                             <?php
                             if (empty($global['hideAdvanced'])) {
                             ?>
                                 <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                    <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> Advanced</a>
+                                    <a data-toggle="tab" href="#advancedOptions" class="nav-link"><i class="fas fa-cogs"></i> <?php echo __('Advanced'); ?></a>
                                 </li>
                             <?php
                             }
@@ -308,7 +349,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 ?>
                                     <div class="panel panel-default">
                                         <div class="panel-heading clearfix"><i class="fas fa-users"></i>
-                                            User Groups
+                                            <?php echo __('User Groups'); ?>
 
                                             <?php
                                             if (Login::isStreamerAdmin()) {
@@ -347,7 +388,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 ?>
                                                     <div class="col-xs-6 <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
                                                         <label>
-                                                            <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>">
+                                                            <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>" />
                                                             <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
                                                         </label>
                                                     </div>
@@ -355,7 +396,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 }
                                                 ?>
                                             </div>
-                                            <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> Unckeck all to make it public</div>
+                                            <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> <?php echo __('Unckeck all to make it public'); ?></div>
 
                                         </div>
                                     </div>
@@ -386,14 +427,14 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
                                 ?>
                                     <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> Override status</div>
+                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Override status'); ?></div>
                                         <div class="panel-body">
                                             <select class="form-control" id="override_status" name="override_status">
-                                                <option value="">Use site default</option>
-                                                <option value="a">Active</option>
-                                                <option value="i">Inactive</option>
-                                                <option value="u">Unlisted</option>
-                                                <option value="s">Unlisted but Searchable</option>
+                                                <option value=""><?php echo __('Use site default'); ?></option>
+                                                <option value="a"><?php echo __('Active'); ?></option>
+                                                <option value="i"><?php echo __('Inactive'); ?></option>
+                                                <option value="u"><?php echo __('Unlisted'); ?></option>
+                                                <option value="s"><?php echo __('Unlisted but Searchable'); ?></option>
                                             </select>
                                         </div>
                                     </div>
@@ -403,11 +444,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (empty($advancedCustom->doNotAllowUpdateVideoId)) {
                                 ?>
                                     <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> Update existing video</div>
+                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Update existing video'); ?></div>
                                         <div class="panel-body">
                                             <img id="inputNextVideo-poster" src="view/img/notfound.jpg" class="ui-state-default img img-responsive" alt="" />
-                                            <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="Search for a video" />
-                                            <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="Video Id" />
+                                            <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="<?php echo __('Search for a video'); ?>" />
+                                            <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="<?php echo __('Video Id'); ?>" />
                                         </div>
                                     </div>
 
@@ -459,7 +500,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
                                 ?>
                                     <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> Resolutions</div>
+                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Resolutions'); ?></div>
                                         <div class="panel-body">
                                             <?php
                                             if (empty($advancedCustom->doNotShowEncoderHLS)) {
@@ -467,7 +508,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label style="" id="">
                                                     <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
                                                                                 $('.mp4Checkbox').prop('checked', false);
-                                                                            }" /> Multi Bitrate HLS
+                                                                            }" /> <?php echo __('Multi Bitrate HLS'); ?>
                                                 </label><br>
                                             <?php
                                             }
@@ -476,7 +517,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label style="" id="">
                                                     <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }" /> Low
+                                                                            }" /> <?php echo __('Low'); ?>
                                                 </label>
                                             <?php
                                             }
@@ -485,7 +526,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label id="">
                                                     <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }" /> SD
+                                                                            }" /> <?php echo __('SD'); ?>
                                                 </label>
                                             <?php
                                             }
@@ -494,7 +535,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 <label>
                                                     <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
                                                                                 $('#inputHLS').prop('checked', false);
-                                                                            }" /> HD
+                                                                            }" /> <?php echo __('HD'); ?>
                                                 </label>
                                             <?php
                                             }
@@ -502,18 +543,18 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         </div>
                                     </div>
                                     <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-cogs"></i> Advanced</div>
+                                        <div class="panel-heading"><i class="fas fa-cogs"></i> <?php echo __('Advanced'); ?></div>
                                         <div class="panel-body">
                                             <?php if (empty($advancedCustom->doNotShowExtractAudio)) { ?>
                                                 <label>
-                                                    <input type="checkbox" id="inputAudioOnly">
-                                                    <span class="glyphicon glyphicon-headphones"></span> Extract Audio
+                                                    <input type="checkbox" id="inputAudioOnly" />
+                                                    <span class="glyphicon glyphicon-headphones"></span> <?php echo __('Extract Audio'); ?>
                                                 </label><br>
                                             <?php } ?>
                                             <?php if (empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
                                                 <label style="display: none;" id="spectrum">
                                                     <input type="checkbox" id="inputAudioSpectrum" />
-                                                    <span class="glyphicon glyphicon-equalizer"></span> Create Video Spectrum
+                                                    <span class="glyphicon glyphicon-equalizer"></span> <?php echo __('Create Video Spectrum'); ?>
                                                 </label>
                                             <?php } ?>
                                             <?php
@@ -525,9 +566,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             ?>
                                                 <label id="webm">
                                                     <input type="checkbox" id="inputWebM" <?php echo $checked; ?> />
-                                                    <i class="fas fa-chrome" aria-hidden="true"></i> Extract WebM Video <small class="text-muted">(The encode process will be slow)</small>
+                                                    <i class="fas fa-chrome" aria-hidden="true"></i> <?php echo __('Extract WebM Video'); ?> <small class="text-muted">(<?php echo __('The encode process will be slow'); ?>)</small>
                                                     <br><small class="label label-warning">
-                                                        For Chrome Browsers
+                                                        <?php echo __('For Chrome Browsers'); ?>
                                                     </small>
                                                 </label>
                                             <?php
@@ -539,10 +580,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }
                                 ?>
                                 <div class="panel panel-success">
-                                    <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> Streamer info </div>
+                                    <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> <?php echo __('Streamer info'); ?> </div>
                                     <div class="panel-body">
                                         <i class="fas fa-globe"></i> <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                                        <i class="fas fa-user"></i> User: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
+                                        <i class="fas fa-user"></i> <?php echo __('User'); ?>: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
                                     </div>
                                 </div>
                             </div>
@@ -560,13 +601,12 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (empty($_POST['updateFile'])) {
                                 ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                 } else {
-                                ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>"
-                                <?php
+                                ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                 } ?>>
-                                <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> Sharing Queue</a>
+                                <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> <?php echo __('Sharing Queue'); ?></a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Queue Log</a>
+                                <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> <?php echo __('Queue Log'); ?></a>
                             </li>
 
                             <?php
@@ -574,7 +614,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (empty($global['disableConfigurations'])) {
                             ?>
                                     <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                        <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> Configurations</a>
+                                        <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> <?php echo __('Configurations'); ?></a>
                                     </li>
                                     <li <?php
                                         if (!empty($_POST['updateFile'])) {
@@ -582,7 +622,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         } else {
                                         ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                         } ?>>
-                                        <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> Update <?php if (!empty($updateFiles)) { ?>
+                                        <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> <?php echo __('Update'); ?> <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
                                     </li>
@@ -590,7 +630,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }
                                 ?>
                                 <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                    <a data-toggle="tab" href="#streamers" class="nav-link"><span class="glyphicon glyphicon-user"></span> Streamers</a>
+                                    <a data-toggle="tab" href="#streamers" class="nav-link"><span class="glyphicon glyphicon-user"></span> <?php echo __('Streamers'); ?></a>
                                 </li>
                             <?php
                             }
@@ -605,9 +645,9 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 <table id="grid" class="table table-condensed table-hover table-striped">
                                     <thead>
                                         <tr>
-                                            <th data-column-id="title" data-formatter="title">Title</th>
-                                            <th data-column-id="status" data-formatter="status">Status</th>
-                                            <th data-column-id="created" data-formatter="dates" data-order="desc">Dates</th>
+                                            <th data-column-id="title" data-formatter="title"><?php echo __('Title'); ?></th>
+                                            <th data-column-id="status" data-formatter="status"><?php echo __('Status'); ?></th>
+                                            <th data-column-id="created" data-formatter="dates" data-order="desc"><?php echo __('Dates'); ?></th>
                                             <th data-column-id="commands" data-formatter="commands" data-sortable="false" data-width="120px"></th>
                                         </tr>
                                     </thead>
@@ -623,10 +663,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     <table id="gridStreamer" class="table table-condensed table-hover table-striped">
                                         <thead>
                                             <tr>
-                                                <th data-column-id="siteURL" data-width="40%">URL</th>
-                                                <th data-column-id="user" data-width="30%">User</th>
-                                                <th data-column-id="priority" data-formatter="priority" data-width="15%">Priority</th>
-                                                <th data-column-id="isAdmin" data-formatter="admin" data-width="15%">Admin</th>
+                                                <th data-column-id="siteURL" data-width="40%"><?php echo __('URL'); ?></th>
+                                                <th data-column-id="user" data-width="30%"><?php echo __('User'); ?></th>
+                                                <th data-column-id="priority" data-formatter="priority" data-width="15%"><?php echo __('Priority'); ?></th>
+                                                <th data-column-id="isAdmin" data-formatter="admin" data-width="15%"><?php echo __('Admin'); ?></th>
                                                 <th data-column-id="commands" data-formatter="commands" data-sortable="false" data-width="100px"></th>
                                             </tr>
                                         </thead>
@@ -663,7 +703,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 for (i = 0; i < response.length; i++) {
                                     if (!response[i])
                                         continue;
-                                    $('#files').append('<li class="list-group-item" path="' + response[i].path + '" id="li' + i + '"><span class="label label-success" style="display: none;"><span class="glyphicon glyphicon-ok"></span> Added on queue.. </span> ' + response[i].name + '<div class="material-switch pull-right"><input id="someSwitchOption' + response[i].id + '" class="someSwitchOption" type="checkbox"/><label for="someSwitchOption' + response[i].id + '" class="label-primary"></label></div></li>');
+                                    $('#files').append('<li class="list-group-item" path="' + response[i].path + '" id="li' + i + '"><span class="label label-success" style="display: none;"><span class="glyphicon glyphicon-ok"></span> <?php echo __('Added on queue'); ?>.. </span> ' + response[i].name + '<div class="material-switch pull-right"><input id="someSwitchOption' + response[i].id + '" class="someSwitchOption" type="checkbox"/><label for="someSwitchOption' + response[i].id + '" class="label-primary"></label></div></li>');
                                 }
                             }
                         }
@@ -684,13 +724,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     } else if (progress > 100) {
                         progress = 100;
                     }
-                    var text = "<strong>Downloading</strong> " + progress + '%';
+                    var text = "<strong><?php echo __('Downloading'); ?></strong> " + progress + '%';
                     if (progress < 100) {
                         $(selector).addClass('active');
                         $(selector).find('.progress-bar').removeClass('progress-bar-success');
                         $(selector).find('.progress-bar').addClass('progress-bar-danger');
                     } else {
-                        text = "<strong>Downloaded</strong>";
+                        text = "<strong><?php echo __('Downloaded'); ?></strong>";
                         $(selector).removeClass('active');
                         $(selector).find('.progress-bar').removeClass('progress-bar-danger');
                         $(selector).find('.progress-bar').addClass('progress-bar-success');
@@ -773,7 +813,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 for (i = 0; i < encodingNowIds.length; i++) {
                                     var id = encodingNowIds[i];
 
-                                    var text = response.encoding[i].name + " [Downloading ...]";
+                                    var text = response.encoding[i].name + " [<?php echo __('Downloading'); ?> ...]";
                                     if (response.download_status[i] && response.encoding_status[i].progress) {
                                         text = response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] " + response.encoding_status[i].remainTimeHuman;
                                     }
@@ -828,7 +868,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     itemsArray.name = queueItem.name;
 
                     var item = arrayToTemplate(itemsArray, createQueueTemplate);
-                    
+
                     if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
                         $("#encoding").append(item);
                     } else {
@@ -878,7 +918,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         success: function(response) {
                             $('#max_file_size').text(response.max_file_size);
                             streamerMaxFileSize = response.file_upload_max_size;
-                            $('#currentStorageUsage').text((response.currentStorageUsage / 60).toFixed(2) + " Minutes");
+                            $('#currentStorageUsage').text((response.currentStorageUsage / 60).toFixed(2) + " <?php echo __('Minutes'); ?>");
                         }
                     });
 
@@ -1018,14 +1058,14 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 var return_vars = JSON.parse(row.return_vars);
 
                                 if (row.status != 'queue' && row.status != 'encoding') {
-                                    reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="Re-Queue"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
+                                    reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="<?php echo __('Re-Queue'); ?>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
                                 }
-                                deleteQueue = '<button type="button" class="btn btn-xs btn-default command-deleteQueue" data-toggle="tooltip" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+                                deleteQueue = '<button type="button" class="btn btn-xs btn-default command-deleteQueue" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
                                 if (row.status === 'done' || row.status === 'transferring') {
-                                    sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="Send Notify"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
+                                    sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="<?php echo __('Send Notify'); ?>"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
                                 }
                                 if (return_vars.videos_id) {
-                                    edit = '<button type="button" class="btn btn-xs btn-default command-editFile" data-toggle="tooltip" title="Edit"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
+                                    edit = '<button type="button" class="btn btn-xs btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
                                 }
 
                                 return edit + sendFileQueue + reQueue + deleteQueue;
@@ -1034,7 +1074,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 return "Created: " + row.created + "<br>Modified: " + row.modified;
                             },
                             "status": function(column, row) {
-                                var btn = '<button class="btn btn-xs btn-default" data-toggle="popover" title="Details" data-content="' + row.status_obs + '"><label class="glyphicon glyphicon-alert"></label></button> ';
+                                var btn = '<button class="btn btn-xs btn-default" data-toggle="popover" title="<?php echo __('Details'); ?>" data-content="' + row.status_obs + '"><label class="glyphicon glyphicon-alert"></label></button> ';
                                 var label = "warning";
                                 if (row.status == "error") {
                                     label = "danger";
@@ -1061,7 +1101,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">[' + videos_id + '] ' + l.hostname + ' <span class="badge">Priority ' + row.priority + '</span></a>';
+                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">[' + videos_id + '] ' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
                                 title += '<br><span class="label label-primary">' + row.format + '</span>';
 
                                 for (const index in row.fileInfo) {
@@ -1176,13 +1216,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             },
                             "admin": function(column, row) {
                                 var tag = "<select class='isAdmin' rowId='" + row.id + "'>";
-                                tag += "<option value='1' " + (row.isAdmin == "1" ? "selected" : "") + ">Yes</option>";
-                                tag += "<option value='0' " + (row.isAdmin == "1" ? "" : "selected") + ">No</option>";
+                                tag += "<option value='1' " + (row.isAdmin == "1" ? "selected" : "") + "><?php echo __('Yes'); ?></option>";
+                                tag += "<option value='0' " + (row.isAdmin == "1" ? "" : "selected") + "><?php echo __('No'); ?></option>";
                                 tag += "</select>";
                                 return tag;
                             },
                             "commands": function(column, row) {
-                                var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" title="Delete Queue"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                                var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
 
                                 return deleteBtn;
                             }
@@ -1255,10 +1295,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         if (Login::canBulkEncode()) {
                         ?>
                             var span = document.createElement("span");
-                            span.innerHTML = "This is a Channel, are you sure you want to download all videos on this channel?<br>It may take a while to complete<br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>";
+                            span.innerHTML = "<?php echo __('This is a Channel, are you sure you want to download all videos on this channel?'); ?><br><?php echo __('It may take a while to complete'); ?><br>Start Index: <input type='number'  id='startIndex' value='0' style='width:100px;'><br>End Index: <input type='number'  id='endIndex' value='100' style='width:100px;'>";
 
                             swal({
-                                    title: "Are you sure?",
+                                    title: "<?php echo __('Are you sure?'); ?>",
                                     content: span,
                                     icon: "warning",
                                     buttons: true,
@@ -1299,13 +1339,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             type: 'post',
                                             success: function(response) {
                                                 if (response.text) {
-                                                    avideoAlertSuccess("All your videos were imported");
+                                                    avideoAlertSuccess("<?php echo __('All your videos were imported'); ?>");
                                                 }
                                                 console.log(response);
                                             }
                                         });
                                         setTimeout(function() {
-                                            avideoAlertInfo("All your videos channel will be process, this may take a while to be complete");
+                                            avideoAlertInfo("<?php echo __('All your videos channel will be process, this may take a while to be complete'); ?>");
                                         }, 500);
                                         modal.hidePleaseWait();
                                     }
@@ -1313,7 +1353,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         <?php
                         } else {
                         ?>
-                            avideoAlertError("Channel Import is disabled");
+                            avideoAlertError("<?php echo __('Channel Import is disabled'); ?>");
                         <?php
                         }
                         ?>
