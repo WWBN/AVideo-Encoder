@@ -173,7 +173,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             $dir_lang = '../locale';
                                             if (file_exists($dir_lang) && is_dir($dir_lang)) {
                                                 $scan_arr = scandir($dir_lang);
-                                                $files_arr = array_diff($scan_arr, array('.', '..', 'function.php', 'locale.json.php'));
+                                                $files_arr = array_diff($scan_arr, array('.', '..', 'function.php', 'locale.json.php', 'index.php'));
                                                 foreach ($files_arr as $file_lang) {
                                                     $t_lang = basename($file_lang, '.php');
                                                     display_lang(json_decode($langs_codes, true), $t_lang);
