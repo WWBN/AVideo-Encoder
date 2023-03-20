@@ -471,29 +471,6 @@ function parseSecondsToDuration($seconds) {
     return secondsToVideoTime($seconds);
 }
 
-/**
- * 
- * @global type $global
- * @param type $mail
- * call it before send mail to let AVideo decide the method
- */
-function setSiteSendMessage(&$mail) {
-    global $global;
-    require_once $global['systemRootPath'] . 'objects/configuration.php';
-    $config = new Configuration();
-
-    if ($config->getSmtp()) {
-        $mail->IsSMTP(); // enable SMTP
-        $mail->SMTPAuth = true; // authentication enabled
-        $mail->SMTPSecure = $config->getSmtpSecure(); // secure transfer enabled REQUIRED for Gmail
-        $mail->Host = $config->getSmtpHost();
-        $mail->Port = $config->getSmtpPort();
-        $mail->Username = $config->getSmtpUsername();
-        $mail->Password = $config->getSmtpPassword();
-    } else {
-        $mail->isSendmail();
-    }
-}
 
 function decideFromPlugin() {
     $advancedCustom = getAdvancedCustomizedObjectData();
@@ -693,9 +670,9 @@ function ip_is_private($ip) {
 
 /**
  * webservice to use the streamer to encode the password
- * @param type $password
- * @param type $streamerURL
- * @return type
+ * @param String $password
+ * @param String $streamerURL
+ * @return String
  */
 function encryptPassword($password, $streamerURL) {
     $url = "{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password);
@@ -925,7 +902,7 @@ function _session_start(Array $options = array()) {
             return session_start($options);
         }
     } catch (Exception $exc) {
-        _error_log("_session_start: " . $exc->getTraceAsString());
+        error_log("_session_start: " . $exc->getTraceAsString());
         return false;
     }
 }

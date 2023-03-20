@@ -20,7 +20,7 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
-require_once '../locale/function.php';
+//require_once '../locale/function.php';
 
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
@@ -100,15 +100,15 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         var PHPSESSID = '<?php echo session_id(); ?>';
     </script>
 
-<link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
-<link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
-<script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
+    <link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+    <link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
 
-<script>
- function changeLang(){
-  document.getElementById('form_lang').submit();
- }
-</script>
+    <script>
+        function changeLang() {
+            document.getElementById('form_lang').submit();
+        }
+    </script>
 
     <style>
         <?php
@@ -120,12 +120,28 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
         <?php
         }
-        ?>
-        .bootstrap-select button.dropdown-toggle span.lanG {display:none}
-        .buttonLogoff {padding: 8px 12px !important; margin-top: 5px !important; border-radius: 4px !important;}
-        .select_lang {padding:5px 0 0 10px; }
-        .select_lang .lanG {font-size:11px; padding-left:10px}
-        .select_lang .dropdown-menu>li>a {padding: 3px 10px !important;}
+        ?>.bootstrap-select button.dropdown-toggle span.lanG {
+            display: none
+        }
+
+        .buttonLogoff {
+            padding: 8px 12px !important;
+            margin-top: 5px !important;
+            border-radius: 4px !important;
+        }
+
+        .select_lang {
+            padding: 5px 0 0 10px;
+        }
+
+        .select_lang .lanG {
+            font-size: 11px;
+            padding-left: 10px
+        }
+
+        .select_lang .dropdown-menu>li>a {
+            padding: 3px 10px !important;
+        }
     </style>
 </head>
 
@@ -155,37 +171,128 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
                                 -->
                             <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
-				<li>
-			<div class="select_lang">
-		<form method="post" action="" id="form_lang">
-	<select class="selectpicker" data-width="fit" name="lang" onchange='changeLang();'>
-<?php
-$dir_lang = '../locale';
-	if (file_exists($dir_lang) && is_dir($dir_lang) ) {
-		$scan_arr = scandir($dir_lang);
-      $files_arr = array_diff($scan_arr, array('.','..', 'function.php', 'locale.json.php'));
-			foreach ($files_arr as $file_lang) {
-				$t_lang = basename($file_lang, '.php');
-				display_lang(json_decode($langs_codes, true), $t_lang);
-			}
-  }
-?>
-	</select>
-		</form>
-			</div>
-				</li>
-								<?php
+                            <li>
+
+                            <div class="navbar-lang-btn">
+        <div class="btn-group" id="div_navBarFlag">
+            <input type="hidden" name="navBarFlag" value="pt" id="navBarFlag">
+            <button type="button" class="btn btn-default dropdown-toggle " data-toggle="dropdown" aria-expanded="true">
+                <span class="flag"><i class="selectedflagicon flagstrap-icon flagstrap-pt"></i></span> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right dropdown-menu-arrow" role="menu"><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=ar_SA" value="ar_SA" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('ar_SA');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-sa" aria-hidden="true"></i></span> Arabic (Saudi Arabia)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=cs" value="cs" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('cs');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-cz" aria-hidden="true"></i></span> Czech</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=da_DK" value="da_DK" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('da_DK');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-dk" aria-hidden="true"></i></span> Danish (Denmark)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=de" value="de" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('de');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-de" aria-hidden="true"></i></span> German</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=el_GR" value="el_GR" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('el_GR');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-gr" aria-hidden="true"></i></span> Greek (Greece)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=en_AU" value="en_AU" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('en_AU');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-au" aria-hidden="true"></i></span> English (Australia)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=en_US" value="en_US" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('en_US');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-us" aria-hidden="true"></i></span> English (United States)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=es" value="es" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('es');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-es" aria-hidden="true"></i></span> Spanish</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=es_CL" value="es_CL" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('es_CL');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-cl" aria-hidden="true"></i></span> Spanish (Chile)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=fr" value="fr" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('fr');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-fr" aria-hidden="true"></i></span> French</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=he_IL" value="he_IL" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('he_IL');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-il" aria-hidden="true"></i></span> Hebrew (Israel)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=hi_IN" value="hi_IN" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('hi_IN');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-in" aria-hidden="true"></i></span> Hindi (India)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=hu_HU" value="hu_HU" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('hu_HU');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-hu" aria-hidden="true"></i></span> Hungarian (Hungary)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=it" value="it" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('it');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-it" aria-hidden="true"></i></span> Italian</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=ja_JP" value="ja_JP" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('ja_JP');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-jp" aria-hidden="true"></i></span> Japanese (Japan)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=ko_KR" value="ko_KR" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('ko_KR');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-kr" aria-hidden="true"></i></span> Korean (South Korea)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=nl" value="nl" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('nl');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-nl" aria-hidden="true"></i></span> Dutch</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=pl" value="pl" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('pl');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-pl" aria-hidden="true"></i></span> Polish</a>
+                    </li><li class="dropdown-submenu active">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=pt" value="pt" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('pt');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-pt" aria-hidden="true"></i></span> Portuguese</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=pt_BR" value="pt_BR" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('pt_BR');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-br" aria-hidden="true"></i></span> Portuguese (Brazil)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=ru" value="ru" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('ru');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-ru" aria-hidden="true"></i></span> Russian</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=si" value="si" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('si');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-si" aria-hidden="true"></i></span> Sinhala</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=sv_SE" value="sv_SE" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('sv_SE');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-se" aria-hidden="true"></i></span> Swedish (Sweden)</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=th" value="th" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('th');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-th" aria-hidden="true"></i></span> Thai</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=tr" value="tr" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('tr');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-tr" aria-hidden="true"></i></span> Turkish</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=zh" value="zh" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('zh');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-cn" aria-hidden="true"></i></span> Chinese</a>
+                    </li><li class="dropdown-submenu ">
+                    <a tabindex="-1" href="https://vlu.me/view/?lang=zh_Hant_TW" value="zh_Hant_TW" onclick="$('#div_navBarFlag > button > span.flag').html($(this).find('span.flag').html());$('input[name=navBarFlag]').val('zh_Hant_TW');">
+                        <span class="flag"><i class="flagstrap-icon flagstrap-tw" aria-hidden="true"></i></span> Chinese (Traditional Han, Taiwan)</a>
+                    </li></ul></div>
+    </div>
+
+                                <div class="select_lang">
+                                    <form method="post" action="" id="form_lang">
+                                        <select class="selectpicker" data-width="fit" name="lang" onchange='changeLang();'>
+                                            <?php
+                                            $dir_lang = '../locale';
+                                            if (file_exists($dir_lang) && is_dir($dir_lang)) {
+                                                $scan_arr = scandir($dir_lang);
+                                                $files_arr = array_diff($scan_arr, array('.', '..', 'function.php', 'locale.json.php'));
+                                                foreach ($files_arr as $file_lang) {
+                                                    $t_lang = basename($file_lang, '.php');
+                                                    //display_lang(json_decode($langs_codes, true), $t_lang);
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </form>
+                                </div>
+                            </li>
+                        <?php
                         }
                         ?>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
-<script>
-$(document).ready(function(){
-$('.selectpicker').selectpicker();
-});
-</script>
+        <script>
+            $(document).ready(function() {
+                $('.selectpicker').selectpicker();
+            });
+        </script>
     <?php
     }
     ?>
@@ -600,9 +707,9 @@ $('.selectpicker').selectpicker();
                             <li <?php
                                 if (empty($_POST['updateFile'])) {
                                 ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                } else {
-                                ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                } ?>>
+                                                                                                                                                } else {
+                                                                                                                                                    ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
+                                                                                                                                                } ?>>
                                 <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> <?php echo __('Sharing Queue'); ?></a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
@@ -619,9 +726,9 @@ $('.selectpicker').selectpicker();
                                     <li <?php
                                         if (!empty($_POST['updateFile'])) {
                                         ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                        } else {
-                                        ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                        } ?>>
+                                                                                                                                                        } else {
+                                                                                                                                                            ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
+                                                                                                                                                        } ?>>
                                         <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> <?php echo __('Update'); ?> <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
@@ -851,7 +958,7 @@ $('.selectpicker').selectpicker();
                 }
 
                 var checkProgressRemoveTimeout = [];
-                var createQueueTemplate = <?php echo json_encode(file_get_contents($global['systemRootPath'].'view/encodeProgressTemplate.html')); ?>;
+                var createQueueTemplate = <?php echo json_encode(file_get_contents($global['systemRootPath'] . 'view/encodeProgressTemplate.html')); ?>;
 
                 function createQueueItem(queueItem, queueItemAfter) {
                     clearTimeout(checkProgressRemoveTimeout[queueItem.id]);
