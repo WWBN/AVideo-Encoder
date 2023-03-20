@@ -1,15 +1,15 @@
 <div class="container-fluid">
-            <div class="alert alert-success"><?php printf("You are running AVideo Encoder version %s!", $config->getVersion()); ?></div>
+            <div class="alert alert-success"><?php printf(__('You are running AVideo Encoder version %s!'), $config->getVersion()); ?></div>
             <?php
             if (empty($_POST['updateFile'])) {
                 $updateFiles = getUpdatesFiles();
                 if (!empty($updateFiles)) {
                     ?>
                     <div class="alert alert-warning">
-                        <form method="post" class="form-compact well form-horizontal" >
+                        <form method="post" class="form-compact well form-horizontal">
                             <fieldset>
-                                <legend>Update AVideo System</legend>
-                                <label for="updateFile" class="sr-only">Select the update</label>
+                                <legend><?php echo __('Update AVideo System'); ?></legend>
+                                <label for="updateFile" class="sr-only"><?php echo __('Select the update'); ?></label>
                                 <select class="selectpicker" data-width="fit" name="updateFile" id="updateFile" required autofocus>
                                     <?php
                                     foreach ($updateFiles as $value) {
@@ -17,9 +17,9 @@
                                     }
                                     ?>
                                 </select>
-                                <?php printf("We detected a total of %s pending updates, if you want to do it now click (Update Now) button", "<strong class='badge'>" . count($updateFiles) . "</strong>"); ?>
+                                <?php printf(__('We detected a total of %s pending updates, if you want to do it now click (Update Now) button'), "<strong class='badge'>" . count($updateFiles) . "</strong>"); ?>
                                 <hr>
-                                <button type="submit" class="btn btn-warning btn-lg center-block " href="?update=1" > <span class="glyphicon glyphicon-refresh"></span> Update Now </button>
+                                <button type="submit" class="btn btn-warning btn-lg center-block" href="?update=1"> <span class="glyphicon glyphicon-refresh"></span> <?php echo __('Update Now'); ?> </button>
                             </fieldset>
                         </form>
                     </div>
@@ -33,7 +33,7 @@
                 } else {
                     ?>
                     <div class="alert alert-success">
-                        <h2>Your system is up to date</h2>
+                        <h2><?php echo __('Your system is up to date'); ?></h2>
                     </div>
                     <?php
                 }
@@ -62,9 +62,9 @@
                 ?>
                 <div class="alert alert-success">
                     <?php
-                    printf("Your update from file %s is done, click continue", $_POST['updateFile']);
+                    printf(__('Your update from file %s is done, click continue'), $_POST['updateFile']);
                     ?><hr>
-                    <a class="btn btn-success" href="?done=1" > <span class="glyphicon glyphicon-ok"></span> Continue </a>
+                    <a class="btn btn-success" href="?done=1"> <span class="glyphicon glyphicon-ok"></span> <?php echo __('Continue'); ?> </a>
                 </div>
                 <?php
             }
