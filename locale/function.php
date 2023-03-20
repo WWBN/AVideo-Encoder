@@ -31,4 +31,3 @@ function display_lang($decoded_json, $searchKey) {
 	}
 }
 
-?>

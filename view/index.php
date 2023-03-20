@@ -20,7 +20,7 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
-require_once '../locale/function.php';
+//require_once '../locale/function.php';
 
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
@@ -45,7 +45,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo strtolower($_SESSION['lang']); ?>">
+<html lang="<?php echo strtolower(@$_SESSION['lang']); ?>">
 
 <head>
     <meta charset="utf-8">
@@ -100,15 +100,15 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         var PHPSESSID = '<?php echo session_id(); ?>';
     </script>
 
-<link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
-<link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
-<script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
+    <link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+    <link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
 
-<script>
- function changeLang(){
-  document.getElementById('form_lang').submit();
- }
-</script>
+    <script>
+        function changeLang() {
+            document.getElementById('form_lang').submit();
+        }
+    </script>
 
     <style>
         <?php
@@ -120,12 +120,28 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
         <?php
         }
-        ?>
-        .bootstrap-select button.dropdown-toggle span.lanG {display:none}
-        .buttonLogoff {padding: 8px 12px !important; margin-top: 5px !important; border-radius: 4px !important;}
-        .select_lang {padding:5px 0 0 10px; }
-        .select_lang .lanG {font-size:11px; padding-left:10px}
-        .select_lang .dropdown-menu>li>a {padding: 3px 10px !important;}
+        ?>.bootstrap-select button.dropdown-toggle span.lanG {
+            display: none
+        }
+
+        .buttonLogoff {
+            padding: 8px 12px !important;
+            margin-top: 5px !important;
+            border-radius: 4px !important;
+        }
+
+        .select_lang {
+            padding: 5px 0 0 10px;
+        }
+
+        .select_lang .lanG {
+            font-size: 11px;
+            padding-left: 10px
+        }
+
+        .select_lang .dropdown-menu>li>a {
+            padding: 3px 10px !important;
+        }
     </style>
 </head>
 
@@ -148,6 +164,27 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <div class="navbar-lang-btn">
+                                <div class="select_lang">
+                                    <form method="post" action="" id="form_lang">
+                                        <select class="selectpicker" data-width="fit" name="lang" onchange='changeLang();'>
+                                            <?php
+                                            $dir_lang = '../locale';
+                                            if (file_exists($dir_lang) && is_dir($dir_lang)) {
+                                                $scan_arr = scandir($dir_lang);
+                                                $files_arr = array_diff($scan_arr, array('.', '..', 'function.php', 'locale.json.php'));
+                                                foreach ($files_arr as $file_lang) {
+                                                    $t_lang = basename($file_lang, '.php');
+                                                    //display_lang(json_decode($langs_codes, true), $t_lang);
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        </li>
                         <?php
                         if (Login::isLogged()) {
                         ?>
@@ -155,37 +192,19 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
                                 -->
                             <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
-				<li>
-			<div class="select_lang">
-		<form method="post" action="" id="form_lang">
-	<select class="selectpicker" data-width="fit" name="lang" onchange='changeLang();'>
-<?php
-$dir_lang = '../locale';
-	if (file_exists($dir_lang) && is_dir($dir_lang) ) {
-		$scan_arr = scandir($dir_lang);
-      $files_arr = array_diff($scan_arr, array('.','..', 'function.php', 'locale.json.php'));
-			foreach ($files_arr as $file_lang) {
-				$t_lang = basename($file_lang, '.php');
-				display_lang(json_decode($langs_codes, true), $t_lang);
-			}
-  }
-?>
-	</select>
-		</form>
-			</div>
-				</li>
-								<?php
+
+                        <?php
                         }
                         ?>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
-<script>
-$(document).ready(function(){
-$('.selectpicker').selectpicker();
-});
-</script>
+        <script>
+            $(document).ready(function() {
+                $('.selectpicker').selectpicker();
+            });
+        </script>
     <?php
     }
     ?>
@@ -600,9 +619,9 @@ $('.selectpicker').selectpicker();
                             <li <?php
                                 if (empty($_POST['updateFile'])) {
                                 ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                } else {
-                                ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                } ?>>
+                                                                                                                                                } else {
+                                                                                                                                                    ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
+                                                                                                                                                                                                                                                            } ?>>
                                 <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> <?php echo __('Sharing Queue'); ?></a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
@@ -619,9 +638,9 @@ $('.selectpicker').selectpicker();
                                     <li <?php
                                         if (!empty($_POST['updateFile'])) {
                                         ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                        } else {
-                                        ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                        } ?>>
+                                                                                                                                                        } else {
+                                                                                                                                                            ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
+                                                                                                                                                                                                                                                                    } ?>>
                                         <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> <?php echo __('Update'); ?> <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
@@ -851,7 +870,7 @@ $('.selectpicker').selectpicker();
                 }
 
                 var checkProgressRemoveTimeout = [];
-                var createQueueTemplate = <?php echo json_encode(file_get_contents($global['systemRootPath'].'view/encodeProgressTemplate.html')); ?>;
+                var createQueueTemplate = <?php echo json_encode(file_get_contents($global['systemRootPath'] . 'view/encodeProgressTemplate.html')); ?>;
 
                 function createQueueItem(queueItem, queueItemAfter) {
                     clearTimeout(checkProgressRemoveTimeout[queueItem.id]);
