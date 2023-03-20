@@ -151,3 +151,6 @@ body {
 .availableResolutionsLabels .label {
     margin: 1px 2px;
 }
+.navbar-right li{
+    margin-right: 10px;
+}

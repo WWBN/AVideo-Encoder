@@ -45,7 +45,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo strtolower($_SESSION['lang']); ?>">
+<html lang="<?php echo strtolower(@$_SESSION['lang']); ?>">
 
 <head>
     <meta charset="utf-8">
@@ -164,15 +164,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav navbar-right">
-                        <?php
-                        if (Login::isLogged()) {
-                        ?>
-                            <!--
-                                    <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
-                                -->
-                            <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
-                            <li>
-
+                        <li>
                             <div class="navbar-lang-btn">
                                 <div class="select_lang">
                                     <form method="post" action="" id="form_lang">
@@ -191,7 +183,16 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         </select>
                                     </form>
                                 </div>
-                            </li>
+                            </div>
+                        </li>
+                        <?php
+                        if (Login::isLogged()) {
+                        ?>
+                            <!--
+                                    <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
+                                -->
+                            <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
+
                         <?php
                         }
                         ?>
@@ -620,7 +621,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                                                                                                                                 } else {
                                                                                                                                                     ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                } ?>>
+                                                                                                                                                                                                                                                            } ?>>
                                 <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> <?php echo __('Sharing Queue'); ?></a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
@@ -639,7 +640,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         ?> class="nav-item active <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                                                                                                                                         } else {
                                                                                                                                                             ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
-                                                                                                                                                        } ?>>
+                                                                                                                                                                                                                                                                    } ?>>
                                         <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> <?php echo __('Update'); ?> <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
