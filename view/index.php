@@ -20,7 +20,7 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
-//require_once '../locale/function.php';
+require_once '../locale/function.php';
 
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
@@ -176,7 +176,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 $files_arr = array_diff($scan_arr, array('.', '..', 'function.php', 'locale.json.php'));
                                                 foreach ($files_arr as $file_lang) {
                                                     $t_lang = basename($file_lang, '.php');
-                                                    //display_lang(json_decode($langs_codes, true), $t_lang);
+                                                    display_lang(json_decode($langs_codes, true), $t_lang);
                                                 }
                                             }
                                             ?>
