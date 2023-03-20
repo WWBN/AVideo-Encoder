@@ -1,9 +1,9 @@
 <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
     <div class="form-group">
-        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
+        <input type="text" class="form-control" id="title" name="title" placeholder="<?php echo __('Title'); ?>">
     </div>
     <div class="form-group">
-        <textarea class="form-control" id="description" name="description" placeholder="Description"></textarea>
+        <textarea class="form-control" id="description" name="description" placeholder="<?php echo __('Description'); ?>"></textarea>
     </div>
     <?php
     $releaseDateId = 'releaseDate';
@@ -11,14 +11,14 @@
     ?>
     <div class="clearfix"></div>
     <?php
-    
+
     if (!empty($_SESSION['login']->categories)) {
         ?>
         <div class="form-group">
             <div style="display: flex;">
                 <select class="form-control categories_id" id="categories_id" name="categories_id">
 
-                    <option value="0">Category - Use site default</option>
+                    <option value="0"><?php echo __('Category - Use site default'); ?></option>
                     <?php
                     array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
                     foreach ($_SESSION['login']->categories as $key => $value) {
@@ -55,7 +55,7 @@
                 }
                 ?>
             </div>
-        </div> 
+        </div>
         <script>
             function loadCategories() {
                 console.log('loadCategories');
@@ -89,23 +89,23 @@
             <!-- The fileinput-button span is used to style the file input field as button -->
             <span class="btn btn-success fileinput-button col-sm-12">
                 <i class="glyphicon glyphicon-plus"></i>
-                <span>Add files...</span>
-                <input type="file" name="files[]" multiple>
+                <span><?php echo __('Add files...'); ?></span>
+                <input type="file" name="files[]" multiple />
             </span>
             <button type="submit" class="btn btn-primary start col-sm-4" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
                 <i class="glyphicon glyphicon-upload"></i>
-                <span>Start upload</span>
+                <span><?php echo __('Start upload'); ?></span>
             </button>
             <button type="reset" class="btn btn-warning cancel col-sm-4" style="border-radius: 0;">
                 <i class="glyphicon glyphicon-ban-circle"></i>
-                <span>Cancel upload</span>
+                <span><?php echo __('Cancel upload'); ?></span>
             </button>
             <button type="button" class="btn btn-danger delete col-sm-4" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                 <i class="glyphicon glyphicon-trash"></i>
-                <span>Delete</span>
+                <span><?php echo __('Delete'); ?></span>
             </button>
-            <input type="checkbox" class="toggle" name="selectAll" >
-            <label for="selectAll"> Select All </label>
+            <input type="checkbox" class="toggle" name="selectAll" />
+            <label for="selectAll"> <?php echo __('Select All'); ?> </label>
             <!-- The global file processing state -->
             <span class="fileupload-process"></span>
         </div>
@@ -125,19 +125,19 @@
     {% } %}
     <strong class="error text-danger"></strong>
     <br>
-    <p class="size">Processing...</p>
+    <p class="size"><?php echo __('Processing...'); ?></p>
     <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
     <br>
     {% if (!i && !o.options.autoUpload) { %}
     <button class="btn btn-primary start" disabled>
     <i class="glyphicon glyphicon-upload"></i>
-    <span>Start</span>
+    <span><?php echo __('Start'); ?></span>
     </button>
     {% } %}
     {% if (!i) { %}
     <button class="btn btn-warning cancel">
     <i class="glyphicon glyphicon-ban-circle"></i>
-    <span>Cancel</span>
+    <span><?php echo __('Cancel'); ?></span>
     </button>
     {% } %}
     </td>
@@ -166,7 +166,7 @@
     </p>
     {% } %}
     {% if (file.error) { %}
-    <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+    <div><span class="label label-danger"><?php echo __('Error'); ?></span> {%=file.error%}</div>
     {% } %}
     </td>
     <td>
@@ -176,13 +176,13 @@
     {% if (file.deleteUrl) { %}
     <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}&PHPSESSID={%=PHPSESSID%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
     <i class="glyphicon glyphicon-trash"></i>
-    <span>Delete</span>
+    <span><?php echo __('Delete'); ?></span>
     </button>
     <input type="checkbox" name="delete" value="1" class="toggle">
     {% } else { %}
     <button class="btn btn-warning cancel">
     <i class="glyphicon glyphicon-ban-circle"></i>
-    <span>Cancel</span>
+    <span><?php echo __('Cancel'); ?></span>
     </button>
     {% } %}
     </td>
@@ -216,7 +216,7 @@
 <!-- The File Upload user interface plugin -->
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/jquery.fileupload-ui.js"></script>
 <!-- The main application script -->
-<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/main.js?<?php echo filectime($global['systemRootPath'] . "view/jquery-file-upload/js/main.js"); ?>"></script>
+<script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/jquery-file-upload/js/main.js'); ?>"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
 <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/js/cors/jquery.xdr-transport.js"></script>
