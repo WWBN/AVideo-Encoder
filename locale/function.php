@@ -14,15 +14,13 @@ if (isset($_SESSION['lang']) && $_SESSION['lang'] == $_POST['lang']) {
 	$locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 	$langBrowser =  str_replace('-', '_', $locale);
 
-function detecting_lang($languageBrowser, $default = 'en_US' ) {
-	$scanDir = scandir('../locale/');
-	$arrayFiles = array_diff($scanDir, array('.','..', 'function.php', 'locale.json.php', 'index.php'));
-		foreach ($arrayFiles as $filesLang) {
-			$nameFile = basename($filesLang, '.php');
-				if ($nameFile == $languageBrowser) {
-				return $nameFile;
-				}
-		} return $default;
+function detecting_lang($languageBrowser, $default = 'en_US') {
+	$scanDir = '../locale/' . $languageBrowser . '.php';
+		if (file_exists($scanDir) == false) {
+			return $default;
+		} else {
+			return basename($languageBrowser, '.php');
+			}
 }
 
 if (!isset($_SESSION['lang'])) {
