@@ -35,7 +35,7 @@ $ob_flush = false;
 
 testTime(__LINE__);
 
-if(preg_match('/(youtube.com|youtu.be|vimeo.com)/', $url)){
+if(preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)){
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
     die(Encoder::getThumbsFromLink($url));

@@ -65,7 +65,7 @@ if ($type == 'audio') {
     $cmd = removeUserAgentIfNotURL($cmd);
     exec($cmd);
     error_log("Create image from audio: {$cmd}");
-} else if(preg_match('/(youtube.com|youtu.be|vimeo.com)/', $url)){
+} else if(preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)){
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
     die(Encoder::getThumbsFromLink($url));
