@@ -48,7 +48,7 @@ class Encoder extends ObjectYPT
         );
         foreach ($array as $value) {
             if (stripos($string, $value) !== false) {
-                return true;
+                return $value;
             }
         }
         return false;
@@ -78,8 +78,19 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
 
-        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {            
-            error_log("Encoder::save deny ".__LINE__);
+        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {   
+            if(self::isPorn($this->fileURI)){
+                error_log("Encoder::save deny ".__LINE__);
+            } 
+            if(self::isPorn($this->videoDownloadedLink)){
+                error_log("Encoder::save deny ".__LINE__);
+            }  
+            if(self::isPorn($this->filename)){
+                error_log("Encoder::save deny ".__LINE__);
+            }  
+            if(self::isPorn($this->title)){
+                error_log("Encoder::save deny ".__LINE__);
+            }  
             return false;
         }
 
