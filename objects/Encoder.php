@@ -59,8 +59,10 @@ class Encoder extends ObjectYPT
         global $global;
         if (empty($this->streamers_id)) {
             if (!empty($this->id)) {
+                error_log("Encoder::save streamers_id is empty and we will delete");
                 return $this->delete();
             }
+            error_log("Encoder::save streamers_id is empty");
             return false;
         }
         if (empty($this->id)) {
@@ -76,7 +78,8 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
 
-        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {
+        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {            
+            error_log("Encoder::save deny ".__LINE__);
             return false;
         }
 
