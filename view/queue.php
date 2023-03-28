@@ -82,7 +82,7 @@ if (empty($e->getId())) {
     
     error_log("queue: will save");
     $id = $e->save();
-    error_log("queue: save done");
+    error_log("queue: save done [$id]");
 } else {
     $e->setStatus(Encoder::$STATUS_QUEUE);
     $id = $e->save();

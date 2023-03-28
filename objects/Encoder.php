@@ -87,7 +87,7 @@ class Encoder extends ObjectYPT
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
         $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
-        //error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
+        error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
         return parent::save();
     }
 
