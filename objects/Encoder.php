@@ -1399,10 +1399,10 @@ class Encoder extends ObjectYPT
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
         }
-        error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
+        //error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->videoFileSize = humanFileSize(filesize($file));
-        error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
+        //error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
         $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {

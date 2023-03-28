@@ -67,8 +67,9 @@ if (empty($e->getId())) {
     if (empty($obj->videos_id)) {
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
-
+        error_log("queue : Encoder::sendFile");
         $response = Encoder::sendFile('', 0, $format, $e);
+        error_log("queue : Encoder::sendFile done");
         //var_dump($response);exit;
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
@@ -78,7 +79,10 @@ if (empty($e->getId())) {
         }
     }
     $e->setReturn_vars(json_encode($obj));
+    
+    error_log("queue: will save");
     $id = $e->save();
+    error_log("queue: save done");
 } else {
     $e->setStatus(Encoder::$STATUS_QUEUE);
     $id = $e->save();
