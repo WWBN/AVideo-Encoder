@@ -1275,6 +1275,7 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $videos_id = 0;
         if(is_object($return_vars) && !empty($return_vars->videos_id)){
             $videos_id = $return_vars->videos_id;
         }
@@ -1398,10 +1399,11 @@ class Encoder extends ObjectYPT
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
         }
-
+        error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
-        $obj->file = $file;
         $obj->videoFileSize = humanFileSize(filesize($file));
+        error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
+        $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus(Encoder::$STATUS_DONE);
