@@ -35,7 +35,8 @@ class Encoder extends ObjectYPT
 
     static function isPorn($string)
     {
-        if (empty($string) || !is_string($string)) {
+        global $global;
+        if (empty($string) || !is_string($string) || !empty($global['disableCheck'])) {
             return false;
         }
         $string = strtolower($string);
