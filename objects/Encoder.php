@@ -1,5 +1,7 @@
 <?php
-
+if(empty($global)){
+    $global=[];
+}
 global $sentImage;
 $sentImage = array();
 require_once $global['systemRootPath'] . 'objects/Format.php';

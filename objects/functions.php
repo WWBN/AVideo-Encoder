@@ -1131,8 +1131,10 @@ function isURLaVODVideo($url) {
         }
 
         // If the main playlist has an ENDLIST tag, it's a VOD
-        if (preg_match('/#EXT-X-ENDLIST/i', $content)) {
-            return true;
+        if (preg_match('/#EXT-X-ENDLIST/i', $content) || 
+        preg_match('/#EXT-X-PLAYLIST-TYPE:\s*VOD/i', $content) || 
+        preg_match('/URI=".+enc_[o-9a-z]+.key/i', $content)) {
+            return true; // VOD content
         }
 
         // Check for variant playlist URL in the main playlist
