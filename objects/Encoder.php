@@ -35,7 +35,8 @@ class Encoder extends ObjectYPT
 
     static function isPorn($string)
     {
-        if (empty($string) || !is_string($string)) {
+        global $global;
+        if (empty($string) || !is_string($string) || !empty($global['disableCheck'])) {
             return false;
         }
         $string = strtolower($string);
@@ -48,7 +49,7 @@ class Encoder extends ObjectYPT
         );
         foreach ($array as $value) {
             if (stripos($string, $value) !== false) {
-                return true;
+                return $value;
             }
         }
         return false;
@@ -59,8 +60,10 @@ class Encoder extends ObjectYPT
         global $global;
         if (empty($this->streamers_id)) {
             if (!empty($this->id)) {
+                error_log("Encoder::save streamers_id is empty and we will delete");
                 return $this->delete();
             }
+            error_log("Encoder::save streamers_id is empty");
             return false;
         }
         if (empty($this->id)) {
@@ -76,7 +79,19 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
 
-        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {
+        if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {   
+            if($what = self::isPorn($this->fileURI)){
+                error_log("Encoder::save deny [$what] ".__LINE__);
+            } 
+            if($what = self::isPorn($this->videoDownloadedLink)){
+                error_log("Encoder::save deny [$what] ".__LINE__);
+            }  
+            if($what = self::isPorn($this->filename)){
+                error_log("Encoder::save deny [$what] ".__LINE__);
+            }  
+            if($what = self::isPorn($this->title)){
+                error_log("Encoder::save deny [$what] ".__LINE__);
+            }  
             return false;
         }
 
@@ -87,7 +102,7 @@ class Encoder extends ObjectYPT
         $this->worker_pid = intval($this->worker_pid);
         $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
         $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
-        //error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
+        error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ")");
         return parent::save();
     }
 
@@ -1275,6 +1290,7 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $videos_id = 0;
         if(is_object($return_vars) && !empty($return_vars->videos_id)){
             $videos_id = $return_vars->videos_id;
         }
@@ -1398,10 +1414,11 @@ class Encoder extends ObjectYPT
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
         }
-
+        //error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
-        $obj->file = $file;
         $obj->videoFileSize = humanFileSize(filesize($file));
+        //error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
+        $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus(Encoder::$STATUS_DONE);
