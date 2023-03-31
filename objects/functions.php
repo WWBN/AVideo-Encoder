@@ -1125,16 +1125,36 @@ function addPrefixIntoQuery($query, $tablesPrefix) {
 function isURLaVODVideo($url) {
     $parts = explode('?', $url);
     if (preg_match('/m3u8?$/i', $parts[0])) {
-        $content = url_get_contents($url);
+        $content = file_get_contents($url);
         if (empty($content)) {
-            return false;
+            return false; // Can't determine if the video is VOD or live, as the content is empty
         }
-        if (!preg_match('/#EXT-X-ENDLIST/i', $content)) {
-            return false;
+
+        // If the main playlist has an ENDLIST tag, it's a VOD
+        if (preg_match('/#EXT-X-ENDLIST/i', $content)) {
+            return true;
+        }
+
+        // Check for variant playlist URL in the main playlist
+        $pattern = '/#EXT-X-STREAM-INF:.*BANDWIDTH=\d+.*\n(.+index\.m3u8)/i';
+        if (preg_match_all($pattern, $content, $matches)) {
+            $resURL = $matches[1][0];
+            if (!empty($resURL)) {
+                $urlComponents = parse_url($url);
+                $pathComponents = explode('/', $urlComponents['path']);
+                array_pop($pathComponents); // Remove the last path component (the main playlist file)
+                $pathComponents[] = $resURL; // Append the resolution-specific playlist file
+                $urlComponents['path'] = implode('/', $pathComponents);
+
+                $newURL = $urlComponents['scheme'] . '://' . $urlComponents['host'] . $urlComponents['path'];
+                return isURLaVODVideo($newURL);
+            }
         }
     }
-    return true;
+
+    return false; // The provided URL is not a valid m3u8 file or the video is live
 }
+
 
 function _utf8_encode($string) {
     global $global;
