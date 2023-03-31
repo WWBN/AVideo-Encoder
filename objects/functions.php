@@ -1152,9 +1152,9 @@ function isURLaVODVideo($url) {
                 return isURLaVODVideo($newURL);
             }
         }
+        return false; // The provided URL is not a valid m3u8 file or the video is live
     }
-
-    return false; // The provided URL is not a valid m3u8 file or the video is live
+    return true;
 }
 
 
