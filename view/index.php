@@ -1408,6 +1408,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             type: 'post',
                             success: function(response) {
                                 if (response.text) {
+                                    let message = response.text;
+                                    if (Array.isArray(message)) {
+                                      message = message.join(', '); // join all array elements into a string
+                                    }
+                                    avideoAlert(response.title, message, response.type);
                                     avideoAlert(response.title, response.text, response.type);
                                 }
                                 console.log(response);
