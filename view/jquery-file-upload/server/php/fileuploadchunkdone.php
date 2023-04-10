@@ -12,13 +12,14 @@
  */
 
 require_once '../../../../videos/configuration.php';
+require_once '../../../../objects/functions.php';
 require_once '../../../../objects/Encoder.php';
 require_once '../../../../objects/Login.php';
 
 if(!Login::isLogged()){
     die("Not login");
 }
-
+convertDates();
 $_FILES['upl'] = array();
 $_FILES['upl']['error'] = 0;
 

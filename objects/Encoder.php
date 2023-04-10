@@ -1764,6 +1764,7 @@ class Encoder extends ObjectYPT
         } else {
             error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
+        $postFields['timezone'] = date_default_timezone_get();
 
         $url = addLastSlash($aVideoURL) . trim($target);
 

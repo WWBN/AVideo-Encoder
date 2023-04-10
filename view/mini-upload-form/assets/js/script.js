@@ -54,6 +54,7 @@ $(function () {
                 "categories_id": $('#categories_id').val(),
                 "releaseDate": $('#releaseDate').val(),
                 "callback": $('#callback').val(),
+                "timezone": timezone,
                 "usergroups_id": $(".usergroups_id:checked").map(function(){ return $(this).val(); }).get()
             };
             // Automatically upload the file once it is added to the queue
