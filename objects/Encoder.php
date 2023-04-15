@@ -47,7 +47,7 @@ class Encoder extends ObjectYPT
             'tube8', 'cumloud', 'xxx', 'bellesa', 'tnaflix', 'whores', 'paradisehill', 'xfreehd', 'drtuber', 'netfapx', 'jerk', 'xmegadrive', 'brazzers', 'hitprn',
             'czechvideo', 'reddit', 'plusone8', 'xleech', 'povaddict', 'freeomovie', 'cliphunter', 'xtape', 'xkeez', 'sextvx', 'pandamovie', 'palimas', 'pussy',
             'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash',
-            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', '69', 'fux', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube'
+            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube'
         );
         foreach ($array as $value) {
             if (stripos($string, $value) !== false) {
