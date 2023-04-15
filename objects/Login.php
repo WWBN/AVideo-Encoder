@@ -7,7 +7,13 @@ if (!class_exists('Login')) {
 
     class Login {
 
-        static function run($user, $pass, $aVideoURL, $encodedPass = false) {
+        static function run(
+            $user,
+            #[\SensitiveParameter]
+            $pass,
+            $aVideoURL,
+            $encodedPass = false
+        ) {
             global $_runLogin;
             $index = "$user, $pass, $aVideoURL";
             if (!isset($_runLogin)) {

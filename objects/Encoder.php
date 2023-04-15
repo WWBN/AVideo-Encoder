@@ -1764,6 +1764,7 @@ class Encoder extends ObjectYPT
         } else {
             error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
+        $postFields['timezone'] = date_default_timezone_get();
 
         $url = addLastSlash($aVideoURL) . trim($target);
 
@@ -2242,9 +2243,9 @@ class Encoder extends ObjectYPT
         $files = glob("{$global['systemRootPath']}videos/avideoTmpFile_{$this->id}*"); // get all file names
         foreach ($files as $file) { // iterate files
             if (is_file($file))
-                unlink($file); // delete file
+                @unlink($file); // delete file
             else {
-                rrmdir($file);
+                @rrmdir($file);
             }
         }
         $this->deleteOriginal();
@@ -2423,11 +2424,11 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            unlink($tmpfname . ".description");
+            @unlink($tmpfname . ".description");
             return false;
         } else {
             $content = url_get_contents($tmpfname . ".description");
-            unlink($tmpfname . ".description");
+            @unlink($tmpfname . ".description");
             return $content;
         }
     }

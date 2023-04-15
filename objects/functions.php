@@ -1202,3 +1202,35 @@ function _sys_get_temp_dir(){
 function _get_temp_file($prefix=''){
     return tempnam(_sys_get_temp_dir(), $prefix);
 }
+
+function convertDates(){
+    if(empty($_REQUEST['timezone'])){
+        return false;
+    }
+    $timezone = $_REQUEST['timezone'];
+    
+    unset($_REQUEST['timezone']);
+
+    if(!empty($_GET['releaseDate'])){
+        $_GET['releaseDate'] = convertToServerDate($_GET['releaseDate'], $timezone);
+    }
+    if(!empty($_POST['releaseDate'])){
+        $_POST['releaseDate'] = convertToServerDate($_POST['releaseDate'], $timezone);
+    }
+    if(!empty($_REQUEST['releaseDate'])){
+        $_REQUEST['releaseDate'] = convertToServerDate($_REQUEST['releaseDate'], $timezone);
+    }
+}
+
+
+function convertToServerDate($originalDateTime, $fromTimezone){
+    
+    $serverTimezone = date_default_timezone_get();
+    $dateTime = new DateTime($originalDateTime, new DateTimeZone($fromTimezone));
+
+        // Convert the datetime to the server's timezone
+        $dateTime->setTimezone(new DateTimeZone($serverTimezone));
+        
+        // Print the converted datetime
+        return $dateTime->format('Y-m-d H:i:s');
+}
