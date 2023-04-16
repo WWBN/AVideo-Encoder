@@ -41,8 +41,8 @@ if (!file_exists($imageFileName)) {
     if(!empty($_REQUEST['sync'])){
         exec($command." 1");
         echo url_get_contents($imageFileName);
-        var_dump($imageFileName);
-        //@unlink($imageFileName);
+        //var_dump($imageFileName);
+        @unlink($imageFileName);
     }else{
         execAsync($command);
     }
