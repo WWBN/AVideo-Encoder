@@ -13,13 +13,14 @@ $tileHeight = $argv[4];
 $imageFileName = $argv[5];
 $numberOfTiles = $argv[6];
 $baseName = $argv[7];
+$force = intval(@$argv[8]);
 
 if ($step <= 0) {
     $step = 0.01;
 }
 
 $dirname = $global['systemRootPath'] . "videos/thumbs_{$baseName}/";
-if (is_dir($dirname)) {
+if (is_dir($dirname) && empty($force)) {
     $dirSize = dirSize($dirname);
     if (time() - filemtime($dirname) > $max_execution_time) {
         // file older than 2 hours
