@@ -36,7 +36,13 @@ if (!file_exists($imageFileName)) {
     //call createsprits
     $command = (getPHP()." \"{$global['systemRootPath']}objects/createSpiritsFromVideo.php\" \"$url\" \"$step\" \"$tileWidth\" \"$tileHeight\" \"$imageFileName\" \"$numberOfTiles\" \"$baseName\"");
     error_log("getSpritsFromVideo: {$command}");
-    execAsync($command);
+    if(!empty($_REQUEST['sync'])){
+        exec($command);
+        echo url_get_contents($imageFileName);
+        unlink($imageFileName);
+    }else{
+        execAsync($command);
+    }
 } else {
     echo url_get_contents($imageFileName);
     unlink($imageFileName);
