@@ -12,6 +12,22 @@ if (isset($_POST['lang']) && !empty($_POST['lang'])) {
     }
 }
 
+if(!class_exists('Locale')){
+    $php_version = phpversion();
+
+    // Extract the major and minor version numbers
+    list($major, $minor) = explode('.', $php_version);
+
+    // Construct the package name
+    $package_name = "php{$major}.{$minor}-intl";
+
+    // Generate the command to install the package
+    $command = "sudo apt-get install $package_name";
+    echo "Install the PHP lib: ";
+    echo $command;
+    exit;
+}
+
 $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 $langBrowser = str_replace('-', '_', $locale);
 
