@@ -7,14 +7,14 @@ if (file_exists("../videos/configuration.php")) {
 $_POST['databaseName'] = str_replace('-', '_', $_POST['databaseName']);
 require_once '../objects/functions.php';
 
-$installationVersion = "4.0";
+$installationVersion = '4.0';
 
 header('Content-Type: application/json');
 
 $obj = new stdClass();
 $obj->post = $_POST;
 
-if(empty($_POST['systemRootPath'])){
+if (empty($_POST['systemRootPath'])) {
     $obj->error = "Your system path to application can not be empty";
     echo json_encode($obj);
     exit;
@@ -35,7 +35,7 @@ if ($mysqli->connect_error) {
 
 if ($_POST['createTables'] == 2) {
     $sql = "CREATE DATABASE IF NOT EXISTS `{$_POST['databaseName']}`";
-    
+
     try {
         $mysqli->query($sql);
     } catch (Exception $exc) {
@@ -47,30 +47,31 @@ error_log("CheckConfiguration: createTables={$_POST['createTables']} databaseNam
 $mysqli->select_db($_POST['databaseName']);
 
 $tablesPrefix = '';
-if(!empty($_REQUEST['tablesPrefix'])){
+if (!empty($_REQUEST['tablesPrefix'])) {
     $tablesPrefix = preg_replace('/[^0-9a-z_]/i', '', $_REQUEST['tablesPrefix']);
 }
 if ($_POST['createTables'] > 0) {
-// Temporary variable, used to store current query
+    // Temporary variable, used to store current query
     $templine = '';
-// Read in entire file
+    // Read in entire file
     $lines = file("{$_POST['systemRootPath']}install/database.sql");
-// Loop through each line
+    // Loop through each line
     $obj->error = "";
     foreach ($lines as $line) {
-// Skip it if it's a comment
-        if (substr($line, 0, 2) == '--' || $line == '')
+        // Skip it if it's a comment
+        if (substr($line, 0, 2) == '--' || $line == '') {
             continue;
-// Add this line to the current segment
+        }
+        // Add this line to the current segment
         $templine .= $line;
-// If it has a semicolon at the end, it's the end of the query
+        // If it has a semicolon at the end, it's the end of the query
         if (substr(trim($line), -1, 1) == ';') {
-            if(!empty($tablesPrefix)){
+            if (!empty($tablesPrefix)) {
                 $templine = addPrefixIntoQuery($templine, $tablesPrefix);
             }
             //echo $templine.PHP_EOL;
             // Perform the query
-            
+
             try {
                 $mysqli->query($templine);
             } catch (Exception $exc) {
@@ -131,13 +132,13 @@ $content = "<?php
 /**
  * Do NOT change from here
  */
-if(empty(\$global['webSiteRootPath'])){
+if (empty(\$global['webSiteRootPath'])){
     preg_match('/https?:\/\/[^\/]+(.*)/i', \$global['webSiteRootURL'], \$matches);
-    if(!empty(\$matches[1])){
+    if (!empty(\$matches[1])){
         \$global['webSiteRootPath'] = \$matches[1];
     }
 }
-if(empty(\$global['webSiteRootPath'])){
+if (empty(\$global['webSiteRootPath'])){
     die('Please configure your webSiteRootPath');
 }
 
@@ -148,7 +149,7 @@ require_once \$global['systemRootPath'].'objects/include_config.php';
 
 $videosDir = $_POST['systemRootPath'].'videos/';
 
-if(!is_dir($videosDir)){
+if (!is_dir($videosDir)) {
     mkdir($videosDir, 0777, true);
 }
 

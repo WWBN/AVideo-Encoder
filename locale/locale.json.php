@@ -437,5 +437,3 @@ $langs_codes = '{
     "zu_ZA" : {"value" : "zu_ZA","label" : "Zulu (South Africa)", "flag" : "za"},
     "zu" : {"value" : "zu","label" : "Zulu", "flag" : "zu"}
 }';
-
-

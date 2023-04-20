@@ -9,7 +9,7 @@ require_once '../objects/Login.php';
 $obj = new stdClass();
 $obj->error = true;
 
-if(!Login::isAdmin()){
+if (!Login::isAdmin()){
     $obj->msg = "You are not admin";
     die(json_encode($obj));
 }
@@ -17,7 +17,7 @@ if(!Login::isAdmin()){
 if (empty($global['disableConfigurations'])) {
     if (!empty($_POST['formats'])) {
         foreach ($_POST['formats'] as $value) {
-            if (empty($value)) {                
+            if (empty($value)) {
                 continue;
             }
             $id = $value[0];

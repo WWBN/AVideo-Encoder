@@ -54,7 +54,7 @@ if (empty($e->getId())) {
 
     if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
         if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
-            $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
+            $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
         } else {
             $e->setFormats_idFromOrder(71);
         }
@@ -79,7 +79,7 @@ if (empty($e->getId())) {
         }
     }
     $e->setReturn_vars(json_encode($obj));
-    
+
     error_log("queue: will save");
     $id = $e->save();
     error_log("queue: save done [$id]");

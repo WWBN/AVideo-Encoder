@@ -11,31 +11,39 @@ if (!class_exists('Format')) {
     class Format extends ObjectYPT
     {
 
-        protected $id, $name, $code, $created, $modified, $extension, $extension_from, $order;
+        protected $id;
+        protected $name;
+        protected $code;
+        protected $created;
+        protected $modified;
+        protected $extension;
+        protected $extension_from;
+        protected $order;
 
-        static function getSearchFieldsNames()
+        public static function getSearchFieldsNames()
         {
             return array('name');
         }
 
-        static function getTableName()
+        public static function getTableName()
         {
             global $global;
             return $global['tablesPrefix'] . 'formats';
         }
 
-        function loadFromOrder($order)
+        public function loadFromOrder($order)
         {
             $row = self::getFromOrder($order);
-            if (empty($row))
+            if (empty($row)) {
                 return false;
+            }
             foreach ($row as $key => $value) {
                 $this->$key = $value;
             }
             return true;
         }
 
-        static protected function getFromOrder($order)
+        protected static function getFromOrder($order)
         {
             error_log("AVideo-Encoder Format::getFromOrder($order)");
             global $global;
@@ -54,7 +62,7 @@ if (!class_exists('Format')) {
             return $row;
         }
 
-        function run($pathFileName, $encoder_queue_id)
+        public function run($pathFileName, $encoder_queue_id)
         {
             error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id)");
             global $global;
@@ -67,25 +75,25 @@ if (!class_exists('Format')) {
             if ($this->order == 88) {
                 error_log("run:mp3ToSpectrumHLS");
                 $obj = $this->mp3ToSpectrumHLS($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 89) {
+            } elseif ($this->order == 89) {
                 error_log("run:mp3ToSpectrumMP4");
                 $obj = $this->mp3ToSpectrumMP4($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 90 && empty($global['disableWebM'])) {
+            } elseif ($this->order == 90 && empty($global['disableWebM'])) {
                 error_log("run:mp3ToSpectrumWEBM");
                 $obj = $this->mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 70) {
+            } elseif ($this->order == 70) {
                 error_log("run:runVideoToSpectrum");
                 $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 71) {
+            } elseif ($this->order == 71) {
                 error_log("run:runVideoToAudio");
                 $obj = $this->runVideoToAudio($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 72) {
                 error_log("run:runBothVideo");
                 $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
-            } else if ($this->order == 73) {
+            } elseif ($this->order == 73) {
                 error_log("run:runBothAudio");
                 $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
-            } else if (in_array($this->order, $global['multiResolutionOrder']) && !in_array($this->order, $global['sendAll'])) {
+            } elseif (in_array($this->order, $global['multiResolutionOrder']) && !in_array($this->order, $global['sendAll'])) {
                 error_log("run:runMultiResolution");
                 error_log("run:runMultiResolution" . json_encode($this->order));
                 error_log("run:runMultiResolution" . json_encode($global['sendAll']));
@@ -297,7 +305,7 @@ if (!class_exists('Format')) {
             return $obj;
         }
 
-        static private function preProcessHLS($destinationFile)
+        private static function preProcessHLS($destinationFile)
         {
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
@@ -329,12 +337,12 @@ hd/index.m3u8
             return $destinationFile;
         }
 
-        static function getResolution($pathFileName)
+        public static function getResolution($pathFileName)
         {
             global $_getResolution;
 
             if (!isset($_getResolution)) {
-                $_getResolution = array();
+                $_getResolution = [];
             }
 
             if (!empty($_getResolution[$pathFileName])) {
@@ -368,7 +376,7 @@ hd/index.m3u8
             return $resolution;
         }
 
-        static function getAudioTracks($pathFileName)
+        public static function getAudioTracks($pathFileName)
         {
             global $global;
             if (empty($global['enableMultipleLangs'])) {
@@ -389,7 +397,7 @@ hd/index.m3u8
                 return 1080;
             }
 
-            $audioTracks = array();
+            $audioTracks = [];
             foreach ($jsonObj->streams as $stream) {
                 if (!empty($stream->tags) && !empty($stream->tags->language)) {
                     $audioTracks[] = $stream->tags->language;
@@ -400,12 +408,12 @@ hd/index.m3u8
             return $audioTracks;
         }
 
-        static private function getDynamicCommandFromMP4($pathFileName, $encoder_queue_id)
+        private static function getDynamicCommandFromMP4($pathFileName, $encoder_queue_id)
         {
             return self::getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, 31);
         }
 
-        static private function getDynamicCommandFromWebm($pathFileName, $encoder_queue_id)
+        private static function getDynamicCommandFromWebm($pathFileName, $encoder_queue_id)
         {
             return self::getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, 32);
         }
@@ -419,7 +427,7 @@ hd/index.m3u8
          * 360p: 640x360
          * 240p: 426x240 (preview)
          */
-        static private function getAvailableConfigurations()
+        private static function getAvailableConfigurations()
         {
             $resolutions = array(240, 360, 480, 540, 720, 1080, 1440, 2160);
             $bandwidth = array(300000, 600000, 1000000, 1500000, 2000000, 4000000, 8000000, 12000000);
@@ -434,15 +442,15 @@ hd/index.m3u8
             );
         }
 
-        static function getAvailableResolutions()
+        public static function getAvailableResolutions()
         {
             return self::getAvailableConfigurations()["resolutions"];
         }
 
-        static function getAvailableResolutionsInfo()
+        public static function getAvailableResolutionsInfo()
         {
             global $config;
-            $resolutions = array();
+            $resolutions = [];
             $availableResolutions = Format::getAvailableResolutions();
             $selectedResolutions = $config->getSelectedResolutions();
             foreach ($availableResolutions as $key => $resolution) {
@@ -451,11 +459,11 @@ hd/index.m3u8
                 $label = "<span class='label label-default'>{$resolution}p ";
                 if ($resolution == 720) {
                     $label .= '<span class="label label-danger">HD</span>';
-                } else if ($resolution == 1080) {
+                } elseif ($resolution == 1080) {
                     $label .= '<span class="label label-danger">FHD</span>';
-                } else if ($resolution == 1440) {
+                } elseif ($resolution == 1440) {
                     $label .= '<span class="label label-danger">FHD+</span>';
-                } else if ($resolution == 2160) {
+                } elseif ($resolution == 2160) {
                     $label .= '<span class="label label-danger">4K</span>';
                 }
                 $label .= " </span>";
@@ -470,7 +478,7 @@ hd/index.m3u8
             return $resolutions;
         }
 
-        static function sanitizeResolutions($resolutions)
+        public static function sanitizeResolutions($resolutions)
         {
             if (is_array($resolutions)) {
                 // resolutions need to be int values
@@ -501,7 +509,7 @@ hd/index.m3u8
                     $resolutions = array_values($resolutions);
                 }
 
-                // if the array contains valid $resolutions, then return it     
+                // if the array contains valid $resolutions, then return it
                 if (!empty($resolutions)) {
                     return $resolutions;
                 }
@@ -509,7 +517,7 @@ hd/index.m3u8
             return null;
         }
 
-        static private function getSelectedResolutions()
+        private static function getSelectedResolutions()
         {
             $result = array(480, 720, 1080, 2160);
             $config = new Configuration();
@@ -522,14 +530,14 @@ hd/index.m3u8
             return $result;
         }
 
-        static private function loadEncoderConfiguration()
+        private static function loadEncoderConfiguration()
         {
             $availableConfiguration = self::getAvailableConfigurations();
 
-            $resolutions = array();
-            $bandwidth = array();
-            $audioBitrate = array();
-            $videoFramerate = array();
+            $resolutions = [];
+            $bandwidth = [];
+            $audioBitrate = [];
+            $videoFramerate = [];
 
             $selectedResolutions = self::getSelectedResolutions();
 
@@ -552,7 +560,7 @@ hd/index.m3u8
             );
         }
 
-        static private function getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, $format_id)
+        private static function getDynamicCommandFromFormat($pathFileName, $encoder_queue_id, $format_id)
         {
             $height = self::getResolution($pathFileName);
             //$audioTracks = self::getAudioTracks($pathFileName);
@@ -567,7 +575,7 @@ hd/index.m3u8
             error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) [resolutions=" . json_encode($resolutions) . "] [height={$height}]");
             $f = new Format($format_id);
             $code = $f->getCode(); // encoder command-line switches
-            // create command            
+            // create command
             $command = get_ffmpeg() . ' -i "{$pathFileName}" ';
 
             $i = 0;
@@ -587,7 +595,7 @@ hd/index.m3u8
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
                     eval("\$command .= \" $code\";");
-                } else if ($height != $resolution) {
+                } elseif ($height != $resolution) {
                     error_log("Encoder:Format:: getDynamicCommandFromFormat resolution {$resolution} was ignored, your upload file is {$height} we wil not up transcode your video");
                     break;
                 }
@@ -609,7 +617,7 @@ hd/index.m3u8
             return $command;
         }
 
-        static private function preProcessDynamicHLS($pathFileName, $destinationFile)
+        private static function preProcessDynamicHLS($pathFileName, $destinationFile)
         {
             $height = self::getResolution($pathFileName);
             //$audioTracks = self::getAudioTracks($pathFileName);
@@ -646,7 +654,7 @@ hd/index.m3u8
                     mkdir($file);
                     $str .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($bandwidth[$key]) . PHP_EOL . "res{$value}/index.m3u8" . PHP_EOL;
                     error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
-                } else if ($height != $value) {
+                } elseif ($height != $value) {
                     error_log("Encoder:Format:: preProcessDynamicHLS resolution {$value} was ignored, your upload file is {$height}p we wil not up transcode your video");
                 }
             }
@@ -688,7 +696,7 @@ hd/index.m3u8
                     }
                     eval("\$command .= \" $code\";");
                     error_log("Encoder:Format:: 2 preProcessDynamicHLS {$command}");
-                } else if ($height != $value) {
+                } elseif ($height != $value) {
                     error_log("Encoder:Format:: preProcessDynamicHLS 2 resolution {$value} was ignored, your upload file is {$height} we wil not up transcode your video");
                 }
             }
@@ -701,7 +709,7 @@ hd/index.m3u8
             return array($destinationFile, $command);
         }
 
-        static private function posProcessHLS($destinationFile, $encoder_queue_id)
+        private static function posProcessHLS($destinationFile, $encoder_queue_id)
         {
             // zip the directory
             $encoder = new Encoder($encoder_queue_id);
@@ -715,7 +723,7 @@ hd/index.m3u8
             return file_exists($zipPath);
         }
 
-        static private function fixFile($pathFileName, $encoder_queue_id)
+        private static function fixFile($pathFileName, $encoder_queue_id)
         {
             // zip the directory
             $encoder = new Encoder($encoder_queue_id);
@@ -739,7 +747,7 @@ hd/index.m3u8
             return file_exists($pathFileName);
         }
 
-        static private function exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try = 0)
+        private static function exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try = 0)
         {
             global $global;
             $obj = new stdClass();
@@ -759,9 +767,9 @@ hd/index.m3u8
                 } else { // use default 3 resolutions
                     $destinationFile = self::preProcessHLS($destinationFile);
                 }
-            } else if ($format_id == 31) { // it is MP4
+            } elseif ($format_id == 31) { // it is MP4
                 $fc = self::getDynamicCommandFromMP4($pathFileName, $encoder_queue_id);
-            } else if ($format_id == 32) { // it is WebM
+            } elseif ($format_id == 32) { // it is WebM
                 $fc = self::getDynamicCommandFromWebm($pathFileName, $encoder_queue_id);
             }
             $code = '';
@@ -805,7 +813,7 @@ hd/index.m3u8
             return $obj;
         }
 
-        static function progressFileHasVideosWithErrors($progressFilename)
+        public static function progressFileHasVideosWithErrors($progressFilename)
         {
             global $global;
 
@@ -845,7 +853,7 @@ hd/index.m3u8
             return false;
         }
 
-        static function videoFileHasErrors($filename, $allowed_extensions = true)
+        public static function videoFileHasErrors($filename, $allowed_extensions = true)
         {
             global $global;
             if (!file_exists($filename)) {
@@ -896,7 +904,7 @@ hd/index.m3u8
             }
         }
 
-        static private function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id)
+        private static function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id)
         {
             if (empty($destinationFile)) {
                 $obj = new stdClass();
@@ -949,7 +957,7 @@ hd/index.m3u8
             return $obj;
         }
 
-        static function getFromName($name)
+        public static function getFromName($name)
         {
             global $global;
             $name = strtolower(trim($name));
@@ -968,7 +976,7 @@ hd/index.m3u8
             return false;
         }
 
-        static function createIfNotExists($name)
+        public static function createIfNotExists($name)
         {
             if (empty($name)) {
                 return false;
@@ -986,42 +994,42 @@ hd/index.m3u8
             return $row['id'];
         }
 
-        function getId()
+        public function getId()
         {
             return $this->id;
         }
 
-        function getName()
+        public function getName()
         {
             return $this->name;
         }
 
-        function getCode()
+        public function getCode()
         {
             return $this->code;
         }
 
-        function getCreated()
+        public function getCreated()
         {
             return $this->created;
         }
 
-        function getModified()
+        public function getModified()
         {
             return $this->modified;
         }
 
-        function getExtension()
+        public function getExtension()
         {
             return $this->extension;
         }
 
-        function setId($id)
+        public function setId($id)
         {
             $this->id = $id;
         }
 
-        function setName($name)
+        public function setName($name)
         {
             global $global;
             /**
@@ -1030,7 +1038,7 @@ hd/index.m3u8
             $this->name = $global['mysqli']->real_escape_string($name);
         }
 
-        function setCode($code)
+        public function setCode($code)
         {
             global $global;
             /**
@@ -1039,17 +1047,17 @@ hd/index.m3u8
             $this->code = $global['mysqli']->real_escape_string($code);
         }
 
-        function setCreated($created)
+        public function setCreated($created)
         {
             $this->created = $created;
         }
 
-        function setModified($modified)
+        public function setModified($modified)
         {
             $this->modified = $modified;
         }
 
-        function setExtension($extension)
+        public function setExtension($extension)
         {
             global $global;
             /**
@@ -1058,22 +1066,22 @@ hd/index.m3u8
             $this->extension = $global['mysqli']->real_escape_string($extension);
         }
 
-        function getExtension_from()
+        public function getExtension_from()
         {
             return $this->extension_from;
         }
 
-        function setExtension_from($extension_from)
+        public function setExtension_from($extension_from)
         {
             $this->extension_from = $extension_from;
         }
 
-        function getOrder()
+        public function getOrder()
         {
             return $this->order;
         }
 
-        function setOrder($order)
+        public function setOrder($order)
         {
             $this->order = $order;
         }

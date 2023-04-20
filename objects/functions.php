@@ -37,7 +37,6 @@ function get_ffmpeg($ignoreGPU = false) {
 }
 
 function getFFmpegScaleToForceOriginalAspectRatio($width, $heigth) {
-
     return "scale={$width}:{$heigth}:force_original_aspect_ratio=decrease,pad={$width}:{$heigth}:-1:-1:color=black";
 }
 
@@ -119,7 +118,7 @@ function url_get_contents($Url, $ctx = "", $timeout = 0) {
                 error_log("Error on get Content");
             }
         }
-    } else if (function_exists('curl_init')) {
+    } elseif (function_exists('curl_init')) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_URL, $Url);
@@ -140,49 +139,44 @@ function url_get_contents($Url, $ctx = "", $timeout = 0) {
 function fetch_http_file_contents($url) {
     $hostname = parse_url($url, PHP_URL_HOST);
 
-    if ($hostname == FALSE) {
-        return FALSE;
+    if ($hostname == false) {
+        return false;
     }
 
-    $host_has_ipv6 = FALSE;
-    $host_has_ipv4 = FALSE;
-    $file_response = FALSE;
+    $host_has_ipv6 = false;
+    $host_has_ipv4 = false;
+    $file_response = false;
     $dns_records = @dns_get_record($hostname, DNS_AAAA + DNS_A);
     if (!empty($dns_records) && is_array($dns_records)) {
         foreach ($dns_records as $dns_record) {
             if (isset($dns_record['type'])) {
                 switch ($dns_record['type']) {
                     case 'AAAA':
-                        $host_has_ipv6 = TRUE;
+                        $host_has_ipv6 = true;
                         break;
                     case 'A':
-                        $host_has_ipv4 = TRUE;
+                        $host_has_ipv4 = true;
                         break;
                 }
             }
         }
     }
-    if ($host_has_ipv6 === TRUE) {
+    if ($host_has_ipv6 === true) {
         $file_response = file_get_intbound_contents($url, '[0]:0');
     }
-    if ($host_has_ipv4 === TRUE && $file_response == FALSE) {
+    if ($host_has_ipv4 === true && $file_response == false) {
         $file_response = file_get_intbound_contents($url, '0:0');
     }
     return $file_response;
 }
 
 function file_get_intbound_contents($url, $bindto_addr_family) {
-    $stream_context = stream_context_create(
-            array(
-                'socket' => array(
-                    'bindto' => $bindto_addr_family
-                ),
-                'http' => array(
-                    'timeout' => 20,
-                    'method' => 'GET'
-    )));
+    $stream_context = stream_context_create([
+        'socket' => ['bindto' => $bindto_addr_family],
+        'http' => ['timeout' => 20, 'method' => 'GET']
+    ]);
 
-    return file_get_contents($url, FALSE, $stream_context);
+    return file_get_contents($url, false, $stream_context);
 }
 
 // Returns a file size limit in bytes based on the PHP upload_max_filesize
@@ -216,12 +210,15 @@ function parse_size($size) {
 }
 
 function humanFileSize($size, $unit = "") {
-    if ((!$unit && $size >= 1 << 30) || $unit == "GB")
+    if ((!$unit && $size >= 1 << 30) || $unit == "GB") {
         return number_format($size / (1 << 30), 2) . "GB";
-    if ((!$unit && $size >= 1 << 20) || $unit == "MB")
+    }
+    if ((!$unit && $size >= 1 << 20) || $unit == "MB") {
         return number_format($size / (1 << 20), 2) . "MB";
-    if ((!$unit && $size >= 1 << 10) || $unit == "KB")
+    }
+    if ((!$unit && $size >= 1 << 10) || $unit == "KB") {
         return number_format($size / (1 << 10), 2) . "KB";
+    }
     return number_format($size) . " bytes";
 }
 
@@ -243,8 +240,9 @@ function humanTiming($time) {
     );
 
     foreach ($tokens as $unit => $text) {
-        if ($time < $unit)
+        if ($time < $unit) {
             continue;
+        }
         $numberOfUnits = floor($time / $unit);
         return $numberOfUnits . ' ' . $text . (($numberOfUnits > 1) ? 's' : '');
     }
@@ -264,18 +262,11 @@ function checkVideosDir() {
 }
 
 function isApache() {
-    if (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false)
-        return true;
-    else
-        return false;
+    return (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false);
 }
 
 function isPHP($version = "'7.0.0'") {
-    if (version_compare(PHP_VERSION, $version) >= 0) {
-        return true;
-    } else {
-        return false;
-    }
+    return (version_compare(PHP_VERSION, $version) >= 0);
 }
 
 function modRewriteEnabled() {
@@ -285,9 +276,8 @@ function modRewriteEnabled() {
         $contents = ob_get_contents();
         ob_end_clean();
         return (strpos($contents, 'mod_rewrite') !== false);
-    } else {
-        return in_array('mod_rewrite', apache_get_modules());
     }
+    return in_array('mod_rewrite', apache_get_modules());
 }
 
 function isFFMPEG() {
@@ -317,44 +307,28 @@ function getURLToApplication() {
 function check_max_execution_time() {
     $max_size = ini_get('max_execution_time');
     $recomended_size = 7200;
-    if ($recomended_size > $max_size) {
-        return false;
-    } else {
-        return true;
-    }
+    return !($recomended_size > $max_size);
 }
 
 //post_max_size = 100M
 function check_post_max_size() {
     $max_size = parse_size(ini_get('post_max_size'));
     $recomended_size = parse_size('100M');
-    if ($recomended_size > $max_size) {
-        return false;
-    } else {
-        return true;
-    }
+    return !($recomended_size > $max_size);
 }
 
 //upload_max_filesize = 100M
 function check_upload_max_filesize() {
     $max_size = parse_size(ini_get('upload_max_filesize'));
     $recomended_size = parse_size('100M');
-    if ($recomended_size > $max_size) {
-        return false;
-    } else {
-        return true;
-    }
+    return !($recomended_size > $max_size);
 }
 
 //memory_limit = 100M
 function check_memory_limit() {
     $max_size = parse_size(ini_get('memory_limit'));
     $recomended_size = parse_size('512M');
-    if ($recomended_size > $max_size) {
-        return false;
-    } else {
-        return true;
-    }
+    return !($recomended_size > $max_size);
 }
 
 function check_mysqlnd() {
@@ -431,10 +405,11 @@ function status($statusarray) {
         }
     } else {
         echo json_encode(array_map(
-                        function ($text) {
-                            return nl2br($text);
-                        }
-                        , $statusarray));
+            function ($text) {
+                return nl2br($text);
+            },
+            $statusarray
+        ));
     }
 }
 
@@ -450,8 +425,9 @@ function croak($statusarray) {
 
 function parseDurationToSeconds($str) {
     $durationParts = explode(":", $str);
-    if (empty($durationParts[1]))
+    if (empty($durationParts[1])) {
         return 0;
+    }
     $minutes = (intval($durationParts[0]) * 60) + intval($durationParts[1]);
     return intval($durationParts[2]) + ($minutes * 60);
 }
@@ -478,19 +454,19 @@ function decideFromPlugin() {
         return array("mp4" => 7, "webm" => 8);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 80, "webm" => 87);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
         return array("mp4" => 77, "webm" => 84);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 79, "webm" => 86);
     }
     if (
-            empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+        empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 78, "webm" => 85);
     }
     if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
@@ -519,65 +495,60 @@ function decideFormatOrder() {
         error_log("decideFormatOrder: auto HLS");
         $_SESSION['format'] = 'inputAutoHLS';
         return (6);
-    } else
-    if (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
+    } elseif (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
         error_log("decideFormatOrder: auto MP4");
         $_SESSION['format'] = 'inputAutoMP4';
         return (7);
-    } else
-    if (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+    } elseif (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
         error_log("decideFormatOrder: auto WebM");
         $_SESSION['format'] = 'inputAutoWebm';
         return (8);
-    } else
-    if (!empty($_POST['inputAutoAudio']) && strtolower($_POST['inputAutoAudio']) !== "false") {
+    } elseif (!empty($_POST['inputAutoAudio']) && strtolower($_POST['inputAutoAudio']) !== "false") {
         error_log("decideFormatOrder: auto Audio");
         $_SESSION['format'] = 'inputAutoAudio';
         return (60);
-    } else
-    if (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS']) !== "false") {
+    } elseif (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS']) !== "false") {
         error_log("decideFormatOrder: Multi bitrate HLS encrypted");
         return (9);
-    } else
-    if (empty($_POST['webm']) || $_POST['webm'] === 'false') {
+    } elseif (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
         if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) { // all resolutions
             error_log("decideFormatOrder: MP4 All");
             return (80);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low - HD");
             return (79);
-        } else if (
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD - HD");
             return (78);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low SD");
             return (77);
-        } else if (
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 HD");
             return (76);
-        } else if (
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD");
             return (75);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 LOW");
             return (74);
@@ -588,36 +559,36 @@ function decideFormatOrder() {
     } else {
         // mp4 and webm
         if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) { // all resolutions
             return (87);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (86);
-        } else if (
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (85);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (84);
-        } else if (
-                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (83);
-        } else if (
-                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+        } elseif (
+            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (82);
-        } else if (
-                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+        } elseif (
+            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
             return (81);
         } else {
@@ -631,7 +602,7 @@ function decideFormatOrder() {
 function getUpdatesFiles() {
     global $config, $global;
     $files1 = scandir($global['systemRootPath'] . "update");
-    $updateFiles = array();
+    $updateFiles = [];
     foreach ($files1 as $value) {
         preg_match("/updateDb.v([0-9.]*).sql/", $value, $match);
         if (!empty($match)) {
@@ -655,8 +626,8 @@ function ip_is_private($ip) {
     $long_ip = ip2long($ip);
     if ($long_ip != -1) {
 
-        foreach ($pri_addrs AS $pri_addr) {
-            list ($start, $end) = explode('|', $pri_addr);
+        foreach ($pri_addrs as $pri_addr) {
+            list($start, $end) = explode('|', $pri_addr);
 
             // IF IS PRIVATE
             if ($long_ip >= ip2long($start) && $long_ip <= ip2long($end)) {
@@ -697,7 +668,8 @@ function zipDirectory($destinationFile) {
     // Create recursive directory iterator
     /** @var SplFileInfo[] $files */
     $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($rootPath), RecursiveIteratorIterator::LEAVES_ONLY
+        new RecursiveDirectoryIterator($rootPath),
+        RecursiveIteratorIterator::LEAVES_ONLY
     );
 
     foreach ($files as $name => $file) {
@@ -810,10 +782,11 @@ function rrmdir($dir) {
         $objects = scandir($dir);
         foreach ($objects as $object) {
             if ($object != "." && $object != "..") {
-                if (is_dir($dir . "/" . $object))
+                if (is_dir($dir . "/" . $object)) {
                     rrmdir($dir . "/" . $object);
-                else
+                } else {
                     unlink($dir . "/" . $object);
+                }
             }
         }
         @rmdir($dir);
@@ -886,7 +859,7 @@ function _session_id($PHPSESSID) {
     }
 }
 
-function _session_start(Array $options = array()) {
+function _session_start(array $options = array()) {
     global $global;
     try {
         if (session_status() == PHP_SESSION_NONE) {
@@ -978,7 +951,7 @@ function execAsync($command) {
     // If windows, else
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         //$pid = system($command . " > NUL");
-        //pclose($pid = popen("start /B ". $command, "r")); 
+        //pclose($pid = popen("start /B ". $command, "r"));
         error_log($command);
         $pid = exec($command, $output, $retval);
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
@@ -1059,9 +1032,9 @@ function isURL200($url) {
     $result = false;
     foreach ($headers as $value) {
         if (
-                strpos($value, '200') ||
-                strpos($value, '302') ||
-                strpos($value, '304')
+            strpos($value, '200') ||
+            strpos($value, '302') ||
+            strpos($value, '304')
         ) {
             $result = true;
         }
@@ -1131,8 +1104,8 @@ function isURLaVODVideo($url) {
         }
 
         // If the main playlist has an ENDLIST tag, it's a VOD
-        if (preg_match('/#EXT-X-ENDLIST/i', $content) || 
-        preg_match('/#EXT-X-PLAYLIST-TYPE:\s*VOD/i', $content) || 
+        if (preg_match('/#EXT-X-ENDLIST/i', $content) ||
+        preg_match('/#EXT-X-PLAYLIST-TYPE:\s*VOD/i', $content) ||
         preg_match('/URI=".+enc_[0-9a-z]+.key/i', $content)) {
             return true; // VOD content
         }
@@ -1181,16 +1154,16 @@ function _rename($originalFile, $newName) {
     return false;
 }
 
-function _sys_get_temp_dir(){
+function _sys_get_temp_dir() {
     global $global, $_sys_get_temp_dir;
-    if(isset($_sys_get_temp_dir)){
+    if (isset($_sys_get_temp_dir)) {
         return $_sys_get_temp_dir;
     }
     $dir = sys_get_temp_dir();
     $tmpfname = tempnam($dir, 'test');
-    if(!file_put_contents($tmpfname, time())){
+    if (!file_put_contents($tmpfname, time())) {
         $dir = "{$global['systemRootPath']}videos/tmp/";
-        if(!is_dir($dir)){
+        if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
     }
@@ -1199,38 +1172,37 @@ function _sys_get_temp_dir(){
     return $dir;
 }
 
-function _get_temp_file($prefix=''){
+function _get_temp_file($prefix='') {
     return tempnam(_sys_get_temp_dir(), $prefix);
 }
 
-function convertDates(){
-    if(empty($_REQUEST['timezone'])){
+function convertDates() {
+    if (empty($_REQUEST['timezone'])) {
         return false;
     }
     $timezone = $_REQUEST['timezone'];
-    
+
     unset($_REQUEST['timezone']);
 
-    if(!empty($_GET['releaseDate'])){
+    if (!empty($_GET['releaseDate'])) {
         $_GET['releaseDate'] = convertToServerDate($_GET['releaseDate'], $timezone);
     }
-    if(!empty($_POST['releaseDate'])){
+    if (!empty($_POST['releaseDate'])) {
         $_POST['releaseDate'] = convertToServerDate($_POST['releaseDate'], $timezone);
     }
-    if(!empty($_REQUEST['releaseDate'])){
+    if (!empty($_REQUEST['releaseDate'])) {
         $_REQUEST['releaseDate'] = convertToServerDate($_REQUEST['releaseDate'], $timezone);
     }
 }
 
 
-function convertToServerDate($originalDateTime, $fromTimezone){
-    
+function convertToServerDate($originalDateTime, $fromTimezone) {
     $serverTimezone = date_default_timezone_get();
     $dateTime = new DateTime($originalDateTime, new DateTimeZone($fromTimezone));
 
-        // Convert the datetime to the server's timezone
-        $dateTime->setTimezone(new DateTimeZone($serverTimezone));
-        
-        // Print the converted datetime
-        return $dateTime->format('Y-m-d H:i:s');
+    // Convert the datetime to the server's timezone
+    $dateTime->setTimezone(new DateTimeZone($serverTimezone));
+
+    // Print the converted datetime
+    return $dateTime->format('Y-m-d H:i:s');
 }

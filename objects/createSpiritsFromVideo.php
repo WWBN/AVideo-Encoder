@@ -33,12 +33,12 @@ if (is_dir($dirname) && empty($force)) {
 
 $url = str_replace('https://gdrive.local/', 'http://192.168.0.2/', $url);
 /**
-  if(!isURL200($url)){
+  if (!isURL200($url)){
   $headers = get_headers($url);
   error_log("URL $url is not 200 code ". json_encode($headers));
   return false;
   }
- * 
+ *
  */
 error_log("CreateSpirits:  creating directory {$dirname}");
 $created = make_path($dirname);
@@ -73,13 +73,13 @@ exec($cmd, $output, $return_var);
 //error_log("CreateSpirits: ". json_encode($output));
 //error_log("CreateSpirits: ". json_encode($return_var));
 $dirSize = dirSize($dirname);
-if($dirSize<100000){
+if ($dirSize<100000){
     error_log("CreateSpirits: ERROR on dirsize={$dirSize} {$cmd}");
     return false;
 }
 
 $images = glob($dirname . "*.png");
-$srcImagePaths = Array();
+$srcImagePaths = [];
 
 foreach ($images as $image) {
     $srcImagePaths[] = $image;
@@ -114,5 +114,3 @@ foreach ($files as $file) {
 
 error_log("CreateSpirits:  removing directory {$dirname}");
 //rmdir($dirname);
-/* * 
- */

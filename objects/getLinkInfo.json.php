@@ -3,8 +3,8 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
-if(empty($_GET['base64Url'])){
-    
+if (empty($_GET['base64Url'])){
+
 }
 $link = base64_decode($_GET['base64Url']);
 //echo base64_decode($_GET['base64Url']), "<br>";
@@ -23,7 +23,7 @@ $title = Encoder::getTitleFromLink($link);
 
 $obj->msg = $title['output'];
 $obj->title = $title['output'];
-if($title['error']){
+if ($title['error']){
     $obj->title = false;
 }
 

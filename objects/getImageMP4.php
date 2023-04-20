@@ -20,7 +20,7 @@ require_once '../objects/Encoder.php';
 header('Access-Control-Allow-Origin: *');
 $url = base64_decode($_GET['base64Url']);
 
-if(!isURLaVODVideo($url)){
+if (!isURLaVODVideo($url)) {
     error_log("ERROR URL is not a VOD {$url}");
     die();
 }
@@ -42,15 +42,15 @@ $url = str_replace(array('"', "'"), array('', ''), $url);
 $url = escapeshellarg($url);
 error_log("getImageMP4 Starts: {$url}");
 
-if ($type == 'audio') {
+if ($type === 'audio') {
     //ffmpeg -i inputfile.mp3 -lavfi showspectrumpic=s=800x400:mode=separate spectrogram.png
     if ($_GET['format'] === 'jpg') {
         header('Content-Type: image/jpg');
         $destination .= "." . $_GET['format'];
-    } else if ($_GET['format'] === 'gif') {
+    } elseif ($_GET['format'] === 'gif') {
         header('Content-Type: image/gif');
         $destination .= "." . $_GET['format'];
-    } else if ($_GET['format'] === 'webp') {
+    } elseif ($_GET['format'] === 'webp') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/webp');
@@ -65,7 +65,7 @@ if ($type == 'audio') {
     $cmd = removeUserAgentIfNotURL($cmd);
     exec($cmd);
     error_log("Create image from audio: {$cmd}");
-} else if(preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)){
+} elseif (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
     die(Encoder::getThumbsFromLink($url));
@@ -82,7 +82,7 @@ if ($type == 'audio') {
         $exec = get_ffmpeg() . "  -ss {$duration} -i {$url} -f image2  "
         . "-vf ".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." "
                 . "-vframes 1 -y {$destination}";
-    } else if ($_GET['format'] === 'gif') {
+    } elseif ($_GET['format'] === 'gif') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/gif');
@@ -90,7 +90,7 @@ if ($type == 'audio') {
         //Generate a palette:
         $ffmpegPallet = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos,palettegen {$destinationPallet}";
         $exec = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$url} -i {$destinationPallet} -filter_complex \"fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos[x];[x][1:v]paletteuse\" {$destination}";
-    } else if ($_GET['format'] === 'webp') {
+    } elseif ($_GET['format'] === 'webp') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/webp');
@@ -101,7 +101,7 @@ if ($type == 'audio') {
         error_log("ERROR Destination get Image {$_GET['format']} not suported");
         die();
     }
-    
+
     $exec = removeUserAgentIfNotURL($exec);
     testTime(__LINE__);
     if (!empty($ffmpegPallet)) {

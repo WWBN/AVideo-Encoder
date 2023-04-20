@@ -1,5 +1,5 @@
 <?php
-if(empty($global)){
+if (empty($global)) {
     $global=[];
 }
 if (empty($global['systemRootPath'])) {
@@ -48,8 +48,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
     $e = new Encoder("");
     if (!Login::canUpload()) {
         $obj->msg = "This user can not upload files";
-    } else
-    if (!($streamers_id = Login::getStreamerId())) {
+    } elseif (!($streamers_id = Login::getStreamerId())) {
         $obj->msg = "There is no streamer site";
     } else {
         $e->setStreamers_id($streamers_id);
@@ -65,7 +64,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
             if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
                 if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
                     error_log("Upload.php set format 11");
-                    $e->setFormats_id(11); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
+                    $e->setFormats_id(11); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
                 } else {
                     error_log("Upload.php set format 12");
                     $e->setFormats_id(12);
@@ -78,15 +77,13 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
             if (!empty($_POST['inputAutoHLS']) && strtolower($_POST['inputAutoHLS']) !== "false") {
                 error_log("Upload.php set format 33");
                 $e->setFormats_id(33);
-            } else
-            if (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
+            } elseif (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
                 error_log("Upload.php set format 33");
                 $e->setFormats_id(34);
-            } else
-            if (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+            } elseif (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
                 error_log("Upload.php set format 35");
                 $e->setFormats_id(35);
-            } else if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
+            } elseif (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
                 error_log("Upload.php set format 5");
                 $e->setFormats_id(5);
             } else {
@@ -94,8 +91,9 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
                 $e->setFormats_id(3);
             }
         }
-        if (!empty($_POST['override_status']))
+        if (!empty($_POST['override_status'])) {
             $e->setOverride_status($_POST['override_status']);
+        }
 
         $obj = new stdClass();
         $obj->videos_id = 0;
