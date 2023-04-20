@@ -1,7 +1,7 @@
 <?php
 $global['docker_vars'] = '/var/www/docker_vars.json';
 if (file_exists($global['docker_vars'])) {
-    $global['logfile'] = 'php://stdout';   
+    $global['logfile'] = 'php://stdout';
     error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', 1);
 }

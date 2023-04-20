@@ -7,12 +7,12 @@ if (isset($_POST['lang']) && !empty($_POST['lang'])) {
     $_SESSION['lang'] = $_POST['lang'];
     if (isset($_SESSION['lang']) && $_SESSION['lang'] == $_POST['lang']) {
         echo '<script type="text/javascript">
-	window.location.replace(document.referrer);
-	</script>';
+    window.location.replace(document.referrer);
+    </script>';
     }
 }
 
-if(!class_exists('Locale')){
+if (!class_exists('Locale')) {
     $php_version = phpversion();
 
     // Extract the major and minor version numbers
@@ -31,13 +31,9 @@ if(!class_exists('Locale')){
 $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 $langBrowser = str_replace('-', '_', $locale);
 
-function detecting_lang($languageBrowser, $default = 'en_US') {
-    $scanDir = '../locale/' . $languageBrowser . '.php';
-    if (file_exists($scanDir) == false) {
-        return $default;
-    } else {
-        return basename($languageBrowser, '.php');
-    }
+function detecting_lang($languageBrowser, $default = 'en_US')
+{
+    return !file_exists('../locale/' . $languageBrowser . '.php') ? $default : basename($languageBrowser, '.php');
 }
 
 if (!isset($_SESSION['lang'])) {
@@ -48,7 +44,8 @@ if (isset($_SESSION['lang'])) {
     include $_SESSION['lang'] . '.php';
 }
 
-function display_lang($decoded_json, $searchKey) {
+function display_lang($decoded_json, $searchKey)
+{
     foreach ($decoded_json as $key => $val) {
         $value = $decoded_json[$key]['value'];
         $label = $decoded_json[$key]['label'];
@@ -59,5 +56,3 @@ function display_lang($decoded_json, $searchKey) {
         }
     }
 }
-
-?>

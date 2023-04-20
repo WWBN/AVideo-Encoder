@@ -22,7 +22,7 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 session_write_close();
 
 if (!empty($global['mysqli'])) {
-    
+
     /**
      * @var array $global
      * @var object $global['mysqli']
@@ -175,7 +175,7 @@ if (!isRunning($outputPath)) {
     if ($obj->isMobile) {
         $encFileURL .= "?isMobile=1";
     }
-    
+
     if (canConvert($outputPath)) {
         //$cmd = "rm -fr {$outputTextPath}"; // this will make other process stops and saves CPU resources
         //__exec($cmd);
@@ -201,14 +201,14 @@ if (!isRunning($outputPath)) {
 
         //$randomizeTimeX = random_int(100, 180);
         //$randomizeTimeY = random_int(100, 180);
-        $commands = array();
+        $commands = [];
         $allFiles = getAllTSFilesInDir($localFileDownloadDir);
 
         $watermarkingArray = getRandomSymlinkTSFileArray($localFileDownloadDir, $maxElements);
 
         error_log("Watermark: we will watermark " . count($watermarkingArray) . " " . json_encode($watermarkingArray));
 
-        //$allFiles = array();
+        //$allFiles = [];
         $timeSpent = 0;
         $count = 0;
         $totalTimeStart = microtime(true);
@@ -258,13 +258,13 @@ if (!isRunning($outputPath)) {
             if (file_exists("{$outputPath}/003.ts")) {
                 //error_log("Watermark: file 003.ts");
                 break;
-            } else if ($tries > 10) {
+            } elseif ($tries > 10) {
                 //error_log("Watermark: file tries > 10");
                 break;
             }
             sleep(1);
         }
-    } else if (file_exists($jsonFile)) {
+    } elseif (file_exists($jsonFile)) {
         $json = json_decode(file_get_contents($jsonFile));
         if (is_object($json)) {
             $json->lastUpdate = time();
@@ -303,13 +303,13 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
                     } else {
                         echo $line;
                     }
-                } else if (preg_match('/[0-9]+.ts/', $line)) {
+                } elseif (preg_match('/[0-9]+.ts/', $line)) {
                     $count++;
                     if (!empty($getFirstSegments) && $count > $getFirstSegments) {
                         return false;
                     }
                     echo "{$outputURL}/{$line}";
-                } else if (preg_match('/enc_watermarked.key/', $line)) {
+                } elseif (preg_match('/enc_watermarked.key/', $line)) {
                     $json = json_decode(file_get_contents($jsonFile));
                     $isMobile = !empty($_REQUEST['isMobile']);
                     if (is_object($json) && $isMobile) {
@@ -328,7 +328,7 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
         if (file_exists($keyInfoFile)) {
             unlink($keyInfoFile);
         }
-    } else if (is_dir($outputPath)) {
+    } elseif (is_dir($outputPath)) {
 
         echo "#EXTM3U
 #EXT-X-VERSION:3
@@ -369,7 +369,7 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
 function getTSFiles($dir) {
     global $hls_time, $text, $outputURL;
     if ($dh = opendir($dir)) {
-        $files = array();
+        $files = [];
         $ignoreFiles = array('.', '..', 'index.m3u8', 'enc_watermarked.key', '.keyInfo', '.obj.log');
         while (($file = readdir($dh)) !== false) {
             if (!in_array($file, $ignoreFiles) && !preg_match('/.json/', $file)) {
@@ -509,11 +509,11 @@ function canConvert($dir) {
         if (is_object($json) && !empty($json->pid)) {
             /*
               // if index exist or it still processing, do not convert again
-              if(file_exists($outputHLS_index)){
+              if (file_exists($outputHLS_index)) {
               error_log("canConvert: $outputHLS_index exists");
               return false;
               }
-             * 
+             *
              */
             if (!allTSFilesAreSymlinks($dir)) {
                 error_log("canConvert: NOT allTSFilesAreSymlinks");
@@ -664,7 +664,7 @@ function getAllTSFilesInDir($dir) {
     if (!empty($getAllTSFilesInDir)) {
         return $getAllTSFilesInDir;
     }
-    $files = array();
+    $files = [];
     if ($dh = opendir($dir)) {
         while (($file = readdir($dh)) !== false) {
             if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
@@ -754,8 +754,8 @@ function createWatermarkFFMPEG($inputHLS_ts, $outputHLS_ts, $watermarkIt = true)
         //error_log("Watermark:  {$inputHLS_ts} will have watermark");
         @unlink($outputHLS_ts);
         $command .= " -vf \"drawtext=fontfile=font.ttf:fontsize={$watermark_fontsize}:fontcolor={$watermark_color}@{$watermark_opacity}:text='{$text}' "
-                . ' :x=if(eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
-                . ' :y=if(eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
+                . ' :x=if (eq(mod(n\,' . $randX . ')\,0)\,rand(0\,(W-tw))\,x) '
+                . ' :y=if (eq(mod(n\,' . $randY . ')\,0)\,rand(0\,(H-th))\\,y) " '
                 . " {$watermarkCodec} -copyts  ";
     } else {
         if (file_exists($keyInfoFile) && file_exists($encFile)) {

@@ -19,7 +19,7 @@ require_once '../objects/functions.php';
             ?>
             <div class="container">
                 <h3 class="alert alert-success">
-                    <span class="glyphicon glyphicon-ok-circle"></span> 
+                    <span class="glyphicon glyphicon-ok-circle"></span>
                     Your system is installed, remove the <code><?php echo $global['systemRootPath']; ?>install</code> directory to continue
                     <hr>
                     <a href="<?php echo $global['webSiteRootURL']; ?>" class="btn btn-success btn-lg center-block">Go to the main page</a>
@@ -39,47 +39,47 @@ require_once '../objects/functions.php';
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong><?php echo $_SERVER['SERVER_SOFTWARE']; ?> is Present</strong>
-                            </div>                  
+                            </div>
                             <?php
                         } else {
                             ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your server is <?php echo $_SERVER['SERVER_SOFTWARE']; ?>, you must install Apache</strong>
-                            </div>                  
+                            </div>
                             <?php
                         }
-                        ?>
+            ?>
 
 
                         <?php
-                        if (isPHP("5.6")) {
-                            ?>
+            if (isPHP("5.6")) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>PHP <?php echo PHP_VERSION; ?> is Present</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your PHP version is <?php echo PHP_VERSION; ?>, you must install PHP 5.6.x or greater</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
                         <?php
-                        if ($exifTool = isExifToo()) {
-                            ?>
+            if ($exifTool = isExifToo()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Exiftool [<?php echo $exifTool; ?>] is Present</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Since AVideo 2.1 we use exiftool to determine if an video is landscape or portrait</strong>
@@ -87,29 +87,29 @@ require_once '../objects/functions.php';
                                     In order to install exiftool type the following command in the terminal:<br>
                                     <pre><code>sudo apt install libimage-exiftool-perl</code></pre>
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
                         <?php
-                        if ($ffmpeg = isFFMPEG()) {
-                            ?>
+            if ($ffmpeg = isFFMPEG()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>FFMPEG <?php echo $ffmpeg; ?> is Present</strong>
                                 <strong>Make sure your FFMPEG is 3.x or greater</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>FFmpeg is not enabled, make sure your FFMPEG is 3.x or greater</strong>
                                 <details>
                                     FFmpeg has been removed from Ubuntu 14.04 and was replaced by Libav. This decision has been reversed so that FFmpeg is available now in Ubuntu 15.04 again, but there is still no official package for 14.04. In this tutorial, I will show you how to install FFmpeg from mc3man ppa. Add the mc3man ppa:
                                     <br>
-                                    If you are not using Ubuntu 14.x go to step 2 
+                                    If you are not using Ubuntu 14.x go to step 2
                                     <h2>Step 1</h2>
                                     <pre><code>sudo add-apt-repository ppa:mc3man/trusty-media</code></pre>
                                     <br>
@@ -134,22 +134,22 @@ require_once '../objects/functions.php';
                                     <pre><code>sudo apt-get install ffmpeg</code></pre>
 
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
 
                         <?php
-                        if ($youtube_dl = isYoutubeDL()) {
-                            ?>
+            if ($youtube_dl = isYoutubeDL()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>youtube-dl <?php echo $youtube_dl; ?> is Present</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>youtube-dl is not enabled</strong>
@@ -181,146 +181,146 @@ require_once '../objects/functions.php';
                                     <pre><code>0 1 * * * sudo pip install --upgrade youtube-dl</code></pre>
 
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
 
                         <?php
-                        if (checkVideosDir()) {
-                            ?>
+            if (checkVideosDir()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Your videos directory is writable</strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your videos directory must be writable</strong>
                                 <details>
                                     <?php
-                                    $dir = getPathToApplication() . "videos";
-                                    if (!file_exists($dir)) {
-                                        ?>
+                        $dir = getPathToApplication() . "videos";
+                if (!file_exists($dir)) {
+                    ?>
                                         The video directory does not exist, AVideo had no permission to create it, you must create it manually!
                                         <br>
                                         <pre><code>sudo mkdir <?php echo $dir; ?></code></pre>
                                         <?php
-                                    }
-                                    ?>
+                }
+                ?>
                                     <br>
                                     Then you can set the permissions (www-data means apache user).
                                     <br>
                                     <pre><code>sudo chown www-data:www-data <?php echo $dir; ?> && sudo chmod 755 <?php echo $dir; ?> </code></pre>
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        $pathToPHPini = php_ini_loaded_file();
-                        if (empty($pathToPHPini)) {
-                            $pathToPHPini = "/etc/php/7.0/cli/php.ini";
-                        }
-                        ?>
+            }
+            $pathToPHPini = php_ini_loaded_file();
+            if (empty($pathToPHPini)) {
+                $pathToPHPini = "/etc/php/7.0/cli/php.ini";
+            }
+            ?>
 
 
                         <?php
-                        if (check_max_execution_time()) {
-                            ?>
+            if (check_max_execution_time()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Your max_execution_time is <?php echo ini_get('max_execution_time'); ?></strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your max_execution_time is <?php echo ini_get('max_execution_time'); ?>, it must be at least 7200</strong>
 
                                 <details>
-                                    Edit the <code>php.ini</code> file 
+                                    Edit the <code>php.ini</code> file
                                     <br>
                                     <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
                         <?php
-                        if (check_post_max_size()) {
-                            ?>
+            if (check_post_max_size()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?></strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?>, it must be at least 1000M</strong>
 
                                 <details>
-                                    Edit the <code>php.ini</code> file 
+                                    Edit the <code>php.ini</code> file
                                     <br>
                                     <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
                                 </details>
-                            </div>                  
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
                         <?php
-                        if (check_upload_max_filesize()) {
-                            ?>
+            if (check_upload_max_filesize()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?></strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?>, it must be at least 1000M</strong>
 
                                 <details>
-                                    Edit the <code>php.ini</code> file 
+                                    Edit the <code>php.ini</code> file
                                     <br>
                                     <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
                                 </details>
-                            </div>                   
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
 
                         <?php
-                        if (check_memory_limit()) {
-                            ?>
+            if (check_memory_limit()) {
+                ?>
                             <div class="alert alert-success">
                                 <span class="glyphicon glyphicon-check"></span>
                                 <strong>Your memory_limit is <?php echo ini_get('memory_limit'); ?></strong>
-                            </div>                  
+                            </div>
                             <?php
-                        } else {
-                            ?>
+            } else {
+                ?>
                             <div class="alert alert-danger">
                                 <span class="glyphicon glyphicon-unchecked"></span>
                                 <strong>Your memory_limit is <?php echo ini_get('memory_limit'); ?>, it must be at least 512M</strong>
 
                                 <details>
-                                    Edit the <code>php.ini</code> file 
+                                    Edit the <code>php.ini</code> file
                                     <br>
                                     <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
                                 </details>
-                            </div>                   
+                            </div>
                             <?php
-                        }
-                        ?>
+            }
+            ?>
                     </div>
                     <div class="col-md-6 ">
                         <form id="configurationForm">
@@ -364,9 +364,9 @@ require_once '../objects/functions.php';
 
                             <div class="form-group">
                                 <label for="allowedStreamers">
-                                    Allowed AVideo Streamers Sites (One per line. Leave blank for public) 
+                                    Allowed AVideo Streamers Sites (One per line. Leave blank for public)
                                     <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
-                                       title="What is this?" 
+                                       title="What is this?"
                                        data-content="Only the listed sites will be allowed to use this encoder installation">
                                         <i class="glyphicon glyphicon-question-sign"></i>
                                     </button>
@@ -377,17 +377,17 @@ require_once '../objects/functions.php';
                             <div class="form-group">
                                 <label for="defaultPriority">Default Priority
                                     <button class="btn btn-xs btn-primary" data-toggle="popover" type="button"
-                                       title="What is this?" 
+                                       title="What is this?"
                                        data-content="When a user send an media, what will be the priority?">
                                         <i class="glyphicon glyphicon-question-sign"></i>
                                     </button>
                                 </label>
                                 <select class="" id="defaultPriority">
                                     <?php
-                                    for ($index = 1; $index <= 10; $index++) {
-                                        echo '<option value="' . $index . '">' . $index . '</option>';
-                                    }
-                                    ?>
+                        for ($index = 1; $index <= 10; $index++) {
+                            echo '<option value="' . $index . '">' . $index . '</option>';
+                        }
+            ?>
                                 </select>
                             </div>
 
@@ -397,7 +397,7 @@ require_once '../objects/functions.php';
                                 <div class="form-group">
                                     <label for="siteURL">AVideo Streamer Site URL
                                     <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
-                                       title="What is this?" 
+                                       title="What is this?"
                                        data-content="If you do not have AVideo Streamer Site yet, download it https://github.com/DanielnetoDotCom/AVideo">
                                         <i class="glyphicon glyphicon-question-sign"></i>
                                     </button>
@@ -427,7 +427,7 @@ require_once '../objects/functions.php';
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Install now</button>
                         </form>
-                    </div>            
+                    </div>
                 </div>
 
             </div>
@@ -441,7 +441,7 @@ require_once '../objects/functions.php';
                 $('#siteURL').keyup(function () {
                     $('#allowedStreamers').val($(this).val());
                 });
-                $('[data-toggle="popover"]').popover(); 
+                $('[data-toggle="popover"]').popover();
                 $('#configurationForm').submit(function (evt) {
                     evt.preventDefault();
 

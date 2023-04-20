@@ -1,6 +1,6 @@
 <?php
-if(php_sapi_name() !== 'cli'){
-  return die('Command Line only');
+if(php_sapi_name() !== 'cli') {
+    return die('Command Line only');
 }
 
 $_POST["webSiteRootURL"] = getenv("SERVER_URL");

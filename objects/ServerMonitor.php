@@ -1,8 +1,9 @@
 <?php
 
-class ServerMonitor {
-
-    static function getMemoryLinux($obj) {
+class ServerMonitor
+{
+    public static function getMemoryLinux($obj)
+    {
         $obj->command = "free";
         exec($obj->command . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -21,7 +22,8 @@ class ServerMonitor {
         return $obj;
     }
 
-    static function getMemoryNetBSD($obj) {
+    public static function getMemoryNetBSD($obj)
+    {
         $obj->command = "/sbin/sysctl hw.pagesize; /usr/bin/vmstat -t";
         exec($obj->command . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -32,9 +34,9 @@ class ServerMonitor {
             $parts = explode(" = ", $output[0]);
             if ($parts[0] != "hw.pagesize") {
                 $obj->error = "Get Memmory ERROR** (unknown page size)";
-            } else if (($match = preg_split("/ +/", trim($output[3]))) === false) {
+            } elseif (($match = preg_split("/ +/", trim($output[3]))) === false) {
                 $obj->error = "Get Memmory ERROR** (unepxected vmstat output)";
-            } else if (!is_numeric($match[4]) || !is_numeric($match[5]) || !is_numeric($match[11])) {
+            } elseif (!is_numeric($match[4]) || !is_numeric($match[5]) || !is_numeric($match[11])) {
                 $obj->error = "Get Memmory ERROR** (non numeric memory size?)";
             } else {
                 $page_size = $parts[1];
@@ -44,13 +46,15 @@ class ServerMonitor {
             }
         }
 
-        if (!empty($obj->error))
-            $obj->error .= " " . print_r($output, true); 
+        if (!empty($obj->error)) {
+            $obj->error .= " " . print_r($output, true);
+        }
 
         return $obj;
     }
 
-    static function getMemory() {
+    public static function getMemory()
+    {
         $obj = new stdClass();
         $os = php_uname("s");
         $getMemoryOsFunction = "getMemory" . $os;
@@ -61,7 +65,7 @@ class ServerMonitor {
             $obj = ServerMonitor::$getMemoryOsFunction($obj);
         }
 
-        if (empty($obj->error)) { 
+        if (empty($obj->error)) {
             $obj->success = 1;
             $onePc = $obj->memTotalBytes / 100;
             $obj->memTotal = self::humanFileSize($obj->memTotalBytes);
@@ -73,14 +77,17 @@ class ServerMonitor {
         return $obj;
     }
 
-    static function humanFileSize($size, $unit = "") {
-        if ((!$unit && $size >= 1 << 30) || $unit == "GB")
+    public static function humanFileSize($size, $unit = "")
+    {
+        if ((!$unit && $size >= 1 << 30) || $unit == "GB") {
             return number_format($size / (1 << 30), 2) . "GB";
-        if ((!$unit && $size >= 1 << 20) || $unit == "MB")
+        }
+        if ((!$unit && $size >= 1 << 20) || $unit == "MB") {
             return number_format($size / (1 << 20), 2) . "MB";
-        if ((!$unit && $size >= 1 << 10) || $unit == "KB")
+        }
+        if ((!$unit && $size >= 1 << 10) || $unit == "KB") {
             return number_format($size / (1 << 10), 2) . "KB";
+        }
         return number_format($size) . " bytes";
     }
-
 }

@@ -29,9 +29,9 @@ while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
 $webSiteRootURL = rtrim($webSiteRootURL, '/') . '/';
 
 $_POST['systemRootPath'] = str_replace("install", "", getcwd());
-if(!is_dir($_POST['systemRootPath'])){
+if(!is_dir($_POST['systemRootPath'])) {
     $_POST['systemRootPath'] = "/var/www/html/YouPHPTube/Encoder/";
-    if(!is_dir($_POST['systemRootPath'])){
+    if(!is_dir($_POST['systemRootPath'])) {
         $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
     }
 }
@@ -61,7 +61,6 @@ if (file_exists($streamerConfiguration)) {
             . " WHERE id = 1";
 
     $global['mysqli']->query($sql);
-}else{
+} else {
     echo PHP_EOL."File not found {$streamerConfiguration}".PHP_EOL;
 }
-

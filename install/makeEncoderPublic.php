@@ -2,7 +2,7 @@
 //streamer config
 require_once '../videos/configuration.php';
 
-if(!isCommandLineInterface()){
+if(!isCommandLineInterface()) {
     return die('Command Line only');
 }
 

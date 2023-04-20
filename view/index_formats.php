@@ -83,9 +83,9 @@
         if (empty($_COOKIE['format'])) {
             $_COOKIE['format'] = 'inputAutoHLS';
         }
-        ?> 
+        ?>
         <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
-            <input type="radio" id="inputAutoHLS" name="format" class="radio-button" 
+            <input type="radio" id="inputAutoHLS" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoHLS') ? 'checked' : ''; ?>>
             <div class="radio-tile">
                 <div class="icon fly-icon">
@@ -101,7 +101,7 @@
         if (empty($_COOKIE['format'])) {
             $_COOKIE['format'] = 'inputAutoMP4';
         }
-        ?> 
+        ?>
         <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoMP4" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoMP4') ? 'checked' : ''; ?>>
@@ -116,7 +116,7 @@
     }
     if (empty($global['disableWebM']) && empty($advancedCustom->doNotShowEncoderAutomaticWebm)) {
         $countEncodeOptions++;
-        ?> 
+        ?>
         <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoWebm" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoWebm') ? 'checked' : ''; ?>>
@@ -131,7 +131,7 @@
     }
     if (empty($advancedCustom->doNotShowEncoderAutomaticAudio)) { // disabled for now
         $countEncodeOptions++;
-        ?> 
+        ?>
         <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <input type="radio" id="inputAutoAudio" name="format" class="radio-button"
                    <?php echo ($_COOKIE['format'] === 'inputAutoAudio') ? 'checked' : ''; ?>>
@@ -144,12 +144,12 @@
         </div>
         <?php
     }
-    ?> 
+    ?>
 </div>
 <?php
 if ($countEncodeOptions <= 1) {
     ?>
-    <style>#automaticOptions{display: none;}</style>    
+    <style>#automaticOptions{display: none;}</style>
     <?php
 }
 ?>

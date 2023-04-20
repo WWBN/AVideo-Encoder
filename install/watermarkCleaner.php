@@ -1,6 +1,6 @@
 <?php
 
-$deleteFilesOlderThanHours = 12; 
+$deleteFilesOlderThanHours = 12;
 
 require_once '../videos/configuration.php';
 
@@ -14,31 +14,32 @@ if (is_dir($watermarkDir)) {
     searchObjLog($watermarkDir);
 }
 
-function searchObjLog($dir) {
+function searchObjLog($dir)
+{
     $deleteFilesOlderThanHours = 1;
-    echo "Searching {$dir}".PHP_EOL;
+    echo "Searching {$dir}" . PHP_EOL;
     $jsonFile = "{$dir}.obj.log";
     if (file_exists($jsonFile)) {
-         echo "Found {$jsonFile}".PHP_EOL;
+        echo "Found {$jsonFile}" . PHP_EOL;
         $json = json_decode(file_get_contents($jsonFile));
         if (is_object($json)) {
             $remainingTime = $json->lastUpdate - strtotime("-{$deleteFilesOlderThanHours} hours");
             if ($remainingTime<0) {
                 $cmd = "rm -rf {$dir}";
-                echo "Remove {$cmd}".PHP_EOL;
+                echo "Remove {$cmd}" . PHP_EOL;
                 exec($cmd);
-            }else{
-                echo "Wait {$remainingTime} seconds".PHP_EOL;
+            } else {
+                echo "Wait {$remainingTime} seconds" . PHP_EOL;
             }
         }
     } else {
         if ($dh = opendir($dir)) {
             while (($file = readdir($dh)) !== false) {
-                if($file=='.' || $file == '..'){
+                if ($file === '.' || $file === '..') {
                     continue;
                 }
                 $newDir = "{$dir}{$file}/";
-                if(is_dir($newDir)){
+                if (is_dir($newDir)) {
                     searchObjLog($newDir);
                 }
             }
