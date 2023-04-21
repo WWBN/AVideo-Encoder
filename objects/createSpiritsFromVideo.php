@@ -15,7 +15,7 @@ $numberOfTiles = $argv[6];
 $baseName = $argv[7];
 $force = intval(@$argv[8]);
 
-if ($step <= 0) {
+if ($step <= 0.01) {
     $step = 0.01;
 }
 
