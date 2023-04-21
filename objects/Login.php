@@ -228,9 +228,9 @@ if (!class_exists('Login')) {
 
         static function getStreamerId() {
             if (!static::isLogged()) {
-                return false;
+                return 0;
             }
-            return $_SESSION['login']->streamers_id;
+            return intval($_SESSION['login']->streamers_id);
         }
 
     }
