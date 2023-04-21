@@ -15,7 +15,7 @@ $numberOfTiles = $argv[6];
 $baseName = $argv[7];
 $force = intval(@$argv[8]);
 
-if ($step <= 0.01) {
+if ($step <= 0) {
     $step = 0.01;
 }
 
@@ -63,7 +63,8 @@ $mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
 $mapHeight = $tileHeight * (ceil($numberOfTiles / 10));
 
 $cmd = get_ffmpeg() . " -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step},"
-        . getFFmpegScaleToForceOriginalAspectRatio($tileWidth, $tileHeight) . " "
+        . getFFmpegScaleToForceOriginalAspectRatio($tileWidth, $tileHeight) . 
+        " -frames:v 100 "
         . " \"{$dirname}out%03d.png\"  2>&1 ";
 
 $cmd = removeUserAgentIfNotURL($cmd);
