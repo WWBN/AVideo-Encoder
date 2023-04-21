@@ -800,6 +800,7 @@ hd/index.m3u8
                         }
                     }
                 } else {
+                    error_log("AVideo-Encoder Format::exec Success progressFile={$progressFile}");
                     $obj->error = false;
                 }
             }
