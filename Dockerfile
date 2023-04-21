@@ -108,4 +108,4 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost/ || exit 1  
+HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost/ || exit 1

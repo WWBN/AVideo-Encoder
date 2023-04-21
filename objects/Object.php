@@ -2,28 +2,27 @@
 
 interface ObjectInterface
 {
-
-    static function getTableName();
-    static function getSearchFieldsNames();
+    public static function getTableName();
+    public static function getSearchFieldsNames();
 }
+
 abstract class ObjectYPT implements ObjectInterface
 {
-
-    private $fieldsName = array();
+    private $fieldsName = [];
 
     protected function load($id)
     {
         $user = self::getFromDb($id);
-        if (empty($user))
+        if (empty($user)) {
             return false;
+        }
         foreach ($user as $key => $value) {
             $this->$key = $value;
         }
         return true;
     }
 
-
-    function __construct($id)
+    public function __construct($id)
     {
         if (!empty($id)) {
             // get data from id
@@ -31,7 +30,7 @@ abstract class ObjectYPT implements ObjectInterface
         }
     }
 
-    static protected function getFromDb($id)
+    protected static function getFromDb($id)
     {
         global $global;
         $id = intval($id);
@@ -41,15 +40,10 @@ abstract class ObjectYPT implements ObjectInterface
          * @var array $global
          */
         $res = $global['mysqli']->query($sql);
-        if ($res) {
-            $user = $res->fetch_assoc();
-        } else {
-            $user = false;
-        }
-        return $user;
+        return $res ? $res->fetch_assoc() : false;
     }
 
-    static function getAll()
+    public static function getAll()
     {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
@@ -61,7 +55,7 @@ abstract class ObjectYPT implements ObjectInterface
          * @var array $global
          */
         $res = $global['mysqli']->query($sql);
-        $rows = array();
+        $rows = [];
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $rows[] = $row;
@@ -72,10 +66,9 @@ abstract class ObjectYPT implements ObjectInterface
         return $rows;
     }
 
-
-    static function getTotal()
+    public static function getTotal()
     {
-        //will receive 
+        //will receive
         //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
         global $global;
         $sql = "SELECT id FROM  " . static::getTableName() . " WHERE 1=1  ";
@@ -92,15 +85,14 @@ abstract class ObjectYPT implements ObjectInterface
         return $res->num_rows;
     }
 
-
-    static function getSqlFromPost()
+    public static function getSqlFromPost()
     {
 
         global $global;
         $sql = self::getSqlSearchFromPost();
 
         if (!empty($_POST['sort'])) {
-            $orderBy = array();
+            $orderBy = [];
             foreach ($_POST['sort'] as $key => $value) {
                 /**
                  * @var array $global
@@ -127,7 +119,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $sql;
     }
 
-    static function getSqlSearchFromPost()
+    public static function getSqlSearchFromPost()
     {
         $sql = "";
         if (!empty($_POST['searchPhrase'])) {
@@ -137,7 +129,7 @@ abstract class ObjectYPT implements ObjectInterface
             global $global;
             $search = $global['mysqli']->real_escape_string($_GET['q']);
 
-            $like = array();
+            $like = [];
             $searchFields = static::getSearchFieldsNames();
             foreach ($searchFields as $value) {
                 $like[] = " {$value} LIKE '%{$search}%' ";
@@ -152,17 +144,17 @@ abstract class ObjectYPT implements ObjectInterface
         return $sql;
     }
 
-    function save()
+    public function save()
     {
         global $global;
         $fieldsName = $this->getAllFields();
         if (!empty($this->id)) {
             $sql = "UPDATE " . static::getTableName() . " SET ";
-            $fields = array();
+            $fields = [];
             foreach ($fieldsName as $value) {
                 if (strtolower($value) == 'created') {
                     // do nothing
-                } else if (strtolower($value) == 'modified') {
+                } elseif (strtolower($value) == 'modified') {
                     $fields[] = " {$value} = now() ";
                 } else {
                     $fields[] = " `{$value}` = '{$this->$value}' ";
@@ -173,11 +165,11 @@ abstract class ObjectYPT implements ObjectInterface
         } else {
             $sql = "INSERT INTO " . static::getTableName() . " ( ";
             $sql .= "`" . implode("`,`", $fieldsName) . "` )";
-            $fields = array();
+            $fields = [];
             foreach ($fieldsName as $value) {
                 if (strtolower($value) == 'created' || strtolower($value) == 'modified') {
                     $fields[] = " now() ";
-                } else if (!isset($this->$value)) {
+                } elseif (!isset($this->$value)) {
                     $fields[] = " NULL ";
                 } else {
                     $fields[] = " '{$this->$value}' ";
@@ -215,7 +207,7 @@ abstract class ObjectYPT implements ObjectInterface
          * @var array $global
          */
         $res = $global['mysqli']->query($sql);
-        $rows = array();
+        $rows = [];
         if ($res) {
             while ($row = $res->fetch_assoc()) {
                 $rows[] = $row["COLUMN_NAME"];
@@ -226,7 +218,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $rows;
     }
 
-    function delete()
+    public function delete()
     {
         global $global;
         if (!empty($this->id)) {

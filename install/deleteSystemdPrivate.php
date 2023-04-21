@@ -3,20 +3,21 @@ if (!php_sapi_name() === 'cli') {
     die('Command Line only');
 }
 
-function humanFileSize($size, $unit = ""){
-    if ((!$unit && $size >= 1 << 30) || $unit == "GB") {
-        return number_format($size / (1 << 30), 2) . "GB";
+function humanFileSize($size, $unit = '') {
+
+    if ((!$unit && $size >= 1 << 30) || $unit === 'GB') {
+        return number_format($size / (1 << 30), 2) . 'GB';
     }
 
-    if ((!$unit && $size >= 1 << 20) || $unit == "MB") {
-        return number_format($size / (1 << 20), 2) . "MB";
+    if ((!$unit && $size >= 1 << 20) || $unit === 'MB') {
+        return number_format($size / (1 << 20), 2) . 'MB';
     }
 
-    if ((!$unit && $size >= 1 << 10) || $unit == "KB") {
-        return number_format($size / (1 << 10), 2) . "KB";
+    if ((!$unit && $size >= 1 << 10) || $unit === 'KB') {
+        return number_format($size / (1 << 10), 2) . 'KB';
     }
 
-    return number_format($size) . " bytes";
+    return number_format($size) . ' bytes';
 }
 
 set_time_limit(300);
@@ -39,5 +40,5 @@ foreach ($glob as $file) {
 }
 
 $humanFSize = humanFileSize($totalFilesize);
-echo " ----- " . PHP_EOL;
+echo ' ----- ' . PHP_EOL;
 echo "Total deleted {$humanFSize}" . PHP_EOL;

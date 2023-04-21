@@ -19,7 +19,3 @@ if ($insert_row) {
 echo "Bye";
 echo "\n";
 die();
-
-
-
-

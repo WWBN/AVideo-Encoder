@@ -2,7 +2,7 @@
 
 # AVideo - Encoder
 ### This is the Encoder for <a href="https://avideo.com/" target="_blank">AVideo</a>.
-AVideo is a video-sharing Platform software, the open source solution that is freely available to everyone. When you download AVideo Platform instance, you can create your own video sharing site, AVideo will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site. 
+AVideo is a video-sharing Platform software, the open source solution that is freely available to everyone. When you download AVideo Platform instance, you can create your own video sharing site, AVideo will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site.
 
 #### Want to manage multiple encoders? <a href="http://git-encoder-network.avideo.tube/" class="" target="_blank">AVideo Encoder Network</a> (Optional)
 
@@ -12,7 +12,7 @@ AVideo is a video-sharing Platform software, the open source solution that is fr
 * <a href="https://flix.avideo.com/" target="_blank">AVideo Platform Flix Style Demo</a>
   - We provide you a Flix site sample. On this site you can subscribe (with real money on PayPal). this subscription will allow you to watch our private videos. There is an user that you can use to see how it works. user: test and pass: test.
 * <a href="https://tutorials.avideo.com/" target="_blank">AVideo Platform Tutorials Gallery</a>
-  - We've provided a sample Video Gallery site, which is also our tutorials site. On this sample you can login, subscribe, like, dislike and comment. but you can not upload videos. 
+  - We've provided a sample Video Gallery site, which is also our tutorials site. On this sample you can login, subscribe, like, dislike and comment. but you can not upload videos.
 * <a href="http://demo.avideo.com/" target="_blank">AVideo Platform Full-Access Demo</a>
   - We provide you a Demo site sample with full access to the admin account. You will need an admin password to upload and manage videos, it is by default. user: admin and pass: 123. Also there is a non admin user and password (Only for comments). user: test and pass: test.
 
@@ -95,7 +95,7 @@ If you want the old version with Streamer and Encoder together (Version 3.4.1) d
 
 # Docker
 
-We've created a Docker environment for the AVideo platform together with the 
+We've created a Docker environment for the AVideo platform together with the
 AVideo Encoder. You can either run docker build on this git repository or you
 can pull the latest image from Docker hub. It will be updated on any commit
 here. Also there are tags for official releases.

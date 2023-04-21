@@ -5,14 +5,14 @@ include 'locale.json.php';
 // Set Language variable
 if (isset($_POST['lang']) && !empty($_POST['lang'])) {
     $_SESSION['lang'] = $_POST['lang'];
-    if (isset($_SESSION['lang']) && $_SESSION['lang'] == $_POST['lang']) {
+    if (isset($_SESSION['lang']) && $_SESSION['lang'] === $_POST['lang']) {
         echo '<script type="text/javascript">
-	window.location.replace(document.referrer);
-	</script>';
+    window.location.replace(document.referrer);
+    </script>';
     }
 }
 
-if(!class_exists('Locale')){
+if (!class_exists('Locale')) {
     $php_version = phpversion();
 
     // Extract the major and minor version numbers
@@ -23,7 +23,7 @@ if(!class_exists('Locale')){
 
     // Generate the command to install the package
     $command = "sudo apt-get install $package_name";
-    echo "Install the PHP lib: ";
+    echo 'Install the PHP lib: ';
     echo $command;
     exit;
 }
@@ -32,12 +32,7 @@ $locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 $langBrowser = str_replace('-', '_', $locale);
 
 function detecting_lang($languageBrowser, $default = 'en_US') {
-    $scanDir = '../locale/' . $languageBrowser . '.php';
-    if (file_exists($scanDir) == false) {
-        return $default;
-    } else {
-        return basename($languageBrowser, '.php');
-    }
+    return !file_exists('../locale/' . $languageBrowser . '.php') ? $default : basename($languageBrowser, '.php');
 }
 
 if (!isset($_SESSION['lang'])) {
@@ -55,9 +50,7 @@ function display_lang($decoded_json, $searchKey) {
         $flag = $decoded_json[$key]['flag'];
         if ($value == $searchKey) {
             echo "<option data-content=\"<span class='flag'><i class='flagstrap-icon flagstrap-" . $flag . "' aria-hidden='true'></i></span><span class='lanG'>" . $label . "</span>\" value=\"" . $value . "\"";
-            echo (isset($_SESSION['lang']) && $_SESSION['lang'] == $value) ? " selected></option>\n" : "></option>\n";
+            echo (isset($_SESSION['lang']) && $_SESSION['lang'] === $value) ? " selected></option>\n" : "></option>\n";
         }
     }
 }
-
-?>

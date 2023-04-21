@@ -1,0 +1,45 @@
+name: Validate/Lint
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+ build:
+  runs-on: ${{ matrix.operating-system }}
+
+  strategy:
+   matrix:
+    operating-system: [ubuntu-latest]
+    php-versions: ['7.3', '7.4', '8.0', '8.1', '8.2']
+  name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+  steps:
+  - name: Checkout
+    uses: actions/checkout@v3
+
+  - name: Set up PHP
+    uses: shivammathur/setup-php@v2
+    with:
+     php-version: ${{ matrix.php-versions }}
+     extensions: pcre
+
+  - name: Lint
+    run: |
+     lintPaths=()
+     lintPaths+=("${GITHUB_WORKSPACE}")
+     for lintPath in "${lintPaths[@]}"
+     do
+     for file in `find "$lintPath"`
+     do
+     EXTENSION="${file##*.}"
+     if [ "$EXTENSION" == "php" ] || [ "$EXTENSION" == "phtml" ]
+     then
+     RESULTS=`php -l "$file"`
+     if [ "$RESULTS" != "No syntax errors detected in $file" ]
+     then
+     echo $RESULTS
+     fi
+     fi
+     done
+     done

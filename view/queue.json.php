@@ -6,9 +6,9 @@ require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 header('Content-Type: application/json');
 $rows = Encoder::getAll(true);
-$resolutions = array('Low', 'SD', 'HD');
-if(!is_array($rows)){
-    $rows = array();
+$resolutions = ['Low', 'SD', 'HD'];
+if (!is_array($rows)) {
+    $rows = [];
 }
 foreach ($rows as $key => $value) {
     $f = new Format($rows[$key]['formats_id']);
@@ -21,19 +21,19 @@ foreach ($rows as $key => $value) {
         foreach ($files as $file) {
             $rows[$key]['mp4_filesize_'] = filesize($file);
         }
-        
+
         $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'm3u8', $value2);
         if (file_exists($file_)) {
             $rows[$key]['hls_filesize_' . $value2] = filesize($file_);
             $rows[$key]['hls_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
-        
+
         $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'zip', $value2);
         if (file_exists($file_)) {
             $rows[$key]['zip_filesize_' . $value2] = filesize($file_);
             $rows[$key]['zip_filesize_human_' . $value2] = humanFileSize($rows[$key]['mp4_filesize_' . $value2]);
         }
-        
+
         $file_ = Encoder::getTmpFileName($rows[$key]['id'], 'mp4', $value2);
         if (file_exists($file_)) {
             $rows[$key]['mp4_filesize_' . $value2] = filesize($file_);
@@ -45,13 +45,13 @@ foreach ($rows as $key => $value) {
             $rows[$key]['webm_filesize_' . $value2] = filesize($file_);
             $rows[$key]['webm_filesize_human_' . $value2] = humanFileSize($rows[$key]['webm_filesize_' . $value2]);
         }
-    }    
-        
+    }
+
     if (!empty($file) && is_dir($file)) {
         $rows[$key]['hls_filesize'] = directorysize($file);
         $rows[$key]['hls_filesize_human'] = humanFileSize($rows[$key]['hls_filesize']);
     }
-    
+
     $rows[$key]['encoding_status'] = Encoder::getVideoConversionStatus($rows[$key]['id']);
 }
 $rows = array_values($rows);

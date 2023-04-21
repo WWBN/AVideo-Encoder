@@ -2,15 +2,12 @@
 
 require_once $global['systemRootPath'] . 'objects/functions.php';
 
-
 // filter some security here
 $securityFilter = array('error', 'catName', 'type', 'channelName', 'captcha', 'showOnly', 'key', 'link', 'email', 'country', 'region', 'videoName');
 $securityFilterInt = array('isAdmin', 'priority', 'totalClips', 'rowCount');
 $securityRemoveSingleQuotes = array('search', 'searchPhrase', 'videoName', 'databaseName', 'sort', 'user', 'pass', 'encodedPass', 'isAdmin', 'videoLink', 'video_password');
 $securityRemoveNonChars = array('resolution', 'format', 'videoDirectory');
 $filterURL = array('videoURL', 'siteURL', 'redirectUri', 'encoderURL');
-
-
 
 if (!empty($_FILES)) {
     foreach ($_FILES as $key => $value) {
@@ -73,15 +70,15 @@ foreach ($scanVars as $value) {
     // all variables with _id at the end will be forced to be interger
     foreach ($scanThis as $key => $value) {
         if (preg_match('/_id$/i', $key)) {
-            if(empty($value)){
+            if (empty($value)){
                 $scanThis[$key] = 0;
-            }else 
+            }else
             if (is_numeric($value)) {
                 $scanThis[$key] = intval($value);
             } else {
-                if(is_string($value)){
+                if (is_string($value)){
                     $json = json_decode($value);
-                    if(empty($json)){
+                    if (empty($json)){
                         $json = json_decode("[$value]");
                     }
                 }else{

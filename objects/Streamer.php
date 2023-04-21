@@ -142,10 +142,10 @@ if (!class_exists('Streamer')) {
             $allowed[] = "https://127.0.0.1/AVideo/";
 
             $return = false;
-            
+
             $siteURL = str_replace('https://', '', $siteURL);
             $siteURL = str_replace('http://', '', $siteURL);
-            
+
             if (empty($allowed)) {
                 $return = true;
             } else {
@@ -157,7 +157,7 @@ if (!class_exists('Streamer')) {
                     if (substr($value, -1) !== '/') {
                         $value .= "/";
                     }
-                    
+
                     $value = str_replace('https://', '', $value);
                     $value = str_replace('http://', '', $value);
                     //var_dump($siteURL,$value);
@@ -245,7 +245,5 @@ if (!class_exists('Streamer')) {
         function setIsAdmin($isAdmin) {
             $this->isAdmin = $isAdmin;
         }
-
     }
-
 }

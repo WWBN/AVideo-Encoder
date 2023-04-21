@@ -17,8 +17,7 @@ if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pa
     Login::run($_GET['user'], $_GET['pass'], $_GET['webSiteRootURL'], true);
 }
 
-function addVideo($link, $streamers_id, $title = "")
-{
+function addVideo($link, $streamers_id, $title = "") {
     $obj = new stdClass();
     // remove list parameter from
     $link = preg_replace('~(\?|&)list=[^&]*~', '$1', $link);
@@ -68,11 +67,11 @@ function addVideo($link, $streamers_id, $title = "")
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
 
-        $encoders_ids = array();
+        $encoders_ids = [];
 
         if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
             if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
-                $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm] 
+                $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
             } else {
                 $e->setFormats_idFromOrder(71);
             }
