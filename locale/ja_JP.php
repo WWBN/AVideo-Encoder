@@ -91,7 +91,7 @@ $t['The video will be replaced with this new file, are you sure you want to proc
 $t['This is a Channel, are you sure you want to download all videos on this channel?'] = 'これはチャンネルです。このチャンネルのすべてのビデオをダウンロードしてよろしいですか？';
 $t['Title'] = 'タイトル';
 $t['URL'] = 'URL';
-$t['Unckeck all to make it public'] = 'すべてのチェックを外して公開する';
+$t['Uncheck all to make it public'] = 'すべてのチェックを外して公開する';
 $t['Unlisted'] = '非公開';
 $t['Unlisted but Searchable'] = '非公開だが検索可能';
 $t['Update'] = '更新';
