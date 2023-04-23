@@ -91,7 +91,7 @@ $t['The video will be replaced with this new file, are you sure you want to proc
 $t['This is a Channel, are you sure you want to download all videos on this channel?'] = 'This is a Channel, are you sure you want to download all videos on this channel?';
 $t['Title'] = 'Title';
 $t['URL'] = 'URL';
-$t['Unckeck all to make it public'] = 'Unckeck all to make it public';
+$t['Uncheck all to make it public'] = 'Uncheck all to make it public';
 $t['Unlisted'] = 'Unlisted';
 $t['Unlisted but Searchable'] = 'Unlisted but Searchable';
 $t['Update'] = 'Update';

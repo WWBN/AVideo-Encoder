@@ -415,7 +415,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 }
                                                 ?>
                                             </div>
-                                            <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> <?php echo __('Unckeck all to make it public'); ?></div>
+                                            <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> <?php echo __('Uncheck all to make it public'); ?></div>
 
                                         </div>
                                     </div>
