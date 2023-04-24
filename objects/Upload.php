@@ -24,6 +24,9 @@ class Upload extends ObjectYPT
     static function loadFromEncoder($encoders_id, $resolution, $format)
     {
         global $global;
+        if(empty($global)){
+            $global = [];
+        }
         $sql = "SELECT * FROM " . static::getTableName() . " WHERE  `encoders_id` = $encoders_id AND `resolution` = '$resolution' AND `format`= '$format' LIMIT 1";
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);
@@ -75,7 +78,9 @@ class Upload extends ObjectYPT
     static function deleteFile($encoders_id)
     {
         global $global;
-
+        if(empty($global)){
+            $global = [];
+        }
         $sql = "SELECT * FROM " . static::getTableName() . " WHERE  `encoders_id` = $encoders_id";
         $global['lastQuery'] = $sql;
         $res = $global['mysqli']->query($sql);

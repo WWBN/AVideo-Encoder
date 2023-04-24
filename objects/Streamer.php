@@ -18,6 +18,9 @@ if (!class_exists('Streamer')) {
 
         private static function get($user, $siteURL) {
             global $global;
+            if(empty($global)){
+                $global = [];
+            }
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
             //echo $sql;exit;
             $res = $global['mysqli']->query($sql);
@@ -31,6 +34,9 @@ if (!class_exists('Streamer')) {
 
         private static function getFirst() {
             global $global;
+            if(empty($global)){
+                $global = [];
+            }
             $sql = "SELECT * FROM  " . static::getTableName() . " LIMIT 1";
 
             $res = $global['mysqli']->query($sql);

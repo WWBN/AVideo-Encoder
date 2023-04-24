@@ -794,8 +794,10 @@ hd/index.m3u8
                         if (empty($try) && self::fixFile($pathFileName, $encoder_queue_id)) {
                             self::exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try + 1);
                         } else {
+                            $msg = json_encode($output);
+                            error_log("AVideo-Encoder Format::exec " . $msg.' '.json_encode(debug_backtrace()) );
                             $encoder->setStatus(Encoder::$STATUS_ERROR);
-                            $encoder->setStatus_obs(json_encode($output));
+                            $encoder->setStatus_obs($msg);
                             $encoder->save();
                         }
                     }

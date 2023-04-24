@@ -865,6 +865,7 @@ class Encoder extends ObjectYPT
 
     private static function setStatusError($queue_id, $msg, $notifyIsDone = false)
     {
+        error_log("setStatusError($queue_id, $msg, $notifyIsDone) " . json_encode(debug_backtrace()));
         $q = new Encoder($queue_id);
         $q->setStatus(Encoder::$STATUS_ERROR);
         $q->setStatus_obs($msg);
@@ -950,6 +951,21 @@ class Encoder extends ObjectYPT
         }
     }
 
+    public function getNewVideosId(){
+        global $global;
+        $target = 'aVideoEncoder.json';
+        
+        $f = new Format($this->getFormats_id());
+        $format = $f->getExtension();
+        $postFields = array(
+            'format'=>$format, 
+            'title'=>$this->getTitle(),
+            'videoDownloadedLink'=>$this->getVideoDownloadedLink(),
+            'encoderURL'=>$global['webSiteRootURL'],
+        );
+        return self::sendToStreamer($target, $postFields, false, $this);
+    }
+
     public static function run($try = 0)
     {
         global $global;
@@ -977,6 +993,11 @@ class Encoder extends ObjectYPT
             } else {
                 $encoder = new Encoder($rowNext['id']);
                 $return_vars = json_decode($encoder->getReturn_vars());
+                if (empty($return_vars->videos_id)) {
+                  $encoder->getNewVideosId();
+                  $encoder = new Encoder($encoder->getId());
+                  $return_vars = json_decode($encoder->getReturn_vars());
+                }
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
@@ -1028,10 +1049,6 @@ class Encoder extends ObjectYPT
                         }
                         $obj->error = false;
                         $obj->msg = $resp->code;
-                        $videos_id = 0;
-                        if (!empty($return_vars->videos_id)) {
-                            $videos_id = $return_vars->videos_id;
-                        }
                         // notify AVideo it is done
                         $response = $encoder->send();
                         if (!$response->error) {
@@ -1745,6 +1762,7 @@ class Encoder extends ObjectYPT
 
     public static function sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)
     {
+        //var_dump("sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)" . json_encode(debug_backtrace()));exit;
         $time_start = microtime(true);
         error_log("sendToStreamer to {$target} ");
         $removeAfterSend = array('spectrumimage', 'rawVideo', 'image', 'gifimage', 'webpimage', 'video');
