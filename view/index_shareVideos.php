@@ -4,6 +4,10 @@
         <?php
         if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
             include './index_formats.php';
+        } else {
+        ?>
+            <input type="radio" id="inputAutoHLS" name="format" class="radio-button" checked hidden>
+        <?php 
         }
         ?>
     </div>

@@ -162,7 +162,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         ?>
                     </a>
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
+                <div id="navbar" class="navbar-collapse">
                     <ul class="nav navbar-nav navbar-right">
                         <li>
                             <div class="navbar-lang-btn">

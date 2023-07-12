@@ -144,6 +144,16 @@ body {
     padding-top: 50px;
 }
 
+.main-container {
+    margin-top: 50px;
+}
+
+@media only screen and (max-width: 768px) {
+    .main-container {
+        margin-top: 100px !important;
+    }
+}
+
 .availableResolutionsLabels {
     text-align: center;
 }
