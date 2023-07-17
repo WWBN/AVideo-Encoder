@@ -1098,7 +1098,7 @@ function addPrefixIntoQuery($query, $tablesPrefix) {
 function isURLaVODVideo($url) {
     $parts = explode('?', $url);
     if (preg_match('/m3u8?$/i', $parts[0])) {
-        $content = file_get_contents($url);
+        $content = @file_get_contents($url);
         if (empty($content)) {
             return false; // Can't determine if the video is VOD or live, as the content is empty
         }
