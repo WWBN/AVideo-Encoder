@@ -1,17 +1,17 @@
 <?php
 
-interface ObjectInterface
-{
+interface ObjectInterface {
+
     public static function getTableName();
+
     public static function getSearchFieldsNames();
 }
 
-abstract class ObjectYPT implements ObjectInterface
-{
+abstract class ObjectYPT implements ObjectInterface {
+
     private $fieldsName = [];
 
-    protected function load($id)
-    {
+    protected function load($id) {
         $user = self::getFromDb($id);
         if (empty($user)) {
             return false;
@@ -22,16 +22,14 @@ abstract class ObjectYPT implements ObjectInterface
         return true;
     }
 
-    public function __construct($id)
-    {
+    public function __construct($id) {
         if (!empty($id)) {
             // get data from id
             $this->load($id);
         }
     }
 
-    protected static function getFromDb($id)
-    {
+    protected static function getFromDb($id) {
         global $global;
         $id = intval($id);
         $sql = "SELECT * FROM " . static::getTableName() . " WHERE  id = $id LIMIT 1";
@@ -43,8 +41,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $res ? $res->fetch_assoc() : false;
     }
 
-    public static function getAll()
-    {
+    public static function getAll() {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
 
@@ -66,8 +63,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $rows;
     }
 
-    public static function getTotal()
-    {
+    public static function getTotal() {
         //will receive
         //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
         global $global;
@@ -81,12 +77,10 @@ abstract class ObjectYPT implements ObjectInterface
          */
         $res = $global['mysqli']->query($sql);
 
-
         return $res->num_rows;
     }
 
-    public static function getSqlFromPost()
-    {
+    public static function getSqlFromPost() {
 
         global $global;
         $sql = self::getSqlSearchFromPost();
@@ -119,8 +113,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $sql;
     }
 
-    public static function getSqlSearchFromPost()
-    {
+    public static function getSqlSearchFromPost() {
         $sql = "";
         if (!empty($_POST['searchPhrase'])) {
             $_GET['q'] = $_POST['searchPhrase'];
@@ -144,8 +137,7 @@ abstract class ObjectYPT implements ObjectInterface
         return $sql;
     }
 
-    public function save()
-    {
+    public function save() {
         global $global;
         $fieldsName = $this->getAllFields();
         if (!empty($this->id)) {
@@ -197,29 +189,39 @@ abstract class ObjectYPT implements ObjectInterface
         }
     }
 
-    private function getAllFields()
-    {
+    private function getAllFields() {
         global $global, $mysqlDatabase;
         $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{$mysqlDatabase}' AND TABLE_NAME = '" . static::getTableName() . "'";
-        //echo $sql;
         $global['lastQuery'] = $sql;
-        /**
-         * @var array $global
-         */
-        $res = $global['mysqli']->query($sql);
-        $rows = [];
-        if ($res) {
-            while ($row = $res->fetch_assoc()) {
-                $rows[] = $row["COLUMN_NAME"];
+
+        $attempts = 0;
+        $retryLimit = 1; // Maximum number of retry attempts
+
+        while ($attempts <= $retryLimit) {
+            try {
+                $res = $global['mysqli']->query($sql);
+
+                if ($res) {
+                    $rows = [];
+                    while ($row = $res->fetch_assoc()) {
+                        $rows[] = $row["COLUMN_NAME"];
+                    }
+                    return $rows;
+                } else {
+                    throw new mysqli_sql_exception('(' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+                }
+            } catch (mysqli_sql_exception $e) {
+                if ($attempts < $retryLimit) {
+                    $attempts++;
+                    sleep(5); // Delay for 5 seconds before retrying
+                } else {
+                    die($e->getMessage());
+                }
             }
-        } else {
-            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
         }
-        return $rows;
     }
 
-    public function delete()
-    {
+    public function delete() {
         global $global;
         if (!empty($this->id)) {
             $sql = "DELETE FROM " . static::getTableName() . " ";
@@ -234,4 +236,5 @@ abstract class ObjectYPT implements ObjectInterface
         error_log("Id for table " . static::getTableName() . " not defined for deletion");
         return false;
     }
+
 }
