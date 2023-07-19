@@ -1786,6 +1786,7 @@ class Encoder extends ObjectYPT
             $postFields['return_vars'] = $return_vars_str;
             if (!empty($return_vars->releaseDate)) {
                 $postFields['releaseDate'] = $return_vars->releaseDate;
+                $postFields['releaseTime'] = strtotime($return_vars->releaseDate);
             }
             if (!empty($return_vars->videos_id)) {
                 $postFields['videos_id'] = $return_vars->videos_id;
