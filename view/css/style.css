@@ -146,6 +146,7 @@ body {
 
 .availableResolutionsLabels {
     text-align: center;
+    overflow: auto;
 }
 
 .availableResolutionsLabels .label {
