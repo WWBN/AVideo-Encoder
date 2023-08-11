@@ -190,7 +190,7 @@ abstract class ObjectYPT implements ObjectInterface {
     }
 
     private function getAllFields() {
-        global $global, $mysqlDatabase;
+        global $global, $mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase;
         $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{$mysqlDatabase}' AND TABLE_NAME = '" . static::getTableName() . "'";
         $global['lastQuery'] = $sql;
 
@@ -214,6 +214,7 @@ abstract class ObjectYPT implements ObjectInterface {
                 if ($attempts < $retryLimit) {
                     $attempts++;
                     sleep(5); // Delay for 5 seconds before retrying
+                    $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase);
                 } else {
                     die($e->getMessage());
                 }
