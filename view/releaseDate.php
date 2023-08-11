@@ -22,7 +22,7 @@ if (!isset($releaseDateJSandCSSAdded)) {
                 $relaseOptions[] = "{$i} " . __('Hours');
             }
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
@@ -34,7 +34,7 @@ if (!isset($releaseDateJSandCSSAdded)) {
                 $relaseOptions[] = "{$i} " . __('Days');
             }
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
@@ -47,7 +47,7 @@ if (!isset($releaseDateJSandCSSAdded)) {
             }
 
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
@@ -60,7 +60,7 @@ if (!isset($releaseDateJSandCSSAdded)) {
             }
 
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime($value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
