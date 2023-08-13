@@ -852,7 +852,11 @@ hd/index.m3u8
                 $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
             }
             $command = removeUserAgentIfNotURL($command);
-            exec($command);
+            exec($command, $output, $return_var);
+            if ($return_var !== 0) {
+                error_log("videoFileHasErrors: could not exec [{$command}] ".json_encode($output));
+                return false;
+            }
 
             if (!file_exists($errorLogFile)) {
                 error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
