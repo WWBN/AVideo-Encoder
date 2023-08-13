@@ -867,6 +867,9 @@ hd/index.m3u8
             unlink($errorLogFile);
 
             if (!empty($content)) {
+                if ($allowed_extensions) {
+                    return self::videoFileHasErrors($filename, false);
+                }
                 error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
                 return true;
             } else {
