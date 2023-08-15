@@ -29,38 +29,38 @@ if (!isset($releaseDateJSandCSSAdded)) {
         <optgroup label="<?php echo __('Days'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 ' . __('Day');
+            $relaseOptions[] = array('1 ' . __('Day'), '+1 Day');
             for ($i = 2; $i < 31; $i++) {
-                $relaseOptions[] = "{$i} " . __('Days');
+                $relaseOptions[] = array("{$i} " . __('Days'), "+$i Day");
             }
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>
         </optgroup>
         <optgroup label="<?php echo __('Months'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 ' . __('Month');
+            $relaseOptions[] = array('1 ' . __('Month'), '+1 Month');
             for ($i = 2; $i < 12; $i++) {
-                $relaseOptions[] = "{$i} " . __('Months');
+                $relaseOptions[] = array("{$i} " . __('Months'), "+$i Months");
             }
 
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>
         </optgroup>
         <optgroup label="<?php echo __('Years'); ?>">
             <?php
             $relaseOptions = array();
-            $relaseOptions[] = '1 ' . __('Year');
+            $relaseOptions[] = array('1 ' . __('Year'), '+1 Year');
             for ($i = 2; $i < 10; $i++) {
-                $relaseOptions[] = "{$i} " . __('Years');
+                $relaseOptions[] = array("{$i} " . __('Years'), "+{$i} Years");
             }
 
             foreach ($relaseOptions as $value) {
-                echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
+                echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>
         </optgroup>
