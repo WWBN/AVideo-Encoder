@@ -166,7 +166,16 @@ abstract class ObjectYPT implements ObjectInterface {
                 } elseif (!isset($this->$value)) {
                     $fields[] = " NULL ";
                 } else {
-                    $fields[] = " '{$this->$value}' ";
+                    if(preg_match('/_id$/', $value)){
+                        $id = intval($this->$value);
+                        if(empty($id)){
+                            $fields[] = " NULL ";
+                        }else{
+                            $fields[] = " {$id} ";
+                        }
+                    }else{
+                        $fields[] = " '{$this->$value}' ";
+                    }
                 }
             }
             $sql .= " VALUES (" . implode(", ", $fields) . ")";
