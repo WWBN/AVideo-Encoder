@@ -159,7 +159,9 @@ abstract class ObjectYPT implements ObjectInterface {
             $sql .= "`" . implode("`,`", $fieldsName) . "` )";
             $fields = [];
             foreach ($fieldsName as $value) {
-                if (strtolower($value) == 'created' || strtolower($value) == 'modified') {
+                if (strtolower($value) == 'id' && empty($this->$value)) {
+                    $fields[] = " NULL ";
+                } else if (strtolower($value) == 'created' || strtolower($value) == 'modified') {
                     $fields[] = " now() ";
                 } elseif (!isset($this->$value)) {
                     $fields[] = " NULL ";
