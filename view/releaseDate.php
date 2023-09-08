@@ -1,4 +1,9 @@
 <?php
+
+$advancedCustom = getAdvancedCustomizedObjectData();
+if(!empty($advancedCustom->disableReleaseDate)){
+    return '';
+}
 global $releaseDateJSandCSSAdded;
 if (empty($releaseDateId)) {
     $releaseDateId = 'releaseDate';
