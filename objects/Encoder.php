@@ -1643,7 +1643,7 @@ class Encoder extends ObjectYPT
     public static function sendImages($file, $return_vars, $encoder)
     {
         global $global;
-
+        
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
