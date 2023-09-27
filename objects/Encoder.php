@@ -2,6 +2,17 @@
 if (empty($global)) {
     $global=[];
 }
+
+if (!class_exists('CURLFile')) {
+    $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    $msg = "The CURLFile class is not found. You might need the PHP cURL extension.<br>";
+    $msg .= "You can try installing it with:<br>";
+    $msg .= "sudo apt-get install php{$phpVersion}-curl<br>";
+    echo $msg;
+    error_log($msg);
+    exit;
+} 
+
 global $sentImage;
 $sentImage = [];
 require_once $global['systemRootPath'] . 'objects/Format.php';
