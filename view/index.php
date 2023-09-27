@@ -3,7 +3,13 @@ $config = dirname(__FILE__) . '/../videos/configuration.php';
 if (!file_exists($config)) {
     header("Location: install/index.php");
 }
-
+if (!class_exists('CURLFile')) {
+    $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    echo "The CURLFile class is not found. You might need the PHP cURL extension.<br>";
+    echo "You can try installing it with:<br>";
+    echo "sudo apt-get install php{$phpVersion}-curl<br>";
+    exit;
+} 
 if (!empty($_POST['webSiteRootURL'])) {
     $_GET['webSiteRootURL'] = $_POST['webSiteRootURL'];
 }
