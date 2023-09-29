@@ -52,6 +52,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         color: #079ad9;
+        font-size: 0.8em;
     }
     .radio-tile-group .input-container .radio-button + .radio-tile {
         transition: 0.3s;
