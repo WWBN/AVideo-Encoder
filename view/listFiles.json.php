@@ -13,7 +13,10 @@ if(Login::canBulkEncode()){
         //var_dump($path, file_exists($path));
         if (file_exists($path)) {
             if (defined( 'GLOB_BRACE' )) {
-                $filesStr = "{*." . implode(",*.", $global['allowed']) . "}";
+                $extn = implode(",*.", $global['allowed']);
+                $extnLower = strtolower($extn);
+                $extnUpper = strtoupper($extn);
+                $filesStr = "{*." . $extn . ",*" . $extnLower . ",*" . $extnUpper . "}";
                 //var_dump($filesStr);
                 //echo $files;
                 $video_array = glob($path . $filesStr, GLOB_BRACE);
