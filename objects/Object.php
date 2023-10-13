@@ -174,6 +174,7 @@ abstract class ObjectYPT implements ObjectInterface {
                             $fields[] = " {$id} ";
                         }
                     }else{
+                        $this->$value = addcslashes($this->$value, "'");
                         $fields[] = " '{$this->$value}' ";
                     }
                 }
