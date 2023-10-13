@@ -15,29 +15,32 @@ if(Login::canBulkEncode()){
             $path .= DIRECTORY_SEPARATOR;
         }
         
+        $video_array = array();
         if (file_exists($path)) {
-            if (defined('GLOB_BRACE')) {
-                $extn = implode(",*.", $global['allowed']);
-                $extnLower = strtolower($extn);
-                $extnUpper = strtoupper($extn);
-                $filesStr = "{*." . $extn . ",*" . $extnLower . ",*" . $extnUpper . "}";
-                $video_array = glob($path . $filesStr, GLOB_BRACE);
-            } else {
-                $video_array = array();
-                foreach ($global['allowed'] as $value) {
-                    $video_array = array_merge($video_array, glob($path . "*." . $value));
-                }
+            foreach ($global['allowed'] as $value) {
+                $video_array = array_merge($video_array, glob($path . "*." . $value));
+            }
+        }
+        
+        // Deduplication: Use an associative array to track already added files
+        $addedFiles = [];
+        
+        $id = 0;
+        foreach ($video_array as $key => $value) {
+            // If file is already added, skip
+            if(isset($addedFiles[strtolower($value)])) {
+                continue;
             }
             
-            $id = 0;
-            foreach ($video_array as $key => $value) {
-                $path_parts = pathinfo($value);
-                $obj = new stdClass();
-                $obj->id = $id++;
-                $obj->path = _utf8_encode($value);
-                $obj->name = _utf8_encode($path_parts['basename']);
-                $files[] = $obj;
-            }
+            // Mark the file as added
+            $addedFiles[strtolower($value)] = true;
+            
+            $path_parts = pathinfo($value);
+            $obj = new stdClass();
+            $obj->id = $id++;
+            $obj->path = _utf8_encode($value);
+            $obj->name = _utf8_encode($path_parts['basename']);
+            $files[] = $obj;
         }
     }
 }
