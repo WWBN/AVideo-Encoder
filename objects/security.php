@@ -21,7 +21,7 @@ foreach ($scanVars as $value) {
     eval('$scanThis = &$_' . $value . ';');
     if (!empty($scanThis['base64Url'])) {
         if (!filter_var(base64_decode($scanThis['base64Url']), FILTER_VALIDATE_URL)) {
-            _error_log('base64Url attack ' . json_encode($_SERVER), AVideoLog::$SECURITY);
+            error_log('base64Url attack ' . json_encode($_SERVER));
             exit;
         }
     }
