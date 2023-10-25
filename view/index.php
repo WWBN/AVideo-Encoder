@@ -62,7 +62,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <link href="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="<?php echo Login::getStreamerURL(); ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
-    <link href="<?php echo Login::getStreamerURL(); ?>node_modules/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo Login::getStreamerURL(); ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
     <link href="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
 
