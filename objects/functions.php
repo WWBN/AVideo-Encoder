@@ -1206,7 +1206,6 @@ function convertToServerDate($originalDateTime, $fromTimezone) {
 function getCategoriesSelect($id) {
     ?>
     <select class="form-control categories_id" id="<?php echo $id; ?>" name="<?php echo $id; ?>">
-
         <option value="0"><?php echo __('Category - Use site default'); ?></option>
         <?php
         array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
