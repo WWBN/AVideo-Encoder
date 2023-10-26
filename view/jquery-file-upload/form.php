@@ -19,58 +19,8 @@
                 <?php 
                 echo getCategoriesSelect('categories_id_upload');
                 ?>
-                <?php
-                if (Login::canCreateCategory()) {
-                    ?>
-                    <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
-                    <script>
-                        var reloadIfIsNotEditingCategoryTimeout;
-                        function addNewCategory() {
-                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                            avideoModalIframe('<?php echo $streamerURL; ?>categories');
-                            reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                reloadIfIsNotEditingCategory();
-                            }, 500);
-                        }
-
-                        function reloadIfIsNotEditingCategory() {
-                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                            if (!avideoModalIframeIsVisible()) {
-                                loadCategories();
-                            } else {
-                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                    reloadIfIsNotEditingCategory();
-                                }, 500);
-                            }
-                        }
-                    </script>
-                    <?php
-                }
-                ?>
             </div>
         </div>
-        <script>
-            function loadCategories() {
-                console.log('loadCategories');
-                modal.showPleaseWait();
-                $.ajax({
-                    url: '<?php echo $streamerURL; ?>objects/categories.json.php',
-                    success: function (response) {
-                        $('.categories_id').empty();
-                        for (var item in response.rows) {
-                            if (typeof response.rows[item] != 'object') {
-                                continue;
-                            }
-                            $('.categories_id').append('<option value="' + response.rows[item].id + '"> ' + response.rows[item].hierarchyAndName + '</option>');
-                        }
-                        modal.hidePleaseWait();
-                    }
-                });
-            }
-            $(document).ready(function () {
-                //loadCategories();
-            });
-        </script>
         <?php
     }
     ?>

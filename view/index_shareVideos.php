@@ -65,34 +65,6 @@
                                     <?php 
                                     echo getCategoriesSelect('download_categories_id');
                                     ?>
-                                    <?php
-                                    if (Login::canCreateCategory()) {
-                                        ?>
-                                        <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
-                                        <script>
-                                            var reloadIfIsNotEditingCategoryTimeout;
-                                            function addNewCategory() {
-                                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                                avideoModalIframe('<?php echo $streamerURL; ?>categories');
-                                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                                    reloadIfIsNotEditingCategory();
-                                                }, 500);
-                                            }
-
-                                            function reloadIfIsNotEditingCategory() {
-                                                clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                                if (!avideoModalIframeIsVisible()) {
-                                                    loadCategories();
-                                                } else {
-                                                    reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                                        reloadIfIsNotEditingCategory();
-                                                    }, 500);
-                                                }
-                                            }
-                                        </script>
-                                        <?php
-                                    }
-                                    ?>
                                 </div>
                             </div>
                             <?php
@@ -143,34 +115,6 @@
                             <div style="display: flex;">
                                 <?php 
                                 echo getCategoriesSelect('bulk_categories_id');
-                                ?>
-                                <?php
-                                if (Login::canCreateCategory()) {
-                                    ?>
-                                    <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
-                                    <script>
-                                        var reloadIfIsNotEditingCategoryTimeout;
-                                        function addNewCategory() {
-                                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                            avideoModalIframe('<?php echo $streamerURL; ?>categories');
-                                            reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                                reloadIfIsNotEditingCategory();
-                                            }, 500);
-                                        }
-
-                                        function reloadIfIsNotEditingCategory() {
-                                            clearTimeout(reloadIfIsNotEditingCategoryTimeout);
-                                            if (!avideoModalIframeIsVisible()) {
-                                                loadCategories();
-                                            } else {
-                                                reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-                                                    reloadIfIsNotEditingCategory();
-                                                }, 500);
-                                            }
-                                        }
-                                    </script>
-                                    <?php
-                                }
                                 ?>
                             </div>
                         </div>
