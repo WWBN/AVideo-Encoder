@@ -1,5 +1,4 @@
 <?php
-
 stream_context_set_default([
     'ssl' => [
         'verify_peer' => false,
@@ -405,10 +404,10 @@ function status($statusarray) {
         }
     } else {
         echo json_encode(array_map(
-            function ($text) {
-                return nl2br($text);
-            },
-            $statusarray
+                        function ($text) {
+                            return nl2br($text);
+                        },
+                        $statusarray
         ));
     }
 }
@@ -447,26 +446,25 @@ function parseSecondsToDuration($seconds) {
     return secondsToVideoTime($seconds);
 }
 
-
 function decideFromPlugin() {
     $advancedCustom = getAdvancedCustomizedObjectData();
     if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
         return array("mp4" => 7, "webm" => 8);
     }
     if (
-        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 80, "webm" => 87);
     }
     if (
-        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionSD)) {
         return array("mp4" => 77, "webm" => 84);
     }
     if (
-        empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+            empty($advancedCustom->doNotShowEncoderResolutionLow) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 79, "webm" => 86);
     }
     if (
-        empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
+            empty($advancedCustom->doNotShowEncoderResolutionSD) && empty($advancedCustom->doNotShowEncoderResolutionHD)) {
         return array("mp4" => 78, "webm" => 85);
     }
     if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
@@ -513,42 +511,42 @@ function decideFormatOrder() {
     } elseif (empty($_POST['webm']) || $_POST['webm'] === 'false') {
         // mp4 only
         if (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) { // all resolutions
             error_log("decideFormatOrder: MP4 All");
             return (80);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low - HD");
             return (79);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD - HD");
             return (78);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low SD");
             return (77);
         } elseif (
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 HD");
             return (76);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD");
             return (75);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 LOW");
             return (74);
@@ -559,36 +557,36 @@ function decideFormatOrder() {
     } else {
         // mp4 and webm
         if (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) { // all resolutions
             return (87);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (86);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (85);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (84);
         } elseif (
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+                !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
         ) {
             return (83);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+                !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
         ) {
             return (82);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+                !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
         ) {
             return (81);
         } else {
@@ -668,8 +666,8 @@ function zipDirectory($destinationFile) {
     // Create recursive directory iterator
     /** @var SplFileInfo[] $files */
     $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($rootPath),
-        RecursiveIteratorIterator::LEAVES_ONLY
+            new RecursiveDirectoryIterator($rootPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
     );
 
     foreach ($files as $name => $file) {
@@ -1032,9 +1030,9 @@ function isURL200($url) {
     $result = false;
     foreach ($headers as $value) {
         if (
-            strpos($value, '200') ||
-            strpos($value, '302') ||
-            strpos($value, '304')
+                strpos($value, '200') ||
+                strpos($value, '302') ||
+                strpos($value, '304')
         ) {
             $result = true;
         }
@@ -1105,8 +1103,8 @@ function isURLaVODVideo($url) {
 
         // If the main playlist has an ENDLIST tag, it's a VOD
         if (preg_match('/#EXT-X-ENDLIST/i', $content) ||
-        preg_match('/#EXT-X-PLAYLIST-TYPE:\s*VOD/i', $content) ||
-        preg_match('/URI=".+enc_[0-9a-z]+.key/i', $content)) {
+                preg_match('/#EXT-X-PLAYLIST-TYPE:\s*VOD/i', $content) ||
+                preg_match('/URI=".+enc_[0-9a-z]+.key/i', $content)) {
             return true; // VOD content
         }
 
@@ -1129,7 +1127,6 @@ function isURLaVODVideo($url) {
     }
     return true;
 }
-
 
 function _utf8_encode($string) {
     global $global;
@@ -1172,7 +1169,7 @@ function _sys_get_temp_dir() {
     return $dir;
 }
 
-function _get_temp_file($prefix='') {
+function _get_temp_file($prefix = '') {
     return tempnam(_sys_get_temp_dir(), $prefix);
 }
 
@@ -1195,7 +1192,6 @@ function convertDates() {
     }
 }
 
-
 function convertToServerDate($originalDateTime, $fromTimezone) {
     $serverTimezone = date_default_timezone_get();
     $dateTime = new DateTime($originalDateTime, new DateTimeZone($fromTimezone));
@@ -1206,3 +1202,19 @@ function convertToServerDate($originalDateTime, $fromTimezone) {
     // Print the converted datetime
     return $dateTime->format('Y-m-d H:i:s');
 }
+
+function getCategoriesSelect($id) {
+    ?>
+    <select class="form-control categories_id" id="<?php echo $id; ?>" name="<?php echo $id; ?>">
+
+        <option value="0"><?php echo __('Category - Use site default'); ?></option>
+    <?php
+    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
+    foreach ($_SESSION['login']->categories as $key => $value) {
+        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
+    }
+    ?>
+    </select>    
+        <?php
+    }
+    

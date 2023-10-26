@@ -1,3 +1,4 @@
+<!-- not used -->
 <link href="view/mini-upload-form/assets/css/style.css" rel="stylesheet" />
 <form id="upload" method="post" action="<?= $global['webSiteRootURL'] ?>upload" enctype="multipart/form-data">
     <div class="form-group">
@@ -11,16 +12,9 @@
         ?>
         <div class="form-group">
             <div style="display: flex;">
-                <select class="form-control categories_id" id="categories_id" name="categories_id">
-
-                    <option value="0"><?php echo __('Category - Use site default'); ?></option>
-                    <?php
-                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                    foreach ($_SESSION['login']->categories as $key => $value) {
-                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                    }
-                    ?>
-                </select>
+                <?php 
+                echo getCategoriesSelect('categories_id_miniupload');
+                ?>
                 <?php
                 if (Login::canCreateCategory()) {
                     ?>

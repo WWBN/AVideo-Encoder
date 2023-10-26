@@ -62,16 +62,9 @@
                             ?>
                             <div class="form-group">
                                 <div style="display: flex;">
-                                    <select class="form-control categories_id" id="download_categories_id" name="download_categories_id">
-
-                                        <option value="0"><?php echo __('Category - Use site default'); ?></option>
-                                        <?php
-                                        array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                        foreach ($_SESSION['login']->categories as $key => $value) {
-                                            echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                        }
-                                        ?>
-                                    </select>
+                                    <?php 
+                                    echo getCategoriesSelect('download_categories_id');
+                                    ?>
                                     <?php
                                     if (Login::canCreateCategory()) {
                                         ?>
@@ -148,16 +141,9 @@
                         ?>
                         <div class="form-group">
                             <div style="display: flex;">
-                                <select class="form-control categories_id" id="bulk_categories_id" name="bulk_categories_id">
-
-                                    <option value="0"><?php echo __('Category - Use site default'); ?></option>
-                                    <?php
-                                    array_multisort(array_column($_SESSION['login']->categories, 'hierarchyAndName'), SORT_ASC, $_SESSION['login']->categories);
-                                    foreach ($_SESSION['login']->categories as $key => $value) {
-                                        echo '<option value="' . $value->id . '">' . $value->hierarchyAndName . '</option>';
-                                    }
-                                    ?>
-                                </select>
+                                <?php 
+                                echo getCategoriesSelect('bulk_categories_id');
+                                ?>
                                 <?php
                                 if (Login::canCreateCategory()) {
                                     ?>
