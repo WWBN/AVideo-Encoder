@@ -16,6 +16,7 @@ if (!class_exists('Login')) {
         ) {
             global $_runLogin;
             $aVideoURL = str_ireplace(array('rtmp://'), array(''), $aVideoURL);
+            $aVideoURL = str_ireplace(array('https://https://'), array('https://'), $aVideoURL);
             $index = "$user, $pass, $aVideoURL";
             if (!isset($_runLogin)) {
                 $_runLogin = array();
