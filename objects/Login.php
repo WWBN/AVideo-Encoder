@@ -7,6 +7,21 @@ if (!class_exists('Login')) {
 
     class Login {
 
+        private static function modifyUrl($url) {
+            $url = str_ireplace(array('rtmp://'), array(''), $url);
+            $url = str_ireplace(array('https://https://'), array('https://'), $url);
+            if (strpos($url, '/live?p=') !== false) {
+                $parsedUrl = parse_url($url);
+                $path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
+                
+                // Remove everything after the last '/' before '/live?p='
+                $path = substr($path, 0, strrpos($path, '/live?p='));
+                
+                return $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $path . '/';
+            }
+            return $url;
+        }
+
         static function run(
             $user,
             #[\SensitiveParameter]
@@ -15,8 +30,7 @@ if (!class_exists('Login')) {
             $encodedPass = false
         ) {
             global $_runLogin;
-            $aVideoURL = str_ireplace(array('rtmp://'), array(''), $aVideoURL);
-            $aVideoURL = str_ireplace(array('https://https://'), array('https://'), $aVideoURL);
+            $aVideoURL = self::modifyUrl($aVideoURL);
             $index = "$user, $pass, $aVideoURL";
             if (!isset($_runLogin)) {
                 $_runLogin = array();
