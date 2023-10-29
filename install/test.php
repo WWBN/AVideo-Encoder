@@ -21,6 +21,7 @@ $_POST['user'] = 'admin';
 $_POST['pass'] = '123';
 //$_POST['inputAutoHLS'] = true;
 $_POST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
+$_POST['notifyURL'] = str_ireplace(array('rtmp://'), array(''), $_POST['notifyURL']);
 foreach ($filesURL as $value) {
     $_POST['fileURI'] = $value;
     $path_parts = pathinfo($_POST['fileURI']);

@@ -15,6 +15,7 @@ if (!class_exists('Login')) {
             $encodedPass = false
         ) {
             global $_runLogin;
+            $aVideoURL = str_ireplace(array('rtmp://'), array(''), $aVideoURL);
             $index = "$user, $pass, $aVideoURL";
             if (!isset($_runLogin)) {
                 $_runLogin = array();

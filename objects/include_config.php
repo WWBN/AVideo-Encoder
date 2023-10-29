@@ -56,6 +56,7 @@ unset($Try);
 
 if (!empty($_REQUEST['notifyURL']) && !preg_match('/^http/i', $_REQUEST['notifyURL'])) {
     $_REQUEST['notifyURL'] = "https://{$_REQUEST['notifyURL']}";
+    $_REQUEST['notifyURL'] = str_ireplace(array('rtmp://'), array(''), "https://{$_REQUEST['notifyURL']}");
     $_POST['notifyURL'] = $_REQUEST['notifyURL'];
     $_GET['notifyURL'] = $_REQUEST['notifyURL'];
 }
