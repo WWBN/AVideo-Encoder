@@ -2019,7 +2019,7 @@ class Encoder extends ObjectYPT
          */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
         $complement = '';
-        if(preg_match('/^http/i', $videoFile)){
+        if(preg_match('/^\'?http/i', $videoFile)){
             $complement = ' -user_agent "' . getSelfUserAgent("FFProbe") . '" ';
         }
         
