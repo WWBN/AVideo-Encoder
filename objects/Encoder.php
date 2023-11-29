@@ -2018,7 +2018,12 @@ class Encoder extends ObjectYPT
          * @var string $cmd
          */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
-        eval('$cmd=get_ffprobe()." -i {$videoFile} -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
+        $complement = '';
+        if(preg_match('/^http/i', $videoFile)){
+            $complement = ' -user_agent "' . getSelfUserAgent("FFProbe") . '" ';
+        }
+        
+        eval('$cmd=get_ffprobe()." {$complement} -i {$videoFile} -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
             error_log('{"status":"error", "msg":' . json_encode($output) . ' ,"return_val":' . json_encode($return_val) . ', "where":"getDuration", "cmd":"' . $cmd . '"}');
