@@ -28,6 +28,7 @@ if (!empty($_GET['duration'])) {
 $videoLength = parseDurationToSeconds($duration);
 
 $step = $videoLength / $numberOfTiles;
+error_log("getSpritsFromVideo: step=$step videoLength=$videoLength numberOfTiles=$numberOfTiles");
 //var_dump($_REQUEST);exit;
 header("Content-type: image/jpeg");
 if (!file_exists($imageFileName)) {
