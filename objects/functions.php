@@ -1217,7 +1217,7 @@ function getCategoriesSelect($id) {
     <?php
     if (Login::canCreateCategory()) {
         ?>
-        <button class="btn btn-primary" type="button" onclick="addNewCategory();"><i class="fas fa-plus"></i></button>
+        <button class="btn btn-primary" type="button" onclick="addNewCategory('<?php echo $_SESSION['login']->streamer; ?>');"><i class="fas fa-plus"></i></button>
         <?php
     }
     ?>

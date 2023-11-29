@@ -45,17 +45,17 @@ function addNewCategory(streamerURL) {
     clearTimeout(reloadIfIsNotEditingCategoryTimeout);
     avideoModalIframe(streamerURL + 'categories');
     reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-        reloadIfIsNotEditingCategory();
+        reloadIfIsNotEditingCategory(streamerURL);
     }, 500);
 }
 
-function reloadIfIsNotEditingCategory() {
+function reloadIfIsNotEditingCategory(streamerURL) {
     clearTimeout(reloadIfIsNotEditingCategoryTimeout);
     if (!avideoModalIframeIsVisible()) {
-        loadCategories();
+        loadCategories(streamerURL);
     } else {
         reloadIfIsNotEditingCategoryTimeout = setTimeout(function () {
-            reloadIfIsNotEditingCategory();
+            reloadIfIsNotEditingCategory(streamerURL);
         }, 500);
     }
 }
