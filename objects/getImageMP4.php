@@ -76,6 +76,7 @@ if ($type === 'audio') {
         $_GET['time'] = 600;
     }
     $duration = Encoder::parseSecondsToDuration($_GET['time']);
+    error_log("GetImageInTime duration=$duration time={$_GET['time']}");
     if ($_GET['format'] === 'jpg') {
         header('Content-Type: image/jpg');
         $destination .= "." . $_GET['format'];
