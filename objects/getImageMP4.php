@@ -70,11 +70,14 @@ if ($type === 'audio') {
     header('Content-Type: image/jpg');
     die(Encoder::getThumbsFromLink($url));
 } else {
-
+    
     testTime(__LINE__);
+    /*
     if ($_GET['time'] > 600) {
         $_GET['time'] = 600;
     }
+     * 
+     */
     $duration = Encoder::parseSecondsToDuration($_GET['time']);
     error_log("GetImageInTime duration=$duration time={$_GET['time']}");
     if ($_GET['format'] === 'jpg') {
