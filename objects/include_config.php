@@ -22,7 +22,7 @@ if (empty($global['configurationVersion']) || $global['configurationVersion'] < 
     require_once $global['systemRootPath'] . 'objects/Configuration.php';
     Configuration::rewriteConfigFile(2);
 }
-
+checkZipArchiveAndVersion();
 if (empty($global['tablesPrefix'])) {
     $global['tablesPrefix'] = '';
 }

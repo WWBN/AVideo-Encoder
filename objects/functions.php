@@ -1223,3 +1223,15 @@ function getCategoriesSelect($id) {
     ?>
     <?php
 }
+
+
+function checkZipArchiveAndVersion() {
+    // Check if ZipArchive class exists
+    if (!class_exists('ZipArchive')) {
+        // Get the current PHP version
+        $phpVersion = PHP_VERSION;
+        $phpMajorMinorVersion = explode('.', $phpVersion)[0] . '.' . explode('.', $phpVersion)[1];
+        die("The ZipArchive class is not available. You are currently using PHP version $phpVersion. Please install the PHP Zip extension for this version. On Ubuntu, you can do this by running: 'sudo apt install php" . $phpMajorMinorVersion . "-zip && sudo /etc/init.d/apache2 restart'");
+    } 
+}
+
