@@ -22,7 +22,6 @@ if (empty($global['configurationVersion']) || $global['configurationVersion'] < 
     require_once $global['systemRootPath'] . 'objects/Configuration.php';
     Configuration::rewriteConfigFile(2);
 }
-checkZipArchiveAndVersion();
 if (empty($global['tablesPrefix'])) {
     $global['tablesPrefix'] = '';
 }
@@ -49,6 +48,7 @@ if (!function_exists('local_get_contents')) {
     require_once $global['systemRootPath'] . 'objects/Object.php';
 }
 
+checkZipArchiveAndVersion();
 foreach (['_REQUEST', '_POST', '_GET'] as $Try) {
     ${$Try}['notifyURL'] = trim((isset(${$Try}['notifyURL']) && is_string(${$Try}['notifyURL'])) ? ${$Try}['notifyURL'] : '');
 }
