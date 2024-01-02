@@ -217,5 +217,8 @@ async function createVideo() {
 }
 
 function editVideos(videos_id) {
-    avideoModalIframe(webSiteRootURL +'view/managerVideosLight2.php?videos_id='+videos_id);
+    var url = webSiteRootURL +'view/managerVideosLight2.php?videos_id='+videos_id;
+    url += '&user='+$('#user').val();
+    url += '&pass='+$('#pass').val();
+    avideoModalIframe(url);
 }
