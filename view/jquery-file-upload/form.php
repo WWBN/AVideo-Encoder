@@ -1,4 +1,8 @@
+<!-- <?php echo basename(__FILE__); ?> line=<?php echo __LINE__; ?> -->
 <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
+    <input type="hidden" id="videos_id" name="videos_id">
+    <input type="hidden" id="user" value="<?php echo $_SESSION["login"]->user; ?>">
+    <input type="hidden" id="pass" value="<?php echo $_SESSION["login"]->pass; ?>">
     <div class="form-group">
         <input type="text" class="form-control" id="title" name="title" placeholder="<?php echo __('Title'); ?>">
     </div>

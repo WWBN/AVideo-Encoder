@@ -102,6 +102,11 @@ if (!class_exists('Login')) {
                     $object = json_decode($result);
                     if (!empty($object)) {
                         error_log("Login::run got an object");
+                        if(!empty($object->streamer)){
+                            $object->streamerDetails = $object->streamer;
+                        }else{
+                            $object->streamerDetails = false;
+                        }
                         $object->streamer = $aVideoURL;
                         $object->streamers_id = 0;
                         if (!empty($object->canUpload) || !empty($object->isAdmin)) {
@@ -208,15 +213,7 @@ if (!class_exists('Login')) {
         }
 
         static function getStreamerURL() {
-            if (!static::isLogged()) {
-                return Streamer::getFirstURL();
-                ;
-            }
-            global $global;
-            if (!empty($global['forceStreamerSiteURL'])) {
-                return $global['forceStreamerSiteURL'];
-            }
-            return $_SESSION['login']->streamer;
+            return Streamer::getStreamerURL();;
         }
 
         static function getStreamerUser() {

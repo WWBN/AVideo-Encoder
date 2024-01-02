@@ -155,3 +155,9 @@ body {
 .navbar-right li{
     margin-right: 10px;
 }
+
+.single-line-ellipsis {
+    white-space: nowrap;  /* Keep text in a single line */
+    overflow: hidden;     /* Hide overflow text */
+    text-overflow: ellipsis;  /* Show ellipsis for overflow text */
+}

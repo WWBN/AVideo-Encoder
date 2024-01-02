@@ -24,14 +24,9 @@ require_once '../locale/function.php';
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
     Login::logoff();
 }
-
 $rows = Encoder::getAllQueue();
 $config = new Configuration();
-$streamerURL = @$_REQUEST['webSiteRootURL'];
-if (empty($streamerURL)) {
-    $streamerURL = Streamer::getFirstURL();
-}
-$streamerURL = addLastSlash($streamerURL);
+$streamerURL = Streamer::getStreamerURL();
 
 $config = new Configuration();
 
@@ -53,21 +48,21 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <meta name="author" content="">
 
     <title>Encoder</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png" />
-    <link rel="icon" type="image/png" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.png" />
-    <link rel="shortcut icon" href="<?php echo Login::getStreamerURL(); ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
-    <meta name="msapplication-TileImage" content="<?php echo Login::getStreamerURL(); ?>videos/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $streamerURL; ?>videos/favicon.png" />
+    <link rel="icon" type="image/png" href="<?php echo $streamerURL; ?>videos/favicon.png" />
+    <link rel="shortcut icon" href="<?php echo $streamerURL; ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
+    <meta name="msapplication-TileImage" content="<?php echo $streamerURL; ?>videos/favicon.png">
 
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="<?php echo Login::getStreamerURL(); ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
-    <link href="<?php echo Login::getStreamerURL(); ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
-    <link href="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo Login::getStreamerURL(); ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
+    <script src="<?php echo $streamerURL; ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
+    <link href="<?php echo $streamerURL; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $streamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $streamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
 
-    <script src="<?php echo Login::getStreamerURL(); ?>view/js/script.js" type="text/javascript"></script>
-    <script src="<?php echo Login::getStreamerURL(); ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
+    <script src="<?php echo $streamerURL; ?>view/js/script.js" type="text/javascript"></script>
+    <script src="<?php echo $streamerURL; ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/polyfill.min.js" type="text/javascript"></script>
 
@@ -86,22 +81,22 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/js/main.js'); ?>" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . 'view/css/style.css'); ?>" rel="stylesheet" type="text/css" />
 
-    <link href="<?php echo Login::getStreamerURL(); ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
-    <link href="<?php echo Login::getStreamerURL(); ?>view/theme.css.php" rel="stylesheet" type="text/css" />
-    <link href="<?php echo Login::getStreamerURL(); ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $streamerURL; ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
+    <link href="<?php echo $streamerURL; ?>view/theme.css.php" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $streamerURL; ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css" />
 
 
-    <script src="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    <link href="<?php echo Login::getStreamerURL(); ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $streamerURL; ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="<?php echo $streamerURL; ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <script>
         var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
-        var webSiteRootURL = '<?php echo Login::getStreamerURL(); ?>';
+        var webSiteRootURL = '<?php echo $streamerURL; ?>';
         var PHPSESSID = '<?php echo session_id(); ?>';
     </script>
 
-    <link href="<?php echo Login::getStreamerURL(); ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
-    <link href="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo Login::getStreamerURL(); ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
+    <link href="<?php echo $streamerURL; ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+    <link href="<?php echo $streamerURL; ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $streamerURL; ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
 
     <script>
         function changeLang() {
@@ -151,7 +146,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="<?php echo Login::getStreamerURL(); ?>">
+                    <a class="navbar-brand" href="<?php echo $streamerURL; ?>">
                         <?php
                         if (!empty($_SESSION['login']->siteLogo)) {
                         ?>
@@ -188,7 +183,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         if (Login::isLogged()) {
                         ?>
                             <!--
-                                    <li><a href="<?php echo Login::getStreamerURL(); ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
+                                    <li><a href="<?php echo $streamerURL; ?>"><span class="glyphicon glyphicon-film"></span> Stream Site</a></li>
                                 -->
                             <li><a href="logoff" class="buttonLogoff btn btn-default"><span class="glyphicon glyphicon-log-out"></span> <?php echo __('Logoff'); ?></a></li>
 
@@ -361,249 +356,16 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 ?>
                             </div>
                             <div id="advancedOptions" class="tab-pane fade">
-
                                 <?php
-                                if (!empty($_SESSION['login']->userGroups) && empty($global['hideUserGroups'])) {
+                                //include $global['systemRootPath'].'view/streamerResources/videoPoster.php';
+                                include $global['systemRootPath'].'view/streamerResources/userGroups.php';
+                                include $global['systemRootPath'].'view/streamerResources/status.php';
+                                //include $global['systemRootPath'].'view/streamerResources/tags.php';
+                                //include $global['systemRootPath'].'view/streamerResources/videoOwner.php';
+                                include $global['systemRootPath'].'view/streamerResources/videosId.php';
+                                include $global['systemRootPath'].'view/streamerResources/resolutions.php';
+                                include $global['systemRootPath'].'view/streamerResources/info.php';
                                 ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading clearfix"><i class="fas fa-users"></i>
-                                            <?php echo __('User Groups'); ?>
-
-                                            <?php
-                                            if (Login::isStreamerAdmin()) {
-                                            ?>
-                                                <button class="btn btn-primary btn-xs pull-right" type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
-                                                <script>
-                                                    var reloadIfIsNotEditingUserGroupTimeout;
-
-                                                    function addNewUserGroup() {
-                                                        clearTimeout(reloadIfIsNotEditingUserGroupTimeout);
-                                                        avideoModalIframe('<?php echo $streamerURL; ?>usersGroups');
-                                                        reloadIfIsNotEditingUserGroupTimeout = setTimeout(function() {
-                                                            reloadIfIsNotEditingUserGroup();
-                                                        }, 500);
-                                                    }
-
-                                                    function reloadIfIsNotEditingUserGroup() {
-                                                        clearTimeout(reloadIfIsNotEditingUserGroupTimeout);
-                                                        if (!avideoModalIframeIsVisible()) {
-                                                            loadUserGroups();
-                                                        } else {
-                                                            reloadIfIsNotEditingUserGroupTimeout = setTimeout(function() {
-                                                                reloadIfIsNotEditingUserGroup();
-                                                            }, 500);
-                                                        }
-                                                    }
-                                                </script>
-                                            <?php
-                                            }
-                                            ?>
-                                        </div>
-                                        <div class="panel-body" id="userGroupsList">
-                                            <div class="row">
-                                                <?php
-                                                foreach ($_SESSION['login']->userGroups as $key => $value) {
-                                                ?>
-                                                    <div class="col-xs-6 <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
-                                                        <label>
-                                                            <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>" />
-                                                            <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
-                                                        </label>
-                                                    </div>
-                                                <?php
-                                                }
-                                                ?>
-                                            </div>
-                                            <div class="alert alert-info" style="margin-bottom: 0px;"><i class="fas fa-info-circle"></i> <?php echo __('Uncheck all to make it public'); ?></div>
-
-                                        </div>
-                                    </div>
-                                    <script>
-                                        function loadUserGroups() {
-                                            modal.showPleaseWait();
-                                            $.ajax({
-                                                url: '<?php echo $streamerURL; ?>objects/usersGroups.json.php',
-                                                success: function(response) {
-                                                    $('#userGroupsList').empty();
-                                                    for (var item in response.rows) {
-                                                        if (typeof response.rows[item] != 'object') {
-                                                            continue;
-                                                        }
-                                                        $('#userGroupsList').append('<label><input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="' + response.rows[item].id + '"><i class="fas fa-lock"></i> ' + response.rows[item].group_name + '</label><br>');
-                                                    }
-                                                    modal.hidePleaseWait();
-                                                }
-                                            });
-                                        }
-                                        $(document).ready(function() {
-                                            //loadUserGroups();
-                                        });
-                                    </script>
-                                <?php
-                                }
-
-                                if (empty($advancedCustom->doNotAllowEncoderOverwriteStatus)) {
-                                ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Override status'); ?></div>
-                                        <div class="panel-body">
-                                            <select class="form-control" id="override_status" name="override_status">
-                                                <option value=""><?php echo __('Use site default'); ?></option>
-                                                <option value="a"><?php echo __('Active'); ?></option>
-                                                <option value="i"><?php echo __('Inactive'); ?></option>
-                                                <option value="u"><?php echo __('Unlisted'); ?></option>
-                                                <option value="s"><?php echo __('Unlisted but Searchable'); ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                <?php
-                                }
-
-                                if (empty($advancedCustom->doNotAllowUpdateVideoId)) {
-                                ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Update existing video'); ?></div>
-                                        <div class="panel-body">
-                                            <img id="inputNextVideo-poster" src="view/img/notfound.jpg" class="ui-state-default img img-responsive" alt="" />
-                                            <input type="text" class="form-control" id="videoSearch" name="videoSearch" placeholder="<?php echo __('Search for a video'); ?>" />
-                                            <input type="number" class="form-control" id="update_video_id" name="update_video_id" placeholder="<?php echo __('Video Id'); ?>" />
-                                        </div>
-                                    </div>
-
-                                    <script>
-                                        $(function() {
-                                            $("#videoSearch").autocomplete({
-                                                minLength: 0,
-                                                source: function(req, res) {
-                                                    $.ajax({
-                                                        url: '<?php echo Login::getStreamerURL(); ?>objects/videos.json.php?rowCount=6',
-                                                        data: {
-                                                            searchPhrase: req.term,
-                                                            users_id: '<?php echo Login::getStreamerUserId(); ?>',
-                                                            user: '<?php echo Login::getStreamerUser(); ?>',
-                                                            pass: '<?php echo Login::getStreamerPass(); ?>',
-                                                            encodedPass: true
-                                                        },
-                                                        /*
-                                                         xhrFields: {
-                                                         //withCredentials: true
-                                                         },
-                                                         */
-                                                        type: 'post',
-                                                        success: function(data) {
-                                                            res(data.rows);
-                                                        }
-                                                    });
-                                                },
-                                                focus: function(event, ui) {
-                                                    $("#videoSearch").val(ui.item.title);
-                                                    return false;
-                                                },
-                                                select: function(event, ui) {
-                                                    $("#videoSearch").val(ui.item.title);
-                                                    $("#update_video_id").val(ui.item.id);
-                                                    console.log(ui.item.videosURL);
-                                                    console.log(ui.item.videosURL.jpg);
-                                                    $("#inputNextVideo-poster").attr("src", ui.item.videosURL.jpg.url);
-                                                    return false;
-                                                }
-                                            }).autocomplete("instance")._renderItem = function(ul, item) {
-                                                return $("<li>").append("<div>" + item.title + "</div>").appendTo(ul);
-                                            };
-                                        });
-                                    </script>
-                                <?php
-                                }
-
-                                if (empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
-                                ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-desktop"></i> <?php echo __('Resolutions'); ?></div>
-                                        <div class="panel-body">
-                                            <?php
-                                            if (empty($advancedCustom->doNotShowEncoderHLS)) {
-                                            ?>
-                                                <label style="" id="">
-                                                    <input type="checkbox" id="inputHLS" checked="checked" onclick="if ($(this).is(':checked')) {
-                                                                                $('.mp4Checkbox').prop('checked', false);
-                                                                            }" /> <?php echo __('Multi Bitrate HLS'); ?>
-                                                </label><br>
-                                            <?php
-                                            }
-                                            if (empty($advancedCustom->doNotShowEncoderResolutionLow)) {
-                                            ?>
-                                                <label style="" id="">
-                                                    <input type="checkbox" id="inputLow" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                                $('#inputHLS').prop('checked', false);
-                                                                            }" /> <?php echo __('Low'); ?>
-                                                </label>
-                                            <?php
-                                            }
-                                            if (empty($advancedCustom->doNotShowEncoderResolutionSD)) {
-                                            ?>
-                                                <label id="">
-                                                    <input type="checkbox" id="inputSD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                                $('#inputHLS').prop('checked', false);
-                                                                            }" /> <?php echo __('SD'); ?>
-                                                </label>
-                                            <?php
-                                            }
-                                            if (empty($advancedCustom->doNotShowEncoderResolutionHD)) {
-                                            ?>
-                                                <label>
-                                                    <input type="checkbox" id="inputHD" <?php if (!empty($advancedCustom->doNotShowEncoderHLS)) echo 'checked="checked"'; ?> class="mp4Checkbox" onclick="if ($(this).is(':checked')) {
-                                                                                $('#inputHLS').prop('checked', false);
-                                                                            }" /> <?php echo __('HD'); ?>
-                                                </label>
-                                            <?php
-                                            }
-                                            ?>
-                                        </div>
-                                    </div>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading"><i class="fas fa-cogs"></i> <?php echo __('Advanced'); ?></div>
-                                        <div class="panel-body">
-                                            <?php if (empty($advancedCustom->doNotShowExtractAudio)) { ?>
-                                                <label>
-                                                    <input type="checkbox" id="inputAudioOnly" />
-                                                    <span class="glyphicon glyphicon-headphones"></span> <?php echo __('Extract Audio'); ?>
-                                                </label><br>
-                                            <?php } ?>
-                                            <?php if (empty($advancedCustom->doNotShowCreateVideoSpectrum)) { ?>
-                                                <label style="display: none;" id="spectrum">
-                                                    <input type="checkbox" id="inputAudioSpectrum" />
-                                                    <span class="glyphicon glyphicon-equalizer"></span> <?php echo __('Create Video Spectrum'); ?>
-                                                </label>
-                                            <?php } ?>
-                                            <?php
-                                            if (empty($global['disableWebM'])) {
-                                                if (empty($global['defaultWebM']))
-                                                    $checked = '';
-                                                else
-                                                    $checked = 'checked="checked"';
-                                            ?>
-                                                <label id="webm">
-                                                    <input type="checkbox" id="inputWebM" <?php echo $checked; ?> />
-                                                    <i class="fas fa-chrome" aria-hidden="true"></i> <?php echo __('Extract WebM Video'); ?> <small class="text-muted">(<?php echo __('The encode process will be slow'); ?>)</small>
-                                                    <br><small class="label label-warning">
-                                                        <?php echo __('For Chrome Browsers'); ?>
-                                                    </small>
-                                                </label>
-                                            <?php
-                                            }
-                                            ?>
-                                        </div>
-                                    </div>
-                                <?php
-                                }
-                                ?>
-                                <div class="panel panel-success">
-                                    <div class="panel-heading"><span class="glyphicon glyphicon-send"></span> <?php echo __('Streamer info'); ?> </div>
-                                    <div class="panel-body">
-                                        <i class="fas fa-globe"></i> <strong><?php echo Login::getStreamerURL(); ?></strong><br>
-                                        <i class="fas fa-user"></i> <?php echo __('User'); ?>: <strong><?php echo Login::getStreamerUser(); ?></strong><br>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -916,7 +678,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         });
                     });
 
-                    var streamerURL = "<?php echo Login::getStreamerURL(); ?>";
+                    var streamerURL = "<?php echo $streamerURL; ?>";
                     <?php
                     /**
                      * If you are over https change the URL to https
@@ -1328,11 +1090,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         $.ajax({
                                             url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
                                             data: {
-                                                "videoURL": $('#inputVideoURL').val(),
                                                 "audioOnly": $('#inputAudioOnly').is(":checked"),
                                                 "spectrum": $('#inputAudioSpectrum').is(":checked"),
                                                 "webm": $('#inputWebM').is(":checked"),
                                                 "override_status": $('#override_status').val(),
+                                                "videoURL": $('#inputVideoURL').val(),
                                                 "update_video_id": $('#update_video_id').val(),
                                                 "inputHLS": $('#inputHLS').is(":checked"),
                                                 "inputLow": $('#inputLow').is(":checked"),

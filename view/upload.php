@@ -104,9 +104,9 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         if (!empty($_POST['update_video_id'])) {
             $obj->videos_id = $_POST['update_video_id'];
         } else {
-            $obj->videos_id = 0;
+            $obj->videos_id = intval(@$_POST['videos_id']);
         }
-
+        //var_dump($obj->videos_id, $_POST);exit;
         $obj->releaseDate = @$_REQUEST['releaseDate'];
 
         // This raises an harmless error

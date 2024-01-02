@@ -22,7 +22,11 @@ if (!class_exists('Streamer')) {
                 $global = [];
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
-            //echo $sql;exit;
+            //echo $sql;exit;            
+            /**
+             * @var array $global
+             * @var object $global['mysqli']
+             */
             $res = $global['mysqli']->query($sql);
             if ($res) {
                 return $res->fetch_assoc();
@@ -39,6 +43,10 @@ if (!class_exists('Streamer')) {
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " LIMIT 1";
 
+            /**
+             * @var array $global
+             * @var object $global['mysqli']
+             */
             $res = $global['mysqli']->query($sql);
             if ($res) {
                 return $res->fetch_assoc();
@@ -55,6 +63,23 @@ if (!class_exists('Streamer')) {
             }
             $row = static::getFirst();
             return $row['siteURL'];
+        }
+
+        static function getStreamerURL() {
+            global $global;
+            if (!empty($global['forceStreamerSiteURL'])) {
+                return $global['forceStreamerSiteURL'];
+            }
+            $streamerURL = @$_REQUEST['webSiteRootURL'];
+            if (empty($streamerURL)) {
+                if(!empty($_SESSION['login']) && !empty($_SESSION['login']->streamer)){
+                    $streamerURL = $_SESSION['login']->streamer;
+                }else{
+                    $streamerURL = Streamer::getFirstURL();
+                }
+            }
+            $streamerURL = addLastSlash($streamerURL);
+            return $streamerURL;
         }
 
         static function createIfNotExists($user, $pass, $siteURL, $encodedPass = false) {
