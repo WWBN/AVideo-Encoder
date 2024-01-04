@@ -109,14 +109,19 @@ $(function () {
             .call(this, $.Event('done'), { result: result });
     });
     $('#fileupload').bind('fileuploadsubmit', async function (e, data) {
-        if($('#videos_id').val()==''){
+        if ($('#videos_id').val() == '') {
             e.preventDefault();
             var response = await createVideo();
-            console.log(response); 
-            $('#videos_id').val(response.videos_id);  
-            editVideos(response.videos_id);   
+            console.log(response);
+            if (!empty(response) && !empty(response.videos_id)) {
+                $('#videos_id').val(response.videos_id);
+                editVideos(response.videos_id);
+            }else{
+                $('#videos_id').val(0);
+            }
+            
             data.submit();
-        }else{
+        } else {
             data.formData = {
                 "audioOnly": $('#inputAudioOnly').is(":checked"),
                 "spectrum": $('#inputAudioSpectrum').is(":checked"),
@@ -179,7 +184,7 @@ $(function () {
             },
             type: 'post',
             success: function (response) {
-                $('#videos_id').val('');  
+                $('#videos_id').val('');
                 console.log(response);
             }
         });
@@ -188,7 +193,7 @@ $(function () {
 
 async function createVideo() {
     console.log("Form submit handler called");
-
+    modal.showPleaseWait();
     try {
         const response = await $.ajax({
             url: webSiteRootURL + 'objects/videoAddNew.json.php',
@@ -207,18 +212,20 @@ async function createVideo() {
 
         console.log("AJAX Success:", response);
         // Return the AJAX response
+        modal.hidePleaseWait();
         return response;
     } catch (error) {
-        alert('Error occurred during AJAX request.');
+        modal.hidePleaseWait();
+        avideoToastError('Error occurred during AJAX request.');
         console.error("AJAX Error", error);
         // Handle the error here and optionally return or throw an error
-        throw error;
+        return false;
     }
 }
 
 function editVideos(videos_id) {
-    var url = webSiteRootURL +'view/managerVideosLight2.php?videos_id='+videos_id;
-    url += '&user='+$('#user').val();
-    url += '&pass='+$('#pass').val();
+    var url = webSiteRootURL + 'view/managerVideosLight2.php?videos_id=' + videos_id;
+    url += '&user=' + $('#user').val();
+    url += '&pass=' + $('#pass').val();
     avideoModalIframe(url);
 }
