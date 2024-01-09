@@ -10,7 +10,7 @@
  */
 
 /* global $, window */
-
+var selectedFileName = "";
 $(function () {
     'use strict';
     // Initialize the jQuery File Upload widget:
@@ -20,6 +20,7 @@ $(function () {
         url: 'view/jquery-file-upload/server/php/?PHPSESSID=' + PHPSESSID,
         maxChunkSize: 5000000, // 5 MB
         add: function (e, data) {
+            selectedFileName = data.files[0].name;
             var videos_id = $('#update_video_id').val();
             var that = this;
             if (videos_id) {
@@ -48,8 +49,6 @@ $(function () {
                         .options.add.call(that, e, data);
                 });
             }
-
-
         },
         maxRetries: 100,
         retryTimeout: 500,
@@ -195,13 +194,17 @@ async function createVideo() {
     console.log("Form submit handler called");
     modal.showPleaseWait();
     try {
+        var title = $('#title').val();
+        if(empty(title)){
+            title = selectedFileName.replace(/\.[^/.]+$/, "");
+        }
         const response = await $.ajax({
             url: webSiteRootURL + 'objects/videoAddNew.json.php',
             type: 'POST',
             data: {
                 user: $('#user').val(),
                 pass: $('#pass').val(),
-                title: $('#title').val(),
+                title: title,
                 description: $('#description').val(),
                 categories_id: $('#categories_id_upload').val(),
                 videoGroups: $(".usergroups_id:checked").map(function () {

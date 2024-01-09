@@ -52,7 +52,8 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <link rel="icon" type="image/png" href="<?php echo $streamerURL; ?>videos/favicon.png" />
     <link rel="shortcut icon" href="<?php echo $streamerURL; ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
     <meta name="msapplication-TileImage" content="<?php echo $streamerURL; ?>videos/favicon.png">
-
+    
+    <script src="<?php echo $global['webSiteRootURL']; ?>view/js/setTimezoneCookie.js" type="text/javascript"></script>
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>

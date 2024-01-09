@@ -39,6 +39,10 @@ $mins -= $hrs * 60;
 $offset = sprintf('%+d:%02d', $hrs * $sgn, $mins);
 $global['mysqli']->query("SET time_zone='$offset';");
 
+if(isset($_COOKIE['timezone'])) {
+    date_default_timezone_set($_COOKIE['timezone']);
+}
+
 session_set_cookie_params(86400);
 ini_set('session.gc_maxlifetime', 86400);
 ini_set('session.cookie_lifetime', 86400);
