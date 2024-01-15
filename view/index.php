@@ -984,7 +984,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         },
                         formatters: {
                             "priority": function(column, row) {
-                                var tag = "<select class='priority' rowId='" + row.id + "'>";
+                                var tag = "<select class='priority form-control' rowId='" + row.id + "'>";
                                 for (i = 1; i <= 10; i++) {
                                     var selected = "";
                                     if (row.priority == i) {
@@ -996,7 +996,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 return tag;
                             },
                             "admin": function(column, row) {
-                                var tag = "<select class='isAdmin' rowId='" + row.id + "'>";
+                                var tag = "<select class='isAdmin form-control' rowId='" + row.id + "'>";
                                 tag += "<option value='1' " + (row.isAdmin == "1" ? "selected" : "") + "><?php echo __('Yes'); ?></option>";
                                 tag += "<option value='0' " + (row.isAdmin == "1" ? "" : "selected") + "><?php echo __('No'); ?></option>";
                                 tag += "</select>";
