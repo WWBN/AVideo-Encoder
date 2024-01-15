@@ -841,7 +841,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (row.status != 'queue' && row.status != 'encoding') {
                                     reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="<?php echo __('Re-Queue'); ?>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
                                 }
-                                deleteQueue = '<button type="button" class="btn btn-xs btn-default command-deleteQueue" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
+                                deleteQueue = '<button type="button" class="btn btn-danger command-deleteQueue" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
                                 if (row.status === 'done' || row.status === 'transferring') {
                                     sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="<?php echo __('Send Notify'); ?>"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
                                 }
@@ -1003,7 +1003,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 return tag;
                             },
                             "commands": function(column, row) {
-                                var deleteBtn = '<button type="button" class="btn btn-xs btn-default command-delete" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                                var deleteBtn = '<button type="button" class="btn btn-danger command-delete" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
 
                                 return deleteBtn;
                             }
