@@ -41,6 +41,8 @@ $global['mysqli']->query("SET time_zone='$offset';");
 
 if(isset($_COOKIE['timezone'])) {
     date_default_timezone_set($_COOKIE['timezone']);
+}else if(isset($_GET['timezone'])) {
+    date_default_timezone_set($_GET['timezone']);
 }
 
 session_set_cookie_params(86400);
