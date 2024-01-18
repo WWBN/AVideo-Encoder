@@ -849,7 +849,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     edit = '<button type="button" class="btn btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
                                 }
 
-                                return edit + sendFileQueue + reQueue + deleteQueue;
+                                return '<div class="btn-group">'+edit + sendFileQueue + reQueue + deleteQueue+'</div>';
                             },
                             "dates": function(column, row) {
                                 return "Created: " + row.created + "<br>Modified: " + row.modified;
