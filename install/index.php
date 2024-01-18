@@ -365,7 +365,7 @@ require_once '../objects/functions.php';
                             <div class="form-group">
                                 <label for="allowedStreamers">
                                     Allowed AVideo Streamers Sites (One per line. Leave blank for public)
-                                    <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
+                                    <button class="btn btn-primary" data-toggle="popover"  type="button"
                                        title="What is this?"
                                        data-content="Only the listed sites will be allowed to use this encoder installation">
                                         <i class="glyphicon glyphicon-question-sign"></i>
@@ -376,7 +376,7 @@ require_once '../objects/functions.php';
 
                             <div class="form-group">
                                 <label for="defaultPriority">Default Priority
-                                    <button class="btn btn-xs btn-primary" data-toggle="popover" type="button"
+                                    <button class="btn btn-primary" data-toggle="popover" type="button"
                                        title="What is this?"
                                        data-content="When a user send an media, what will be the priority?">
                                         <i class="glyphicon glyphicon-question-sign"></i>
@@ -396,7 +396,7 @@ require_once '../objects/functions.php';
 
                                 <div class="form-group">
                                     <label for="siteURL">AVideo Streamer Site URL
-                                    <button class="btn btn-xs btn-primary" data-toggle="popover"  type="button"
+                                    <button class="btn btn-primary" data-toggle="popover"  type="button"
                                        title="What is this?"
                                        data-content="If you do not have AVideo Streamer Site yet, download it https://github.com/DanielnetoDotCom/AVideo">
                                         <i class="glyphicon glyphicon-question-sign"></i>

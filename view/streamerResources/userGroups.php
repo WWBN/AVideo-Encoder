@@ -10,7 +10,7 @@ if (empty($_SESSION['login']->userGroups) || !empty($global['hideUserGroups'])) 
         <?php
         if (Login::isStreamerAdmin()) {
         ?>
-            <button class="btn btn-primary btn-xs pull-right" type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-primary pull-right" type="button" onclick="addNewUserGroup();"><i class="fas fa-plus"></i></button>
             <script>
                 var reloadIfIsNotEditingUserGroupTimeout;
 

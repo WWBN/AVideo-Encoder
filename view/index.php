@@ -839,14 +839,14 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 var return_vars = JSON.parse(row.return_vars);
 
                                 if (row.status != 'queue' && row.status != 'encoding') {
-                                    reQueue = '<button type="button" class="btn btn-xs btn-default command-reQueue" data-toggle="tooltip" title="<?php echo __('Re-Queue'); ?>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
+                                    reQueue = '<button type="button" class="btn btn-default command-reQueue" data-toggle="tooltip" title="<?php echo __('Re-Queue'); ?>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
                                 }
                                 deleteQueue = '<button type="button" class="btn btn-danger command-deleteQueue" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
                                 if (row.status === 'done' || row.status === 'transferring') {
-                                    sendFileQueue = '<button type="button" class="btn btn-xs btn-default command-sendFileQueue" data-toggle="tooltip" title="<?php echo __('Send Notify'); ?>"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
+                                    sendFileQueue = '<button type="button" class="btn btn-default command-sendFileQueue" data-toggle="tooltip" title="<?php echo __('Send Notify'); ?>"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
                                 }
                                 if (return_vars.videos_id) {
-                                    edit = '<button type="button" class="btn btn-xs btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
+                                    edit = '<button type="button" class="btn btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
                                 }
 
                                 return edit + sendFileQueue + reQueue + deleteQueue;
@@ -855,7 +855,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 return "Created: " + row.created + "<br>Modified: " + row.modified;
                             },
                             "status": function(column, row) {
-                                var btn = '<button class="btn btn-xs btn-default" data-toggle="popover" title="<?php echo __('Details'); ?>" data-content="' + row.status_obs + '"><label class="glyphicon glyphicon-alert"></label></button> ';
+                                var btn = '<button class="btn btn-default" data-toggle="popover" title="<?php echo __('Details'); ?>" data-content="' + row.status_obs + '"><label class="glyphicon glyphicon-alert"></label></button> ';
                                 var label = "warning";
                                 if (row.status == "error") {
                                     label = "danger";
@@ -882,7 +882,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary btn-xs">[' + videos_id + '] ' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
+                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary">[' + videos_id + '] ' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
                                 title += '<br><span class="label label-primary">' + row.format + '</span>';
 
                                 for (const index in row.fileInfo) {
