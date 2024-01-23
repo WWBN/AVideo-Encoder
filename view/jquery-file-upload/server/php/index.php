@@ -28,6 +28,14 @@ if (!empty($_FILES) && !empty($_FILES['files'])) {
         }
         //var_dump($_FILES, $_POST, $_GET, $_REQUEST);
     }
+    if (!empty($_FILES['files']['full_path'])) {
+        foreach ($_FILES['files']['full_path'] as $key => $value) {
+            if (empty($_FILES['files']['name'][$key])) {
+                $_FILES['files']['name'][$key] = $_FILES['files']['full_path'][$key];
+            }
+        }
+    }
+    //var_dump($_FILES['files']);
 }
 //var_dump($global['allowed']);
 require('UploadHandler.php');

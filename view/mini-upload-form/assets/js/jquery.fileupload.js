@@ -587,7 +587,7 @@
                 return true;
             }
             if (ub >= fs) {
-                file.error = 'Uploaded bytes exceed file size';
+                file.error = 'Uploaded bytes exceed file size '+ub+' >= '+fs;
                 return this._getXHRPromise(
                     false,
                     options.context,

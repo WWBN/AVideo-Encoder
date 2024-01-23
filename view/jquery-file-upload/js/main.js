@@ -33,7 +33,7 @@ $(function () {
                 })
                     .then(function (confirm) {
                         if (confirm) {
-                            $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID }, function (result) {
+                            $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID, from: 1 }, function (result) {
                                 var file = result.file;
                                 data.uploadedBytes = file && file.size;
                                 $.blueimp.fileupload.prototype
@@ -42,7 +42,7 @@ $(function () {
                         }
                     });
             } else {
-                $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID }, function (result) {
+                $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID, from: 2 }, function (result) {
                     var file = result.file;
                     data.uploadedBytes = file && file.size;
                     $.blueimp.fileupload.prototype
@@ -57,7 +57,7 @@ $(function () {
             var fu = $(this).data('blueimp-fileupload') || $(this).data('fileupload'),
                 retries = data.context.data('retries') || 0,
                 retry = function () {
-                    $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID })
+                    $.getJSON('view/jquery-file-upload/server/php/', { file: data.files[0].name, PHPSESSID: PHPSESSID, from: 3 })
                         .done(function (result) {
                             var file = result.file;
                             data.uploadedBytes = file && file.size;
