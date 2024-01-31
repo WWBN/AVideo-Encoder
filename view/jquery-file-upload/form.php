@@ -11,21 +11,21 @@
     </div>
     <?php
     $releaseDateId = 'releaseDate';
-    include $global['systemRootPath'].'view/releaseDate.php';
+    include $global['systemRootPath'] . 'view/releaseDate.php';
     ?>
     <div class="clearfix"></div>
     <?php
 
     if (!empty($_SESSION['login']->categories)) {
-        ?>
+    ?>
         <div class="form-group">
             <div style="display: flex;">
-                <?php 
+                <?php
                 echo getCategoriesSelect('categories_id_upload');
                 ?>
             </div>
         </div>
-        <?php
+    <?php
     }
     ?>
     <!-- Redirect browsers with JavaScript disabled to the origin page -->
@@ -39,26 +39,59 @@
                 <span><?php echo __('Add files...'); ?></span>
                 <input type="file" name="files[]" multiple />
             </span>
-            <button type="submit" class="btn btn-primary start col-sm-4" style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                <i class="glyphicon glyphicon-upload"></i>
-                <span><?php echo __('Start upload'); ?></span>
-            </button>
-            <button type="reset" class="btn btn-warning cancel col-sm-4" style="border-radius: 0;">
-                <i class="glyphicon glyphicon-ban-circle"></i>
-                <span><?php echo __('Cancel upload'); ?></span>
-            </button>
-            <button type="button" class="btn btn-danger delete col-sm-4" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                <i class="glyphicon glyphicon-trash"></i>
-                <span><?php echo __('Delete'); ?></span>
-            </button>
-            <input type="checkbox" class="toggle" name="selectAll" />
-            <label for="selectAll"> <?php echo __('Select All'); ?> </label>
+            <div class="btn-group btn-group-justified">
+                <button type="submit" class="btn btn-primary start">
+                    <i class="fa-solid fa-upload"></i>
+                    <br>
+                    <?php echo __('Upload'); ?>
+                </button>
+                <button type="reset" class="btn btn-warning cancel">
+                    <i class="fa-solid fa-ban"></i>
+                    <br><?php echo __('Cancel'); ?>
+                </button>
+                <button type="button" class="btn btn-danger delete">
+                    <i class="fa-solid fa-trash"></i>
+                    <br><?php echo __('Delete'); ?>
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="checkbox" class="toggle" name="selectAll" />
+                    <label for="selectAll"> <?php echo __('Select All'); ?> </label>
+                </div>
+                <div class="col-sm-6">
+                    <input type="checkbox" id="videoEditorToggle">
+                    <label for="videoEditorToggle"><?php echo __('Edit while Upload'); ?></label>
+                    <script>
+                        $(document).ready(function() {
+                            // Check if there's a saved preference in the cookie
+                            var editorEnabled = Cookies.get('videoEditorEnabled') === 'true';
+
+                            // Set the initial state of the checkbox based on the saved preference
+                            $('#videoEditorToggle').prop('checked', editorEnabled);
+
+                            // Handle checkbox change event
+                            $('#videoEditorToggle').on('change', function() {
+                                var isChecked = $(this).prop('checked');
+
+                                // Save the user's choice in a cookie
+                                Cookies.set('videoEditorEnabled', isChecked, {
+                                    expires: 365
+                                }); // Cookie expires in 365 days
+                            });
+                        });
+                    </script>
+
+                </div>
+            </div>
             <!-- The global file processing state -->
             <span class="fileupload-process"></span>
         </div>
     </div>
     <!-- The table listing the files available for upload/download -->
-    <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
+    <table role="presentation" class="table table-striped">
+        <tbody class="files"></tbody>
+    </table>
 </form>
 <!-- The template to display files available for upload -->
 <script id="template-upload" type="text/x-tmpl">

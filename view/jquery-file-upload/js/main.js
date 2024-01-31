@@ -189,8 +189,12 @@ $(function () {
         });
     });
 });
-
 async function createVideo() {
+    var editorEnabled = Cookies.get('videoEditorEnabled') === 'true';
+    if(!editorEnabled){
+        console.log("Not create video");
+        return false;
+    }
     console.log("Form submit handler called");
     modal.showPleaseWait();
     try {
@@ -219,7 +223,7 @@ async function createVideo() {
         return response;
     } catch (error) {
         modal.hidePleaseWait();
-        avideoToastError('Error occurred during AJAX request.');
+        //avideoToastError('Error occurred during AJAX request.');
         console.error("AJAX Error", error);
         // Handle the error here and optionally return or throw an error
         return false;
