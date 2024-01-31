@@ -429,7 +429,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                             <th data-column-id="title" data-formatter="title"><?php echo __('Title'); ?></th>
                                             <th data-column-id="status" data-formatter="status"><?php echo __('Status'); ?></th>
                                             <th data-column-id="created" data-formatter="dates" data-order="desc"><?php echo __('Dates'); ?></th>
-                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false" data-width="120px"></th>
+                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false" data-width="200px"></th>
                                         </tr>
                                     </thead>
                                 </table>
