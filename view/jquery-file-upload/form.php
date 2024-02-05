@@ -39,7 +39,7 @@
                 <span><?php echo __('Add files...'); ?></span>
                 <input type="file" name="files[]" multiple />
             </span>
-            <div class="btn-group btn-group-justified">
+            <div class="btn-group btn-group-justified" style="display: flex;">
                 <button type="submit" class="btn btn-primary start">
                     <i class="fa-solid fa-upload"></i>
                     <br>
