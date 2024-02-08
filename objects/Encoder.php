@@ -567,7 +567,10 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         error_log("getYoutubeDl: Getting from Youtube DL {$cmd} " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
-        exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
+
+        $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
+        exec($cmd . "  1> {$progressFile} 2>&1", $output, $return_val);
+        error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             error_log($cmd . "\n" . print_r($output, true));
