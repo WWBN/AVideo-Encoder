@@ -991,7 +991,7 @@ class Encoder extends ObjectYPT
     public static function run($try = 0)
     {
         global $global;
-        $maxTries = 3;
+        $maxTries = 6;
 
         if ($try > $maxTries) {
             return false;
