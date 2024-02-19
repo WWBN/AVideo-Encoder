@@ -1138,13 +1138,15 @@ function _utf8_encode($string) {
 }
 
 function _rename($originalFile, $newName) {
-    // Attempt to rename the file
-    if (@rename($originalFile, $newName)) {
-        return true;
-    } else {
-        // Rename failed, try to copy and delete
-        if (copy($originalFile, $newName) && @unlink($originalFile)) {
+    if(!empty($originalFile) && !empty($newName)){
+        // Attempt to rename the file
+        if (@rename($originalFile, $newName)) {
             return true;
+        } else {
+            // Rename failed, try to copy and delete
+            if (copy($originalFile, $newName) && @unlink($originalFile)) {
+                return true;
+            }
         }
     }
 
