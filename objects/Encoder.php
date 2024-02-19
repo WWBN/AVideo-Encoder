@@ -588,7 +588,15 @@ class Encoder extends ObjectYPT
                 if ($return_val !== 0) {
                     //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
                     error_log($cmd . "\n" . print_r($output, true));
-                    return false;
+                    $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
+                    //echo "\n**Trying Youtube DL **".$cmd;
+                    error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
+                    exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
+                    if ($return_val !== 0) {
+                        //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
+                        error_log($cmd . "\n" . print_r($output, true));
+                        return false;
+                    }
                 }
             }
         }
