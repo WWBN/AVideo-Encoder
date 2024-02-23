@@ -661,26 +661,34 @@ function zipDirectory($destinationFile) {
     if (!is_object($zip)) {
         $zip = new \ZipArchive;
     }
-    $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
+    if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+        throw new Exception("Cannot open <$zipPath>\n");
+    }
     // Create recursive directory iterator
     /** @var SplFileInfo[] $files */
     $files = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($rootPath),
             RecursiveIteratorIterator::LEAVES_ONLY
     );
-
+    $countFilesAdded = 0;
     foreach ($files as $name => $file) {
+        $filePath = $file->getRealPath();
         // Skip directories (they would be added automatically)
         if (!$file->isDir()) {
             // Get real and relative path for current file
-            $filePath = $file->getRealPath();
             $relativePath = substr($filePath, strlen($rootPath) + 1);
 
             // Add current file to archive
-            $zip->addFile($filePath, $relativePath);
+            if (!$zip->addFile($filePath, $relativePath)) {
+                error_log("zipDirectory: Cannot add file <$filePath>");
+            }else{
+                $countFilesAdded++;
+            }
+        }else{
+            error_log("zipDirectory: Cannot add file it is a Dir <$filePath>");
         }
     }
+    error_log("zipDirectory($destinationFile) added {$countFilesAdded} files");
 
     // Zip archive will be created only after closing object
     $zip->close();
