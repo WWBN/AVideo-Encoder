@@ -690,7 +690,7 @@ function zipDirectory($destinationFile) {
                 $countFilesAdded++;
             }
         } else {
-            error_log("Skipping directory or unreadable file: $filePath");
+            //error_log("Skipping directory or unreadable file: $filePath");
         }
     }
     
