@@ -960,6 +960,7 @@ function isPIDRunning($pid) {
 }
 
 function execAsync($command) {
+    global $global;
     // If windows, else
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         //$pid = system($command . " > NUL");
@@ -969,9 +970,10 @@ function execAsync($command) {
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
         $newCmd = $command . " > /dev/null 2>&1 & echo $!; ";
-        error_log('execAsync start: ' . $newCmd);
+        $newCmd = $command . " > {$global['systemRootPath']}videos/avideo.log 2>&1 & ";
+        //error_log('execAsync start: ' . $newCmd);
         $pid = exec($newCmd, $output, $retval);        
-        error_log('execAsync end  : ' . json_encode($output) . ' ' . $retval);
+        //error_log('execAsync end  : ' . json_encode($output) . ' ' . $retval);
     }
     return $pid;
 }
