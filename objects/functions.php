@@ -673,22 +673,26 @@ function zipDirectory($destinationFile) {
     $countFilesAdded = 0;
     foreach ($files as $name => $file) {
         $filePath = $file->getRealPath();
-        // Skip directories (they would be added automatically)
-        if (!$file->isDir()) {
-            // Get real and relative path for current file
+        // Ensure the file is readable
+        if (!$file->isDir() && is_readable($filePath)) {
             $relativePath = substr($filePath, strlen($rootPath) + 1);
-
-            // Add current file to archive
+    
+            // Attempt to add the file to the archive
             if (!$zip->addFile($filePath, $relativePath)) {
-                error_log("zipDirectory: Cannot add file <$filePath>");
-            }else{
+                error_log("Failed to add file: $filePath");
+                // Optionally, check if the file was indeed added (for debugging)
+                if ($zip->locateName($relativePath) === false) {
+                    error_log("File not found in archive after add attempt: $relativePath");
+                }
+            } else {
                 $countFilesAdded++;
             }
-        }else{
-            error_log("zipDirectory: Cannot add file it is a Dir <$filePath>");
+        } else {
+            error_log("Skipping directory or unreadable file: $filePath");
         }
     }
-    error_log("zipDirectory($destinationFile) added {$countFilesAdded} files");
+    
+    error_log("zipDirectory($destinationFile) added {$countFilesAdded} files of a total=".count($files));
 
     // Zip archive will be created only after closing object
     $zip->close();
