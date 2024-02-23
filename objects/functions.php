@@ -1260,7 +1260,7 @@ function checkZipArchiveAndVersion() {
     preg_match('/^PHP\s+([0-9]+\.[0-9]+)/m', $cliVersionOutput, $matches);
     $cliVersion = empty($matches[1])?'':$matches[1];
 
-    $cliZipCheckOutput = shell_exec('php -m | grep -i Zip');
+    $cliZipCheckOutput = shell_exec('php -m | /bin/grep -i Zip');
     if (empty($cliZipCheckOutput)) {
         var_dump($cliZipCheckOutput);
         die("The ZipArchive class is not available in the PHP CLI environment. The CLI is using PHP version $cliVersion. Please install the PHP Zip extension for this version. On Ubuntu, run: 'sudo apt install php" . $cliVersion . "-zip && sudo /etc/init.d/apache2 restart'");
