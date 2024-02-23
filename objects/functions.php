@@ -968,7 +968,10 @@ function execAsync($command) {
         $pid = exec($command, $output, $retval);
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
-        $pid = exec($command . " > /dev/null 2>&1 & echo $!; ");
+        $newCmd = $command . " > /dev/null 2>&1 & echo $!; ";
+        error_log('execAsync start: ' . $newCmd);
+        $pid = exec($newCmd, $output, $retval);        
+        error_log('execAsync end  : ' . json_encode($output) . ' ' . $retval);
     }
     return $pid;
 }
