@@ -670,8 +670,10 @@ function zipDirectory($destinationFile) {
             new RecursiveDirectoryIterator($rootPath),
             RecursiveIteratorIterator::LEAVES_ONLY
     );
+    $countFiles = 0;
     $countFilesAdded = 0;
     foreach ($files as $name => $file) {
+        $countFiles++;
         $filePath = $file->getRealPath();
         // Ensure the file is readable
         if (!$file->isDir() && is_readable($filePath)) {
@@ -692,7 +694,7 @@ function zipDirectory($destinationFile) {
         }
     }
     
-    error_log("zipDirectory($destinationFile) added {$countFilesAdded} files of a total=".count($files));
+    error_log("zipDirectory($destinationFile) added {$countFilesAdded} files of a total={$countFiles}");
 
     // Zip archive will be created only after closing object
     $zip->close();
