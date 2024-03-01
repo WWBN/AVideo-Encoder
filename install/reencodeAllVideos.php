@@ -6,7 +6,10 @@ require_once '../videos/configuration.php';
 if (!isCommandLineInterface()) {
     return die('Command Line only');
 }
-
+/**
+ * @var array $global
+ * @var object $global['mysqli']
+ */
 $sql = "UPDATE {$global['tablesPrefix']}encoder_queue SET status = 'queue' where id > 0";
 echo $sql . PHP_EOL;
 $insert_row = $global['mysqli']->query($sql);
