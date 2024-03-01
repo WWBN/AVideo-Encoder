@@ -58,7 +58,7 @@ if (!class_exists('Format')) {
         }
 
         public function run($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id)");
+            error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ".json_encode(debug_backtrace()));
             global $global;
             $obj = new stdClass();
             $obj->error = true;
