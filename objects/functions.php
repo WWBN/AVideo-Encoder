@@ -970,7 +970,7 @@ function execAsync($command) {
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
         $newCmd = $command . " > /dev/null 2>&1 & echo $!; ";
-        $newCmd = $command . " > {$global['systemRootPath']}videos/avideo.log 2>&1 & ";
+        //$newCmd = $command . " > {$global['systemRootPath']}videos/avideo.log 2>&1 & ";
         //error_log('execAsync start: ' . $newCmd);
         $pid = exec($newCmd, $output, $retval);        
         //error_log('execAsync end  : ' . json_encode($output) . ' ' . $retval);
