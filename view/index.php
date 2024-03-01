@@ -593,20 +593,28 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
                                 for (i = 0; i < encodingNowIds.length; i++) {
                                     var id = encodingNowIds[i];
-
-                                    var text = response.encoding[i].name + " [<?php echo __('Downloading'); ?> ...]";
-                                    if (response.download_status[i] && response.encoding_status[i].progress) {
-                                        text = response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] " + response.encoding_status[i].remainTimeHuman;
-                                    }
                                     var setText = true;
-                                    if (response.encoding_status[i].progress) {
-                                        setText = false;
-                                        setEncodingProgress(id, response.encoding_status[i].progress, text);
+                                    var text = '';
+                                    try {
+                                        if (response.encoding_status[i].progress) {
+                                            setText = false;
+                                            setEncodingProgress(id, response.encoding_status[i].progress, text);
+                                        }
+                                        text = response.encoding[i].name + " [<?php echo __('Downloading'); ?> ...]";
+                                    } catch (error) {
+
+                                    }
+                                    try {
+                                        if (response.download_status[i] && response.encoding_status[i].progress) {
+                                            text = response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] " + response.encoding_status[i].remainTimeHuman;
+                                        }
+
+                                        if (response.download_status[i]) {
+                                            setDownloadProgress(id, response.download_status[i].progress, setText);
+                                        }
+                                    } catch (error) {
                                     }
 
-                                    if (response.download_status[i]) {
-                                        setDownloadProgress(id, response.download_status[i].progress, setText);
-                                    }
                                 }
 
                                 setTimeout(function() {
