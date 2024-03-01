@@ -884,7 +884,7 @@ hd/index.m3u8
                 $obj->destinationFile = $destinationFile;
                 $obj->pathFileName = $pathFileName;
                 $obj->msg = "destinationFile is empty";
-                error_log("execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) destinationFile");
+                error_log("execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) destinationFile ".json_encode(debug_backtrace()));
                 return $obj;
             }
             if (file_exists($destinationFile)) {

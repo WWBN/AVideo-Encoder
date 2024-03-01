@@ -1049,9 +1049,12 @@ class Encoder extends ObjectYPT
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
-                        if ($resp->error === -1) {
+                        if (empty($resp->code)) {
+                            error_log("Encoder::run: Encoder Run the code is empty: " . json_encode($resp));
                             return false;
-                        } elseif ($try < 4) {
+                        } else if ($resp->error === -1) {
+                            return false;
+                        } else if ($try < 4) {
                             $msg = "Encoder::run: Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log($msg);
                             $encoder->setStatus(Encoder::$STATUS_QUEUE);
@@ -1160,7 +1163,7 @@ class Encoder extends ObjectYPT
         $streamers_id = $encoder->getStreamers_id();
 
         if (empty($streamers_id)) {
-            error_log("getTmpFileBaseName($encoder_queue_id): Empty streamers ID");
+            error_log("getTmpFileBaseName($encoder_queue_id): Empty streamers ID ".json_encode(debug_backtrace()));
             return false;
         }
         if (!empty($resolution)) {
