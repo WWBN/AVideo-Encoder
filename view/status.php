@@ -11,6 +11,7 @@ $obj = new stdClass();
 $obj->queue_size = 0;
 $obj->concurrent = 1;
 $obj->is_encoding = false;
+$obj->is_downloading = false;
 $obj->queue_list = array();
 $obj->msg = "";
 $obj->encoding = new stdClass();
@@ -24,6 +25,7 @@ if (!empty($global['concurrent'])) {
 }
 $obj->encoding = Encoder::areEncoding();
 $obj->downloaded = Encoder::areDownloaded();
+$obj->downloading = Encoder::areDownloading();
 $obj->transferring = Encoder::areTransferring();
 //$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
@@ -41,13 +43,26 @@ if (count($obj->encoding) == 0) {
     $msg = (count($obj->encoding) == 1) ? "The file " : "The files ";
     for ($i = 0; $i < count($obj->encoding); $i++) {
         $obj->encoding_status[$i] = Encoder::getVideoConversionStatus($obj->encoding[$i]['id']);
-        $obj->download_status[$i] = Encoder::getYoutubeDlProgress($obj->encoding[$i]['id']);
         $msg .= "[{$obj->encoding[$i]['id']}] {$obj->encoding[$i]['filename']}";
         if (count($obj->encoding) > 1 && $i < count($obj->encoding) - 1) {
             $msg .= ", ";
         }
     }
     $msg .= (count($obj->encoding) == 1) ? " is encoding" : " are encoding";
+    $obj->msg = $msg;
+}
+
+if (!empty($obj->downloading)) {
+    $obj->is_downloading = true;
+    $msg = (count($obj->downloading) == 1) ? "The file " : "The files ";
+    for ($i = 0; $i < count($obj->encoding); $i++) {
+        $obj->download_status[$i] = Encoder::getYoutubeDlProgress($obj->downloading[$i]['id']);
+        $msg .= "[{$obj->encoding[$i]['id']}] {$obj->encoding[$i]['filename']}";
+        if (count($obj->downloading) > 1 && $i < count($obj->downloading) - 1) {
+            $msg .= ", ";
+        }
+    }
+    $msg .= (count($obj->encoding) == 1) ? " is downloading" : " are downloading";
     $obj->msg = $msg;
 }
 
