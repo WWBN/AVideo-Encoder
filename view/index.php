@@ -52,7 +52,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     <link rel="icon" type="image/png" href="<?php echo $streamerURL; ?>videos/favicon.png" />
     <link rel="shortcut icon" href="<?php echo $streamerURL; ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
     <meta name="msapplication-TileImage" content="<?php echo $streamerURL; ?>videos/favicon.png">
-    
+
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/setTimezoneCookie.js" type="text/javascript"></script>
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -359,13 +359,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             <div id="advancedOptions" class="tab-pane fade">
                                 <?php
                                 //include $global['systemRootPath'].'view/streamerResources/videoPoster.php';
-                                include $global['systemRootPath'].'view/streamerResources/userGroups.php';
-                                include $global['systemRootPath'].'view/streamerResources/status.php';
+                                include $global['systemRootPath'] . 'view/streamerResources/userGroups.php';
+                                include $global['systemRootPath'] . 'view/streamerResources/status.php';
                                 //include $global['systemRootPath'].'view/streamerResources/tags.php';
                                 //include $global['systemRootPath'].'view/streamerResources/videoOwner.php';
-                                include $global['systemRootPath'].'view/streamerResources/videosId.php';
-                                include $global['systemRootPath'].'view/streamerResources/resolutions.php';
-                                include $global['systemRootPath'].'view/streamerResources/info.php';
+                                include $global['systemRootPath'] . 'view/streamerResources/videosId.php';
+                                include $global['systemRootPath'] . 'view/streamerResources/resolutions.php';
+                                include $global['systemRootPath'] . 'view/streamerResources/info.php';
                                 ?>
                             </div>
                         </div>
@@ -849,7 +849,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     edit = '<button type="button" class="btn btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
                                 }
 
-                                return '<div class="btn-group">'+edit + sendFileQueue + reQueue + deleteQueue+'</div>';
+                                return '<div class="btn-group">' + edit + sendFileQueue + reQueue + deleteQueue + '</div>';
                             },
                             "dates": function(column, row) {
                                 return "Created: " + row.created + "<br>Modified: " + row.modified;
@@ -882,8 +882,8 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary">' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
-                                title += '<br><span class="label label-primary">' + row.format + ' [' + videos_id + '] [' + row.id + ']</span>';
+                                var title = '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary">' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
+                                title += '<br><span class="label label-primary">' + row.format + ' [' + row.id + ']</span>';
 
                                 for (const index in row.fileInfo) {
                                     if (typeof row.fileInfo[index].text === 'undefined') {
@@ -1172,7 +1172,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (response.text) {
                                     let message = response.text;
                                     if (Array.isArray(message)) {
-                                      message = message.join(', '); // join all array elements into a string
+                                        message = message.join(', '); // join all array elements into a string
                                     }
                                     avideoAlert(response.title, message, response.type);
                                     avideoAlert(response.title, response.text, response.type);
