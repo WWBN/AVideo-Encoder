@@ -442,6 +442,7 @@ class Encoder extends ObjectYPT
 
     public static function downloadFile($queue_id)
     {
+
         global $global;
         $obj = new stdClass();
         $q = new Encoder($queue_id);
@@ -466,12 +467,18 @@ class Encoder extends ObjectYPT
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
 
+        $downloading = static::areDownloading();
+        if(!empty($downloading)){
+            error_log("downloadFile: there are a file downloading");
+            return $obj;
+        }
+
         if (file_exists($obj->pathFileName)) {
             if ($q->getStatus() == 'queue') {
                 self::setDownloaded($queue_id, $obj->pathFileName);
             }
             $obj->error = false;
-            //error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
+            error_log("downloadFile: file already exists queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
             return $obj;
         }
 

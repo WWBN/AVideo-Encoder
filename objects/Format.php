@@ -847,9 +847,9 @@ hd/index.m3u8
             $durationOption = '-t 10';  // check the first 10 seconds
 
             if (isWindows()) {
-                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - >\"{$errorLogFile}\" 2>&1 ";
+                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - > \"{$errorLogFile}\" 2>&1 ";
             } else {
-                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - 2>\"{$errorLogFile}\" ";
+                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - 2> \"{$errorLogFile}\" ";
             }
             $command = removeUserAgentIfNotURL($command);
             exec($command, $output, $return_var);
