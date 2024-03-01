@@ -685,34 +685,13 @@ class Encoder extends ObjectYPT
 
     public static function areDownloading()
     {
-        global $global;
-        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
-            . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE  status = '" . Encoder::$STATUS_DOWNLOADED . "' OR  status = '" . Encoder::$STATUS_DOWNLOADING . "' ORDER BY priority ASC, e.id ASC ";
-
-        /**
-         * @var array $global
-         * @var object $global['mysqli']
-         */
-        $res = $global['mysqli']->query($sql);
-        $results = [];
-        if ($res) {
-            while ($result = $res->fetch_assoc()) {
-                $encoder = new Encoder($result['id']);
-                $result['return_vars'] = json_decode($result['return_vars']);
-                $s = new Streamer($result['streamers_id']);
-                $result['streamer_site'] = $s->getSiteURL();
-                $result['streamer_priority'] = $s->getPriority();
-                $results[] = $result;
-            }
-        } else {
-            die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
-        }
-        return $results;
+        return self::getQueue($status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING));
     }
 
     public static function areEncoding()
     {
-        return self::getQueue($status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING));
+        //return self::getQueue($status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING));
+        return self::getQueue($status = array(Encoder::$STATUS_ENCODING));
     }
 
     public static function areDownloaded()
