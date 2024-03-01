@@ -963,21 +963,18 @@ function execAsync($command) {
     global $global;
     // If windows, else
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        //$pid = system($command . " > NUL");
-        //pclose($pid = popen("start /B ". $command, "r"));
         error_log($command);
         $pid = exec($command, $output, $retval);
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
-        $newCmd = $command . " > /dev/null 2>&1 & echo $!; ";
-        // the command below was clearing the log
-        //$newCmd = $command . " > {$global['systemRootPath']}videos/avideo.log 2>&1 & ";
-        //error_log('execAsync start: ' . $newCmd);
-        $pid = exec($newCmd, $output, $retval);        
-        //error_log('execAsync end  : ' . json_encode($output) . ' ' . $retval);
+        $newCmd = "nohup " . $command . " > /dev/null 2>&1 & echo $!;";
+        error_log('execAsync start: ' . $newCmd);
+        $pid = shell_exec($newCmd);
+        error_log('execAsync end  : ' . $pid);
     }
-    return $pid;
+    return trim($pid);
 }
+
 
 function execRun() {
     global $global;
