@@ -962,15 +962,21 @@ function isPIDRunning($pid) {
 function execAsync($command) {
     global $global;
     // If windows, else
+    $log = strpos($command, 'run.php') === false;
+
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         error_log($command);
         $pid = exec($command, $output, $retval);
         error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
     } else {
         $newCmd = "nohup " . $command . " > /dev/null 2>&1 & echo $!;";
-        error_log('execAsync start: ' . $newCmd);
+        if($log){
+            error_log('execAsync start: ' . $newCmd);
+        }
         $pid = shell_exec($newCmd);
-        error_log('execAsync end  : ' . $pid);
+        if($log){
+            error_log('execAsync end  : ' . $pid);
+        }
     }
     return trim($pid);
 }
