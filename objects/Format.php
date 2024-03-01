@@ -854,7 +854,7 @@ hd/index.m3u8
             $command = removeUserAgentIfNotURL($command);
             exec($command, $output, $return_var);
             if ($return_var !== 0) {
-                error_log("videoFileHasErrors: could not exec [{$command}] ".json_encode($output));
+                error_log("videoFileHasErrors: could not exec [{$command}] ".json_encode($output).' '.json_encode(debug_backtrace()));
                 return false;
             }
 

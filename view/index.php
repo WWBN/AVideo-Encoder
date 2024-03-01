@@ -882,8 +882,8 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary">[' + videos_id + '] ' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
-                                title += '<br><span class="label label-primary">' + row.format + '</span>';
+                                var title = '<a href="' + row.streamer + '" target="_blank" class="btn btn-primary">' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
+                                title += '<br><span class="label label-primary">' + row.format + ' [' + videos_id + '] [' + row.id + ']</span>';
 
                                 for (const index in row.fileInfo) {
                                     if (typeof row.fileInfo[index].text === 'undefined') {
