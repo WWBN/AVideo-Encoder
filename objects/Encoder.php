@@ -107,6 +107,10 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
 
+        if(function_exists('mb_detect_encoding') && !mb_detect_encoding($this->title, 'UTF-8', true)){
+            $this->title = mb_convert_encoding($this->title, 'UTF-8');
+        }
+
         if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {
             if ($what = self::isPorn($this->fileURI)) {
                 error_log("Encoder::save deny [$what] ".__LINE__);
