@@ -1,4 +1,5 @@
 <?php
+global $t;
 $t['Active'] = 'Ativo';
 $t['Add files...'] = 'Adicionar arquivos...';
 $t['Add on Queue'] = 'Adicionar na fila';
@@ -107,3 +108,19 @@ $t['We detected a total of %s pending updates, if you want to do it now click (U
 $t['Will remove queue and the files when the encoder process is done'] = 'Removerá a fila e os arquivos quando o processo de codificação for concluído';
 $t['Year'] = 'Ano';
 $t['Years'] = 'Anos';
+$t['Yes'] = 'Sim';
+$t['You are running AVideo Encoder version %s!'] = 'You are running AVideo Encoder version %s!';
+$t['You will overwrite the video ID:'] = 'You will overwrite the video ID:';
+$t['Your encode video resolution is set to %s !'] = 'Your encode video resolution is set to %s !';
+$t['Your maximum file size is:'] = 'Your maximum file size is:';
+$t['Your system is up to date'] = 'Your system is up to date';
+$t['Your update from file %s is done, click continue'] = 'Your update from file %s is done, click continue';
+$t['Your user or password is wrong!'] = 'Seu usuário ou senha está errado!';
+$t['day'] = 'dia';
+$t['hour'] = 'hora';
+$t['minute'] = 'minuto';
+$t['month'] = 'mês';
+$t['more sites'] = 'mais sites';
+$t['second'] = 'segundo';
+$t['week'] = 'semana';
+$t['year'] = 'ano';
