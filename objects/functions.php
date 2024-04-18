@@ -655,6 +655,9 @@ function encryptPassword($password, $streamerURL) {
 function zipDirectory($destinationFile) {
     // Get real path for our folder
     $rootPath = realpath($destinationFile);
+    if(empty($rootPath)){
+        error_log("zipDirectory: error on destination file: $destinationFile");
+    }
     $zipPath = rtrim($destinationFile, "/") . ".zip";
     // Initialize archive object
     $zip = new ZipArchive();
