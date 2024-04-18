@@ -72,5 +72,21 @@ if (!empty($_GET['serverStatus'])) {
     $obj->memory = ServerMonitor::getMemory();
     $obj->file_upload_max_size = get_max_file_size();
 }
+
+$remove = array(
+    'return_vars',
+    'filename',
+    'fileURI',
+    'worker_pid',
+    'worker_ppid',
+    'videoDownloadedLink',
+    'downloadedFileName',
+    'code',
+);
+
+foreach ($remove as $value) {
+    $obj = removeKeyFromJsonObject($obj, $value);
+}
+
 $resp = json_encode($obj);
 echo $resp;

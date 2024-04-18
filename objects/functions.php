@@ -1274,3 +1274,24 @@ function checkZipArchiveAndVersion() {
     }
 }
 
+function removeKeyFromJsonObject($jsonObject, $keyToRemove) {
+    // Decode the JSON object into an associative array
+    $array = json_decode($jsonObject, true);
+    
+    // Recursive function to remove the key from the array
+    function removeKey(&$array, $keyToRemove) {
+        foreach ($array as $key => &$value) {
+            if ($key == $keyToRemove) {
+                unset($array[$key]);
+            } elseif (is_array($value)) {
+                removeKey($value, $keyToRemove);
+            }
+        }
+    }
+    
+    // Call the recursive function
+    removeKey($array, $keyToRemove);
+    
+    // Encode the modified array back into JSON
+    return json_encode($array);
+}
