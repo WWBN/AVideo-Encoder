@@ -1275,6 +1275,9 @@ function checkZipArchiveAndVersion() {
 }
 
 function removeKeyFromJsonObject($jsonObject, $keyToRemove) {
+    if(!is_string($jsonObject)){
+        $jsonObject = json_encode($jsonObject);
+    }
     // Decode the JSON object into an associative array
     $array = json_decode($jsonObject, true);
     
