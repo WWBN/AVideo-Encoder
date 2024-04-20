@@ -1278,9 +1278,9 @@ function checkZipArchiveAndVersion() {
         if (empty($cliZipCheckOutput)) {
             $phpModulesOutput = shell_exec('php -m');
             if (empty($phpModulesOutput)) {
-                error_log("Error: Unable to execute 'php -m'. Check if PHP CLI is configured correctly.");
+                die("Error: Unable to execute 'php -m'. Check if PHP CLI is configured correctly.");
             } else {
-                error_log("The ZipArchive class is not available in the PHP CLI environment. Please install the PHP Zip extension.");
+                die("The ZipArchive class is not available in the PHP CLI environment. Please install the PHP Zip extension.");
             }
         }
     }
