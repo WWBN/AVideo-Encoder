@@ -1015,7 +1015,15 @@ class Encoder extends ObjectYPT
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error) {
-                    if ($try <= $maxTries) {
+                    $downloading = static::areDownloading();
+                    if(!empty($downloading)){
+                        $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
+                        error_log($msg);
+                        $encoder->setStatus(Encoder::$STATUS_QUEUE);
+                        $encoder->setStatus_obs($msg);
+                        $encoder->save();
+                        return false;
+                    }else if ($try <= $maxTries) {
                         $msg = "Encoder::run: Trying again: [$try] => Could not download the file " . json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
