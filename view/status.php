@@ -85,7 +85,7 @@ $remove = array(
 );
 
 foreach ($remove as $value) {
-    $obj = removeKeyFromData($obj, $value);
+    //$obj = removeKeyFromData($obj, $value);
 }
 
 if(!is_string($obj)){
