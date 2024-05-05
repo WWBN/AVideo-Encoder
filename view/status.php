@@ -88,12 +88,13 @@ $remove = array(
 );
 
 foreach ($remove as $value) {
-    $obj = removeKeyFromData($obj, $value);
+    //$obj = removeKeyFromData($obj, $value);
 }
 
 
 $obj->raw = $raw;
 $obj->test = 1;
+
 if(!is_string($obj)){
     $obj = json_encode($obj);
 }
