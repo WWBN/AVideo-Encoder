@@ -93,6 +93,7 @@ foreach ($remove as $value) {
 
 
 $obj->raw = $raw;
+$obj->test = 1;
 if(!is_string($obj)){
     $obj = json_encode($obj);
 }
