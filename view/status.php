@@ -73,7 +73,7 @@ if (!empty($_GET['serverStatus'])) {
     $obj->file_upload_max_size = get_max_file_size();
 }
 
-$obj->raw = $obj;
+$raw = $obj->queue_list;
 
 
 $remove = array(
@@ -92,6 +92,7 @@ foreach ($remove as $value) {
 }
 
 
+$obj->raw = $raw;
 if(!is_string($obj)){
     $obj = json_encode($obj);
 }
