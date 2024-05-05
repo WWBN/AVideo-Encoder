@@ -789,6 +789,7 @@ class Encoder extends ObjectYPT
             . "status = '" . Encoder::$STATUS_ERROR . "') ";
 
         $sql .= " ORDER BY priority ASC, e.id ASC ";
+        error_log($sql);
         /**
          * @var array $global
          * @var object $global['mysqli']

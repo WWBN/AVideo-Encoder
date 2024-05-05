@@ -3,6 +3,10 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 header('Content-Type: application/json');
 
+if(empty($global['allowed'])){
+    $global['allowed'] = array();
+}
+
 // Ensure extensions are in lowercase and unique
 $global['allowed'] = array_map('strtolower', $global['allowed']);
 $global['allowed'] = array_unique($global['allowed']);
