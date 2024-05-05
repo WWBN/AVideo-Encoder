@@ -73,6 +73,9 @@ if (!empty($_GET['serverStatus'])) {
     $obj->file_upload_max_size = get_max_file_size();
 }
 
+$obj->raw = $obj;
+
+
 $remove = array(
     'return_vars',
     'filename',
