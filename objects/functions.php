@@ -1383,17 +1383,17 @@ function removeKeyFromData($data, $keyToRemove)
 {
     if (is_array($data)) {
         foreach ($data as $key => $value) {
-            if ($key == $keyToRemove) {
+            if ($key === $keyToRemove) {
                 
                 unset($data[$key]);
-                $data[$key] = "array Removed because of $keyToRemove";
+                $data[$key] = "array Removed because of $key == $keyToRemove ".json_encode(($key === $keyToRemove));
             } else {
                 $data[$key] = removeKeyFromData($value, $keyToRemove);
             }
         }
     } else if (is_object($data)) {
         foreach ($data as $key => $value) {
-            if ($key == $keyToRemove) {
+            if ($key === $keyToRemove) {
                 unset($data->$key);
                 $data->$key = "object Removed because of $keyToRemove ";
             } else {
