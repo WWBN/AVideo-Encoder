@@ -1384,9 +1384,8 @@ function removeKeyFromData($data, $keyToRemove)
     if (is_array($data)) {
         foreach ($data as $key => $value) {
             if ($key === $keyToRemove) {
-                
                 unset($data[$key]);
-                $data[$key] = "array Removed because of $key == $keyToRemove ".json_encode(($key === $keyToRemove));
+                //$data[$key] = "array Removed";
             } else {
                 $data[$key] = removeKeyFromData($value, $keyToRemove);
             }
@@ -1395,7 +1394,7 @@ function removeKeyFromData($data, $keyToRemove)
         foreach ($data as $key => $value) {
             if ($key === $keyToRemove) {
                 unset($data->$key);
-                $data->$key = "object Removed because of $keyToRemove ";
+                //$data->$key = "object Removed";
             } else {
                 $data->$key = removeKeyFromData($value, $keyToRemove);
             }
