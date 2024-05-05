@@ -1378,40 +1378,26 @@ function checkZipArchiveAndVersion()
     }
 }
 
-// Recursive function to remove the key from mixed data types
-function removeKey(&$data, $keyToRemove) {
+
+function removeKeyFromData($data, $keyToRemove)
+{
     if (is_array($data)) {
-        foreach ($data as $key => &$value) {
+        foreach ($data as $key => $value) {
             if ($key == $keyToRemove) {
                 unset($data[$key]);
             } else {
-                removeKey($value, $keyToRemove);
+                $data[$key] = removeKeyFromData($value, $keyToRemove);
             }
         }
-    } elseif (is_object($data)) {
-        foreach ($data as $key => &$value) {
+    } else if (is_object($data)) {
+        foreach ($data as $key => $value) {
             if ($key == $keyToRemove) {
                 unset($data->$key);
             } else {
-                removeKey($value, $keyToRemove);
+                $data->$key = removeKeyFromData($value, $keyToRemove);
             }
         }
     }
-}
 
-function removeKeyFromData($data, $keyToRemove) {
-    // Check the type of the input and handle it appropriately
-    if (is_string($data)) {
-        $data = json_decode($data, true);  // Decode into stdObject to preserve object nature if necessary
-    }
-    if (!is_array($data)) {
-        $data = json_encode($data); 
-        $data = json_decode($data, true); 
-    }
-
-    // Recursively remove the key
-    removeKey($data, $keyToRemove);
-    
     return $data;
 }
-
