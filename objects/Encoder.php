@@ -471,8 +471,7 @@ class Encoder extends ObjectYPT
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
 
-        $downloading = static::areDownloading();
-        if(!empty($downloading)){
+        if(!self::canDownloadNow()){
             error_log("downloadFile: there are a file downloading");
             return $obj;
         }
@@ -979,6 +978,17 @@ class Encoder extends ObjectYPT
         return self::sendToStreamer($target, $postFields, false, $this);
     }
 
+    static function canDownloadNow(){
+        
+        $downloading = static::areDownloading();
+        return empty($downloading);
+    }
+
+    static function canEncodeNow(){
+        $encoding = static::areEncoding();
+        return count($encoding);
+    }
+
     public static function run($try = 0)
     {
         global $global;
@@ -1014,7 +1024,7 @@ class Encoder extends ObjectYPT
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
-                if ($objFile->error) {
+                if ($objFile->error && (!self::canEncodeNow() && !self::canDownloadNow())) {
                     $downloading = static::areDownloading();
                     if(!empty($downloading)){
                         $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
