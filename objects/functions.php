@@ -1401,20 +1401,16 @@ function removeKey(&$data, $keyToRemove) {
 
 function removeKeyFromData($data, $keyToRemove) {
     // Check the type of the input and handle it appropriately
-    $wasJson = is_string($data);
-    $wasObject = is_object($data);
-
-    if ($wasJson) {
-        $data = json_decode($data, false);  // Decode into stdObject to preserve object nature if necessary
+    if (is_string($data)) {
+        $data = json_decode($data, true);  // Decode into stdObject to preserve object nature if necessary
+    }
+    if (!is_array($data)) {
+        $data = json_encode($data); 
+        $data = json_decode($data, true); 
     }
 
     // Recursively remove the key
     removeKey($data, $keyToRemove);
-
-    // Return data in the same format it was provided
-    if ($wasJson) {
-        return json_encode($data);
-    }
     
     return $data;
 }
