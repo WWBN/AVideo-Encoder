@@ -88,5 +88,10 @@ foreach ($remove as $value) {
     $obj = removeKeyFromData($obj, $value);
 }
 
+
+if(!is_string($obj)){
+    $obj = json_encode($obj);
+}
+
 //$resp = json_encode($obj);
 echo $obj;
