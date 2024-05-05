@@ -986,7 +986,7 @@ class Encoder extends ObjectYPT
 
     static function canEncodeNow(){
         $encoding = static::areEncoding();
-        return count($encoding);
+        return empty($encoding);
     }
 
     public static function run($try = 0)
@@ -1024,9 +1024,11 @@ class Encoder extends ObjectYPT
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
-                if ($objFile->error && (!self::canEncodeNow() && !self::canDownloadNow())) {
-                    $downloading = static::areDownloading();
-                    if(!empty($downloading)){
+                if ($objFile->error && !self::canEncodeNow() && !self::canDownloadNow()) {
+                    if(!self::canEncodeNow()){
+                        $msg = "Encoder::run: There are something encoding now ";
+                    }
+                    if(!self::canDownloadNow()){
                         $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
