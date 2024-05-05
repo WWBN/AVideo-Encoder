@@ -85,7 +85,7 @@ $remove = array(
 );
 
 foreach ($remove as $value) {
-    $obj = removeKeyFromJsonObject($obj, $value);
+    $obj = removeKeyFromData($obj, $value);
 }
 
 //$resp = json_encode($obj);
