@@ -63,10 +63,21 @@
                     <input type="checkbox" id="videoEditorToggle">
                     <label for="videoEditorToggle"><?php echo __('Edit while Upload'); ?></label>
                     <script>
-                        $(document).ready(function() {
-                            // Check if there's a saved preference in the cookie
-                            var editorEnabled = Cookies.get('videoEditorEnabled') === 'true';
+                        var videoEditorEnabledByDefault = <?php echo empty($global['videoEditorEnabledByDefault']) ? 'false' : 'true'; ?>;
 
+
+                        function isEditorEnabled() {
+                            var videoEditorEnabled = Cookies.get('videoEditorEnabled');
+                            var editorEnabled;
+                            if (typeof videoEditorEnabled === 'undefined') {
+                                editorEnabled = videoEditorEnabledByDefault;
+                            } else {
+                                editorEnabled = videoEditorEnabled === 'true';
+                            }
+                            return editorEnabled;
+                        }
+                        $(document).ready(function() {
+                            var editorEnabled = isEditorEnabled();
                             // Set the initial state of the checkbox based on the saved preference
                             $('#videoEditorToggle').prop('checked', editorEnabled);
 

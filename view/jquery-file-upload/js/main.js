@@ -190,7 +190,7 @@ $(function () {
     });
 });
 async function createVideo() {
-    var editorEnabled = Cookies.get('videoEditorEnabled') === 'true';
+    var editorEnabled = isEditorEnabled();
     if(!editorEnabled){
         console.log("Not create video");
         return false;
