@@ -63,6 +63,11 @@ if (!class_exists('Format')) {
             $obj = new stdClass();
             $obj->error = true;
             $path_parts = pathinfo($pathFileName);
+            if(!file_exists($pathFileName)){
+                error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ERROR File not found");
+                $obj->msg = 'file not found';
+                return $obj;
+            }
             /**
              * @var array $global
              */

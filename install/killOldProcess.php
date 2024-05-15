@@ -16,6 +16,7 @@ foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line) {
             $pid = intval($matches[1]);
             if (!empty($pid)) {
                 echo "Killing {$pid}" . PHP_EOL;
+                error_log("Killing {$pid}");
                 $cmd = 'kill -9 '.$pid;
                 echo shell_exec($cmd);
                 continue;
@@ -30,6 +31,7 @@ foreach(preg_split("/((\r?\n)|(\r\n?))/", $output) as $line) {
             $pid = intval($matches[1]);
             if (!empty($pid)) {
                 echo "Killing {$pid}" . PHP_EOL;
+                error_log("Killing {$pid}");
                 $cmd = 'kill -9 ' . $pid;
                 echo shell_exec($cmd);
                 continue;

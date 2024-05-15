@@ -953,9 +953,11 @@ class Encoder extends ObjectYPT
         self::setStatusError($this->getId(), "deleted from queue");
         if (!empty($global['killWorkerOnDelete'])) {
             if (is_numeric($worker_pid) && $worker_pid > 0) {
+                error_log("deleteQueue kill {$worker_pid} line=".__LINE__);
                 exec("kill " . $worker_pid); // ignore result
             }
             if (is_numeric($worker_ppid) && $worker_ppid > 0) {
+                error_log("deleteQueue kill {$worker_ppid} line=".__LINE__);
                 exec("kill " . $worker_ppid); // ignore result
             }
         }
