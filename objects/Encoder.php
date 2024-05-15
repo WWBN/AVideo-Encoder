@@ -1063,7 +1063,7 @@ class Encoder extends ObjectYPT
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
-                        if (empty($resp->code) && empty($obj->addInQueueAgain)) {
+                        if (empty($resp->code) && empty($resp->addInQueueAgain)) {
                             error_log("Encoder::run: Encoder Run the code is empty: " . json_encode($resp));
                             return false;
                         } else if ($resp->error === -1) {
