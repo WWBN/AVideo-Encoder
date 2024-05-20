@@ -209,6 +209,8 @@ async function createVideo() {
                 user: $('#user').val(),
                 pass: $('#pass').val(),
                 title: title,
+                forcePlayLists: videoEditorForcePlaylist?1:0,
+                playlists_id: playlists_id,
                 description: $('#description').val(),
                 categories_id: $('#categories_id_upload').val(),
                 videoGroups: $(".usergroups_id:checked").map(function () {
@@ -234,5 +236,6 @@ function editVideos(videos_id) {
     var url = webSiteRootURL + 'view/managerVideosLight2.php?videos_id=' + videos_id;
     url += '&user=' + $('#user').val();
     url += '&pass=' + $('#pass').val();
+    url += '&playlists_id=' + playlists_id;
     avideoModalIframe(url);
 }

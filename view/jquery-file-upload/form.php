@@ -1,3 +1,8 @@
+<?php
+if(!isset($global['videoEditorForcePlaylist'])){
+    $global['videoEditorForcePlaylist'] = !empty($_REQUEST['playlists_id']);
+}
+?>
 <!-- <?php echo basename(__FILE__); ?> line=<?php echo __LINE__; ?> -->
 <form id="fileupload" action="" method="POST" enctype="multipart/form-data">
     <input type="hidden" id="videos_id" name="videos_id">
@@ -64,6 +69,8 @@
                     <label for="videoEditorToggle"><?php echo __('Edit while Upload'); ?></label>
                     <script>
                         var videoEditorEnabledByDefault = <?php echo empty($global['videoEditorEnabledByDefault']) ? 'false' : 'true'; ?>;
+                        var videoEditorForcePlaylist = <?php echo empty($global['videoEditorForcePlaylist']) ? 'false' : 'true'; ?>;
+                        var playlists_id = <?php echo intval(@$_REQUEST['playlists_id']); ?>;
 
 
                         function isEditorEnabled() {
@@ -76,6 +83,7 @@
                             }
                             return editorEnabled;
                         }
+
                         $(document).ready(function() {
                             var editorEnabled = isEditorEnabled();
                             // Set the initial state of the checkbox based on the saved preference
