@@ -1,6 +1,6 @@
 <?php
 if (empty($global)) {
-    $global=[];
+    $global = [];
 }
 
 if (!class_exists('CURLFile')) {
@@ -11,7 +11,7 @@ if (!class_exists('CURLFile')) {
     echo $msg;
     error_log($msg);
     exit;
-} 
+}
 
 global $sentImage;
 $sentImage = [];
@@ -32,6 +32,12 @@ class Encoder extends ObjectYPT
     public static $STATUS_TRANSFERRING = 'transferring';
     public static $STATUS_PACKING = 'packing';
     public static $STATUS_FIXING = 'fixing';
+
+    const LOG_TYPE_StatusObs = 'StatusObs';
+    const LOG_TYPE_StatusChanged = 'StatusChanged';
+    const LOG_TYPE_ERROR = 'error';
+    const LOG_TYPE_INFO = 'info';
+
     protected $id;
     protected $fileURI;
     protected $filename;
@@ -107,22 +113,22 @@ class Encoder extends ObjectYPT
             $this->filename = '';
         }
 
-        if(function_exists('mb_detect_encoding') && !mb_detect_encoding($this->title, 'UTF-8', true)){
+        if (function_exists('mb_detect_encoding') && !mb_detect_encoding($this->title, 'UTF-8', true)) {
             $this->title = mb_convert_encoding($this->title, 'UTF-8');
         }
 
         if (empty($this->id) && (self::isPorn($this->fileURI) || self::isPorn($this->videoDownloadedLink) || self::isPorn($this->filename) || self::isPorn($this->title))) {
             if ($what = self::isPorn($this->fileURI)) {
-                error_log("Encoder::save deny [$what] ".__LINE__);
+                error_log("Encoder::save deny [$what] " . __LINE__);
             }
             if ($what = self::isPorn($this->videoDownloadedLink)) {
-                error_log("Encoder::save deny [$what] ".__LINE__);
+                error_log("Encoder::save deny [$what] " . __LINE__);
             }
             if ($what = self::isPorn($this->filename)) {
-                error_log("Encoder::save deny [$what] ".__LINE__);
+                error_log("Encoder::save deny [$what] " . __LINE__);
             }
             if ($what = self::isPorn($this->title)) {
-                error_log("Encoder::save deny [$what] ".__LINE__);
+                error_log("Encoder::save deny [$what] " . __LINE__);
             }
             return false;
         }
@@ -270,7 +276,10 @@ class Encoder extends ObjectYPT
 
     public function setStatus($status)
     {
-
+        error_log("Encoder::setStatus($status) ".json_encode(debug_backtrace()));
+        if(!empty($this->id) && $status != $this->status){
+            self::setStreamerLog($this->id,"Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
+        }
         $this->status = $status;
         //error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
@@ -289,11 +298,20 @@ class Encoder extends ObjectYPT
                 $this->setWorker_pid(null);
                 break;
         }
+        
     }
 
     public function setStatus_obs($status_obs)
     {
+        if(empty($status_ob)){
+            return false;
+        }
+        error_log("Encoder::setStatus_obs ".json_encode(debug_backtrace()));
+        $old_status_obs = $this->status_obs;
         $this->status_obs = substr($status_obs, 0, 200);
+        if(!empty($this->id) && $old_status_obs !== $this->status_obs){
+            self::setStreamerLog($this->id,$this->status_obs, Encoder::LOG_TYPE_StatusObs);
+        }
     }
 
     public function setReturn_vars($return_vars)
@@ -471,7 +489,7 @@ class Encoder extends ObjectYPT
         $obj->filename = $filename;
         $obj->pathFileName = $dstFilepath . $filename;
 
-        if(!self::canDownloadNow()){
+        if (!self::canDownloadNow()) {
             error_log("downloadFile: there are a file downloading");
             return $obj;
         }
@@ -583,28 +601,36 @@ class Encoder extends ObjectYPT
         error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
         if ($return_val !== 0) {
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-            error_log($cmd . "\n" . print_r($output, true));
+            $error = $cmd . PHP_EOL . print_r($output, true);
+            error_log($error);
+            self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
             $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
             //echo "\n**Trying Youtube DL **".$cmd;
             error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
             if ($return_val !== 0) {
                 //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                error_log($cmd . "\n" . print_r($output, true));
+                $error = $cmd . PHP_EOL . print_r($output, true);
+                error_log($error);
+                self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
                 $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
                 //echo "\n**Trying Youtube DL **".$cmd;
                 error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                 exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
                     //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                    error_log($cmd . "\n" . print_r($output, true));
+                    $error = $cmd . PHP_EOL . print_r($output, true);
+                    error_log($error);
+                    self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
                     $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
                     //echo "\n**Trying Youtube DL **".$cmd;
                     error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                     exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
                     if ($return_val !== 0) {
                         //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                        error_log($cmd . "\n" . print_r($output, true));
+                        $error = $cmd . PHP_EOL . print_r($output, true);
+                        error_log($error);
+                        self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
                         return false;
                     }
                 }
@@ -953,11 +979,11 @@ class Encoder extends ObjectYPT
         self::setStatusError($this->getId(), "deleted from queue");
         if (!empty($global['killWorkerOnDelete'])) {
             if (is_numeric($worker_pid) && $worker_pid > 0) {
-                error_log("deleteQueue kill {$worker_pid} line=".__LINE__);
+                error_log("deleteQueue kill {$worker_pid} line=" . __LINE__);
                 exec("kill " . $worker_pid); // ignore result
             }
             if (is_numeric($worker_ppid) && $worker_ppid > 0) {
-                error_log("deleteQueue kill {$worker_ppid} line=".__LINE__);
+                error_log("deleteQueue kill {$worker_ppid} line=" . __LINE__);
                 exec("kill " . $worker_ppid); // ignore result
             }
         }
@@ -966,28 +992,32 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public function getNewVideosId(){
+    public function getNewVideosId()
+    {
         global $global;
         $target = 'aVideoEncoder.json';
-        
+
         $f = new Format($this->getFormats_id());
         $format = $f->getExtension();
         $postFields = array(
-            'format'=>$format, 
-            'title'=>$this->getTitle(),
-            'videoDownloadedLink'=>$this->getVideoDownloadedLink(),
-            'encoderURL'=>$global['webSiteRootURL'],
+            'format' => $format,
+            'title' => $this->getTitle(),
+            'videoDownloadedLink' => $this->getVideoDownloadedLink(),
+            'encoderURL' => $global['webSiteRootURL'],
         );
+        self::setStreamerLog($this->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         return self::sendToStreamer($target, $postFields, false, $this);
     }
 
-    static function canDownloadNow(){
-        
+    static function canDownloadNow()
+    {
+
         $downloading = static::areDownloading();
         return empty($downloading);
     }
 
-    static function canEncodeNow(){
+    static function canEncodeNow()
+    {
         $encoding = static::areEncoding();
         return empty($encoding);
     }
@@ -1020,25 +1050,25 @@ class Encoder extends ObjectYPT
                 $encoder = new Encoder($rowNext['id']);
                 $return_vars = json_decode($encoder->getReturn_vars());
                 if (empty($return_vars->videos_id)) {
-                  $encoder->getNewVideosId();
-                  $encoder = new Encoder($encoder->getId());
-                  $return_vars = json_decode($encoder->getReturn_vars());
+                    $encoder->getNewVideosId();
+                    $encoder = new Encoder($encoder->getId());
+                    $return_vars = json_decode($encoder->getReturn_vars());
                 }
                 $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error && !self::canEncodeNow() && !self::canDownloadNow()) {
-                    if(!self::canEncodeNow()){
+                    if (!self::canEncodeNow()) {
                         $msg = "Encoder::run: There are something encoding now ";
                     }
-                    if(!self::canDownloadNow()){
+                    if (!self::canDownloadNow()) {
                         $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
                         $encoder->setStatus_obs($msg);
                         $encoder->save();
                         return false;
-                    }else if ($try <= $maxTries) {
+                    } else if ($try <= $maxTries) {
                         $msg = "Encoder::run: Trying again: [$try] => Could not download the file " . json_encode($objFile);
                         error_log($msg);
                         $encoder->setStatus(Encoder::$STATUS_QUEUE);
@@ -1154,6 +1184,7 @@ class Encoder extends ObjectYPT
             if (!empty($this->override_status)) {
                 $postFields['overrideStatus'] = $this->override_status;
             }
+            self::setStreamerLog($this->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
             $obj = self::sendToStreamer($target, $postFields, $return_vars, $this);
         }
 
@@ -1177,7 +1208,7 @@ class Encoder extends ObjectYPT
         $streamers_id = $encoder->getStreamers_id();
 
         if (empty($streamers_id)) {
-            error_log("getTmpFileBaseName($encoder_queue_id): Empty streamers ID ".json_encode(debug_backtrace()));
+            error_log("getTmpFileBaseName($encoder_queue_id): Empty streamers ID " . json_encode(debug_backtrace()));
             return false;
         }
         if (!empty($resolution)) {
@@ -1487,6 +1518,7 @@ class Encoder extends ObjectYPT
             }
         }
         //error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
+        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->videoFileSize = humanFileSize(filesize($file));
         //error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
@@ -1673,6 +1705,7 @@ class Encoder extends ObjectYPT
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
 
+        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
         //var_dump($obj);exit;
@@ -1682,7 +1715,7 @@ class Encoder extends ObjectYPT
     public static function sendImages($file, $return_vars, $encoder)
     {
         global $global;
-        
+
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
@@ -1729,6 +1762,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
+        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
         //var_dump($obj);exit;
@@ -1761,6 +1795,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
+        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
 
@@ -1792,6 +1827,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
+        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
 
@@ -1911,8 +1947,13 @@ class Encoder extends ObjectYPT
             }
         }
         $time_end = microtime(true);
-        $execution_time = number_format($time_end - $time_start, 3);
-        error_log("sendToStreamer {$url} in {$execution_time} seconds " . json_encode($obj));
+        $execution_time = number_format($time_end - $time_start, 3);        
+        $error = "sendToStreamer {$url} in {$execution_time} seconds ";
+        error_log($error . json_encode($obj));
+
+        $newObj = $obj;
+        unset($newObj->postFields);
+
         //var_dump($obj);exit;
         return $obj;
     }
@@ -2047,10 +2088,10 @@ class Encoder extends ObjectYPT
          */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
         $complement = '';
-        if(preg_match('/^\'?http/i', $videoFile)){
+        if (preg_match('/^\'?http/i', $videoFile)) {
             $complement = ' -user_agent "' . getSelfUserAgent("FFProbe") . '" ';
         }
-        
+
         eval('$cmd=get_ffprobe()." {$complement} -i {$videoFile} -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
@@ -2332,7 +2373,7 @@ class Encoder extends ObjectYPT
         if (!empty($global['progressiveUpload'])) {
             Upload::deleteFile($this->id);
         }
-
+        self::setStreamerLog($this->id,'Files Deleted', Encoder::LOG_TYPE_INFO);
         return parent::delete();
     }
 
@@ -2525,6 +2566,22 @@ class Encoder extends ObjectYPT
         } else {
             return "youtube-dl ";
         }
+    }
+
+    public static function setStreamerLog($encoder_queue_id, $msg, $type)
+    {
+        $encoder = new Encoder($encoder_queue_id);
+        $return_vars = json_decode($encoder->getReturn_vars());
+        if (empty($return_vars->videos_id)) {
+            return false;
+        }
+        $target = "objects/aVideoEncoderLog.json.php";
+        $postFields = array(
+            'msg' => $msg,
+            'type' => $type,
+            'videos_id' => $return_vars->videos_id,
+        );
+        return self::sendToStreamer($target, $postFields, $return_vars, $encoder);
     }
 }
 

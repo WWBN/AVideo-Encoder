@@ -289,7 +289,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 } else {
                                     var url = new URL(document.location);
                                     url.searchParams.append('justLogin', 1);
-                                    url.searchParams.append('playlists_id', <?php echo intval($_REQUEST['playlists_id']); ?>);
+                                    url.searchParams.append('playlists_id', <?php echo intval(@$_REQUEST['playlists_id']); ?>);
                                     if (typeof response.PHPSESSID !== 'undefined' && response.PHPSESSID) {
                                         PHPSESSID = response.PHPSESSID;
                                         url.searchParams.append('PHPSESSID', response.PHPSESSID);
