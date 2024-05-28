@@ -15,6 +15,8 @@ $_REQUEST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
 $_REQUEST['notifyURL'] = str_ireplace(array('rtmp://'), array(''), $_POST['notifyURL']);
 $_REQUEST['webSiteRootURL'] = $_REQUEST['notifyURL'];
 
+//var_dump($global);exit;
+
 /*
 $filesURL = array(
     'http://4k.ypt.me/1080/Christmas_Tree_Bokeh.mp4',
