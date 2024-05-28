@@ -142,5 +142,6 @@ if (!Login::canUpload()) {
     }
 }
 if(empty($doNotDie)){
-    die(json_encode($obj));
+    echo (json_encode($obj));
+    exit;
 }
