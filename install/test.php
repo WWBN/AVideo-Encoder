@@ -45,8 +45,8 @@ $filesURL = array(
 );
 
 foreach ($filesURL as $value) {
-    $_POST['videoURL'] = $value;
-    echo "Processing: ".json_encode($_POST) . PHP_EOL;
+    $_REQUEST['videoURL'] = $value;
+    echo "Processing: ".json_encode($_REQUEST) . PHP_EOL;
     include $global['systemRootPath'].'view/youtubeDl.json.php';
 }
 
