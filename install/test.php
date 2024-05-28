@@ -7,6 +7,7 @@ if (!isCommandLineInterface()) {
     return die('Command Line only');
 }
 
+$doNotDie = 1;
 
 $_REQUEST['user'] = 'admin';
 $_REQUEST['pass'] = '123';

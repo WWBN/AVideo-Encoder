@@ -141,4 +141,6 @@ if (!Login::canUpload()) {
         }
     }
 }
-die(json_encode($obj));
+if(empty($doNotDie)){
+    die(json_encode($obj));
+}
