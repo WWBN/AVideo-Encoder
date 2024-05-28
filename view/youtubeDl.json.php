@@ -9,12 +9,9 @@ require_once $global['systemRootPath'] . 'objects/Streamer.php';
 
 session_write_close();
 
-if (!empty($_GET['videoURL']) && empty($_POST['videoURL'])) {
-    $_POST['videoURL'] = $_GET['videoURL'];
-}
-if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
+if (!empty($_REQUEST['webSiteRootURL']) && !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && empty($_REQUEST['justLogin'])) {
     error_log("youtubeDl.json: Login::run");
-    Login::run($_GET['user'], $_GET['pass'], $_GET['webSiteRootURL'], true);
+    Login::run($_REQUEST['user'], $_REQUEST['pass'], $_REQUEST['webSiteRootURL'], true);
 }
 
 function addVideo($link, $streamers_id, $title = "") {
@@ -69,8 +66,8 @@ function addVideo($link, $streamers_id, $title = "") {
 
         $encoders_ids = [];
 
-        if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
-            if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
+        if (!empty($_REQUEST['audioOnly']) && $_REQUEST['audioOnly'] !== 'false') {
+            if (!empty($_REQUEST['spectrum']) && $_REQUEST['spectrum'] !== 'false') {
                 $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
             } else {
                 $e->setFormats_idFromOrder(71);
@@ -85,8 +82,8 @@ function addVideo($link, $streamers_id, $title = "") {
         $obj = new stdClass();
         $obj->videos_id = 0;
         $obj->video_id_hash = '';
-        if (!empty($_POST['update_video_id'])) {
-            $obj->videos_id = $_POST['update_video_id'];
+        if (!empty($_REQUEST['update_video_id'])) {
+            $obj->videos_id = $_REQUEST['update_video_id'];
         }
 
         $obj->releaseDate = @$_REQUEST['releaseDate'];
@@ -113,21 +110,21 @@ if (!Login::canUpload()) {
     } else {
         // if it is a channel
         $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
-        if (preg_match($rexexp, $_POST['videoURL'])) {
+        if (preg_match($rexexp, $_REQUEST['videoURL'])) {
             if (!Login::canBulkEncode()) {
                 $obj->msg = "Channel Import is disabled";
                 die(json_encode($obj));
             }
             $start = 0;
             $end = 100;
-            if (!empty($_POST['startIndex'])) {
-                $start = $current = intval($_POST['startIndex']);
+            if (!empty($_REQUEST['startIndex'])) {
+                $start = $current = intval($_REQUEST['startIndex']);
             }
-            if (!empty($_POST['endIndex'])) {
-                $end = intval($_POST['endIndex']);
+            if (!empty($_REQUEST['endIndex'])) {
+                $end = intval($_REQUEST['endIndex']);
             }
             error_log("Processing Channel {$start} to {$end}");
-            $list = Encoder::getReverseVideosJsonListFromLink($_POST['videoURL']);
+            $list = Encoder::getReverseVideosJsonListFromLink($_REQUEST['videoURL']);
             $i = $start;
             for (; $i <= $end; $i++) {
                 if (is_object($list[$i]) && empty($list[$i]->id)) {
@@ -140,7 +137,7 @@ if (!Login::canUpload()) {
             }
             error_log("Process Done Total {$i}");
         } else {
-            $obj = addVideo($_POST['videoURL'], $streamers_id, @$_POST['videoTitle']);
+            $obj = addVideo($_REQUEST['videoURL'], $streamers_id, @$_REQUEST['videoTitle']);
         }
     }
 }
