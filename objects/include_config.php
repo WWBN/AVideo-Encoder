@@ -1,19 +1,23 @@
 <?php
+global $global;
+global $config;
+
 $global['docker_vars'] = '/var/www/docker_vars.json';
+
 if (file_exists($global['docker_vars'])) {
+    // Log to stdout if running in Docker
     $global['logfile'] = 'php://stdout';
     error_reporting(E_ALL & ~E_DEPRECATED);
     ini_set('display_errors', 1);
-}
-if (empty($global['logfile'])) {
+} else {
+    // Default log file location if not running in Docker
     $global['logfile'] = $global['systemRootPath'] . 'videos/avideo.log';
     ini_set('log_errors_max_len', '1024');
 }
-//$global['logfile'] = $global['systemRootPath'] . 'videos/avideo.log';
-ini_set('error_log', $global['logfile']);
 
-global $global;
-global $config;
+// Ensure that error logging is directed to the configured logfile
+ini_set('log_errors', 1);
+ini_set('error_log', $global['logfile']);
 
 if (!empty($global['ignore_include_config'])) {
     return false;

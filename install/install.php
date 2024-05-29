@@ -10,23 +10,33 @@ if (file_exists("../videos/configuration.php")) {
 
 $databaseUser = "youphptube";
 $databasePass = "youphptube";
+$databaseHost = "localhost";
 if (version_compare(phpversion(), '7.2', '<')) {
     $databaseUser = "root";
 }
 ob_start();
-$webSiteRootURL = @$argv[1];
-$databaseUser = empty($argv[2])?$databaseUser:$argv[2];
-$databasePass = empty($argv[3])?$databasePass:$argv[3];
-$systemAdminPass = empty($argv[4]) ? "123" : $argv[4];
-while (!filter_var($webSiteRootURL, FILTER_VALIDATE_URL)) {
-    if (!empty($webSiteRootURL)) {
+$siteURL = @$argv[1];
+while (!filter_var($siteURL, FILTER_VALIDATE_URL)) {
+    if (!empty($siteURL)) {
         echo "Invalid Site URL\n";
     }
     echo "Enter Site URL\n";
     ob_flush();
-    $webSiteRootURL = trim(readline(""));
+    $siteURL = trim(readline(""));
 }
-$webSiteRootURL = rtrim($webSiteRootURL, '/') . '/';
+$siteURL = rtrim($siteURL, '/') . '/';
+$databaseName = ("AVideoEncoder_".preg_replace("/[^0-9a-z]/i", "", parse_url($siteURL, PHP_URL_HOST)));
+$webSiteRootURL = $siteURL . "Encoder/";
+
+$databaseUser = empty($argv[2])?$databaseUser:$argv[2];
+$databasePass = empty($argv[3])?$databasePass:$argv[3];
+$systemAdminPass = empty($argv[4]) ? "123" : $argv[4];
+$databaseName = empty($argv[5]) ? $databaseName : $argv[5];
+$webSiteRootURL = empty($argv[6]) ? $webSiteRootURL : $argv[6];
+$databaseHost = empty($argv[7]) ? $databaseHost : $argv[7];
+$databasePort = empty($argv[8]) ? '3306' : $argv[8];
+
+// install.php siteURL databaseUser databasePass systemAdminPass databaseName webSiteRootURLEncoder databaseHost databasePort
 
 $_POST['systemRootPath'] = str_replace("install", "", getcwd());
 if(!is_dir($_POST['systemRootPath'])) {
@@ -36,18 +46,18 @@ if(!is_dir($_POST['systemRootPath'])) {
     }
 }
 echo "Installing in {$_POST['systemRootPath']}".PHP_EOL;
-$_POST['databaseHost'] = "localhost";
+$_POST['databaseHost'] = $databaseHost;
 $_POST['databaseUser'] = $databaseUser;
 $_POST['databasePass'] = $databasePass;
-$_POST['databasePort'] = "3306";
-$_POST['databaseName'] = empty($argv[5])?("AVideoEncoder_".preg_replace("/[^0-9a-z]/i", "", parse_url($webSiteRootURL, PHP_URL_HOST))):$argv[5];
+$_POST['databasePort'] = $databasePort;
+$_POST['databaseName'] = $databaseName;
 $_POST['createTables'] = 2;
 $_POST['systemAdminPass'] = $systemAdminPass;
 $_POST['inputUser'] = 'admin';
 $_POST['inputPassword'] = $systemAdminPass;
 $_POST['webSiteTitle'] = "AVideo";
-$_POST['siteURL'] = $webSiteRootURL;
-$_POST['webSiteRootURL'] = empty($argv[6])?($webSiteRootURL . "Encoder/"):$argv[6];
+$_POST['siteURL'] = $siteURL;
+$_POST['webSiteRootURL'] = $webSiteRootURL;
 $_POST['allowedStreamers'] = "";
 $_POST['defaultPriority'] = 1;
 
@@ -57,7 +67,7 @@ $streamerConfiguration = "{$_POST['systemRootPath']}../videos/configuration.php"
 if (file_exists($streamerConfiguration)) {
     require_once $streamerConfiguration;
     $sql = "UPDATE {$global['tablesPrefix']}configurations_encoder SET "
-            . "encoderURL = '{$global['mysqli']->real_escape_string($webSiteRootURL)}'"
+            . "encoderURL = '{$global['mysqli']->real_escape_string($siteURL)}'"
             . " WHERE id = 1";
 
     $global['mysqli']->query($sql);
