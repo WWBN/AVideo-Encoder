@@ -1018,8 +1018,13 @@ class Encoder extends ObjectYPT
 
     static function canEncodeNow()
     {
+        global $global;
+        $concurrent = isset($global['concurrent']) ? intval($global['concurrent']) : 1;
+        if (empty($concurrent) || $concurrent < 0) {
+            $concurrent = 1;
+        }
         $encoding = static::areEncoding();
-        return empty($encoding);
+        return count($encoding) < $concurrent;
     }
 
     public static function run($try = 0)
@@ -1031,10 +1036,11 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        $concurrent = isset($global['concurrent']) ? intval($global['concurrent']) : 1;
-        if (empty($concurrent) || $concurrent < 0) {
-            $concurrent = 1;
+        if(!self::canEncodeNow() && !self::canDownloadNow()){
+            error_log("You cannot download and cannot encode, please wait ");
+            return false;
         }
+
         $try++;
         $obj = new stdClass();
         $obj->error = true;
@@ -1043,7 +1049,7 @@ class Encoder extends ObjectYPT
         $rows = static::areEncoding();
         $rowNext = static::getNext();
         $obj->hasNext = !empty($rowNext);
-        if (count($rows) < $concurrent) {
+        if (self::canEncodeNow()) {
             if (empty($rowNext)) {
                 $obj->msg = "There is no file on queue";
             } else {
