@@ -720,8 +720,11 @@ class Encoder extends ObjectYPT
         return $myfile;
     }
 
-    public static function areDownloading($status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING))
+    public static function areDownloading($status = array())
     {
+        if(empty($status)){
+            $status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING);
+        }
         return self::getQueue($status);
     }
 
