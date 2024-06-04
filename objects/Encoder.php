@@ -720,9 +720,9 @@ class Encoder extends ObjectYPT
         return $myfile;
     }
 
-    public static function areDownloading()
+    public static function areDownloading($status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING))
     {
-        return self::getQueue($status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING));
+        return self::getQueue($status);
     }
 
     public static function areEncoding()
@@ -1036,7 +1036,7 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        if(!self::canDownloadNow()){
+        if(!self::areDownloading($status = array(Encoder::$STATUS_DOWNLOADING))){
             //error_log("You cannot download and cannot encode now, please wait ");
             return false;
         }
