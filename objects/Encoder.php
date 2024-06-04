@@ -1036,7 +1036,7 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        if(!self::canEncodeNow() && !self::canDownloadNow()){
+        if(!self::canDownloadNow()){
             //error_log("You cannot download and cannot encode now, please wait ");
             return false;
         }
