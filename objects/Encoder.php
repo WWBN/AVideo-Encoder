@@ -752,7 +752,7 @@ class Encoder extends ObjectYPT
 
         $statusIn = implode("', '", $status);
 
-        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+        $sql = "SELECT SQL_NO_CACHE f.*, e.* FROM  " . static::getTableName() . " e "
             . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE
             status IN ('{$statusIn}')
             ORDER BY priority ASC, e.id ASC ";
