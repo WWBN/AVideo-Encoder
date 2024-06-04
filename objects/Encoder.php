@@ -1040,7 +1040,7 @@ class Encoder extends ObjectYPT
         }
 
         if(!self::areDownloading($status = array(Encoder::$STATUS_DOWNLOADING))){
-            //error_log("You cannot download and cannot encode now, please wait ");
+            error_log("You have a video downloading now, please wait ");
             return false;
         }
 
