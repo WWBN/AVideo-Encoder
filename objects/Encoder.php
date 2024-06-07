@@ -401,6 +401,7 @@ class Encoder extends ObjectYPT
 
     public function setDownloadedFileName($downloadedFileName)
     {
+        _error_log("setDownloadedFileName($downloadedFileName) ".json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         $this->downloadedFileName = substr($downloadedFileName, 0, 254);
     }
 

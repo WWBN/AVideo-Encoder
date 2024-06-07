@@ -1411,7 +1411,7 @@ function _error_log($message)
     if (!is_string($message)) {
         $message = json_encode($message);
     }
-    $str = $message . " SCRIPT_NAME: {$_SERVER['SCRIPT_NAME']}";
+    $str = '['.date('Y-m-d H:i:s').'] '.$message;
 
     if (file_exists($global['docker_vars'])) {
         // Append the log entry at the bottom of the file
