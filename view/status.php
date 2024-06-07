@@ -17,6 +17,7 @@ $obj->msg = "";
 $obj->encoding = new stdClass();
 $obj->cmd = "";
 $obj->encoding_status = array();
+$obj->download_status = array();
 $obj->version = $config->getVersion();
 //$obj->logfile = $global['logfile'];
 
@@ -55,7 +56,7 @@ if (count($obj->encoding) == 0) {
 if (!empty($obj->downloading)) {
     $obj->is_downloading = true;
     $msg = (count($obj->downloading) == 1) ? "The file " : "The files ";
-    for ($i = 0; $i < count($obj->encoding); $i++) {
+    for ($i = 0; $i < count($obj->downloading); $i++) {
         $obj->download_status[$i] = Encoder::getYoutubeDlProgress($obj->downloading[$i]['id']);
         $msg .= "[{$obj->encoding[$i]['id']}] {$obj->encoding[$i]['filename']}";
         if (count($obj->downloading) > 1 && $i < count($obj->downloading) - 1) {
