@@ -906,11 +906,16 @@ class Encoder extends ObjectYPT
 
     private static function setStatusError($queue_id, $msg, $notifyIsDone = false)
     {
+        global $global;
         error_log("setStatusError($queue_id, $msg, $notifyIsDone) " . json_encode(debug_backtrace()));
         $q = new Encoder($queue_id);
         $q->setStatus(Encoder::$STATUS_ERROR);
         $q->setStatus_obs($msg);
         $saved = $q->save();
+        
+        if (file_exists($global['docker_vars'])) {
+            file_put_contents($global['systemRootPath'] . 'videos/aVideoEncoder.log', $msg . ' '. json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        }
         if (!empty($notifyIsDone)) {
             $q->notifyVideoIsDone(1);
         }
@@ -2590,9 +2595,6 @@ class Encoder extends ObjectYPT
             'type' => $type,
             'videos_id' => $return_vars->videos_id,
         );
-        if (file_exists($global['docker_vars'])) {
-            file_put_contents($global['systemRootPath'] . 'videos/aVideoEncoder.log', json_encode(array($postFields, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))));
-        }
         return self::sendToStreamer($target, $postFields, $return_vars, $encoder);
     }
 }
