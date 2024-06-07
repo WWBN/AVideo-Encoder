@@ -1403,3 +1403,19 @@ function removeKeyFromData($data, $keyToRemove)
 
     return $data;
 }
+
+
+function _error_log($message)
+{
+    global $global;
+    if (!is_string($message)) {
+        $message = json_encode($message);
+    }
+    $str = $message . " SCRIPT_NAME: {$_SERVER['SCRIPT_NAME']}";
+
+    if (file_exists($global['docker_vars'])) {
+        // Append the log entry at the bottom of the file
+        file_put_contents($global['systemRootPath'] . 'videos/aVideoEncoder.log', $str . PHP_EOL, FILE_APPEND);
+    }
+    error_log($str);
+}
