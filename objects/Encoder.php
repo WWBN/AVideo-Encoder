@@ -1119,7 +1119,7 @@ class Encoder extends ObjectYPT
                             $encoder->save();
                             return static::run($try);
                         } else {
-                            $obj->msg = "Execute code error 2 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $obj->msg = "Execute code error 2 [{$objFile->pathFileName}] " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             error_log("Encoder::run: Encoder Run: " . json_encode($obj));
                             self::setStatusError($encoder->getId(), $obj->msg);
                             return false;
