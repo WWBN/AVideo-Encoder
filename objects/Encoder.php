@@ -276,9 +276,9 @@ class Encoder extends ObjectYPT
 
     public function setStatus($status)
     {
-        error_log("Encoder::setStatus($status) ".json_encode(debug_backtrace()));
-        if(!empty($this->id) && $status != $this->status){
-            self::setStreamerLog($this->id,"Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
+        error_log("Encoder::setStatus($status) " . json_encode(debug_backtrace()));
+        if (!empty($this->id) && $status != $this->status) {
+            self::setStreamerLog($this->id, "Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
         }
         $this->status = $status;
         //error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
@@ -298,19 +298,18 @@ class Encoder extends ObjectYPT
                 $this->setWorker_pid(null);
                 break;
         }
-        
     }
 
     public function setStatus_obs($status_obs)
     {
-        if(empty($status_ob)){
+        if (empty($status_ob)) {
             return false;
         }
-        error_log("Encoder::setStatus_obs ".json_encode(debug_backtrace()));
+        error_log("Encoder::setStatus_obs " . json_encode(debug_backtrace()));
         $old_status_obs = $this->status_obs;
         $this->status_obs = substr($status_obs, 0, 200);
-        if(!empty($this->id) && $old_status_obs !== $this->status_obs){
-            self::setStreamerLog($this->id,$this->status_obs, Encoder::LOG_TYPE_StatusObs);
+        if (!empty($this->id) && $old_status_obs !== $this->status_obs) {
+            self::setStreamerLog($this->id, $this->status_obs, Encoder::LOG_TYPE_StatusObs);
         }
     }
 
@@ -603,7 +602,7 @@ class Encoder extends ObjectYPT
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             $error = $cmd . PHP_EOL . print_r($output, true);
             error_log($error);
-            self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
+            self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
             $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
             //echo "\n**Trying Youtube DL **".$cmd;
             error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
@@ -612,7 +611,7 @@ class Encoder extends ObjectYPT
                 //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
                 $error = $cmd . PHP_EOL . print_r($output, true);
                 error_log($error);
-                self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
+                self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
                 $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
                 //echo "\n**Trying Youtube DL **".$cmd;
                 error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
@@ -621,7 +620,7 @@ class Encoder extends ObjectYPT
                     //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
                     $error = $cmd . PHP_EOL . print_r($output, true);
                     error_log($error);
-                    self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
+                    self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
                     $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
                     //echo "\n**Trying Youtube DL **".$cmd;
                     error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
@@ -630,7 +629,7 @@ class Encoder extends ObjectYPT
                         //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
                         $error = $cmd . PHP_EOL . print_r($output, true);
                         error_log($error);
-                        self::setStreamerLog($queue_id,'Fail to download line='.__LINE__.' '.$error, Encoder::LOG_TYPE_ERROR);
+                        self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
                         return false;
                     }
                 }
@@ -722,7 +721,7 @@ class Encoder extends ObjectYPT
 
     public static function areDownloading($status = array())
     {
-        if(empty($status)){
+        if (empty($status)) {
             $status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING);
         }
         return self::getQueue($status);
@@ -1008,7 +1007,7 @@ class Encoder extends ObjectYPT
             'videoDownloadedLink' => $this->getVideoDownloadedLink(),
             'encoderURL' => $global['webSiteRootURL'],
         );
-        self::setStreamerLog($this->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($this->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         return self::sendToStreamer($target, $postFields, false, $this);
     }
 
@@ -1039,7 +1038,7 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        if(self::areDownloading(array(Encoder::$STATUS_DOWNLOADING))){
+        if (self::areDownloading(array(Encoder::$STATUS_DOWNLOADING))) {
             error_log("You have a video downloading now, please wait ");
             return false;
         }
@@ -1193,7 +1192,7 @@ class Encoder extends ObjectYPT
             if (!empty($this->override_status)) {
                 $postFields['overrideStatus'] = $this->override_status;
             }
-            self::setStreamerLog($this->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+            self::setStreamerLog($this->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
             $obj = self::sendToStreamer($target, $postFields, $return_vars, $this);
         }
 
@@ -1527,7 +1526,7 @@ class Encoder extends ObjectYPT
             }
         }
         //error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
-        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->videoFileSize = humanFileSize(filesize($file));
         //error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
@@ -1714,7 +1713,7 @@ class Encoder extends ObjectYPT
             $obj->videoFileSize = humanFileSize(filesize($file));
         }
 
-        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
         //var_dump($obj);exit;
@@ -1771,7 +1770,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
         //var_dump($obj);exit;
@@ -1804,7 +1803,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
 
@@ -1836,7 +1835,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        self::setStreamerLog($encoder->getId(),__FUNCTION__, Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
 
@@ -1956,7 +1955,7 @@ class Encoder extends ObjectYPT
             }
         }
         $time_end = microtime(true);
-        $execution_time = number_format($time_end - $time_start, 3);        
+        $execution_time = number_format($time_end - $time_start, 3);
         $error = "sendToStreamer {$url} in {$execution_time} seconds ";
         error_log($error . json_encode($obj));
 
@@ -2382,7 +2381,7 @@ class Encoder extends ObjectYPT
         if (!empty($global['progressiveUpload'])) {
             Upload::deleteFile($this->id);
         }
-        self::setStreamerLog($this->id,'Files Deleted', Encoder::LOG_TYPE_INFO);
+        self::setStreamerLog($this->id, 'Files Deleted', Encoder::LOG_TYPE_INFO);
         return parent::delete();
     }
 
@@ -2579,6 +2578,7 @@ class Encoder extends ObjectYPT
 
     public static function setStreamerLog($encoder_queue_id, $msg, $type)
     {
+        global $global;
         $encoder = new Encoder($encoder_queue_id);
         $return_vars = json_decode($encoder->getReturn_vars());
         if (empty($return_vars->videos_id)) {
@@ -2590,6 +2590,9 @@ class Encoder extends ObjectYPT
             'type' => $type,
             'videos_id' => $return_vars->videos_id,
         );
+        if (file_exists($global['docker_vars'])) {
+            file_put_contents($global['systemRootPath'] . 'videos/aVideoEncoder.log', json_encode(array($postFields, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))));
+        }
         return self::sendToStreamer($target, $postFields, $return_vars, $encoder);
     }
 }
