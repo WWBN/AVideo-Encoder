@@ -509,7 +509,7 @@ class Encoder extends ObjectYPT
         _error_log("downloadFile: start queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
 
         $e = Encoder::getFromFileURI($url);
-        if (!empty($e['downloadedFileName'])) {
+        if (!empty($e['downloadedFileName']) && file_exists($e['downloadedFileName'])) {
             $obj->pathFileName = $e['downloadedFileName'];
             $q->setDownloadedFileName($obj->pathFileName);
             $q->save();
