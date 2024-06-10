@@ -58,7 +58,7 @@ if (!empty($obj->downloading)) {
     $msg = (count($obj->downloading) == 1) ? "The file " : "The files ";
     for ($i = 0; $i < count($obj->downloading); $i++) {
         $obj->download_status[$i] = Encoder::getYoutubeDlProgress($obj->downloading[$i]['id']);
-        $msg .= "[{$obj->encoding[$i]['id']}] {$obj->encoding[$i]['filename']}";
+        $msg .= "[{$obj->downloading[$i]['id']}] {$obj->downloading[$i]['filename']}";
         if (count($obj->downloading) > 1 && $i < count($obj->downloading) - 1) {
             $msg .= ", ";
         }
