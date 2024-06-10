@@ -1093,7 +1093,7 @@ class Encoder extends ObjectYPT
                         self::setStatusError($rowNext['id'], $msg);
                         return false;
                     }
-                } elseif (!empty($return_vars->videos_id)) {
+                } elseif (!$objFile->error && !empty($return_vars->videos_id)) {
                     $encoder->setStatus(Encoder::$STATUS_ENCODING);
                     $encoder->save();
                     // run to try to download next
