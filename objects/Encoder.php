@@ -401,7 +401,7 @@ class Encoder extends ObjectYPT
 
     public function setDownloadedFileName($downloadedFileName)
     {
-        _error_log("setDownloadedFileName($downloadedFileName) ".json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        _error_log("setDownloadedFileName($downloadedFileName) " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         $this->downloadedFileName = substr($downloadedFileName, 0, 254);
     }
 
@@ -913,7 +913,7 @@ class Encoder extends ObjectYPT
         $q->setStatus(Encoder::$STATUS_ERROR);
         $q->setStatus_obs($msg);
         $saved = $q->save();
-        
+
         if (!empty($notifyIsDone)) {
             $q->notifyVideoIsDone(1);
         }
@@ -1117,7 +1117,7 @@ class Encoder extends ObjectYPT
                             $encoder->save();
                             return static::run($try);
                         } else {
-                            $obj->msg = "Execute code error 2 [{$objFile->pathFileName}]  [{$rowNext['id']} == ".$encoder->getId().'] ' . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $obj->msg = "Execute code error 2 [{$objFile->pathFileName}]  [{$rowNext['id']} == " . $encoder->getId() . '] ' . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             _error_log("Encoder::run: Encoder Run: " . json_encode($obj));
                             self::setStatusError($encoder->getId(), $obj->msg);
                             return false;
@@ -1150,7 +1150,14 @@ class Encoder extends ObjectYPT
                         }
                     }
                 } else {
-                    _error_log("try [{$try}] return_vars->videos_id is empty " . json_encode($return_vars));
+                    $errorMsg = array();
+                    if ($objFile->error) {
+                        $errorMsg[] = $objFile->msg;
+                    }
+                    if (empty($return_vars->videos_id)) {
+                        $errorMsg[] = 'return_vars->videos_id is empty';
+                    }
+                    _error_log("try [{$try}] " . implode(', ', $errorMsg) . ' ' . json_encode($return_vars));
                     self::setStatusError($encoder->getId(), "try [{$try}] Error on return_vars->videos_id", 1);
                     return false;
                 }
