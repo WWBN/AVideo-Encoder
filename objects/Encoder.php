@@ -1157,6 +1157,12 @@ class Encoder extends ObjectYPT
                     if (empty($return_vars->videos_id)) {
                         $errorMsg[] = 'return_vars->videos_id is empty';
                     }
+                    if(!self::canEncodeNow()){
+                        $errorMsg[] = 'Something is encoding now';
+                    }
+                    if(!self::canDownloadNow()){
+                        $errorMsg[] = 'Something is downloading now';
+                    }
                     _error_log("try [{$try}] " . implode(', ', $errorMsg) . ' ' . json_encode($return_vars));
                     self::setStatusError($encoder->getId(), "try [{$try}] Error on return_vars->videos_id", 1);
                     return false;
