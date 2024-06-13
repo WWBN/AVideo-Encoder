@@ -299,34 +299,46 @@ if (!class_exists('Format')) {
 
         private static function preProcessHLS($destinationFile) {
             $parts = pathinfo($destinationFile);
-            $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
-            // create a directory
-            make_path($destinationFile);
-            make_path($destinationFile . "low");
-            make_path($destinationFile . "sd");
-            make_path($destinationFile . "hd");
-            // create a encryption key
+            $destinationDir = "{$parts["dirname"]}/{$parts["filename"]}/";
+            
+            // Create the necessary directories
+            make_path($destinationDir);
+            make_path($destinationDir . "low");
+            make_path($destinationDir . "sd");
+            make_path($destinationDir . "hd");
+        
+            // Check for existing .key file
+            $keyFiles = glob($destinationDir . '*.key');
+            if (!empty($keyFiles)) {
+                // If a .key file already exists, return the directory
+                error_log("Encoder:Format:preProcessHLS($destinationFile) .key file already exists [$destinationDir] ".json_encode(array($keyFiles, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))));
+                return $destinationDir;
+            }
+        
+            // Create a new encryption key
             $key = openssl_random_pseudo_bytes(16);
             $keyFileName = "enc_" . uniqid() . ".key";
-            file_put_contents($destinationFile . $keyFileName, $key);
-
-            // create info file keyinfo
-            $str = "../{$keyFileName}\n{$destinationFile}{$keyFileName}";
-            file_put_contents($destinationFile . "keyinfo", $str);
-
-            //master playlist
+            file_put_contents($destinationDir . $keyFileName, $key);
+        
+            // Create info file keyinfo
+            $str = "../{$keyFileName}\n{$destinationDir}{$keyFileName}";
+            file_put_contents($destinationDir . "keyinfo", $str);
+        
+            // Create master playlist
             $str = "#EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-STREAM-INF:BANDWIDTH=800000
-low/index.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=1400000
-sd/index.m3u8
-#EXT-X-STREAM-INF:BANDWIDTH=2800000
-hd/index.m3u8
-";
-            file_put_contents($destinationFile . "index.m3u8", $str);
-            return $destinationFile;
+        #EXT-X-VERSION:3
+        #EXT-X-STREAM-INF:BANDWIDTH=800000
+        low/index.m3u8
+        #EXT-X-STREAM-INF:BANDWIDTH=1400000
+        sd/index.m3u8
+        #EXT-X-STREAM-INF:BANDWIDTH=2800000
+        hd/index.m3u8
+        ";
+            file_put_contents($destinationDir . "index.m3u8", $str);
+        
+            return $destinationDir;
         }
+        
 
         public static function getResolution($pathFileName) {
             global $_getResolution;
