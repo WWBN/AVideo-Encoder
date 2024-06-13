@@ -1153,18 +1153,26 @@ class Encoder extends ObjectYPT
                     $errorMsg = array();
                     if ($objFile->error) {
                         $errorMsg[] = $objFile->msg;
+                    }else{
+                        $errorMsg[] = 'objFile no error';
                     }
                     if (empty($return_vars->videos_id)) {
                         $errorMsg[] = 'return_vars->videos_id is empty';
+                    }else{
+                        $errorMsg[] = 'videos_id = '.$return_vars->videos_id;
                     }
                     if(!self::canEncodeNow()){
                         $errorMsg[] = 'Something is encoding now';
+                    }else{
+                        $errorMsg[] = 'There is nothing encoding';
                     }
                     if(!self::canDownloadNow()){
                         $errorMsg[] = 'Something is downloading now';
+                    }else{
+                        $errorMsg[] = 'There is nothing downloading';
                     }
                     _error_log("try [{$try}] " . implode(', ', $errorMsg) . ' ' . json_encode($return_vars));
-                    self::setStatusError($encoder->getId(), "try [{$try}] Error on return_vars->videos_id", 1);
+                    self::setStatusError($encoder->getId(), "try [{$try}] ", 1);
                     return false;
                 }
                 return static::run(0);
