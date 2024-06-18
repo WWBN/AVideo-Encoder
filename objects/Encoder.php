@@ -1151,10 +1151,11 @@ class Encoder extends ObjectYPT
                     }
                 } else {
                     $errorMsg = array();
-                    if ($objFile->error) {
+                    $setError = true;
+                    if ($objFile->error && !empty($objFile->msg)) {
                         $errorMsg[] = $objFile->msg;
                     }else{
-                        $errorMsg[] = 'objFile no error';
+                        $errorMsg[] = 'objFile no error '.json_encode($objFile);
                     }
                     if (empty($return_vars->videos_id)) {
                         $errorMsg[] = 'return_vars->videos_id is empty';
@@ -1162,17 +1163,21 @@ class Encoder extends ObjectYPT
                         $errorMsg[] = 'videos_id = '.$return_vars->videos_id;
                     }
                     if(!self::canEncodeNow()){
+                        $setError = false;
                         $errorMsg[] = 'Something is encoding now';
                     }else{
                         $errorMsg[] = 'There is nothing encoding';
                     }
                     if(!self::canDownloadNow()){
+                        $setError = false;
                         $errorMsg[] = 'Something is downloading now';
                     }else{
                         $errorMsg[] = 'There is nothing downloading';
                     }
                     _error_log("try [{$try}] " . implode(', ', $errorMsg) . ' ' . json_encode($return_vars));
-                    self::setStatusError($encoder->getId(), "try [{$try}] ", 1);
+                    if($setError){
+                        self::setStatusError($encoder->getId(), "try [{$try}] ", 1);
+                    }
                     return false;
                 }
                 return static::run(0);
