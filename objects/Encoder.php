@@ -2635,6 +2635,7 @@ class Encoder extends ObjectYPT
         }
         if(!empty($json)){
             $obj = $json;
+            error_log("queue : Encoder::sendFile done".json_encode($json));
         }else{
             $obj = new stdClass();
         }
