@@ -490,7 +490,7 @@ class Encoder extends ObjectYPT
         $obj->pathFileName = $dstFilepath . $filename;
 
         if (!self::canDownloadNow()) {
-            _error_log("downloadFile: there are a file downloading");
+            _error_log("downloadFile: there is a file downloading");
             if(self::areDownloaded()){
                 $obj->error = false;
             }
