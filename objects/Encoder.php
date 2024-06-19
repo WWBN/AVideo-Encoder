@@ -2635,7 +2635,7 @@ class Encoder extends ObjectYPT
         }
         if(!empty($json)){
             $obj = $json;
-            error_log("queue : Encoder::sendFile done".json_encode($json));
+            error_log("queue: Encoder::sendFile done line=".__LINE__.' '.json_encode($json));
         }else{
             $obj = new stdClass();
         }
@@ -2647,7 +2647,7 @@ class Encoder extends ObjectYPT
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
         $response = Encoder::sendFile('', 0, $format, $e);
-        error_log("queue : Encoder::sendFile done");
+        error_log("queue : Encoder::sendFile done line=".__LINE__).' '.json_encode($response);
         //var_dump($response);exit;
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
