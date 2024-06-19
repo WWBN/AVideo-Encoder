@@ -1154,7 +1154,7 @@ class Encoder extends ObjectYPT
                     }
                 } else {
                     $errorMsg = array();
-                    $setError = true;
+                    $setError = false;
                     if ($objFile->error && !empty($objFile->msg)) {
                         $errorMsg[] = $objFile->msg;
                     }else{
@@ -1165,7 +1165,8 @@ class Encoder extends ObjectYPT
                         $obj = Encoder::getVideosId($rowNext['id']);
                         if(empty($obj->videos_id)){
                             $errorMsg[] = 'We could not get videos_id check the streamer logs';
-                            $setError = 1;
+                            self::setStatusError($encoder->getId(), "We could not get videos_id check the streamer logs", 1);
+                            return false;
                         }
                     }else{
                         $errorMsg[] = 'videos_id = '.$return_vars->videos_id;
