@@ -1162,6 +1162,7 @@ class Encoder extends ObjectYPT
                     }
                     if (empty($return_vars->videos_id)) {
                         $errorMsg[] = 'return_vars->videos_id is empty';
+                        Encoder::getVideosId($rowNext['id']);
                     }else{
                         $errorMsg[] = 'videos_id = '.$return_vars->videos_id;
                     }
@@ -2623,6 +2624,40 @@ class Encoder extends ObjectYPT
             'videos_id' => $return_vars->videos_id,
         );
         return self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+    }
+
+    public static function getVideosId($encoder_queue_id){
+        $e = new Encoder($encoder_queue_id);
+        
+        $rv = $e->getReturn_vars();
+        if(!empty($rv)){
+            $json = json_encode($rv);
+        }
+        if(!empty($json)){
+            $obj = $json;
+        }else{
+            $obj = new stdClass();
+        }
+        if(!empty($obj->videos_id)){
+            return $obj;
+        }
+        $obj->videos_id = 0;
+        $obj->video_id_hash = '';
+        $f = new Format($e->getFormats_id());
+        $format = $f->getExtension();
+        $response = Encoder::sendFile('', 0, $format, $e);
+        error_log("queue : Encoder::sendFile done");
+        //var_dump($response);exit;
+        if (!empty($response->response->video_id)) {
+            $obj->videos_id = $response->response->video_id;
+        }
+        if (!empty($response->response->video_id_hash)) {
+            $obj->video_id_hash = $response->response->video_id_hash;
+        }
+        
+        $e->setReturn_vars(json_encode($obj));
+        $e->save();
+        return $obj;
     }
 }
 
