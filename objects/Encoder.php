@@ -2631,7 +2631,7 @@ class Encoder extends ObjectYPT
         
         $rv = $e->getReturn_vars();
         if(!empty($rv)){
-            $json = json_encode($rv);
+            $json = json_decode($rv);
         }
         if(!empty($json)){
             $obj = $json;
