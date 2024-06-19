@@ -491,6 +491,9 @@ class Encoder extends ObjectYPT
 
         if (!self::canDownloadNow()) {
             _error_log("downloadFile: there are a file downloading");
+            if(self::areDownloaded()){
+                $obj->error = false;
+            }
             return $obj;
         }
 
