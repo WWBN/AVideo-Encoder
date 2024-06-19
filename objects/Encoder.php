@@ -1162,7 +1162,11 @@ class Encoder extends ObjectYPT
                     }
                     if (empty($return_vars->videos_id)) {
                         $errorMsg[] = 'return_vars->videos_id is empty';
-                        Encoder::getVideosId($rowNext['id']);
+                        $obj = Encoder::getVideosId($rowNext['id']);
+                        if(empty($obj->videos_id)){
+                            $errorMsg[] = 'We could not get videos_id check the streamer logs';
+                            $setError = 1;
+                        }
                     }else{
                         $errorMsg[] = 'videos_id = '.$return_vars->videos_id;
                     }
