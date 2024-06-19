@@ -1168,7 +1168,7 @@ class Encoder extends ObjectYPT
                     }else{
                         $errorMsg[] = 'There is nothing encoding';
                     }
-                    if(!self::canDownloadNow()){
+                    if(self::areDownloading()){
                         $setError = false;
                         $errorMsg[] = 'Something is downloading now';
                     }else{
