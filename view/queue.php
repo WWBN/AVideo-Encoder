@@ -86,6 +86,8 @@ if (empty($e->getId())) {
 } else {
     $e->setStatus(Encoder::$STATUS_QUEUE);
     $id = $e->save();
+    
+    $obj = Encoder::getVideosId($id);
 }
 // start queue now
 execRun();
