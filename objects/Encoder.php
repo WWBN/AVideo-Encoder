@@ -1047,7 +1047,7 @@ class Encoder extends ObjectYPT
             $lockFileTime = intval($lockFileContent);
 
             // If the lock file is older than 10 seconds, remove it
-            if (time() - $lockFileTime > 10) {
+            if (time() - $lockFileTime > 3) {
                 unlink($lockFile);
             } else {
                 _error_log("Encoder::run: Lock file exists, exiting to prevent duplicate run.");
