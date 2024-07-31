@@ -132,7 +132,7 @@ class Encoder extends ObjectYPT
             }
             return false;
         }
-
+        $this->priority = intval($this->priority);
         /**
          * @var array $global
          * @var object $global['mysqli']
@@ -746,7 +746,7 @@ class Encoder extends ObjectYPT
         return self::getQueue($status = array(Encoder::$STATUS_TRANSFERRING));
     }
 
-    public static function getQueue($status = array())
+    public static function getQueue($status = array(), $streamers_id = 0)
     {
         global $global;
         if (empty($status)) {
@@ -757,8 +757,16 @@ class Encoder extends ObjectYPT
 
         $sql = "SELECT SQL_NO_CACHE f.*, e.* FROM  " . static::getTableName() . " e "
             . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE
-            status IN ('{$statusIn}')
-            ORDER BY priority ASC, e.id ASC ";
+            status IN ('{$statusIn}')";
+
+        if(!empty($streamers_id)){
+            $sql .= " AND streamers_id = {$streamers_id} ";
+        }
+            
+        $sql .= " ORDER BY 
+            CASE WHEN priority IS NULL THEN 1 ELSE 0 END ASC, 
+            priority ASC, 
+            e.id ASC ";
 
         /**
          * @var array $global
