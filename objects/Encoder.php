@@ -767,7 +767,7 @@ class Encoder extends ObjectYPT
             CASE WHEN priority IS NULL THEN 1 ELSE 0 END ASC, 
             priority ASC, 
             e.id ASC ";
-
+        //var_dump($sql);
         /**
          * @var array $global
          * @var object $global['mysqli']

@@ -1,5 +1,11 @@
 <?php
 
+
+require_once __DIR__ . '/../objects/Login.php';
+require_once __DIR__ . '/../objects/Encoder.php';
+require_once __DIR__ . '/../objects/Streamer.php';
+require_once __DIR__ . '/../objects/functions.php';
+
 class API
 {
     static function checkCredentials()
@@ -27,5 +33,63 @@ class API
             die(json_encode($object));
         }
         return $object;
+    }
+
+    static function canChangeQueue($queue_id)
+    {
+        if (empty($_SESSION['login'])) {
+            return false;
+        }
+        $streamer = new Streamer($_SESSION['login']->streamers_id);
+        if (self::isAdmin()) {
+            return true;
+        }
+        $encoder = new Encoder($queue_id);
+        return $encoder->getStreamers_id() == $_SESSION['login']->streamers_id;
+    }
+
+    static function isAdmin()
+    {
+        if (empty($_SESSION['login'])) {
+            return false;
+        }
+        $streamer = new Streamer($_SESSION['login']->streamers_id);
+        return !empty($streamer->getIsAdmin());
+    }
+
+    static function cleanQueueArray($queue)
+    {
+        // Convert object to array if necessary
+        if (is_object($queue)) {
+            $queue = (array)$queue;
+        }
+
+        // Set videos_id
+        if (isset($queue['return_vars']->videos_id)) {
+            $queue['videos_id'] = $queue['return_vars']->videos_id;
+        }
+
+        $keep = array(
+            'id',
+            'created',
+            'modified',
+            'videos_id',
+            'priority',
+            'videoDownloadedLink',
+            'downloadedFileName',
+            'streamers_id',
+            'conversion',
+            'download',
+            'title',
+        );
+
+        // Clean the queue
+        foreach ($queue as $key => $value) {
+            if (!in_array($key, $keep)) {
+                unset($queue[$key]);
+            }
+        }
+
+        return $queue;
     }
 }

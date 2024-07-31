@@ -6,103 +6,13 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Encoder.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 require_once $global['systemRootPath'] . 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/functions.php';
 
 session_write_close();
 
 if (!empty($_REQUEST['webSiteRootURL']) && !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && empty($_REQUEST['justLogin'])) {
     error_log("youtubeDl.json: Login::run");
     Login::run($_REQUEST['user'], $_REQUEST['pass'], $_REQUEST['webSiteRootURL'], true);
-}
-
-if(!function_exists('addVideo')){
-
-    function addVideo($link, $streamers_id, $title = "") {
-        $obj = new stdClass();
-        // remove list parameter from
-        $link = preg_replace('~(\?|&)list=[^&]*~', '$1', $link);
-        $link = str_replace("?&", "?", $link);
-        if (substr($link, -1) == '&') {
-            $link = substr($link, 0, -1);
-        }
-    
-        $msg = '';
-        if (empty($title)) {
-            $_title = Encoder::getTitleFromLink($link);
-            $msg = $_title['output'];
-            $title = $_title['output'];
-            if ($_title['error']) {
-                $title = false;
-            }
-        }
-        if (!$title) {
-            $obj->error = "youtube-dl --force-ipv4 get title ERROR** " . print_r($link, true);
-            $obj->type = "warning";
-            $obj->title = "Sorry!";
-    
-            if (!empty($msg)) {
-                $obj->text = $msg;
-            } else {
-                $obj->text = sprintf("We could not get the title of your video (%s) go to %s to fix it", $link, "<a href='https://github.com/WWBN/AVideo/wiki/youtube-dl-failed-to-extract-signature' class='btn btn-xm btn-default'>Update your Youtube-DL</a>");
-            }
-    
-            error_log("youtubeDl::addVideo We could not get the title ($title) of your video ($link)");
-        } else {
-            $obj->type = "success";
-            $obj->title = "Congratulations!";
-            $obj->text = sprintf("Your video (%s) is downloading", $title);
-    
-            $filename = preg_replace("/[^A-Za-z0-9]+/", "_", cleanString($title));
-            $filename = uniqid("{$filename}_YPTuniqid_", true) . ".mp4";
-    
-            $s = new Streamer($streamers_id);
-    
-            $e = new Encoder("");
-            $e->setStreamers_id($streamers_id);
-            $e->setTitle($title);
-            $e->setFileURI($link);
-            $e->setVideoDownloadedLink($link);
-            $e->setFilename($filename);
-            $e->setStatus(Encoder::$STATUS_QUEUE);
-            $e->setPriority($s->getPriority());
-            //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
-    
-            $encoders_ids = [];
-    
-            if (!empty($_REQUEST['audioOnly']) && $_REQUEST['audioOnly'] !== 'false') {
-                if (!empty($_REQUEST['spectrum']) && $_REQUEST['spectrum'] !== 'false') {
-                    $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
-                } else {
-                    $e->setFormats_idFromOrder(71);
-                }
-            } else {
-                $e->setFormats_idFromOrder(decideFormatOrder());
-            }
-            $obj = new stdClass();
-            $f = new Format($e->getFormats_id());
-            $format = $f->getExtension();
-    
-            $obj = new stdClass();
-            $obj->videos_id = 0;
-            $obj->video_id_hash = '';
-            if (!empty($_REQUEST['update_video_id'])) {
-                $obj->videos_id = $_REQUEST['update_video_id'];
-            }
-    
-            $obj->releaseDate = @$_REQUEST['releaseDate'];
-    
-            $response = Encoder::sendFile('', $obj, $format, $e);
-            //var_dump($response);exit;
-            if (!empty($response->response->video_id)) {
-                $obj->videos_id = $response->response->video_id;
-            }
-            if (!empty($response->response->video_id_hash)) {
-                $obj->video_id_hash = $response->response->video_id_hash;
-            }
-            $e->setReturn_vars(json_encode($obj));
-            $encoders_ids[] = $e->save();
-        }
-        return $obj;
-    }
 }
 
 if (!Login::canUpload()) {
