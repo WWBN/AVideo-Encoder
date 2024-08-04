@@ -1477,7 +1477,7 @@ class UploadHandler
     }
 
     protected function basename($filepath, $suffix = '') {
-        $splited = preg_split('/\//', rtrim ($filepath, '/ '));
-        return substr(basename('X'.$splited[count($splited)-1], $suffix), 1);
+        $split = preg_split('/\//', rtrim ($filepath, '/ '));
+        return substr(basename('X' . $split[count($split) - 1], $suffix), 1);
     }
 }

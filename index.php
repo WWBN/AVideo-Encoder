@@ -73,7 +73,7 @@
             <div>
                 <h2>Error. Oops you've encountered an error</h2>
                 <p>
-                    It appears that either something went wrong or the mod rewrite configration is not correct.<br />
+                    It appears that either something went wrong or the mod rewrite configuration is not correct.<br />
                 </p>
                 <p>We need to allow Apache to read .htaccess files located under the <?php echo getcwd(); ?> directory.
 
