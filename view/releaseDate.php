@@ -21,50 +21,50 @@ if (!isset($releaseDateJSandCSSAdded)) {
         <option value="<?php echo date('Y-m-d H:i'); ?>"><?php echo __('Now'); ?> (<?php echo date('Y-m-d H:i'); ?>)</option>
         <optgroup label="<?php echo __('Hours'); ?>">
             <?php
-            $relaseOptions = array();
-            $relaseOptions[] = '1 ' . __('Hour');
+            $releaseOptions = array();
+            $releaseOptions[] = '1 ' . __('Hour');
             for ($i = 2; $i < 24; $i++) {
-                $relaseOptions[] = "{$i} " . __('Hours');
+                $releaseOptions[] = "{$i} " . __('Hours');
             }
-            foreach ($relaseOptions as $value) {
+            foreach ($releaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime('+'.$value)) . "'>" . __($value) . "</option>";
             }
             ?>
         </optgroup>
         <optgroup label="<?php echo __('Days'); ?>">
             <?php
-            $relaseOptions = array();
-            $relaseOptions[] = array('1 ' . __('Day'), '+1 Day');
+            $releaseOptions = array();
+            $releaseOptions[] = array('1 ' . __('Day'), '+1 Day');
             for ($i = 2; $i < 31; $i++) {
-                $relaseOptions[] = array("{$i} " . __('Days'), "+$i Day");
+                $releaseOptions[] = array("{$i} " . __('Days'), "+$i Day");
             }
-            foreach ($relaseOptions as $value) {
+            foreach ($releaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>
         </optgroup>
         <optgroup label="<?php echo __('Months'); ?>">
             <?php
-            $relaseOptions = array();
-            $relaseOptions[] = array('1 ' . __('Month'), '+1 Month');
+            $releaseOptions = array();
+            $releaseOptions[] = array('1 ' . __('Month'), '+1 Month');
             for ($i = 2; $i < 12; $i++) {
-                $relaseOptions[] = array("{$i} " . __('Months'), "+$i Months");
+                $releaseOptions[] = array("{$i} " . __('Months'), "+$i Months");
             }
 
-            foreach ($relaseOptions as $value) {
+            foreach ($releaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>
         </optgroup>
         <optgroup label="<?php echo __('Years'); ?>">
             <?php
-            $relaseOptions = array();
-            $relaseOptions[] = array('1 ' . __('Year'), '+1 Year');
+            $releaseOptions = array();
+            $releaseOptions[] = array('1 ' . __('Year'), '+1 Year');
             for ($i = 2; $i < 10; $i++) {
-                $relaseOptions[] = array("{$i} " . __('Years'), "+{$i} Years");
+                $releaseOptions[] = array("{$i} " . __('Years'), "+{$i} Years");
             }
 
-            foreach ($relaseOptions as $value) {
+            foreach ($releaseOptions as $value) {
                 echo "<option value='" . date('Y-m-d H:i', strtotime($value[1])) . "'>" . __($value[0]) . "</option>";
             }
             ?>

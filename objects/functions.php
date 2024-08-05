@@ -37,9 +37,9 @@ function get_ffmpeg($ignoreGPU = false)
     return $ffmpeg . $complement;
 }
 
-function getFFmpegScaleToForceOriginalAspectRatio($width, $heigth)
+function getFFmpegScaleToForceOriginalAspectRatio($width, $height)
 {
-    return "scale={$width}:{$heigth}:force_original_aspect_ratio=decrease,pad={$width}:{$heigth}:-1:-1:color=black";
+    return "scale={$width}:{$height}:force_original_aspect_ratio=decrease,pad={$width}:{$height}:-1:-1:color=black";
 }
 
 function replaceFFMPEG($cmd)
@@ -330,32 +330,32 @@ function getURLToApplication()
 function check_max_execution_time()
 {
     $max_size = ini_get('max_execution_time');
-    $recomended_size = 7200;
-    return !($recomended_size > $max_size);
+    $recommended_size = 7200;
+    return !($recommended_size > $max_size);
 }
 
 //post_max_size = 100M
 function check_post_max_size()
 {
     $max_size = parse_size(ini_get('post_max_size'));
-    $recomended_size = parse_size('100M');
-    return !($recomended_size > $max_size);
+    $recommended_size = parse_size('100M');
+    return !($recommended_size > $max_size);
 }
 
 //upload_max_filesize = 100M
 function check_upload_max_filesize()
 {
     $max_size = parse_size(ini_get('upload_max_filesize'));
-    $recomended_size = parse_size('100M');
-    return !($recomended_size > $max_size);
+    $recommended_size = parse_size('100M');
+    return !($recommended_size > $max_size);
 }
 
 //memory_limit = 100M
 function check_memory_limit()
 {
     $max_size = parse_size(ini_get('memory_limit'));
-    $recomended_size = parse_size('512M');
-    return !($recomended_size > $max_size);
+    $recommended_size = parse_size('512M');
+    return !($recommended_size > $max_size);
 }
 
 function check_mysqlnd()

@@ -7,7 +7,7 @@ class ServerMonitor
         $obj->command = "free";
         exec($obj->command . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            $obj->error = "Get Memmory ERROR** " . print_r($output, true);
+            $obj->error = "Get Memory ERROR** " . print_r($output, true);
         } else {
             $obj->output = $output;
 
@@ -16,7 +16,7 @@ class ServerMonitor
                 $obj->memUsedBytes = $match[2]*1024;
                 $obj->memFreeBytes = $match[3]*1024;
             } else {
-                $obj->error = "Get Memmory ERROR** " . print_r($output, true);
+                $obj->error = "Get Memory ERROR** " . print_r($output, true);
             }
         }
         return $obj;
@@ -27,17 +27,17 @@ class ServerMonitor
         $obj->command = "/sbin/sysctl hw.pagesize; /usr/bin/vmstat -t";
         exec($obj->command . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            $obj->error = "Get Memmory ERROR** (".$obj->command." failed)";
+            $obj->error = "Get Memory ERROR** (".$obj->command." failed)";
         } else {
             $obj->output = $output;
 
             $parts = explode(" = ", $output[0]);
             if ($parts[0] != "hw.pagesize") {
-                $obj->error = "Get Memmory ERROR** (unknown page size)";
+                $obj->error = "Get Memory ERROR** (unknown page size)";
             } elseif (($match = preg_split("/ +/", trim($output[3]))) === false) {
-                $obj->error = "Get Memmory ERROR** (unepxected vmstat output)";
+                $obj->error = "Get Memory ERROR** (unepxected vmstat output)";
             } elseif (!is_numeric($match[4]) || !is_numeric($match[5]) || !is_numeric($match[11])) {
-                $obj->error = "Get Memmory ERROR** (non numeric memory size?)";
+                $obj->error = "Get Memory ERROR** (non numeric memory size?)";
             } else {
                 $page_size = $parts[1];
                 $obj->memTotalBytes = $match[4] * $page_size;
@@ -60,7 +60,7 @@ class ServerMonitor
         $getMemoryOsFunction = "getMemory" . $os;
 
         if (!method_exists("ServerMonitor", $getMemoryOsFunction)) {
-            $obj->error = "Get Memmory error: ".$os." not supported";
+            $obj->error = "Get Memory error: ".$os." not supported";
         } else {
             $obj = ServerMonitor::$getMemoryOsFunction($obj);
         }

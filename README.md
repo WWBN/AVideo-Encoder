@@ -81,7 +81,7 @@ In order for you to be able to run AVideo, there are certain tools that need to 
 # What is new on this version?
 Since version 4.x+ we separate the streamer website from the encoder website, so that we can distribute the application on different servers.
 - The Streamer site, is the main front end and has as main function to attend the visitors of the site, through a layout based on the youtube experience, you can host the streamer site in any common internet host can host it (Windows or Linux).
-- The Encoder site, will be better than the original encoder, the new encoder will be in charge of managing a media encoding queue. You can Donwload the encoder here: https://github.com/WWBN/AVideo-Encoder. but to install it you will need ssh access to your server, usually only VPS servers give you that kind of access, that code uses commands that use the Linux shell and consume more CPU.
+- The Encoder site, will be better than the original encoder, the new encoder will be in charge of managing a media encoding queue. You can download the encoder here: https://github.com/WWBN/AVideo-Encoder. but to install it you will need ssh access to your server, usually only VPS servers give you that kind of access, that code uses commands that use the Linux shell and consume more CPU.
 - I will have to install the encoder and the streamer?
 No. We will be providing a public encoder, we will build the encoder in such a way that several streamers can use the same encoder. We are also providing source code for this, so you can install it internally and manage your own encoding priority.
 

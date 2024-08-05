@@ -4,7 +4,7 @@ $watermark_fontsize = "(h/30)";
 $watermark_color = "yellow";
 $watermark_opacity = 0.5;
 $hls_time = 10;
-$skippFirstSegments = 30; // 5 min
+$skipFirstSegments = 30; // 5 min
 $max_process_at_the_same_time = 5;
 $encrypt = false; // if enable encryption it fails to play, probably an error on .ts timestamp
 //$downloadCodec = " -c:v libx264 -acodec copy ";
@@ -679,10 +679,10 @@ function getAllTSFilesInDir($dir) {
 }
 
 function getRandomSymlinkTSFileArray($dir, $total) {
-    global $skippFirstSegments;
+    global $skipFirstSegments;
     $totalTSFiles = getTotalTSFilesInDir($dir);
     error_log("getRandomSymlinkTSFileArray: ($totalTSFiles) ($total) {$dir}");
-    $firstfile = sprintf('%03d.ts', $skippFirstSegments);
+    $firstfile = sprintf('%03d.ts', $skipFirstSegments);
     if (!file_exists("{$dir}/{$firstfile}")) {
         $firstfile = "000.ts";
     }
@@ -706,8 +706,8 @@ function getRandomSymlinkTSFileArray($dir, $total) {
 }
 
 function createFirstSegment() {
-    global $skippFirstSegments, $outputPath, $localFileDownloadDir;
-    $firstfile = sprintf('%03d.ts', $skippFirstSegments);
+    global $skipFirstSegments, $outputPath, $localFileDownloadDir;
+    $firstfile = sprintf('%03d.ts', $skipFirstSegments);
     $inputHLS_ts = "{$localFileDownloadDir}/{$firstfile}";
     if (!file_exists($inputHLS_ts)) {
         $firstfile = "000.ts";
