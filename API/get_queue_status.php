@@ -36,6 +36,15 @@ if(!empty($_REQUEST['videos_id'])){
 foreach ($object->queue as $key => $value) {
     $object->queue[$key]['conversion'] = Encoder::getVideoConversionStatus($value['id']);
     $object->queue[$key]['download'] = Encoder::getYoutubeDlProgress($value['id']);
+
+    if($object->queue[$key]['conversion']){
+        $object->queue[$key]['conversion'] = null;
+    }
+    
+    if($object->queue[$key]['download']){
+        $object->queue[$key]['download'] = null;
+    }
+
     $object->queue[$key] = API::cleanQueueArray($object->queue[$key]);
 }
 
