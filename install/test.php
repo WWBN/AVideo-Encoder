@@ -37,13 +37,19 @@ foreach ($filesURL as $value) {
 }
 */
 $filesURL = array(
+    /*
     'https://www.youtube.com/watch?v=PaXVZJFfgJA',
     'https://www.youtube.com/watch?v=WO2b03Zdu4Q',
     'https://www.youtube.com/watch?v=R5LAPvUKGvc',
     'https://www.youtube.com/watch?v=njX2bu-_Vw4',
     'https://www.youtube.com/watch?v=ee9i6oMqShk',
     'https://www.youtube.com/watch?v=mkggXE5e2yk',
+    */
     //'https://www.youtube.com/watch?v=e4zRaWV2YEQ',
+    'https://vimeo.com/655102517',
+    'https://vimeo.com/655102517',
+    'https://vimeo.com/655102517',
+    'https://vimeo.com/655102517',
 );
 
 foreach ($filesURL as $value) {
