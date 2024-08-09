@@ -46,10 +46,12 @@ $filesURL = array(
     'https://www.youtube.com/watch?v=mkggXE5e2yk',
     */
     //'https://www.youtube.com/watch?v=e4zRaWV2YEQ',
-    'https://vimeo.com/655102517',
-    'https://vimeo.com/655102517',
-    'https://vimeo.com/655102517',
-    'https://vimeo.com/655102517',
+    'https://4k.ypt.me/1080/Raindrops_Videvo.mp4',
+    'https://4k.ypt.me/1080/Christmas_Tree_Pan.mp4',
+    'https://4k.ypt.me/1080/Snow.mp4',
+    'https://4k.ypt.me/4K/Rocket_to_Space.mp4',
+    'https://4k.ypt.me/4K/Time_Scapes.mp4',
+    'https://4k.ypt.me/4K/Stream3_AV1_4K_13.9mbps.webm',
 );
 
 foreach ($filesURL as $value) {
