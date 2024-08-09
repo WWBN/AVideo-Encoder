@@ -1379,10 +1379,10 @@ class Encoder extends ObjectYPT
          * @var array $global
          */
         if (in_array($order_id, $global['multiResolutionOrder'])) {
-            //_error_log("Encoder::send() multiResolutionOrder");
+            _error_log("Encoder::send() multiResolutionOrder");
             if (in_array($order_id, $global['sendAll'])) {
                 $files = self::getTmpFiles($this->id);
-                //_error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
+                _error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
                 foreach ($files as $file) {
                     if (is_dir($file)) {
                         continue;
@@ -1390,10 +1390,13 @@ class Encoder extends ObjectYPT
                     $format = pathinfo($file, PATHINFO_EXTENSION);
                     preg_match('/([^_]+).' . $format . '$/', $file, $matches);
                     $resolution = @$matches[1];
-                    if ($resolution == 'converted') {
+                    if ($resolution == 'converted' || $resolution == 'converted.mp4') {
                         $resolution = '';
                     }
-                    //_error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
+                    if ($resolution == 'converted.mp4palette') {
+                        continue;
+                    }
+                    _error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
                     $return->sends[] = self::sendFileChunk($file, $return_vars, $format, $this, $resolution);
                 }
             } else {
@@ -1417,7 +1420,7 @@ class Encoder extends ObjectYPT
                 }
             }
         } else {
-            //_error_log("Encoder::send() NOT multiResolutionOrder");
+            _error_log("Encoder::send() NOT multiResolutionOrder");
             $extension = $f->getExtension();
             if ($formatId == 29 || $formatId == 30) { // if it is HLS send the compacted file
                 $extension = "zip";

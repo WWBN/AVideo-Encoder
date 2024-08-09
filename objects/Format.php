@@ -40,7 +40,7 @@ if (!class_exists('Format')) {
         }
 
         protected static function getFromOrder($order) {
-            error_log("AVideo-Encoder Format::getFromOrder($order)");
+            _error_log("AVideo-Encoder Format::getFromOrder($order)");
             global $global;
             $sql = "SELECT * FROM " . static::getTableName() . " WHERE  `order` = $order LIMIT 1";
             /**
@@ -58,14 +58,14 @@ if (!class_exists('Format')) {
         }
 
         public function run($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ".json_encode(debug_backtrace()));
+            _error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ".json_encode(debug_backtrace()));
             global $global;
             $obj = new stdClass();
             $obj->error = true;
             $obj->addInQueueAgain = false;
             $path_parts = pathinfo($pathFileName);
             if(!file_exists($pathFileName)){
-                error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ERROR File not found");
+                _error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ERROR File not found");
                 $obj->msg = 'file not found';
                 $obj->addInQueueAgain = true;
                 
@@ -75,33 +75,33 @@ if (!class_exists('Format')) {
              * @var array $global
              */
             if ($this->order == 88) {
-                error_log("run:mp3ToSpectrumHLS");
+                _error_log("run:mp3ToSpectrumHLS");
                 $obj = $this->mp3ToSpectrumHLS($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 89) {
-                error_log("run:mp3ToSpectrumMP4");
+                _error_log("run:mp3ToSpectrumMP4");
                 $obj = $this->mp3ToSpectrumMP4($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 90 && empty($global['disableWebM'])) {
-                error_log("run:mp3ToSpectrumWEBM");
+                _error_log("run:mp3ToSpectrumWEBM");
                 $obj = $this->mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 70) {
-                error_log("run:runVideoToSpectrum");
+                _error_log("run:runVideoToSpectrum");
                 $obj = $this->runVideoToSpectrum($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 71) {
-                error_log("run:runVideoToAudio");
+                _error_log("run:runVideoToAudio");
                 $obj = $this->runVideoToAudio($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 72) {
-                error_log("run:runBothVideo");
+                _error_log("run:runBothVideo");
                 $obj = $this->runBothVideo($pathFileName, $encoder_queue_id);
             } elseif ($this->order == 73) {
-                error_log("run:runBothAudio");
+                _error_log("run:runBothAudio");
                 $obj = $this->runBothAudio($pathFileName, $encoder_queue_id, $this->id);
             } elseif (in_array($this->order, $global['multiResolutionOrder']) && !in_array($this->order, $global['sendAll'])) {
-                error_log("run:runMultiResolution");
-                error_log("run:runMultiResolution" . json_encode($this->order));
-                error_log("run:runMultiResolution" . json_encode($global['sendAll']));
+                _error_log("run:runMultiResolution");
+                _error_log("run:runMultiResolution" . json_encode($this->order));
+                _error_log("run:runMultiResolution" . json_encode($global['sendAll']));
                 $obj = $this->runMultiResolution($pathFileName, $encoder_queue_id, $this->order);
             } else {
-                error_log("run (else): {$this->order}");
+                _error_log("run (else): {$this->order}");
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $path_parts['extension']);
                 $obj = static::execOrder($this->order, $pathFileName, $destinationFile, $encoder_queue_id);
             }
@@ -109,7 +109,7 @@ if (!class_exists('Format')) {
         }
 
         private function runMultiResolution($pathFileName, $encoder_queue_id, $order) {
-            error_log("AVideo-Encoder Format::runMultiResolution($pathFileName, $encoder_queue_id, $order)");
+            _error_log("AVideo-Encoder Format::runMultiResolution($pathFileName, $encoder_queue_id, $order)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
@@ -157,35 +157,40 @@ if (!class_exists('Format')) {
         }
 
         private function mp3ToSpectrum($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::mp3ToSpectrum($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::mp3ToSpectrum($pathFileName, $encoder_queue_id)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
-            error_log("mp3ToSpectrum: MP3 to MP4");
+            _error_log("mp3ToSpectrum: MP3 to MP4");
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "converted");
             return self::exec(5, $pathFileName, $destinationFile, $encoder_queue_id);
         }
 
         private function mp3ToSpectrumHLS($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::mp3ToSpectrumHLS($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::mp3ToSpectrumHLS($pathFileName, $encoder_queue_id)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "converted");
             $obj = self::mp3ToSpectrum($pathFileName, $encoder_queue_id);
             if (!$obj->error) {
-                $obj = static::execOrder(6, $obj->destinationFile, $destinationFile, $encoder_queue_id);
+                //_error_log("AVideo-Encoder Format::execOrder(6, $obj->destinationFile, $destinationFile, $encoder_queue_id) MP4 to HLS ".json_encode($obj));
+                //$obj = static::execOrder(6, $obj->destinationFile, $destinationFile, $encoder_queue_id);
+                $code = new Format(30);
+                $obj = $code->run($destinationFile, $encoder_queue_id);
+            }else{
+                _error_log("mp3ToSpectrumHLS: self::mp3ToSpectrum($pathFileName, $encoder_queue_id) ERROR ");
             }
             if ($obj->error) {
-                error_log("mp3ToSpectrumHLS: ERROR " . json_encode($obj));
+                _error_log("mp3ToSpectrumHLS: ERROR " . json_encode($obj));
             }
             $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
 
         private function mp3ToSpectrumMP4($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::mp3ToSpectrumHLS($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::mp3ToSpectrumHLS($pathFileName, $encoder_queue_id)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
@@ -195,14 +200,14 @@ if (!class_exists('Format')) {
                 $obj = static::execOrder(7, $obj->destinationFile, $destinationFile, $encoder_queue_id);
             }
             if ($obj->error) {
-                error_log("mp3ToSpectrumMP4: ERROR " . json_encode($obj));
+                _error_log("mp3ToSpectrumMP4: ERROR " . json_encode($obj));
             }
             $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
 
         private function mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::mp3ToSpectrumWEBM($pathFileName, $encoder_queue_id)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
@@ -212,44 +217,44 @@ if (!class_exists('Format')) {
                 $obj = static::execOrder(8, $obj->destinationFile, $destinationFile, $encoder_queue_id);
             }
             if ($obj->error) {
-                error_log("mp3ToSpectrumWEBM: ERROR " . json_encode($obj));
+                _error_log("mp3ToSpectrumWEBM: ERROR " . json_encode($obj));
             }
             $this->sendImages($destinationFile, $encoder_queue_id);
             return $obj;
         }
 
         private function runVideoToSpectrum($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::runVideoToSpectrum($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::runVideoToSpectrum($pathFileName, $encoder_queue_id)");
             global $global;
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp3', "converted");
             // MP4 to MP3
-            error_log("runVideoToSpectrum: MP4 to MP3");
+            _error_log("runVideoToSpectrum: MP4 to MP3");
             $obj = static::execOrder(60, $pathFileName, $destinationFile, $encoder_queue_id);
             if (!$obj->error) {
                 //MP3 to Spectrum.MP4
-                error_log("runVideoToSpectrum: MP3 to MP4");
+                _error_log("runVideoToSpectrum: MP3 to MP4");
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "converted");
                 $obj = static::execOrder(50, $obj->destinationFile, $destinationFile, $encoder_queue_id);
                 if (empty($global['disableWebM']) && !$obj->error) {
                     // Spectrum.MP4 to WEBM
-                    error_log("runVideoToSpectrum: MP4 to WEBM");
+                    _error_log("runVideoToSpectrum: MP4 to WEBM");
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'webm', "converted");
                     $obj = static::execOrder(21, $obj->destinationFile, $destinationFile, $encoder_queue_id);
                 }
             }
 
             if ($obj->error) {
-                error_log("runVideoToSpectrum: ERROR " . json_encode($obj));
+                _error_log("runVideoToSpectrum: ERROR " . json_encode($obj));
             }
 
             return $obj;
         }
 
         private function runVideoToAudio($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::runVideoToAudio($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::runVideoToAudio($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
 
@@ -266,7 +271,7 @@ if (!class_exists('Format')) {
         }
 
         private function runBothVideo($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::runBothVideo($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::runBothVideo($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', "converted");
@@ -282,7 +287,7 @@ if (!class_exists('Format')) {
         }
 
         private function runBothAudio($pathFileName, $encoder_queue_id) {
-            error_log("AVideo-Encoder Format::runBothAudio($pathFileName, $encoder_queue_id)");
+            _error_log("AVideo-Encoder Format::runBothAudio($pathFileName, $encoder_queue_id)");
             $path_parts = pathinfo($pathFileName);
             //$destinationFile = $path_parts['dirname'] . "/" . $path_parts['filename'] . "_converted";
             $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp3', "converted");
@@ -311,7 +316,7 @@ if (!class_exists('Format')) {
             $keyFiles = glob($destinationDir . '*.key');
             if (!empty($keyFiles)) {
                 // If a .key file already exists, return the directory
-                error_log("Encoder:Format:preProcessHLS($destinationFile) .key file already exists [$destinationDir] ".json_encode(array($keyFiles, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))));
+                _error_log("Encoder:Format:preProcessHLS($destinationFile) .key file already exists [$destinationDir] ".json_encode(array($keyFiles, debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))));
                 return $destinationDir;
             }
         
@@ -352,17 +357,17 @@ if (!class_exists('Format')) {
             }
 
             $command = get_ffprobe() . " -v quiet -print_format json -show_format -show_streams \"$pathFileName\"";
-            error_log("getResolution: {$command}");
+            _error_log("getResolution: {$command}");
             $json = exec($command . " 2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                error_log("getResolution: Error on ffprobe " . json_encode($output));
+                _error_log("getResolution: Error on ffprobe " . json_encode($output));
                 return 1080;
             }
             $json = implode(" ", $output);
             $jsonObj = json_decode($json);
 
             if (empty($jsonObj)) {
-                error_log("getResolution: Error on json {$json}");
+                _error_log("getResolution: Error on json {$json}");
                 return 1080;
             }
 
@@ -373,7 +378,7 @@ if (!class_exists('Format')) {
                     break;
                 }
             }
-            error_log("getResolution: success $resolution");
+            _error_log("getResolution: success $resolution");
             $_getResolution[$pathFileName] = $resolution;
             return $resolution;
         }
@@ -384,17 +389,17 @@ if (!class_exists('Format')) {
                 return array();
             }
             $command = get_ffprobe() . " -v quiet -print_format json -show_entries stream=index:stream_tags=language -select_streams a \"$pathFileName\"";
-            error_log("getAudioTracks: {$command}");
+            _error_log("getAudioTracks: {$command}");
             $json = exec($command . " 2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                error_log("getResolution: Error on ffprobe " . json_encode($output));
+                _error_log("getResolution: Error on ffprobe " . json_encode($output));
                 return 1080;
             }
             $json = implode(" ", $output);
             $jsonObj = json_decode($json);
 
             if (empty($jsonObj)) {
-                error_log("getResolution: Error on json {$json}");
+                _error_log("getResolution: Error on json {$json}");
                 return 1080;
             }
 
@@ -404,7 +409,7 @@ if (!class_exists('Format')) {
                     $audioTracks[] = $stream->tags->language;
                 }
             }
-            error_log("getAudioTracks: success " . json_encode($audioTracks) . " ({$json})");
+            _error_log("getAudioTracks: success " . json_encode($audioTracks) . " ({$json})");
 
             return $audioTracks;
         }
@@ -564,7 +569,7 @@ if (!class_exists('Format')) {
             $audioBitrate = $encoderConfig['audioBitrate'];
             $videoFramerate = $encoderConfig['videoFramerate'];
 
-            error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) [resolutions=" . json_encode($resolutions) . "] [height={$height}]");
+            _error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) [resolutions=" . json_encode($resolutions) . "] [height={$height}]");
             $f = new Format($format_id);
             $code = $f->getCode(); // encoder command-line switches
             // create command
@@ -580,7 +585,7 @@ if (!class_exists('Format')) {
                     $lastHeight = $resolution;
                     $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $resolution);
                     if (empty($destinationFile)) {
-                        error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
+                        _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
                         continue;
                     }
                     $autioBitrate = $audioBitrate[$i];
@@ -588,7 +593,7 @@ if (!class_exists('Format')) {
 
                     eval("\$command .= \" $code\";");
                 } elseif ($height != $resolution) {
-                    error_log("Encoder:Format:: getDynamicCommandFromFormat resolution {$resolution} was ignored, your upload file is {$height} we wil not up transcode your video");
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat resolution {$resolution} was ignored, your upload file is {$height} we wil not up transcode your video");
                     break;
                 }
                 $i++;
@@ -597,7 +602,7 @@ if (!class_exists('Format')) {
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
                 if (empty($destinationFile)) {
-                    error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
                     return '';
                 }
                 $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
@@ -605,7 +610,7 @@ if (!class_exists('Format')) {
             }
 
             $command = removeUserAgentIfNotURL($command);
-            error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
+            _error_log("Encoder:Format:: getDynamicCommandFromFormat::return($command) ");
             return $command;
         }
 
@@ -620,7 +625,7 @@ if (!class_exists('Format')) {
             $videoFramerate = $encoderConfig['videoFramerate'];
             $parts = pathinfo($destinationFile);
             $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}/";
-            error_log("Encoder:Format:: preProcessDynamicHLS($pathFileName, $destinationFile) [resolutions=" . json_encode($resolutions) . "] [height={$height}] [$destinationFile=$destinationFile]");
+            _error_log("Encoder:Format:: preProcessDynamicHLS($pathFileName, $destinationFile) [resolutions=" . json_encode($resolutions) . "] [height={$height}] [$destinationFile=$destinationFile]");
             // create a directory
             mkdir($destinationFile);
             // create a encryption key
@@ -644,16 +649,16 @@ if (!class_exists('Format')) {
                     $file = $destinationFile . "res{$value}";
                     mkdir($file);
                     $str .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($bandwidth[$key]) . PHP_EOL . "res{$value}/index.m3u8" . PHP_EOL;
-                    error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
+                    _error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
                 } elseif ($height != $value) {
-                    error_log("Encoder:Format:: preProcessDynamicHLS resolution {$value} was ignored, your upload file is {$height}p we wil not up transcode your video");
+                    _error_log("Encoder:Format:: preProcessDynamicHLS resolution {$value} was ignored, your upload file is {$height}p we wil not up transcode your video");
                 }
             }
 
             $file = $destinationFile . "res{$height}";
             mkdir($file);
             $str .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($nextBandwidth) . PHP_EOL . "res{$height}/index.m3u8" . PHP_EOL;
-            error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
+            _error_log("Encoder:Format:: preProcessDynamicHLS 1 mkdir [$file] ");
 
             file_put_contents($destinationFile . "index.m3u8", $str);
 
@@ -686,9 +691,9 @@ if (!class_exists('Format')) {
                         $framerate = " -r {$videoFramerate[$key]} ";
                     }
                     eval("\$command .= \" $code\";");
-                    error_log("Encoder:Format:: 2 preProcessDynamicHLS {$command}");
+                    _error_log("Encoder:Format:: 2 preProcessDynamicHLS {$command}");
                 } elseif ($height != $value) {
-                    error_log("Encoder:Format:: preProcessDynamicHLS 2 resolution {$value} was ignored, your upload file is {$height} we wil not up transcode your video");
+                    _error_log("Encoder:Format:: preProcessDynamicHLS 2 resolution {$value} was ignored, your upload file is {$height} we wil not up transcode your video");
                 }
             }
 
@@ -705,11 +710,11 @@ if (!class_exists('Format')) {
             $encoder = new Encoder($encoder_queue_id);
             $encoder->setStatus(Encoder::$STATUS_PACKING);
             $encoder->save();
-            error_log("posProcessHLS: ZIP start {$destinationFile}");
+            _error_log("posProcessHLS: ZIP start {$destinationFile}");
             $zipPath = zipDirectory($destinationFile);
             //rrmdir($destinationFile);
             //unlink($destinationFile . "keyinfo");
-            error_log("posProcessHLS: ZIP created {$zipPath} " . humanFileSize(filesize($zipPath)));
+            _error_log("posProcessHLS: ZIP created {$zipPath} " . humanFileSize(filesize($zipPath)));
             return file_exists($zipPath);
         }
 
@@ -718,7 +723,7 @@ if (!class_exists('Format')) {
             $encoder = new Encoder($encoder_queue_id);
             $encoder->setStatus(Encoder::$STATUS_FIXING);
             $encoder->save();
-            error_log("fixFile: start {$pathFileName}" . humanFileSize(filesize($pathFileName)));
+            _error_log("fixFile: start {$pathFileName}" . humanFileSize(filesize($pathFileName)));
             // try to fix the file in case you want to try again
             $newPathFileName = $pathFileName . '.error';
             rename($pathFileName, $newPathFileName);
@@ -728,10 +733,10 @@ if (!class_exists('Format')) {
             $encoder->exec($command, $output, $return_val);
 
             if ($return_val !== 0) {
-                error_log("fixFile: Error " . json_encode($output));
+                _error_log("fixFile: Error " . json_encode($output));
                 return false;
             } else {
-                error_log("fixFile: done {$pathFileName} " . humanFileSize(filesize($pathFileName)));
+                _error_log("fixFile: done {$pathFileName} " . humanFileSize(filesize($pathFileName)));
             }
             return file_exists($pathFileName);
         }
@@ -746,7 +751,7 @@ if (!class_exists('Format')) {
             $fc = $f->getCode();
 
             $encoder = new Encoder($encoder_queue_id);
-            error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
+            _error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) { // it is HLS
                 if (empty($fc) || $format_id == 30) {
                     $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
@@ -768,29 +773,29 @@ if (!class_exists('Format')) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
                 $obj->code = $code;
-                error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
+                _error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
                 $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
                 $encoder->exec($code . " 1> \"{$progressFile}\"  2>&1", $output, $return_val);
                 if (self::progressFileHasVideosWithErrors($progressFile)) {
-                    error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));
+                    _error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));
                     $obj->msg = print_r($output, true);
                     $encoder = new Encoder($encoder_queue_id);
                     if (empty($encoder->getId())) {/* dequeued */
-                        error_log("id=(" . $encoder_queue_id . ") dequeued");
+                        _error_log("id=(" . $encoder_queue_id . ") dequeued");
                     } else {
 
                         if (empty($try) && self::fixFile($pathFileName, $encoder_queue_id)) {
                             self::exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try + 1);
                         } else {
                             $msg = json_encode($output);
-                            error_log("AVideo-Encoder Format::exec " . $msg . ' ' . json_encode(debug_backtrace()));
+                            _error_log("AVideo-Encoder Format::exec " . $msg . ' ' . json_encode(debug_backtrace()));
                             $encoder->setStatus(Encoder::$STATUS_ERROR);
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
                         }
                     }
                 } else {
-                    error_log("AVideo-Encoder Format::exec Success progressFile={$progressFile}");
+                    _error_log("AVideo-Encoder Format::exec Success progressFile={$progressFile}");
                     $obj->error = false;
                 }
             }
@@ -808,14 +813,14 @@ if (!class_exists('Format')) {
             global $global;
 
             if (empty($progressFilename)) {
-                error_log("progressFileHasVideosWithErrors: file not exists {$progressFilename}");
+                _error_log("progressFileHasVideosWithErrors: file not exists {$progressFilename}");
                 return true;
             }
 
             $content = file_get_contents($progressFilename);
 
             if (empty($content)) {
-                error_log("progressFileHasVideosWithErrors: content is empty");
+                _error_log("progressFileHasVideosWithErrors: content is empty");
                 return true;
             }
 
@@ -825,28 +830,28 @@ if (!class_exists('Format')) {
             preg_match_all($pattern, $content, $matches);
 
             if (empty($matches[1])) {
-                error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors" . PHP_EOL . $content);
+                _error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors" . PHP_EOL . $content);
                 return false;
             }
-            //error_log("progressFileHasVideosWithErrors: {$pattern} matches= " . json_encode($matches));
+            //_error_log("progressFileHasVideosWithErrors: {$pattern} matches= " . json_encode($matches));
             foreach ($matches[1] as $value) {
                 if (empty($value)) {
                     continue;
                 }
-                //error_log("progressFileHasVideosWithErrors: value= " . json_encode($value));
+                //_error_log("progressFileHasVideosWithErrors: value= " . json_encode($value));
                 if (self::videoFileHasErrors($value)) {
-                    error_log("progressFileHasVideosWithErrors: error found {$value}");
+                    _error_log("progressFileHasVideosWithErrors: error found {$value}");
                     return true;
                 }
             }
-            //error_log("progressFileHasVideosWithErrors: no errors found {$progressFilename}");
+            //_error_log("progressFileHasVideosWithErrors: no errors found {$progressFilename}");
             return false;
         }
 
         public static function videoFileHasErrors($filename, $allowed_extensions = true) {
             global $global;
             if (!file_exists($filename)) {
-                error_log("videoFileHasErrors: file not exists {$filename}");
+                _error_log("videoFileHasErrors: file not exists {$filename}");
                 return true;
             }
 
@@ -874,12 +879,12 @@ if (!class_exists('Format')) {
             $command = removeUserAgentIfNotURL($command);
             exec($command, $output, $return_var);
             if ($return_var !== 0) {
-                error_log("videoFileHasErrors: could not exec [{$command}] ".json_encode($output).' '.json_encode(debug_backtrace()));
+                _error_log("videoFileHasErrors: could not exec [{$command}] ".json_encode($output).' '.json_encode(debug_backtrace()));
                 return false;
             }
 
             if (!file_exists($errorLogFile)) {
-                error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
+                _error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
                 return true;
             }
 
@@ -890,7 +895,7 @@ if (!class_exists('Format')) {
                 if ($allowed_extensions) {
                     return self::videoFileHasErrors($filename, false);
                 }
-                error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
+                _error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
                 return true;
             } else {
                 return false;
@@ -904,7 +909,7 @@ if (!class_exists('Format')) {
                 $obj->destinationFile = $destinationFile;
                 $obj->pathFileName = $pathFileName;
                 $obj->msg = "destinationFile is empty";
-                error_log("execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) destinationFile ".json_encode(debug_backtrace()));
+                _error_log("execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id) destinationFile ".json_encode(debug_backtrace()));
                 return $obj;
             }
             if (file_exists($destinationFile)) {
@@ -916,7 +921,7 @@ if (!class_exists('Format')) {
                     $obj->destinationFile = $destinationFile;
                     $obj->pathFileName = $pathFileName;
                     $obj->msg = "Already done";
-                    error_log($destinationFile . " already done, skip");
+                    _error_log($destinationFile . " already done, skip");
                     return $obj;
                 } else {
                     unlink($destinationFile);
@@ -938,11 +943,13 @@ if (!class_exists('Format')) {
                     $destinationFile = "{$parts["dirname"]}/{$parts["filename"]}.mp3";
                 }
             }
-            $obj = self::exec($o->getId(), $pathFileName, $destinationFile, $encoder_queue_id);
+            $format_d = $o->getId();
+            _error_log("execOrder: self::exec($format_d, $pathFileName, $destinationFile, $encoder_queue_id)");
+            $obj = self::exec($format_d, $pathFileName, $destinationFile, $encoder_queue_id);
             if ($format_order == 50) {
                 if (!$obj->error) {
                     // Spectrum.MP4 to WEBM
-                    error_log("runVideoToSpectrum: MP4 to WEBM");
+                    _error_log("runVideoToSpectrum: MP4 to WEBM");
                     $obj = static::execOrder(21, $obj->destinationFile, $destinationFile . ".webm", $encoder_queue_id);
                 }
             }
@@ -971,10 +978,10 @@ if (!class_exists('Format')) {
             if (empty($name)) {
                 return false;
             }
-            error_log("createIfNotExists($name) checking");
+            _error_log("createIfNotExists($name) checking");
             $row = static::getFromName($name);
             if (empty($row)) {
-                error_log("createIfNotExists($name) not found, create a new one");
+                _error_log("createIfNotExists($name) not found, create a new one");
                 $f = new Format("");
                 $f->setName($name);
                 $f->setExtension($name);
