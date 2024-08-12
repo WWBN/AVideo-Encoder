@@ -2566,6 +2566,7 @@ class Encoder extends ObjectYPT
         if (!isWindows()) {
             $prepend = 'LC_ALL=en_US.UTF-8 ';
         }
+        $link = str_replace("'", '', $link);
         $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => array());
         $cmd = $prepend . self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
@@ -2677,7 +2678,9 @@ class Encoder extends ObjectYPT
         if(!empty($addOauthFromProvider)){
             $streamers_id = Login::getStreamerId();
             $accessToken = Streamer::getAccessToken($streamers_id, $addOauthFromProvider);
-            $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
+            if(!empty($accessToken)){
+                $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
+            }
         }
         return $ytdl;
     }
