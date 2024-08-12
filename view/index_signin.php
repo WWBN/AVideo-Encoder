@@ -1,5 +1,5 @@
-<link rel="stylesheet" type="text/css" href="<?php echo $streamerURL; ?>view/css/social.css"/>
-<link rel="stylesheet" type="text/css" href="<?php echo $streamerURL; ?>view/css/DataTables/datatables.min.css"/>
+<link rel="stylesheet" type="text/css" href="<?php echo $streamerURL; ?>view/css/social.css" />
+<link rel="stylesheet" type="text/css" href="<?php echo $streamerURL; ?>view/css/DataTables/datatables.min.css" />
 <script src="<?php echo $streamerURL; ?>view/css/DataTables/datatables.min.js" type="text/javascript"></script>
 <script src="<?php echo $streamerURL; ?>plugin/SocialMediaPublisher/script.js" type="text/javascript"></script>
 
@@ -50,13 +50,30 @@
                 </tfoot>
             </table>
         </div>
+        <div class="panel-footer">
+            <div class="alert alert-warning text-center" role="alert" style="margin-top: 50px;">
+                <h4><strong>YouTube Authentication Required</strong></h4>
+                <p>
+                    Due to recent changes in YouTube's policies, we now require users to authenticate with their YouTube account to download videos.
+                </p>
+                <p>
+                    This means that before you can download videos from YouTube, you will need to authorize our application to access your YouTube account.
+                </p>
+                <p>
+                    <strong>Please note:</strong> We will only use this access to retrieve the video data necessary for downloading. Your privacy and data security are our top priority.
+                </p>
+                <p>
+                    To continue, please click the button above to authorize access to your YouTube account.
+                </p>
+            </div>
+        </div>
     </div>
 
 </div>
 
 
 <div id="Publisher_user_preferencesbtnModelLinks" style="display: none;">
-    <div class="btn-group btn-group-justified"  style="display: flex;">
+    <div class="btn-group btn-group-justified" style="display: flex;">
         <button type="button" class="revalidate_Publisher_user_preferences btn btn-success showIfCanRefreshAccessToken">
             <i class="fa-solid fa-arrows-rotate"></i>
         </button>
@@ -67,7 +84,6 @@
 </div>
 
 <script type="text/javascript">
-    
     var yptURL = '<?php echo Streamer::RESTREAMER_URL; ?>';
 
     function saveYPT(provider, name, parameters) {
@@ -94,8 +110,7 @@
         Publisher_user_preferencestableVar = $('#Publisher_user_preferencesTable').DataTable({
             serverSide: true,
             "ajax": "<?php echo $global['webSiteRootURL']; ?>view/index_signin.json.php",
-            "columns": [
-                {
+            "columns": [{
                     "data": "profile"
                 },
                 {
