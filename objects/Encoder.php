@@ -595,7 +595,7 @@ class Encoder extends ObjectYPT
         $videoURL = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $queue_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
         _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} progressFile={$progressFile} " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
@@ -607,7 +607,7 @@ class Encoder extends ObjectYPT
             $error = $cmd . PHP_EOL . print_r($output, true);
             _error_log($error);
             self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-            $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
+            $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $queue_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
             //echo "\n**Trying Youtube DL **".$cmd;
             _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -616,7 +616,7 @@ class Encoder extends ObjectYPT
                 $error = $cmd . PHP_EOL . print_r($output, true);
                 _error_log($error);
                 self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-                $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
+                $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $queue_id) . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
                 //echo "\n**Trying Youtube DL **".$cmd;
                 _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                 exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -625,7 +625,7 @@ class Encoder extends ObjectYPT
                     $error = $cmd . PHP_EOL . print_r($output, true);
                     _error_log($error);
                     self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-                    $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
+                    $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $queue_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
                     //echo "\n**Trying Youtube DL **".$cmd;
                     _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                     exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -2664,7 +2664,7 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getYouTubeDLCommand($addOauthFromProvider = '', $forceYoutubeDL = false)
+    public static function getYouTubeDLCommand($addOauthFromProvider = '', $streamers_id = 0, $forceYoutubeDL = false)
     {
         global $global;
         $ytdl = "youtube-dl ";
@@ -2676,7 +2676,13 @@ class Encoder extends ObjectYPT
             $ytdl = "/usr/local/bin/youtube-dl ";
         } 
         if(!empty($addOauthFromProvider) || !empty($global['usingOauth'])){
-            $streamers_id = Login::getStreamerId();
+            if(empty($streamers_id)){
+                $streamers_id = Login::getStreamerId();
+            }
+            if(empty($streamers_id)){
+                _error_log('streamers_id not found');
+               return $ytdl;
+            }
             $accessToken = Streamer::getAccessToken($streamers_id, $addOauthFromProvider);
             if(!empty($accessToken)){
                 $global['usingOauth'] = 1;
