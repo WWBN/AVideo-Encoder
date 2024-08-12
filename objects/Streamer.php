@@ -327,7 +327,7 @@ if (!class_exists('Streamer')) {
             $s = new Streamer($streamers_id);
             $jsonString = $s->getJson();
             if (empty($jsonString)) {
-                $response['msg'] = 'There is no token for this';
+                $response['msg'] = "There is no token for this streamers_id = $streamers_id [$provider]";
                 return $response;
             } else {
                 $json = json_decode($jsonString, true);
