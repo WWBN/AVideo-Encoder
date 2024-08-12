@@ -603,10 +603,6 @@ class Encoder extends ObjectYPT
         exec($cmd . "  1> {$progressFile} 2>&1", $output, $return_val);
         _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
         if ($return_val !== 0) {
-            
-            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
-                return self::getDescriptionFromLink($videoURL, $queue_id, $destinationFile, 'youtube');
-            }
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             $error = $cmd . PHP_EOL . print_r($output, true);
             _error_log($error);
@@ -638,6 +634,10 @@ class Encoder extends ObjectYPT
                         $error = $cmd . PHP_EOL . print_r($output, true);
                         _error_log($error);
                         self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
+                        
+                        if(empty($addOauthFromProvider) && preg_match('/youtube/i', $videoURL)){
+                            return self::getDescriptionFromLink($videoURL, $queue_id, $destinationFile, 'youtube');
+                        }
                         return false;
                     }
                 }
