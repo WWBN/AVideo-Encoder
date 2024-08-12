@@ -334,7 +334,7 @@ if (!class_exists('Streamer')) {
             }
             $response['json'] = $json;
             if(empty($json[$provider]['json']["restream.ypt.me"]['access_token'])){
-                $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken']['access_token'];
+                $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'];
             }else{
                 $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['access_token'];
             }
