@@ -336,6 +336,7 @@ if (!class_exists('Streamer')) {
 
             $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['access_token'];
             if (empty($response['accessToken'])) {
+                _error_log(json_encode($json));
                 $response['msg'] = "revalidateToken($streamers_id, $provider) access_token is empty ";
                 return $response;
             }
