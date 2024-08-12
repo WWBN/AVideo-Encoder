@@ -592,6 +592,7 @@ class Encoder extends ObjectYPT
     public static function getYoutubeDl($videoURL, $queue_id, $destinationFile, $addOauthFromProvider = '')
     {
         global $global;
+        $videoURL = str_replace("'", '', $videoURL);
         $videoURL = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
 
