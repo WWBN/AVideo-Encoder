@@ -2675,10 +2675,11 @@ class Encoder extends ObjectYPT
         } elseif (file_exists("/usr/local/bin/youtube-dl")) {
             $ytdl = "/usr/local/bin/youtube-dl ";
         } 
-        if(!empty($addOauthFromProvider)){
+        if(!empty($addOauthFromProvider) || !empty($global['usingOauth'])){
             $streamers_id = Login::getStreamerId();
             $accessToken = Streamer::getAccessToken($streamers_id, $addOauthFromProvider);
             if(!empty($accessToken)){
+                $global['usingOauth'] = 1;
                 $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
             }
         }
