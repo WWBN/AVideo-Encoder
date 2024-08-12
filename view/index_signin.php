@@ -90,7 +90,7 @@
         console.log('saveYPT', provider, name, parameters);
         yptPopupOpened = 0;
         $.ajax({
-            url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.save.json.php',
+            url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.save.json.php?PHPSESSID=<?php echo session_id(); ?>',
             type: "POST",
             data: {
                 provider: provider,
@@ -109,7 +109,7 @@
     $(document).ready(function() {
         Publisher_user_preferencestableVar = $('#Publisher_user_preferencesTable').DataTable({
             serverSide: true,
-            "ajax": "<?php echo $global['webSiteRootURL']; ?>view/index_signin.json.php",
+            "ajax": "<?php echo $global['webSiteRootURL']; ?>view/index_signin.json.php?PHPSESSID=<?php echo session_id(); ?>",
             "columns": [{
                     "data": "profile"
                 },
@@ -157,7 +157,7 @@
                         modal.showPleaseWait();
                         $.ajax({
                             type: "POST",
-                            url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.delete.json.php',
+                            url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.delete.json.php?PHPSESSID=<?php echo session_id(); ?>',
                             data: data
 
                         }).done(function(resposta) {
@@ -184,7 +184,7 @@
             modal.showPleaseWait();
             $.ajax({
                 type: "POST",
-                url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.revalidate.json.php',
+                url: '<?php echo $global['webSiteRootURL']; ?>view/index_signin.revalidate.json.php?PHPSESSID=<?php echo session_id(); ?>',
                 data: data
             }).done(function(resposta) {
                 if (resposta.error) {
