@@ -333,18 +333,19 @@ if (!class_exists('Streamer')) {
                 $json = json_decode($jsonString, true);
             }
 
-            $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'];
 
+            $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['access_token'];
             if (empty($response['accessToken'])) {
                 $response['msg'] = "revalidateToken($streamers_id, $provider) access_token is empty ";
                 return $response;
             }
-
+            /*
             $response['expires_at'] = $json[$provider]['json']["restream.ypt.me"]["expires"]["expires_at"];
             if (time() <= $response['expires_at']) {
                 $response['msg'] = "Not expired yet";
                 return $response;
             }
+            */
 
             $access_token = base64_encode(json_encode($response['accessToken']));
 
@@ -367,11 +368,21 @@ if (!class_exists('Streamer')) {
             if(empty($response['error'] ) && !empty($response['respJson']['new_access_token'])){
                 $json[$provider]['json']["restream.ypt.me"]['accessToken'] = $response['respJson']['new_access_token'];
                 $json[$provider]['json']["restream.ypt.me"]['expires'] = $response['respJson']['expires'];
+
+                $response['accessToken'] = $response['respJson']['new_access_token'];
+                $response['expires'] = $response['respJson']['expires'];
+
                 $s->setJson($json);
                 $response['saved'] = $s->save();
             }
 
             return $response;
+        }
+
+        static function getAccessToken($streamers_id, $provider){
+            $json = self::revalidateToken($streamers_id, $provider);
+            //var_dump($json);exit;
+            return $json['accessToken']["access_token"];
         }
     }
 }

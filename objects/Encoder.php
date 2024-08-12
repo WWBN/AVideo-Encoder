@@ -589,13 +589,13 @@ class Encoder extends ObjectYPT
         return $encoder->save();
     }
 
-    public static function getYoutubeDl($videoURL, $queue_id, $destinationFile)
+    public static function getYoutubeDl($videoURL, $queue_id, $destinationFile, $addOauthFromProvider = '')
     {
         global $global;
         $videoURL = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
         //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
         //echo "\n**Trying Youtube DL **".$cmd;
         $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
         _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} progressFile={$progressFile} " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
@@ -603,11 +603,15 @@ class Encoder extends ObjectYPT
         exec($cmd . "  1> {$progressFile} 2>&1", $output, $return_val);
         _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
         if ($return_val !== 0) {
+            
+            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+                return self::getDescriptionFromLink($videoURL, $queue_id, $destinationFile, 'youtube');
+            }
             //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
             $error = $cmd . PHP_EOL . print_r($output, true);
             _error_log($error);
             self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-            $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
+            $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
             //echo "\n**Trying Youtube DL **".$cmd;
             _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -616,7 +620,7 @@ class Encoder extends ObjectYPT
                 $error = $cmd . PHP_EOL . print_r($output, true);
                 _error_log($error);
                 self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-                $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
+                $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
                 //echo "\n**Trying Youtube DL **".$cmd;
                 _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                 exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -625,7 +629,7 @@ class Encoder extends ObjectYPT
                     $error = $cmd . PHP_EOL . print_r($output, true);
                     _error_log($error);
                     self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-                    $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
+                    $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
                     //echo "\n**Trying Youtube DL **".$cmd;
                     _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                     exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
@@ -2547,7 +2551,16 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getTitleFromLink($link)
+    static function hasSigninError($output){
+        foreach ($output as $value) {
+            if(preg_match('/Sign in to confirm/i', $value)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function getTitleFromLink($link, $addOauthFromProvider = '')
     {
         $prepend = '';
         if (!isWindows()) {
@@ -2555,10 +2568,13 @@ class Encoder extends ObjectYPT
         }
         $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => array());
-        $cmd = $prepend . self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
+        $cmd = $prepend . self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
+            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+                return self::getTitleFromLink($link, 'youtube');
+            }
             $response['output'] = $output;
         } else {
             _error_log("getTitleFromLink: Get Title: $cmd \n" . print_r($output, true));
@@ -2569,12 +2585,15 @@ class Encoder extends ObjectYPT
         return $response;
     }
 
-    public static function getDurationFromLink($link)
+    public static function getDurationFromLink($link, $addOauthFromProvider = '')
     {
         $link = escapeshellarg($link);
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
+            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+                return self::getDurationFromLink($link, 'youtube');
+            }
             return false;
         } else {
             $line = end($output);
@@ -2587,18 +2606,21 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getThumbsFromLink($link, $returnFileName = false)
+    public static function getThumbsFromLink($link, $returnFileName = false, $addOauthFromProvider = '')
     {
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
 
         $tmpfname = _get_temp_file('thumbs');
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         _error_log("getThumbsFromLink: {$cmd}");
 
         if ($return_val !== 0) {
             _error_log("getThumbsFromLink: Error: " . json_encode($output));
+            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+                return self::getThumbsFromLink($link, $returnFileName, 'youtube');
+            }
         }
 
         $returnTmpfname = $tmpfname . ".jpg";
@@ -2619,16 +2641,19 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getDescriptionFromLink($link)
+    public static function getDescriptionFromLink($link, $addOauthFromProvider = '')
     {
         if (empty($link)) {
             return '';
         }
         $link = escapeshellarg($link);
         $tmpfname = _get_temp_file('thumbs');
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
+            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+                return self::getDescriptionFromLink($link, 'youtube');
+            }
             @unlink($tmpfname . ".description");
             return false;
         } else {
@@ -2638,18 +2663,23 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getYouTubeDLCommand($forceYoutubeDL = false)
+    public static function getYouTubeDLCommand($addOauthFromProvider = '', $forceYoutubeDL = false)
     {
         global $global;
+        $ytdl = "youtube-dl ";
         if (!empty($global['youtube-dl'])) {
-            return $global['youtube-dl'] . ' ';
+            $ytdl = $global['youtube-dl'] . ' ';
         } elseif (empty($forceYoutubeDL) && file_exists("/usr/local/bin/yt-dlp")) {
-            return "/usr/local/bin/yt-dlp ";
+            $ytdl = "/usr/local/bin/yt-dlp ";
         } elseif (file_exists("/usr/local/bin/youtube-dl")) {
-            return "/usr/local/bin/youtube-dl ";
-        } else {
-            return "youtube-dl ";
+            $ytdl = "/usr/local/bin/youtube-dl ";
+        } 
+        if(!empty($addOauthFromProvider)){
+            $streamers_id = Login::getStreamerId();
+            $accessToken = Streamer::getAccessToken($streamers_id, $addOauthFromProvider);
+            $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
         }
+        return $ytdl;
     }
 
     public static function setStreamerLog($encoder_queue_id, $msg, $type)
