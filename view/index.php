@@ -391,6 +391,10 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> <?php echo __('Queue Log'); ?></a>
                             </li>
 
+                            <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                <a data-toggle="tab" href="#signin" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> <?php echo __('Sign In'); ?></a>
+                            </li>
+
                             <?php
                             if (Login::isAdmin()) {
                                 if (empty($global['disableConfigurations'])) {
@@ -434,6 +438,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         </tr>
                                     </thead>
                                 </table>
+                            </div>
+                            <div id="signin" class="tab-pane fade">
+                                <?php
+                                include './index_signin.php';
+                                ?>
                             </div>
                             <?php
                             include './index_configurations.php';
@@ -613,8 +622,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                         if (response.download_status[i]) {
                                             setDownloadProgress(id, response.download_status[i].progress, setText);
                                         }
-                                    } catch (error) {
-                                    }
+                                    } catch (error) {}
 
                                 }
 

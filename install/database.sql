@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `streamers` (
   `isAdmin` TINYINT(1) NOT NULL DEFAULT 0,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
+  `json` TEXT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 

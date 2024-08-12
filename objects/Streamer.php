@@ -3,22 +3,26 @@
 if (!class_exists('Streamer')) {
     require_once dirname(__FILE__) . '/Configuration.php';
 
-    class Streamer extends ObjectYPT {
+    class Streamer extends ObjectYPT
+    {
+        const RESTREAMER_URL = 'https://restream.ypt.me/';
+        protected $id, $siteURL, $user, $pass, $priority, $isAdmin, $json, $created, $modified;
 
-        protected $id, $siteURL, $user, $pass, $priority, $isAdmin, $created, $modified;
-
-        static function getSearchFieldsNames() {
+        static function getSearchFieldsNames()
+        {
             return array('siteURL');
         }
 
-        static function getTableName() {
+        static function getTableName()
+        {
             global $global;
             return $global['tablesPrefix'] . 'streamers';
         }
 
-        private static function get($user, $siteURL) {
+        private static function get($user, $siteURL)
+        {
             global $global;
-            if(empty($global)){
+            if (empty($global)) {
                 $global = [];
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
@@ -36,9 +40,10 @@ if (!class_exists('Streamer')) {
             return false;
         }
 
-        private static function getFirst() {
+        private static function getFirst()
+        {
             global $global;
-            if(empty($global)){
+            if (empty($global)) {
                 $global = [];
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " LIMIT 1";
@@ -56,7 +61,8 @@ if (!class_exists('Streamer')) {
             return false;
         }
 
-        static function getFirstURL() {
+        static function getFirstURL()
+        {
             global $global;
             if (!empty($global['forceStreamerURL'])) {
                 return $global['forceStreamerURL'];
@@ -65,16 +71,17 @@ if (!class_exists('Streamer')) {
             return $row['siteURL'];
         }
 
-        static function getStreamerURL() {
+        static function getStreamerURL()
+        {
             global $global;
             if (!empty($global['forceStreamerSiteURL'])) {
                 return $global['forceStreamerSiteURL'];
             }
             $streamerURL = @$_REQUEST['webSiteRootURL'];
             if (empty($streamerURL)) {
-                if(!empty($_SESSION['login']) && !empty($_SESSION['login']->streamer)){
+                if (!empty($_SESSION['login']) && !empty($_SESSION['login']->streamer)) {
                     $streamerURL = $_SESSION['login']->streamer;
-                }else{
+                } else {
                     $streamerURL = Streamer::getFirstURL();
                 }
             }
@@ -82,7 +89,8 @@ if (!class_exists('Streamer')) {
             return $streamerURL;
         }
 
-        static function createIfNotExists($user, $pass, $siteURL, $encodedPass = false) {
+        static function createIfNotExists($user, $pass, $siteURL, $encodedPass = false)
+        {
             error_log("createIfNotExists:: $user");
             if (substr($siteURL, -1) !== '/') {
                 $siteURL .= "/";
@@ -110,14 +118,16 @@ if (!class_exists('Streamer')) {
             }
         }
 
-        public function save() {
+        public function save()
+        {
             if (!isset($this->priority)) {
                 $this->priority = 6;
             }
             return parent::save();
         }
 
-        function verify() {
+        function verify()
+        {
             $timeout = 5;
             ini_set('default_socket_timeout', $timeout);
             $url = $this->getSiteURL();
@@ -157,7 +167,8 @@ if (!class_exists('Streamer')) {
             return $json;
         }
 
-        static function isURLAllowed($siteURL) {
+        static function isURLAllowed($siteURL)
+        {
             if (substr($siteURL, -1) !== '/') {
                 $siteURL .= "/";
             }
@@ -202,11 +213,13 @@ if (!class_exists('Streamer')) {
             return $return;
         }
 
-        function getId() {
+        function getId()
+        {
             return $this->id;
         }
 
-        function getSiteURL() {
+        function getSiteURL()
+        {
             global $global;
             if (!empty($global['forceStreamerSiteURL'])) {
                 return trim($global['forceStreamerSiteURL']);
@@ -214,38 +227,46 @@ if (!class_exists('Streamer')) {
             return trim($this->siteURL);
         }
 
-        function getUser() {
+        function getUser()
+        {
             return $this->user;
         }
 
-        function getPass() {
+        function getPass()
+        {
             return $this->pass;
         }
 
-        function getCreated() {
+        function getCreated()
+        {
             return $this->created;
         }
 
-        function getModified() {
+        function getModified()
+        {
             return $this->modified;
         }
 
-        function setId($id) {
+        function setId($id)
+        {
             $this->id = $id;
         }
 
-        function setSiteURL($siteURL) {
+        function setSiteURL($siteURL)
+        {
             if (!empty($siteURL) && substr($siteURL, -1) !== '/') {
                 $siteURL .= "/";
             }
             $this->siteURL = $siteURL;
         }
 
-        function setUser($user) {
+        function setUser($user)
+        {
             $this->user = $user;
         }
 
-        function setPass($pass) {
+        function setPass($pass)
+        {
             $config = new Configuration();
             if (version_compare($config->getVersion(), '4.0') < 0) {
                 $pass = substr($pass, 0, 45);
@@ -253,28 +274,104 @@ if (!class_exists('Streamer')) {
             $this->pass = $pass;
         }
 
-        function setCreated($created) {
+        function setCreated($created)
+        {
             $this->created = $created;
         }
 
-        function setModified($modified) {
+        function setModified($modified)
+        {
             $this->modified = $modified;
         }
 
-        function getPriority() {
+        function getPriority()
+        {
             return $this->priority;
         }
 
-        function setPriority($priority) {
+        function setPriority($priority)
+        {
             $this->priority = $priority;
         }
 
-        function getIsAdmin() {
+        function getIsAdmin()
+        {
             return $this->isAdmin;
         }
 
-        function setIsAdmin($isAdmin) {
+        function setIsAdmin($isAdmin)
+        {
             $this->isAdmin = $isAdmin;
+        }
+
+        function getJson()
+        {
+            return $this->json;
+        }
+
+        function setJson($json)
+        {
+            if (!is_string($json)) {
+                $json = json_encode($json);
+            }
+            $this->json = $json;
+        }
+
+        static function revalidateToken($streamers_id, $provider)
+        {
+            $response = array(
+                'error' => true,
+                'msg' => '',
+                'provider' =>  $provider,
+            );
+            $s = new Streamer($streamers_id);
+            $jsonString = $s->getJson();
+            if (empty($jsonString)) {
+                $response['msg'] = 'There is no token for this';
+                return $response;
+            } else {
+                $json = json_decode($jsonString, true);
+            }
+
+            $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'];
+
+            if (empty($response['accessToken'])) {
+                $response['msg'] = "revalidateToken($streamers_id, $provider) access_token is empty ";
+                return $response;
+            }
+
+            $response['expires_at'] = $json[$provider]['json']["restream.ypt.me"]["expires"]["expires_at"];
+            if (time() <= $response['expires_at']) {
+                $response['msg'] = "Not expired yet";
+                return $response;
+            }
+
+            $access_token = base64_encode(json_encode($response['accessToken']));
+
+            $url = Streamer::RESTREAMER_URL . 'refresh.json.php';
+            $url = addQueryStringParameter($url, 'access_token', $access_token);
+            $response['url'] = addQueryStringParameter($url, 'provider', $response['provider']);
+            //var_dump($pub['publisher_social_medias_id'], $response['error']provider, $url);exit;
+
+            $response['resp'] = url_get_contents($response['url']);
+            if (empty($response['resp'])) {
+                $response['msg'] = "revalidateToken($streamers_id, $provider) response is empty";
+                return $response;
+            }
+
+            $response['respJson'] = json_decode($response['resp'], true);
+
+            $response['error'] = empty($response['respJson']) || $response['respJson']['error'];
+            $response['msg'] = empty($response['respJson']) ? 'Empty response' : $response['respJson']['msg'];
+            $response['saved'] = false;
+            if(empty($response['error'] ) && !empty($response['respJson']['new_access_token'])){
+                $json[$provider]['json']["restream.ypt.me"]['accessToken'] = $response['respJson']['new_access_token'];
+                $json[$provider]['json']["restream.ypt.me"]['expires'] = $response['respJson']['expires'];
+                $s->setJson($json);
+                $response['saved'] = $s->save();
+            }
+
+            return $response;
         }
     }
 }

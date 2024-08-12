@@ -1508,3 +1508,118 @@ function addVideo($link, $streamers_id, $title = "") {
     $obj->queue_id = $encoders_ids[0];
     return $obj;
 }
+
+
+/**
+ * Remove a query string parameter from an URL.
+ *
+ * @param string $url
+ * @param string $varname
+ *
+ * @return string
+ */
+function removeQueryStringParameter($url, $varname)
+{
+    $parsedUrl = parse_url($url);
+    if (empty($parsedUrl) || empty($parsedUrl['host'])) {
+        return $url;
+    }
+    $query = [];
+
+    if (isset($parsedUrl['query'])) {
+        parse_str($parsedUrl['query'], $query);
+        unset($query[$varname]);
+    }
+
+    $path = $parsedUrl['path'] ?? '';
+    $query = !empty($query) ? '?' . http_build_query($query) : '';
+
+    if (empty($parsedUrl['scheme'])) {
+        $scheme = '';
+    } else {
+        $scheme = "{$parsedUrl['scheme']}:";
+    }
+    $port = '';
+    if (!empty($parsedUrl['port']) && $parsedUrl['port'] != '80' && $parsedUrl['port'] != '443') {
+        $port = ":{$parsedUrl['port']}";
+    }
+    $query = fixURLQuery($query);
+    return $scheme . '//' . $parsedUrl['host']. $port . $path . $query;
+}
+
+function isParamInUrl($url, $paramName) {
+    // Parse the URL and return its components
+    $urlComponents = parse_url($url);
+
+    // Check if the query part of the URL is set
+    if (!isset($urlComponents['query'])) {
+        return false;
+    }
+
+    // Parse the query string into an associative array
+    parse_str($urlComponents['query'], $queryParams);
+
+    // Check if the parameter is present in the query array
+    return array_key_exists($paramName, $queryParams);
+}
+
+/**
+ * Add a query string parameter from an URL.
+ *
+ * @param string $url
+ * @param string $varname
+ *
+ * @return string
+ */
+function addQueryStringParameter($url, $varname, $value)
+{
+    if ($value === null || $value === '') {
+        return removeQueryStringParameter($url, $varname);
+    }
+
+    $parsedUrl = parse_url($url);
+    if (empty($parsedUrl['host'])) {
+        return "";
+    }
+    $query = [];
+
+    if (isset($parsedUrl['query'])) {
+        parse_str($parsedUrl['query'], $query);
+    }
+    $query[$varname] = $value;
+    
+    // Ensure 'current' is the last parameter
+    $currentValue = null;
+    if (isset($query['current'])) {
+        $currentValue = $query['current'];
+        unset($query['current']);
+    }
+
+    $path = $parsedUrl['path'] ?? '';
+    $queryString = http_build_query($query);
+
+    // Append 'current' at the end, if it exists
+    if ($currentValue !== null) {
+        $queryString = (!empty($queryString) ? $queryString . '&' : '') . 'current=' . intval($currentValue);
+    }
+    $query = !empty($queryString) ? '?' . $queryString : '';
+
+    $port = '';
+    if (!empty($parsedUrl['port']) && $parsedUrl['port'] != '80' && $parsedUrl['port'] != '443') {
+        $port = ":{$parsedUrl['port']}";
+    }
+
+    if (empty($parsedUrl['scheme'])) {
+        $scheme = '';
+    } else {
+        $scheme = "{$parsedUrl['scheme']}:";
+    }
+
+    $query = fixURLQuery($query);
+
+    return $scheme . '//' . $parsedUrl['host'] . $port . $path . $query;
+}
+
+function fixURLQuery($query){
+    return str_replace(array('%5B', '%5D'), array('[', ']'), $query);
+}

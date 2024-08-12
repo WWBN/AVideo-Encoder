@@ -153,8 +153,8 @@ if (!class_exists('Login')) {
         static function logoff() {
             error_log("logoff:: done session_id = " . session_id());
             unset($_SESSION['login']);
-            setcookie('encoder_user', null, -1, "/");
-            setcookie('encoder_pass', null, -1, "/");
+            setcookie('encoder_user', '', -1, "/");
+            setcookie('encoder_pass', '', -1, "/");
             unset($_COOKIE['encoder_user']);
             unset($_COOKIE['encoder_pass']);
         }
