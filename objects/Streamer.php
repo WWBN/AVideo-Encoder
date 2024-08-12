@@ -387,6 +387,10 @@ if (!class_exists('Streamer')) {
         static function getAccessToken($streamers_id, $provider){
             $json = self::revalidateToken($streamers_id, $provider);
             //var_dump($json);exit;
+            if(empty($json['accessToken']["access_token"])){
+                _error_log(json_encode($json));
+                return false;
+            }
             return $json['accessToken']["access_token"];
         }
     }
