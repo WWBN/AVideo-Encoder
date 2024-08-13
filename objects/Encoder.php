@@ -2703,6 +2703,7 @@ class Encoder extends ObjectYPT
             }
         }
 
+        _error_log("getThumbsFromLink: found file : {$returnFileName}");
         if ($returnFileName) {
             return $returnTmpfname;
         } else {
