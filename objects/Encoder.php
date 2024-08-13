@@ -75,11 +75,67 @@ class Encoder extends ObjectYPT
         }
         $string = strtolower($string);
         $array = array(
-            'xvideos', 'porn', 'xhamster', 'xnxx', 'draftsex', 'beeg', 'spankbang', 'xmovies', 'youjizz', 'motherless', 'redtube', '4tube', '3movs',
-            'tube8', 'cumloud', 'xxx', 'bellesa', 'tnaflix', 'whores', 'paradisehill', 'xfreehd', 'drtuber', 'netfapx', 'jerk', 'xmegadrive', 'brazzers', 'hitprn',
-            'czechvideo', 'reddit', 'plusone8', 'xleech', 'povaddict', 'freeomovie', 'cliphunter', 'xtape', 'xkeez', 'sextvx', 'pandamovie', 'palimas', 'pussy',
-            'siska', 'megatube', 'fakings', 'analdin', 'xozilla', 'empflix', 'swallows', 'erotic', 'vidoz8', 'perver', 'swinger', 'secretstash',
-            'fapme', 'pervs', 'tubeorigin', 'americass', 'sextu', 'sexu', 'dfinebabe', 'palmtube', 'dvdtrailerTube'
+            'xvideos',
+            'porn',
+            'xhamster',
+            'xnxx',
+            'draftsex',
+            'beeg',
+            'spankbang',
+            'xmovies',
+            'youjizz',
+            'motherless',
+            'redtube',
+            '4tube',
+            '3movs',
+            'tube8',
+            'cumloud',
+            'xxx',
+            'bellesa',
+            'tnaflix',
+            'whores',
+            'paradisehill',
+            'xfreehd',
+            'drtuber',
+            'netfapx',
+            'jerk',
+            'xmegadrive',
+            'brazzers',
+            'hitprn',
+            'czechvideo',
+            'reddit',
+            'plusone8',
+            'xleech',
+            'povaddict',
+            'freeomovie',
+            'cliphunter',
+            'xtape',
+            'xkeez',
+            'sextvx',
+            'pandamovie',
+            'palimas',
+            'pussy',
+            'siska',
+            'megatube',
+            'fakings',
+            'analdin',
+            'xozilla',
+            'empflix',
+            'swallows',
+            'erotic',
+            'vidoz8',
+            'perver',
+            'swinger',
+            'secretstash',
+            'fapme',
+            'pervs',
+            'tubeorigin',
+            'americass',
+            'sextu',
+            'sexu',
+            'dfinebabe',
+            'palmtube',
+            'dvdtrailerTube'
         );
         foreach ($array as $value) {
             if (stripos($string, $value) !== false) {
@@ -639,9 +695,9 @@ class Encoder extends ObjectYPT
                         $error = $cmd . PHP_EOL . print_r($output, true);
                         _error_log($error);
                         self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
-                        
-                        if(empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)){
-                            return self::getYoutubeDl($videoURL, $queue_id, $destinationFile,'youtube');
+
+                        if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
+                            return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
                         }
                         return false;
                     }
@@ -768,10 +824,10 @@ class Encoder extends ObjectYPT
             . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE
             status IN ('{$statusIn}')";
 
-        if(!empty($streamers_id)){
+        if (!empty($streamers_id)) {
             $sql .= " AND streamers_id = {$streamers_id} ";
         }
-            
+
         $sql .= " ORDER BY 
             CASE WHEN priority IS NULL THEN 1 ELSE 0 END ASC, 
             priority ASC, 
@@ -977,13 +1033,9 @@ class Encoder extends ObjectYPT
                     );
                     if (false) {
 
-                        function pnctl_strerror()
-                        {
-                        }
+                        function pnctl_strerror() {}
 
-                        function pnctl_get_last_error()
-                        {
-                        }
+                        function pnctl_get_last_error() {}
                     }
                     pcntl_exec("/bin/sh", $argv, $envp);
                     _error_log("id=(" . $this->getId() . "), " . $cmd . " failed: " . pnctl_strerror(pnctl_get_last_error()));
@@ -1486,7 +1538,7 @@ class Encoder extends ObjectYPT
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
         $obj->streamers_id = 0;
-        if(!empty($encoder)){
+        if (!empty($encoder)) {
             $obj->streamers_id = $encoder->getStreamers_id();
         }
 
@@ -1739,7 +1791,7 @@ class Encoder extends ObjectYPT
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
         $obj->streamers_id = 0;
-        if(!empty($encoder)){
+        if (!empty($encoder)) {
             $obj->streamers_id = $encoder->getStreamers_id();
         }
 
@@ -1823,7 +1875,7 @@ class Encoder extends ObjectYPT
         $obj->error = true;
         $obj->file = $file;
         $obj->streamers_id = 0;
-        if(!empty($encoder)){
+        if (!empty($encoder)) {
             $obj->streamers_id = $encoder->getStreamers_id();
         }
         //_error_log("sendImages: Sending image to [$return_vars->videos_id]");
@@ -2560,7 +2612,7 @@ class Encoder extends ObjectYPT
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("Get ReverseVideosJsonListFromLink List Error: $cmd \n" . print_r($output, true));
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)){
+            if (empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                 return self::getReverseVideosJsonListFromLink($link, $streamers_id, 'youtube');
             }
             return false;
@@ -2586,7 +2638,7 @@ class Encoder extends ObjectYPT
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)){
+            if (empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                 return self::getTitleFromLink($link, $streamers_id, 'youtube');
             }
             $response['output'] = $output;
@@ -2605,8 +2657,8 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
-                return self::getDurationFromLink($link,$streamers_id,  'youtube');
+            if (empty($addOauthFromProvider) && isYouTubeUrl($link)) {
+                return self::getDurationFromLink($link, $streamers_id,  'youtube');
             }
             return false;
         } else {
@@ -2620,29 +2672,34 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getThumbsFromLink($link, $streamers_id ,$returnFileName = false, $addOauthFromProvider = '')
+    public static function getThumbsFromLink($link, $streamers_id, $returnFileName = false, $addOauthFromProvider = '')
     {
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
 
         $tmpfname = _get_temp_file('thumbs');
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
-        exec($cmd . "  2>&1", $output, $return_val);
+
+        // Modify the command to try fetching the highest resolution thumbnail
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) .
+            " --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download " .
+            "-o \"{$tmpfname}.%(ext)s\" --convert-thumbnails jpg {$link}";
+
+        exec($cmd . " 2>&1", $output, $return_val);
         _error_log("getThumbsFromLink: {$cmd}");
 
         if ($return_val !== 0) {
             _error_log("getThumbsFromLink: Error: " . json_encode($output));
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
+            if (empty($addOauthFromProvider) && isYouTubeUrl($link)) {
                 return self::getThumbsFromLink($link, $streamers_id, $returnFileName, 'youtube');
             }
         }
 
         $returnTmpfname = $tmpfname . ".jpg";
         if (!@filesize($returnTmpfname)) {
-            if (@filesize($returnTmpfname . '.webp')) {
-                $returnTmpfname = $returnTmpfname . '.webp';
-            } elseif (@filesize($returnTmpfname . '.jpg')) {
-                $returnTmpfname = $returnTmpfname . '.jpg';
+            if (@filesize($tmpfname . '.webp')) {
+                $returnTmpfname = $tmpfname . '.webp';
+            } elseif (@filesize($tmpfname . '.jpg')) {
+                $returnTmpfname = $tmpfname . '.jpg';
             }
         }
 
@@ -2655,7 +2712,8 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getDescriptionFromLink($link, $streamers_id ,$addOauthFromProvider = '')
+
+    public static function getDescriptionFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
         if (empty($link)) {
             return '';
@@ -2665,7 +2723,7 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
+            if (empty($addOauthFromProvider) && isYouTubeUrl($link)) {
                 return self::getDescriptionFromLink($link, $streamers_id, 'youtube');
             }
             @unlink($tmpfname . ".description");
@@ -2679,20 +2737,20 @@ class Encoder extends ObjectYPT
 
     public static function streamerHasOauth($OauthFromProvider, $streamers_id = 0)
     {
-        if(empty($streamers_id)){
+        if (empty($streamers_id)) {
             $streamers_id = Login::getStreamerId();
         }
-        if(!empty($streamers_id)){
+        if (!empty($streamers_id)) {
             $accessToken = Streamer::getAccessToken($streamers_id, $OauthFromProvider);
-            if(!empty($accessToken)){
+            if (!empty($accessToken)) {
                 return $accessToken;
-            }else{
+            } else {
                 _error_log('accessToken not found');
-               return false;
+                return false;
             }
-        }else{
+        } else {
             _error_log('streamers_id not found');
-           return false;
+            return false;
         }
     }
 
@@ -2706,12 +2764,12 @@ class Encoder extends ObjectYPT
             $ytdl = "/usr/local/bin/yt-dlp ";
         } elseif (file_exists("/usr/local/bin/youtube-dl")) {
             $ytdl = "/usr/local/bin/youtube-dl ";
-        } 
-        if(!empty($addOauthFromProvider) || !empty($global['usingOauth'])){
+        }
+        if (!empty($addOauthFromProvider) || !empty($global['usingOauth'])) {
             $accessToken = self::streamerHasOauth($addOauthFromProvider, $streamers_id);
-            if(empty($accessToken)){
+            if (empty($accessToken)) {
                 return $ytdl;
-            }else{
+            } else {
                 $global['usingOauth'] = 1;
                 $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
             }
