@@ -40,7 +40,7 @@ testTime(__LINE__);
 if (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
-    die(Encoder::getThumbsFromLink($url));
+    die(Encoder::getThumbsFromLink($url, Login::getStreamerId()));
 } elseif ($_GET['format'] === 'png') {
     header('Content-Type: image/x-png');
     $destination .= ".".$_GET['format'];

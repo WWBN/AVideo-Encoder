@@ -68,7 +68,7 @@ if ($type === 'audio') {
 } elseif (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
-    die(Encoder::getThumbsFromLink($url));
+    die(Encoder::getThumbsFromLink($url, Login::getStreamerId()));
 } else {
     
     testTime(__LINE__);

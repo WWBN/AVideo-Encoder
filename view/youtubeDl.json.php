@@ -37,7 +37,7 @@ if (!Login::canUpload()) {
                 $end = intval($_REQUEST['endIndex']);
             }
             error_log("Processing Channel {$start} to {$end}");
-            $list = Encoder::getReverseVideosJsonListFromLink($_REQUEST['videoURL']);
+            $list = Encoder::getReverseVideosJsonListFromLink($_REQUEST['videoURL'], Login::getStreamerId());
             $i = $start;
             for (; $i <= $end; $i++) {
                 if (is_object($list[$i]) && empty($list[$i]->id)) {

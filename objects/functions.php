@@ -1431,7 +1431,7 @@ function addVideo($link, $streamers_id, $title = "") {
 
     $msg = '';
     if (empty($title)) {
-        $_title = Encoder::getTitleFromLink($link);
+        $_title = Encoder::getTitleFromLink($link, $streamers_id);
         $msg = $_title['output'];
         $title = $_title['output'];
         if ($_title['error']) {

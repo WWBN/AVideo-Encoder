@@ -19,7 +19,9 @@ $obj->imageGIFLink = "{$global['webSiteRootURL']}getImage/". $_GET['base64Url'].
 //$data = file_get_contents($obj->imageGIFLink);
 //$obj->imageGIF = 'data:image/gif;base64,' . base64_encode($data);
 
-$title = Encoder::getTitleFromLink($link);
+$obj->streamers_id =Login::getStreamerId();
+
+$title = Encoder::getTitleFromLink($link, $obj->streamers_id);
 
 $obj->msg = $title['output'];
 $obj->title = $title['output'];
@@ -27,10 +29,10 @@ if ($title['error']){
     $obj->title = false;
 }
 
-$obj->duration = Encoder::getDurationFromLink($link);
-$obj->description = Encoder::getDescriptionFromLink($link);
+$obj->duration = Encoder::getDurationFromLink($link, $obj->streamers_id);
+$obj->description = Encoder::getDescriptionFromLink($link, $obj->streamers_id);
 
-$obj->thumbs64 = base64_encode(Encoder::getThumbsFromLink($link));
+$obj->thumbs64 = base64_encode(Encoder::getThumbsFromLink($link, $obj->streamers_id));
 
 $resp = json_encode($obj);
 echo $resp;

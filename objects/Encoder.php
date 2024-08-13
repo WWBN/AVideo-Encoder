@@ -640,7 +640,7 @@ class Encoder extends ObjectYPT
                         _error_log($error);
                         self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
                         
-                        if(empty($addOauthFromProvider) && isYouTubeUrl($videoURL)){
+                        if(empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)){
                             return self::getYoutubeDl($videoURL, $queue_id, $destinationFile,'youtube');
                         }
                         return false;
@@ -1470,7 +1470,7 @@ class Encoder extends ObjectYPT
         return $return;
     }
 
-    public static function sendFile($file, $return_vars, $format, $encoder = null, $resolution = "", $chunkFile = "")
+    public static function sendFile($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $chunkFile = "")
     {
         global $global;
         global $sentImage;
@@ -1485,6 +1485,11 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $obj->streamers_id = 0;
+        if(!empty($encoder)){
+            $obj->streamers_id = $encoder->getStreamers_id();
+        }
+
         $videos_id = 0;
         if (is_object($return_vars) && !empty($return_vars->videos_id)) {
             $videos_id = $return_vars->videos_id;
@@ -1529,7 +1534,7 @@ class Encoder extends ObjectYPT
         } elseif (!empty($_REQUEST['title'])) {
             $title = $_REQUEST['title'];
         } elseif (empty($title) && !empty($obj->videoDownloadedLink)) {
-            $_title = Encoder::getTitleFromLink($obj->videoDownloadedLink);
+            $_title = Encoder::getTitleFromLink($obj->videoDownloadedLink, $obj->streamers_id);
             $title = $_title['output'];
             if ($_title['error']) {
                 $title = '';
@@ -1537,7 +1542,7 @@ class Encoder extends ObjectYPT
         }
         if (empty($_POST['description'])) {
             if (!empty($obj->videoDownloadedLink)) {
-                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
+                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink, $obj->streamers_id);
             } else {
                 $description = "";
             }
@@ -1722,7 +1727,7 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function sendFileToDownload($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0)
+    public static function sendFileToDownload($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $try = 0)
     {
         global $global;
         global $sentImage;
@@ -1733,6 +1738,11 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
         $obj->resolution = $resolution;
         $obj->videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $obj->streamers_id = 0;
+        if(!empty($encoder)){
+            $obj->streamers_id = $encoder->getStreamers_id();
+        }
+
         //_error_log("Encoder::sendFileToDownload videos_id=$videos_id, format=$format");
         if (empty($duration)) {
             $duration = static::getDurationFromFile($file);
@@ -1744,7 +1754,7 @@ class Encoder extends ObjectYPT
         }
         if (empty($_POST['description'])) {
             if (!empty($obj->videoDownloadedLink)) {
-                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink);
+                $description = $encoder->getDescriptionFromLink($obj->videoDownloadedLink, $obj->streamers_id);
             } else {
                 $description = "";
             }
@@ -1805,13 +1815,17 @@ class Encoder extends ObjectYPT
         return $obj;
     }
 
-    public static function sendImages($file, $return_vars, $encoder)
+    public static function sendImages($file, $return_vars, Encoder $encoder)
     {
         global $global;
 
         $obj = new stdClass();
         $obj->error = true;
         $obj->file = $file;
+        $obj->streamers_id = 0;
+        if(!empty($encoder)){
+            $obj->streamers_id = $encoder->getStreamers_id();
+        }
         //_error_log("sendImages: Sending image to [$return_vars->videos_id]");
         $duration = static::getDurationFromFile($file);
 
@@ -1825,7 +1839,7 @@ class Encoder extends ObjectYPT
         // check if you can get the image from youtube
         $downloadLink = $encoder->getVideoDownloadedLink();
         if (!empty($downloadLink)) {
-            $destinationFile = self::getThumbsFromLink($downloadLink, true);
+            $destinationFile = self::getThumbsFromLink($downloadLink, $obj->streamers_id, true);
             if (!empty($destinationFile) && file_exists($destinationFile)) {
                 $postFields['image'] = new CURLFile($destinationFile);
             }
@@ -2538,14 +2552,17 @@ class Encoder extends ObjectYPT
      * @param string $link channel link
      * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
      */
-    public static function getReverseVideosJsonListFromLink($link)
+    public static function getReverseVideosJsonListFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
         $link = escapeshellarg($link);
-        $cmd = self::getYouTubeDLCommand() . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --skip-download  --playlist-reverse --flat-playlist -j  {$link}";
         _error_log("Get ReverseVideosJsonListFromLink List $cmd \n");
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("Get ReverseVideosJsonListFromLink List Error: $cmd \n" . print_r($output, true));
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)){
+                return self::getReverseVideosJsonListFromLink($link, $streamers_id, 'youtube');
+            }
             return false;
         } else {
             $list = [];
@@ -2555,8 +2572,8 @@ class Encoder extends ObjectYPT
             return $list;
         }
     }
-    
-    public static function getTitleFromLink($link, $addOauthFromProvider = '')
+
+    public static function getTitleFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
         $prepend = '';
         if (!isWindows()) {
@@ -2565,12 +2582,12 @@ class Encoder extends ObjectYPT
         $link = str_replace("'", '', $link);
         $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => array());
-        $cmd = $prepend . self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
+        $cmd = $prepend . self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
-            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
-                return self::getTitleFromLink($link, 'youtube');
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)){
+                return self::getTitleFromLink($link, $streamers_id, 'youtube');
             }
             $response['output'] = $output;
         } else {
@@ -2582,14 +2599,14 @@ class Encoder extends ObjectYPT
         return $response;
     }
 
-    public static function getDurationFromLink($link, $addOauthFromProvider = '')
+    public static function getDurationFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
         $link = escapeshellarg($link);
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
-                return self::getDurationFromLink($link, 'youtube');
+                return self::getDurationFromLink($link,$streamers_id,  'youtube');
             }
             return false;
         } else {
@@ -2603,20 +2620,20 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getThumbsFromLink($link, $returnFileName = false, $addOauthFromProvider = '')
+    public static function getThumbsFromLink($link, $streamers_id ,$returnFileName = false, $addOauthFromProvider = '')
     {
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
 
         $tmpfname = _get_temp_file('thumbs');
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --write-thumbnail --skip-download  -o \"{$tmpfname}.jpg\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         _error_log("getThumbsFromLink: {$cmd}");
 
         if ($return_val !== 0) {
             _error_log("getThumbsFromLink: Error: " . json_encode($output));
             if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
-                return self::getThumbsFromLink($link, $returnFileName, 'youtube');
+                return self::getThumbsFromLink($link, $streamers_id, $returnFileName, 'youtube');
             }
         }
 
@@ -2638,18 +2655,18 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public static function getDescriptionFromLink($link, $addOauthFromProvider = '')
+    public static function getDescriptionFromLink($link, $streamers_id ,$addOauthFromProvider = '')
     {
         if (empty($link)) {
             return '';
         }
         $link = escapeshellarg($link);
         $tmpfname = _get_temp_file('thumbs');
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
+        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
-                return self::getDescriptionFromLink($link, 'youtube');
+                return self::getDescriptionFromLink($link, $streamers_id, 'youtube');
             }
             @unlink($tmpfname . ".description");
             return false;
@@ -2657,6 +2674,25 @@ class Encoder extends ObjectYPT
             $content = url_get_contents($tmpfname . ".description");
             @unlink($tmpfname . ".description");
             return $content;
+        }
+    }
+
+    public static function streamerHasOauth($OauthFromProvider, $streamers_id = 0)
+    {
+        if(empty($streamers_id)){
+            $streamers_id = Login::getStreamerId();
+        }
+        if(!empty($streamers_id)){
+            $accessToken = Streamer::getAccessToken($streamers_id, $OauthFromProvider);
+            if(!empty($accessToken)){
+                return $accessToken;
+            }else{
+                _error_log('accessToken not found');
+               return false;
+            }
+        }else{
+            _error_log('streamers_id not found');
+           return false;
         }
     }
 
@@ -2672,15 +2708,10 @@ class Encoder extends ObjectYPT
             $ytdl = "/usr/local/bin/youtube-dl ";
         } 
         if(!empty($addOauthFromProvider) || !empty($global['usingOauth'])){
-            if(empty($streamers_id)){
-                $streamers_id = Login::getStreamerId();
-            }
-            if(empty($streamers_id)){
-                _error_log('streamers_id not found');
-               return $ytdl;
-            }
-            $accessToken = Streamer::getAccessToken($streamers_id, $addOauthFromProvider);
-            if(!empty($accessToken)){
+            $accessToken = self::streamerHasOauth($addOauthFromProvider, $streamers_id);
+            if(empty($accessToken)){
+                return $ytdl;
+            }else{
                 $global['usingOauth'] = 1;
                 $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
             }
