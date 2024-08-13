@@ -640,7 +640,7 @@ class Encoder extends ObjectYPT
                         _error_log($error);
                         self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
                         
-                        if(empty($addOauthFromProvider) && preg_match('/youtube/i', $videoURL)){
+                        if(empty($addOauthFromProvider) && isYouTubeUrl($videoURL)){
                             return self::getYoutubeDl($videoURL, $queue_id, $destinationFile,'youtube');
                         }
                         return false;
@@ -2555,16 +2555,7 @@ class Encoder extends ObjectYPT
             return $list;
         }
     }
-
-    static function hasSigninError($output){
-        foreach ($output as $value) {
-            if(preg_match('/Sign in to confirm/i', $value)){
-                return true;
-            }
-        }
-        return false;
-    }
-
+    
     public static function getTitleFromLink($link, $addOauthFromProvider = '')
     {
         $prepend = '';
@@ -2578,7 +2569,7 @@ class Encoder extends ObjectYPT
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
             _error_log("getTitleFromLink: Get Title Error: $cmd \n" . print_r($output, true));
-            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
                 return self::getTitleFromLink($link, 'youtube');
             }
             $response['output'] = $output;
@@ -2597,7 +2588,7 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
                 return self::getDurationFromLink($link, 'youtube');
             }
             return false;
@@ -2624,7 +2615,7 @@ class Encoder extends ObjectYPT
 
         if ($return_val !== 0) {
             _error_log("getThumbsFromLink: Error: " . json_encode($output));
-            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
                 return self::getThumbsFromLink($link, $returnFileName, 'youtube');
             }
         }
@@ -2657,7 +2648,7 @@ class Encoder extends ObjectYPT
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
-            if(empty($addOauthFromProvider) && self::hasSigninError($output)){
+            if(empty($addOauthFromProvider) && isYouTubeUrl($link)){
                 return self::getDescriptionFromLink($link, 'youtube');
             }
             @unlink($tmpfname . ".description");

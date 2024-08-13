@@ -1623,3 +1623,27 @@ function addQueryStringParameter($url, $varname, $value)
 function fixURLQuery($query){
     return str_replace(array('%5B', '%5D'), array('[', ']'), $query);
 }
+
+function isYouTubeUrl($url) {
+    // List of possible YouTube domains
+    $youtubeDomains = [
+        'youtube.com',
+        'www.youtube.com',
+        'm.youtube.com',
+        'music.youtube.com',
+        'gaming.youtube.com',
+        'kids.youtube.com',
+        'youtube-nocookie.com',
+        'youtu.be'
+    ];
+
+    // Parse the URL to extract the host
+    $parsedUrl = parse_url($url, PHP_URL_HOST);
+
+    // Check if the host is in the list of YouTube domains
+    if ($parsedUrl !== false && in_array($parsedUrl, $youtubeDomains)) {
+        return true;
+    }
+
+    return false;
+}
