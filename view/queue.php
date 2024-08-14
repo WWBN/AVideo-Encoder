@@ -84,7 +84,7 @@ if (empty($e->getId())) {
     $id = $e->save();
     error_log("queue: save done [$id]");
 } else {
-    $e->setStatus(Encoder::$STATUS_QUEUE);
+    $e->setStatus(Encoder::STATUS_QUEUE);
     $id = $e->save();
     
     $obj = Encoder::getVideosId($id);

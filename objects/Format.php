@@ -708,7 +708,7 @@ if (!class_exists('Format')) {
         private static function posProcessHLS($destinationFile, $encoder_queue_id) {
             // zip the directory
             $encoder = new Encoder($encoder_queue_id);
-            $encoder->setStatus(Encoder::$STATUS_PACKING);
+            $encoder->setStatus(Encoder::STATUS_PACKING);
             $encoder->save();
             _error_log("posProcessHLS: ZIP start {$destinationFile}");
             $zipPath = zipDirectory($destinationFile);
@@ -721,7 +721,7 @@ if (!class_exists('Format')) {
         private static function fixFile($pathFileName, $encoder_queue_id) {
             // zip the directory
             $encoder = new Encoder($encoder_queue_id);
-            $encoder->setStatus(Encoder::$STATUS_FIXING);
+            $encoder->setStatus(Encoder::STATUS_FIXING);
             $encoder->save();
             _error_log("fixFile: start {$pathFileName}" . humanFileSize(filesize($pathFileName)));
             // try to fix the file in case you want to try again
@@ -789,7 +789,7 @@ if (!class_exists('Format')) {
                         } else {
                             $msg = json_encode($output);
                             _error_log("AVideo-Encoder Format::exec " . $msg . ' ' . json_encode(debug_backtrace()));
-                            $encoder->setStatus(Encoder::$STATUS_ERROR);
+                            $encoder->setStatus(Encoder::STATUS_ERROR);
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
                         }

@@ -10,15 +10,15 @@ require_once __DIR__ . '/API.php';
 $object = API::checkCredentials();
 
 $status = array(
-    Encoder::$STATUS_ENCODING, 
-    Encoder::$STATUS_DOWNLOADING,
-    Encoder::$STATUS_DOWNLOADED,
-    Encoder::$STATUS_QUEUE,
-    Encoder::$STATUS_ERROR,
-    Encoder::$STATUS_DONE,
-    Encoder::$STATUS_TRANSFERRING,
-    Encoder::$STATUS_PACKING,
-    Encoder::$STATUS_FIXING,
+    Encoder::STATUS_ENCODING, 
+    Encoder::STATUS_DOWNLOADING,
+    Encoder::STATUS_DOWNLOADED,
+    Encoder::STATUS_QUEUE,
+    Encoder::STATUS_ERROR,
+    Encoder::STATUS_DONE,
+    Encoder::STATUS_TRANSFERRING,
+    Encoder::STATUS_PACKING,
+    Encoder::STATUS_FIXING,
 );
 
 $object->queue = Encoder::getQueue($status, $object->login->streamers_id);

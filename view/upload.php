@@ -56,7 +56,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         $e->setTitle($path_parts['filename']);
         $e->setFileURI($destinationFileURI);
         $e->setFilename($filename);
-        $e->setStatus(Encoder::$STATUS_QUEUE);
+        $e->setStatus(Encoder::STATUS_QUEUE);
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
         //error_log("Upload.php will set format");

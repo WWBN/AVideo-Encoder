@@ -1466,7 +1466,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $e->setFileURI($link);
         $e->setVideoDownloadedLink($link);
         $e->setFilename($filename);
-        $e->setStatus(Encoder::$STATUS_QUEUE);
+        $e->setStatus(Encoder::STATUS_QUEUE);
         $e->setPriority($s->getPriority());
         //$e->setNotifyURL($global['AVideoURL'] . "aVideoEncoder.json");
 

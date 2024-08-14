@@ -23,15 +23,15 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 class Encoder extends ObjectYPT
 {
-    public static $STATUS_ENCODING = 'encoding';
-    public static $STATUS_DOWNLOADING = 'downloading';
-    public static $STATUS_DOWNLOADED = 'downloaded';
-    public static $STATUS_QUEUE = 'queue';
-    public static $STATUS_ERROR = 'error';
-    public static $STATUS_DONE = 'done';
-    public static $STATUS_TRANSFERRING = 'transferring';
-    public static $STATUS_PACKING = 'packing';
-    public static $STATUS_FIXING = 'fixing';
+    const STATUS_ENCODING = 'encoding';
+    const STATUS_DOWNLOADING = 'downloading';
+    const STATUS_DOWNLOADED = 'downloaded';
+    const STATUS_QUEUE = 'queue';
+    const STATUS_ERROR = 'error';
+    const STATUS_DONE = 'done';
+    const STATUS_TRANSFERRING = 'transferring';
+    const STATUS_PACKING = 'packing';
+    const STATUS_FIXING = 'fixing';
 
     const LOG_TYPE_StatusObs = 'StatusObs';
     const LOG_TYPE_StatusChanged = 'StatusChanged';
@@ -157,7 +157,7 @@ class Encoder extends ObjectYPT
             return false;
         }
         if (empty($this->id)) {
-            $this->setStatus(Encoder::$STATUS_QUEUE);
+            $this->setStatus(Encoder::STATUS_QUEUE);
         }
         if (empty($this->worker_ppid)) {
             $this->worker_ppid = 0;
@@ -211,7 +211,7 @@ class Encoder extends ObjectYPT
             $sql .= " AND streamers_id = " . Login::getStreamerId() . " ";
         }
         if ($errorOnly) {
-            $sql .= " AND status = '" . Encoder::$STATUS_ERROR . "' ";
+            $sql .= " AND status = '" . Encoder::STATUS_ERROR . "' ";
         }
         $sql .= self::getSqlFromPost();
 
@@ -339,16 +339,16 @@ class Encoder extends ObjectYPT
         $this->status = $status;
         //_error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
-            case "done":
-            case "error":
-            case "queue":
+            case Encoder::STATUS_DONE:
+            case Encoder::STATUS_ERROR:
+            case Encoder::STATUS_QUEUE:
                 $this->setWorker_ppid(null);
                 $this->setWorker_pid(null);
                 break;
-            case "downloading":
-            case "encoding":
-            case "packing":
-            case "transferring":
+            case Encoder::STATUS_DOWNLOADING:
+            case Encoder::STATUS_ENCODING:
+            case Encoder::STATUS_PACKING:
+            case Encoder::STATUS_TRANSFERRING:
             default:
                 $this->setWorker_ppid(getmypid());
                 $this->setWorker_pid(null);
@@ -562,7 +562,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        $q->setStatus(Encoder::$STATUS_DOWNLOADING);
+        $q->setStatus(Encoder::STATUS_DOWNLOADING);
         $q->save();
 
         _error_log("downloadFile: start queue_id = {$queue_id}  url = {$url} pathFileName = {$obj->pathFileName}");
@@ -640,7 +640,7 @@ class Encoder extends ObjectYPT
         $encoder = new Encoder($queue_id);
         $msg = "Original filesize is " . humanFileSize(filesize($filePath));
         _error_log($msg);
-        $encoder->setStatus(Encoder::$STATUS_DOWNLOADED);
+        $encoder->setStatus(Encoder::STATUS_DOWNLOADED);
         $encoder->setStatus_obs($msg);
         return $encoder->save();
     }
@@ -791,31 +791,31 @@ class Encoder extends ObjectYPT
     public static function areDownloading($status = array())
     {
         if (empty($status)) {
-            $status = array(Encoder::$STATUS_DOWNLOADED, Encoder::$STATUS_DOWNLOADING);
+            $status = array(Encoder::STATUS_DOWNLOADED, Encoder::STATUS_DOWNLOADING);
         }
         return self::getQueue($status);
     }
 
     public static function areEncoding()
     {
-        //return self::getQueue($status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING));
-        return self::getQueue($status = array(Encoder::$STATUS_ENCODING));
+        //return self::getQueue($status = array(Encoder::STATUS_ENCODING, Encoder::STATUS_DOWNLOADING));
+        return self::getQueue($status = array(Encoder::STATUS_ENCODING));
     }
 
     public static function areDownloaded()
     {
-        return self::getQueue($status = array(Encoder::$STATUS_DOWNLOADED));
+        return self::getQueue($status = array(Encoder::STATUS_DOWNLOADED));
     }
     public static function areTransferring()
     {
-        return self::getQueue($status = array(Encoder::$STATUS_TRANSFERRING));
+        return self::getQueue($status = array(Encoder::STATUS_TRANSFERRING));
     }
 
     public static function getQueue($status = array(), $streamers_id = 0)
     {
         global $global;
         if (empty($status)) {
-            $status = array(Encoder::$STATUS_ENCODING, Encoder::$STATUS_DOWNLOADING);
+            $status = array(Encoder::STATUS_ENCODING, Encoder::STATUS_DOWNLOADING);
         }
 
         $statusIn = implode("', '", $status);
@@ -887,11 +887,11 @@ class Encoder extends ObjectYPT
         global $global;
         $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
             . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE "
-            . "(status = '" . Encoder::$STATUS_ENCODING . "' OR  "
-            . "status = '" . Encoder::$STATUS_DOWNLOADING . "' OR "
-            . "status = '" . Encoder::$STATUS_DOWNLOADED . "' OR "
-            . "status = '" . Encoder::$STATUS_QUEUE . "' OR "
-            . "status = '" . Encoder::$STATUS_ERROR . "') ";
+            . "(status = '" . Encoder::STATUS_ENCODING . "' OR  "
+            . "status = '" . Encoder::STATUS_DOWNLOADING . "' OR "
+            . "status = '" . Encoder::STATUS_DOWNLOADED . "' OR "
+            . "status = '" . Encoder::STATUS_QUEUE . "' OR "
+            . "status = '" . Encoder::STATUS_ERROR . "') ";
 
         $sql .= " ORDER BY priority ASC, e.id ASC ";
         //_error_log($sql);
@@ -986,7 +986,7 @@ class Encoder extends ObjectYPT
         global $global;
         _error_log("setStatusError($queue_id, $msg, $notifyIsDone) " . json_encode(debug_backtrace()));
         $q = new Encoder($queue_id);
-        $q->setStatus(Encoder::$STATUS_ERROR);
+        $q->setStatus(Encoder::STATUS_ERROR);
         $q->setStatus_obs($msg);
         $saved = $q->save();
 
@@ -1132,7 +1132,7 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        if (self::areDownloading(array(Encoder::$STATUS_DOWNLOADING))) {
+        if (self::areDownloading(array(Encoder::STATUS_DOWNLOADING))) {
             _error_log("You have a video downloading now, please wait ");
             unlink($lockFile); // Remove the lock file before returning
             return false;
@@ -1165,7 +1165,7 @@ class Encoder extends ObjectYPT
                     if (!self::canDownloadNow()) {
                         $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
                         _error_log($msg);
-                        $encoder->setStatus(Encoder::$STATUS_QUEUE);
+                        $encoder->setStatus(Encoder::STATUS_QUEUE);
                         $encoder->setStatus_obs($msg);
                         $encoder->save();
                         unlink($lockFile); // Remove the lock file before returning
@@ -1173,7 +1173,7 @@ class Encoder extends ObjectYPT
                     } else if ($try <= $maxTries) {
                         $msg = "Encoder::run: Trying again: [$try] => Could not download the file " . json_encode($objFile);
                         _error_log($msg);
-                        $encoder->setStatus(Encoder::$STATUS_QUEUE);
+                        $encoder->setStatus(Encoder::STATUS_QUEUE);
                         $encoder->setStatus_obs($msg);
                         $encoder->save();
                         unlink($lockFile); // Remove the lock file before returning
@@ -1187,7 +1187,7 @@ class Encoder extends ObjectYPT
                         return false;
                     }
                 } elseif (!$objFile->error && !empty($return_vars->videos_id)) {
-                    $encoder->setStatus(Encoder::$STATUS_ENCODING);
+                    $encoder->setStatus(Encoder::STATUS_ENCODING);
                     $encoder->save();
                     self::run(0);
                     self::sendImages($objFile->pathFileName, $return_vars, $encoder);
@@ -1204,7 +1204,7 @@ class Encoder extends ObjectYPT
                         } else if ($try < 4) {
                             $msg = "Encoder::run: Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             _error_log($msg);
-                            $encoder->setStatus(Encoder::$STATUS_QUEUE);
+                            $encoder->setStatus(Encoder::STATUS_QUEUE);
                             $encoder->setStatus_obs($msg);
                             $encoder->save();
                             unlink($lockFile); // Remove the lock file before returning
@@ -1224,7 +1224,7 @@ class Encoder extends ObjectYPT
                         $obj->msg = $resp->code;
                         $response = $encoder->send();
                         if (!$response->error) {
-                            $encoder->setStatus(Encoder::$STATUS_DONE);
+                            $encoder->setStatus(Encoder::STATUS_DONE);
                             $config = new Configuration();
                             if (!empty($config->getAutodelete())) {
                                 $encoder->delete();
@@ -1433,7 +1433,7 @@ class Encoder extends ObjectYPT
         $return->original_videos_id = $videos_id;
         $return->videos_id = 0;
 
-        $this->setStatus(Encoder::$STATUS_TRANSFERRING);
+        $this->setStatus(Encoder::STATUS_TRANSFERRING);
         $this->save();
         _error_log("Encoder::send() order_id=$order_id");
         /**
@@ -1510,7 +1510,7 @@ class Encoder extends ObjectYPT
             }
             $return->sends[] = $r;
         }
-        $this->setStatus(Encoder::$STATUS_DONE);
+        $this->setStatus(Encoder::STATUS_DONE);
         // check if autodelete is enabled
         $config = new Configuration();
         if (!empty($config->getAutodelete())) {
@@ -1675,7 +1675,7 @@ class Encoder extends ObjectYPT
         $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {
-            $u->setStatus(Encoder::$STATUS_DONE);
+            $u->setStatus(Encoder::STATUS_DONE);
             $u->save();
         } elseif ($obj->error) {
             _error_log("AVideo-Streamer sendFile error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
@@ -2775,6 +2775,7 @@ class Encoder extends ObjectYPT
                 $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
             }
         }
+        _error_log("getYouTubeDLCommand($addOauthFromProvider, $streamers_id, $forceYoutubeDL)");
         return $ytdl;
     }
 
