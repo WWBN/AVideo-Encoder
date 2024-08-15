@@ -631,6 +631,8 @@ class Encoder extends ObjectYPT
         _error_log("downloadFile: " . json_encode($obj));
         if (empty($obj->error)) {
             self::setDownloaded($queue_id, $obj->pathFileName);
+        }else{
+            self::setStatusError($queue_id, $obj->msg, 1);
         }
         return $obj;
     }
