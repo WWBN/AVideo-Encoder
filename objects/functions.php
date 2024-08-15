@@ -1625,6 +1625,7 @@ function fixURLQuery($query){
 }
 
 function isYouTubeUrl($url) {
+    $url = str_replace("'", '', $url);
     // List of possible YouTube domains
     $youtubeDomains = [
         'youtube.com',
@@ -1643,6 +1644,8 @@ function isYouTubeUrl($url) {
     // Check if the host is in the list of YouTube domains
     if ($parsedUrl !== false && in_array($parsedUrl, $youtubeDomains)) {
         return true;
+    }else{
+
     }
 
     return false;
