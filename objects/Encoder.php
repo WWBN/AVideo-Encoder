@@ -698,6 +698,16 @@ class Encoder extends ObjectYPT
 
                         if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                             return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
+                        }else{
+                            if(!empty($addOauthFromProvider)){
+                                _error_log("getYoutubeDl: ERROR addOauthFromProvider not empty");
+                            }
+                            if(!isYouTubeUrl($videoURL)){
+                                _error_log("getYoutubeDl: ERROR not a youtube URL $videoURL");
+                            }
+                            if(!Encoder::streamerHasOauth('youtube', $streamers_id)){
+                                _error_log("getYoutubeDl: ERROR streamers_id does not have oauth streamers_id=$streamers_id");
+                            }
                         }
                         return false;
                     }
