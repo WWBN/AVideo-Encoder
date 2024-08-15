@@ -2744,13 +2744,14 @@ class Encoder extends ObjectYPT
         if (!empty($streamers_id)) {
             $accessToken = Streamer::getAccessToken($streamers_id, $OauthFromProvider);
             if (!empty($accessToken)) {
+                _error_log("streamerHasOauth($OauthFromProvider, $streamers_id) accessToken found $accessToken");
                 return $accessToken;
             } else {
-                _error_log('accessToken not found');
+                _error_log("streamerHasOauth($OauthFromProvider, $streamers_id) accessToken not found");
                 return false;
             }
         } else {
-            _error_log('streamers_id not found');
+            _error_log("streamerHasOauth($OauthFromProvider, $streamers_id) streamers_id not found");
             return false;
         }
     }
@@ -2769,6 +2770,7 @@ class Encoder extends ObjectYPT
         if (!empty($addOauthFromProvider) || !empty($global['usingOauth'])) {
             $accessToken = self::streamerHasOauth($addOauthFromProvider, $streamers_id);
             if (empty($accessToken)) {
+                _error_log("getYouTubeDLCommand($addOauthFromProvider, $streamers_id, $forceYoutubeDL) accessToken is empty");
                 return $ytdl;
             } else {
                 $global['usingOauth'] = 1;
