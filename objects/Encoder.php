@@ -2121,7 +2121,7 @@ class Encoder extends ObjectYPT
         $time_end = microtime(true);
         $execution_time = number_format($time_end - $time_start, 3);
         $error = "sendToStreamer {$url} in {$execution_time} seconds ";
-        _error_log($error . json_encode($obj));
+        _error_log($error . json_encode($obj).json_encode(debug_backtrace()));
 
         $newObj = $obj;
         unset($newObj->postFields);
