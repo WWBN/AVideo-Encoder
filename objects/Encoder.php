@@ -697,6 +697,7 @@ class Encoder extends ObjectYPT
                         self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
 
                         if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
+                            _error_log("getYoutubeDl: ERROR try oauth ");
                             return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
                         }else{
                             if(!empty($addOauthFromProvider)){
