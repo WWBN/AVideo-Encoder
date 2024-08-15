@@ -1133,7 +1133,7 @@ class Encoder extends ObjectYPT
         }
 
         if (self::areDownloading(array(Encoder::STATUS_DOWNLOADING))) {
-            _error_log("You have a video downloading now, please wait ");
+            //_error_log("You have a video downloading now, please wait ");
             unlink($lockFile); // Remove the lock file before returning
             return false;
         }
