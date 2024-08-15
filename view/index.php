@@ -908,8 +908,11 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                     }
                                     title += '<br><span class="label label-success fileSize" >' + row.fileInfo[index].text + '</span>';
                                 }
-
-                                title += '<br>' + row.title;
+                                var filename = row.title;
+                                if (filename.startsWith("original_v_")) {
+                                    filename = '<a href="' + row.streamer + 'video/' + filename + '" target="_blank"></a>';
+                                }
+                                title += '<br>' + filename;
 
 
                                 return title;
