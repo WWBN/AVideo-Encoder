@@ -910,7 +910,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 }
                                 var filename = row.title;
                                 if (filename.startsWith("original_v_")) {
-                                    filename = '<a href="' + row.streamer + 'video/' + filename + '" target="_blank">' + filename + '</a>';
+                                    filename = '<a href="' + row.streamer + 'videos/' + filename + '" target="_blank">' + filename + '</a>';
                                 }
                                 title += '<br>' + filename;
 
