@@ -1005,6 +1005,7 @@ class Encoder extends ObjectYPT
 
         if (!empty($notifyIsDone)) {
             $q->notifyVideoIsDone(1);
+            execRun();
         }
         return $saved;
     }
