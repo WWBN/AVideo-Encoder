@@ -629,8 +629,8 @@ if (!class_exists('Format')) {
                         continue;
                     }
                     if (!empty(Format::ENCODING_SETTINGS[$resolution])) {
-                        _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__);
                         $settings = Format::ENCODING_SETTINGS[$resolution];
+                        _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__.' settings='.json_encode($settings));
                         
                         $bitrate = $settings['maxrate'];        // Assign maxrate as the bitrate
                         $minrate = $settings['minrate'];        // Assign minrate
@@ -647,6 +647,7 @@ if (!class_exists('Format')) {
                     }
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__.' settings='.json_encode($settings));
                     eval("\$command .= \" $code\";");
                 } elseif ($height != $resolution) {
                     _error_log("Encoder:Format:: getDynamicCommandFromFormat resolution {$resolution} was ignored, your upload file is {$height} we wil not up transcode your video");
