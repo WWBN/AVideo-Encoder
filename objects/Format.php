@@ -18,14 +18,45 @@ if (!class_exists('Format')) {
         protected $extension;
         protected $extension_from;
         protected $order;
-        const BITRATES = array(
-            '240'=>700,
-            '360'=>1000,
-            '480'=>1500,
-            '720'=>2500,
-            '1080'=>5000,
-            '2160'=>20000,
+        const ENCODING_SETTINGS = array(
+            '240' => array(
+                'minrate'      => 500,
+                'maxrate'      => 700,
+                'bufsize'      => 1400,
+                'audioBitrate' => 64,
+            ),
+            '360' => array(
+                'minrate'      => 800,
+                'maxrate'      => 1000,
+                'bufsize'      => 2000,
+                'audioBitrate' => 96,
+            ),
+            '480' => array(
+                'minrate'      => 1200,
+                'maxrate'      => 1500,
+                'bufsize'      => 3000,
+                'audioBitrate' => 128,
+            ),
+            '720' => array(
+                'minrate'      => 2000,
+                'maxrate'      => 2500,
+                'bufsize'      => 5000,
+                'audioBitrate' => 128,
+            ),
+            '1080' => array(
+                'minrate'      => 4000,
+                'maxrate'      => 5000,
+                'bufsize'      => 10000,
+                'audioBitrate' => 192,
+            ),
+            '2160' => array(
+                'minrate'      => 16000,
+                'maxrate'      => 20000,
+                'bufsize'      => 40000,
+                'audioBitrate' => 192,
+            ),
         );
+        
 
         public static function getSearchFieldsNames() {
             return array('name');
@@ -596,11 +627,22 @@ if (!class_exists('Format')) {
                         _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
                         continue;
                     }
-                    if(!empty(Format::BITRATES[$resolution])){
-                        $bitrate = Format::BITRATES[$resolution];
-                    }else{
-                        $bitrate = 1500;
+                    if (!empty(Format::ENCODING_SETTINGS[$resolution])) {
+                        $settings = Format::ENCODING_SETTINGS[$resolution];
+                        
+                        $bitrate = $settings['maxrate'];        // Assign maxrate as the bitrate
+                        $minrate = $settings['minrate'];        // Assign minrate
+                        $maxrate = $settings['maxrate'];        // Assign maxrate
+                        $bufsize = $settings['bufsize'];        // Assign bufsize
+                        $audioBitrate = $settings['audioBitrate']; // Assign audioBitrate
+                    } else {
+                        $bitrate = 1500;          // Default bitrate
+                        $minrate = 1000;          // Default minrate
+                        $maxrate = 1500;          // Default maxrate
+                        $bufsize = 3000;          // Default bufsize
+                        $audioBitrate = 128;      // Default audioBitrate
                     }
+                    
                     $autioBitrate = $audioBitrate[$i];
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
@@ -689,10 +731,6 @@ if (!class_exists('Format')) {
             foreach ($resolutions as $key => $value) {
                 if ($height > $value) {
                     $rate = $bandwidth[$key] / 1000;
-                    $minrate = ($rate * 0.5);
-                    $maxrate = ($rate * 1.5);
-                    $bufsize = ($rate * 2);
-                    $autioBitrate = $audioBitrate[$key];
                     if ($value <= 360) {
                         $framerate = " -r 20 ";
                     } else {
@@ -701,11 +739,22 @@ if (!class_exists('Format')) {
 
                     $resolution = $value;
                     
-                    if(!empty(Format::BITRATES[$resolution])){
-                        $bitrate = Format::BITRATES[$resolution];
-                    }else{
-                        $bitrate = 1500;
+                    if (!empty(Format::ENCODING_SETTINGS[$resolution])) {
+                        $settings = Format::ENCODING_SETTINGS[$resolution];
+                        
+                        $bitrate = $settings['maxrate'];        // Assign maxrate as the bitrate
+                        $minrate = $settings['minrate'];        // Assign minrate
+                        $maxrate = $settings['maxrate'];        // Assign maxrate
+                        $bufsize = $settings['bufsize'];        // Assign bufsize
+                        $audioBitrate = $settings['audioBitrate']; // Assign audioBitrate
+                    } else {
+                        $bitrate = 1500;          // Default bitrate
+                        $minrate = ($rate * 0.5);          // Default minrate
+                        $maxrate = ($rate * 1.5);          // Default maxrate
+                        $bufsize = ($rate * 2);          // Default bufsize
+                        $audioBitrate = $audioBitrate[$key];      // Default audioBitrate
                     }
+                    
                     if (!empty($videoFramerate[$key])) {
                         $framerate = " -r {$videoFramerate[$key]} ";
                     }
@@ -718,11 +767,22 @@ if (!class_exists('Format')) {
 
             $resolution = $height;
             
-            if(!empty(Format::BITRATES[$resolution])){
-                $bitrate = Format::BITRATES[$resolution];
-            }else{
-                $bitrate = 1500;
+            if (!empty(Format::ENCODING_SETTINGS[$resolution])) {
+                $settings = Format::ENCODING_SETTINGS[$resolution];
+                
+                $bitrate = $settings['maxrate'];        // Assign maxrate as the bitrate
+                $minrate = $settings['minrate'];        // Assign minrate
+                $maxrate = $settings['maxrate'];        // Assign maxrate
+                $bufsize = $settings['bufsize'];        // Assign bufsize
+                $audioBitrate = $settings['audioBitrate']; // Assign audioBitrate
+            } else {
+                $bitrate = 1500;          // Default bitrate
+                $minrate = 1000;          // Default minrate
+                $maxrate = 1500;          // Default maxrate
+                $bufsize = 3000;          // Default bufsize
+                $audioBitrate = 128;      // Default audioBitrate
             }
+            
             //$code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
             eval("\$command .= \" $code\";");
 
