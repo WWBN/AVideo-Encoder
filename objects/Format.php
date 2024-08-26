@@ -629,6 +629,7 @@ if (!class_exists('Format')) {
                         continue;
                     }
                     if (!empty(Format::ENCODING_SETTINGS[$resolution])) {
+                        _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__);
                         $settings = Format::ENCODING_SETTINGS[$resolution];
                         
                         $bitrate = $settings['maxrate'];        // Assign maxrate as the bitrate
@@ -637,6 +638,7 @@ if (!class_exists('Format')) {
                         $bufsize = $settings['bufsize'];        // Assign bufsize
                         $audioBitrate = $settings['audioBitrate']; // Assign audioBitrate
                     } else {
+                        _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__);
                         $bitrate = 1500;          // Default bitrate
                         $minrate = 1000;          // Default minrate
                         $maxrate = 1500;          // Default maxrate
@@ -659,6 +661,7 @@ if (!class_exists('Format')) {
                     _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
                     return '';
                 }
+                _error_log("Encoder:Format:: getDynamicCommandFromFormat line=".__LINE__);
                 $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
                 eval("\$command .= \" $code\";");
             }
