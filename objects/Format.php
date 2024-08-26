@@ -643,8 +643,6 @@ if (!class_exists('Format')) {
                         $bufsize = 3000;          // Default bufsize
                         $audioBitrate = 128;      // Default audioBitrate
                     }
-                    
-                    $autioBitrate = $audioBitrate[$i];
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
                     eval("\$command .= \" $code\";");
