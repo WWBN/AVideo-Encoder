@@ -18,5 +18,5 @@ ON DUPLICATE KEY UPDATE
   `extension` = VALUES(`extension`),
   `extension_from` = VALUES(`extension_from`),
   `order` = VALUES(`order`);
-;
+
 UPDATE configurations_encoder SET  version = '5.1', modified = now() WHERE id = 1;
