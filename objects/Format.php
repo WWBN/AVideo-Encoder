@@ -18,6 +18,14 @@ if (!class_exists('Format')) {
         protected $extension;
         protected $extension_from;
         protected $order;
+        const BITRATES = array(
+            '240'=>700,
+            '360'=>1000,
+            '480'=>1500,
+            '720'=>2500,
+            '1080'=>5000,
+            '2160'=>20000,
+        );
 
         public static function getSearchFieldsNames() {
             return array('name');
@@ -588,6 +596,11 @@ if (!class_exists('Format')) {
                         _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty");
                         continue;
                     }
+                    if(!empty(Format::BITRATES[$resolution])){
+                        $bitrate = Format::BITRATES[$resolution];
+                    }else{
+                        $bitrate = 1500;
+                    }
                     $autioBitrate = $audioBitrate[$i];
                     $framerate = (!empty($videoFramerate[$i])) ? " -r {$videoFramerate[$i]} " : "";
 
@@ -687,6 +700,12 @@ if (!class_exists('Format')) {
                     }
 
                     $resolution = $value;
+                    
+                    if(!empty(Format::BITRATES[$resolution])){
+                        $bitrate = Format::BITRATES[$resolution];
+                    }else{
+                        $bitrate = 1500;
+                    }
                     if (!empty($videoFramerate[$key])) {
                         $framerate = " -r {$videoFramerate[$key]} ";
                     }
@@ -698,6 +717,12 @@ if (!class_exists('Format')) {
             }
 
             $resolution = $height;
+            
+            if(!empty(Format::BITRATES[$resolution])){
+                $bitrate = Format::BITRATES[$resolution];
+            }else{
+                $bitrate = 1500;
+            }
             //$code = ' -c:v h264 -c:a aac -f hls -hls_time 6 -hls_list_size 0 -hls_key_info_file {$destinationFile}keyinfo {$destinationFile}res{$resolution}/index.m3u8';
             eval("\$command .= \" $code\";");
 
