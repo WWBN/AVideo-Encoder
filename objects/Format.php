@@ -607,6 +607,7 @@ if (!class_exists('Format')) {
             $bandwidth = $encoderConfig['bandwidth'];
             $audioBitrate = $encoderConfig['audioBitrate'];
             $videoFramerate = $encoderConfig['videoFramerate'];
+            $audioBitrate = 128; // Assign audioBitrate
 
             _error_log("Encoder:Format:: getDynamicCommandFromFormat($pathFileName, $format_id) [resolutions=" . json_encode($resolutions) . "] [height={$height}]");
             $f = new Format($format_id);
