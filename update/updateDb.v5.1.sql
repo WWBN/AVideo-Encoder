@@ -1,4 +1,3 @@
--- Update existing formats or insert if they don't exist
 INSERT INTO `formats` (`id`, `name`, `code`, `created`, `modified`, `extension`, `extension_from`, `order`)
 VALUES
 (1,'MP4 Low','ffmpeg -i {$pathFileName} -vf scale=-2:360 -movflags +faststart -preset veryfast -vcodec h264 -b:v 700k -acodec aac -b:a 96k -max_muxing_queue_size 1024 -y {$destinationFile}',now(),now(),'mp4','mp4',10),
