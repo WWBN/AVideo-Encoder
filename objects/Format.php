@@ -20,43 +20,42 @@ if (!class_exists('Format')) {
         protected $order;
         const ENCODING_SETTINGS = array(
             '240' => array(
-                'minrate'      => 500,
-                'maxrate'      => 700,
-                'bufsize'      => 1400,
-                'audioBitrate' => 64,
+                'minrate'      => 300,  // Reduced from 500
+                'maxrate'      => 500,  // Reduced from 700
+                'bufsize'      => 1000, // Reduced from 1400
+                'audioBitrate' => 48,   // Reduced from 64
             ),
             '360' => array(
-                'minrate'      => 800,
-                'maxrate'      => 1000,
-                'bufsize'      => 2000,
-                'audioBitrate' => 96,
+                'minrate'      => 500,  // Reduced from 800
+                'maxrate'      => 800,  // Reduced from 1000
+                'bufsize'      => 1600, // Reduced from 2000
+                'audioBitrate' => 64,   // Reduced from 96
             ),
             '480' => array(
-                'minrate'      => 1200,
-                'maxrate'      => 1500,
-                'bufsize'      => 3000,
-                'audioBitrate' => 128,
+                'minrate'      => 800,  // Reduced from 1200
+                'maxrate'      => 1000, // Reduced from 1500
+                'bufsize'      => 2000, // Reduced from 3000
+                'audioBitrate' => 96,   // Reduced from 128
             ),
             '720' => array(
-                'minrate'      => 2000,
-                'maxrate'      => 2500,
-                'bufsize'      => 5000,
-                'audioBitrate' => 128,
+                'minrate'      => 1500, // Reduced from 2000
+                'maxrate'      => 2000, // Reduced from 2500
+                'bufsize'      => 4000, // Reduced from 5000
+                'audioBitrate' => 128,  // Retained at 128
             ),
             '1080' => array(
-                'minrate'      => 4000,
-                'maxrate'      => 5000,
-                'bufsize'      => 10000,
-                'audioBitrate' => 192,
+                'minrate'      => 3000, // Reduced from 4000
+                'maxrate'      => 4000, // Reduced from 5000
+                'bufsize'      => 8000, // Reduced from 10000
+                'audioBitrate' => 128,  // Reduced from 192
             ),
             '2160' => array(
-                'minrate'      => 16000,
-                'maxrate'      => 20000,
-                'bufsize'      => 40000,
-                'audioBitrate' => 192,
+                'minrate'      => 8000,  // Reduced from 16000
+                'maxrate'      => 12000, // Reduced from 20000
+                'bufsize'      => 24000, // Reduced from 40000
+                'audioBitrate' => 160,   // Reduced from 192
             ),
         );
-        
 
         public static function getSearchFieldsNames() {
             return array('name');
