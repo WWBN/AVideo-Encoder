@@ -728,7 +728,7 @@ if (!class_exists('Format')) {
             $minrate = ($rate * 0.5);
             $maxrate = ($rate * 1.5);
             $bufsize = ($rate * 2);
-            $autioBitrate = 128;
+            $audioBitrate = 128;
 
             foreach ($resolutions as $key => $value) {
                 if ($height > $value) {

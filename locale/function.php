@@ -28,7 +28,7 @@ if (!class_exists('Locale')) {
     exit;
 }
 
-$locale = Locale::acceptFromHttp($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+$locale = Locale::acceptFromHttp(@$_SERVER['HTTP_ACCEPT_LANGUAGE']);
 $langBrowser = str_replace('-', '_', $locale);
 
 function detecting_lang($languageBrowser, $default = 'en_US') {

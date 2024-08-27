@@ -324,6 +324,12 @@ if (!class_exists('Streamer')) {
                 'msg' => '',
                 'provider' =>  $provider,
             );
+            
+            if (empty($provider)) {
+                $response['msg'] = "Provider is empty";
+                return $response;
+            }
+
             $s = new Streamer($streamers_id);
             $jsonString = $s->getJson();
             if (empty($jsonString)) {
