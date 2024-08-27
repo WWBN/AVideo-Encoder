@@ -604,7 +604,6 @@ if (!class_exists('Format')) {
             $encoderConfig = self::loadEncoderConfiguration();
             $resolutions = $encoderConfig['resolutions'];
             $bandwidth = $encoderConfig['bandwidth'];
-            $audioBitrate = $encoderConfig['audioBitrate'];
             $videoFramerate = $encoderConfig['videoFramerate'];
             $audioBitrate = 128; // Assign audioBitrate
 
@@ -754,7 +753,7 @@ if (!class_exists('Format')) {
                         $minrate = ($rate * 0.5);          // Default minrate
                         $maxrate = ($rate * 1.5);          // Default maxrate
                         $bufsize = ($rate * 2);          // Default bufsize
-                        $audioBitrate = $audioBitrate[$key];      // Default audioBitrate
+                        $audioBitrate = 128; // Assign audioBitrate
                     }
                     
                     if (!empty($videoFramerate[$key])) {
