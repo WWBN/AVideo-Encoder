@@ -35,12 +35,14 @@ class HLSProcessor
             file_put_contents($destinationFile . $keyFileName, $key);
 
             // Create keyinfo file for HLS encryption
-            $str = "../{$keyFileName}\n{$destinationFile}{$keyFileName}";
+            $str = "../{$keyFileName}".PHP_EOL;
+            $str .= "{$destinationFile}{$keyFileName}";
             file_put_contents($keyInfoFile, $str);
         }
 
         // Initialize the master playlist content
-        $masterPlaylist = "#EXTM3U\n#EXT-X-VERSION:3\n";
+        $masterPlaylist = "#EXTM3U".PHP_EOL;
+        $masterPlaylist .= "#EXT-X-VERSION:3".PHP_EOL;
 
         // Generate separate audio-only HLS streams for each audio track
         foreach ($audioTracks as $key => $track) {
@@ -69,7 +71,7 @@ class HLSProcessor
             } else {
                 // Add audio track entry to the master playlist
                 $default = ($track->index == 0) ? "YES" : "NO"; // Set first audio track as default
-                $masterPlaylist .= "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio_group\",NAME=\"{$track->title}\",LANGUAGE=\"{$language}\",DEFAULT={$default},AUTOSELECT=YES,URI=\"audio_tracks/{$langDir}/audio.m3u8\"\n";
+                $masterPlaylist .= "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio_group\",NAME=\"{$track->title}\",LANGUAGE=\"{$language}\",DEFAULT={$default},AUTOSELECT=YES,URI=\"audio_tracks/{$langDir}/audio.m3u8\"".PHP_EOL;
             }
         }
 
@@ -86,7 +88,7 @@ class HLSProcessor
                 $outputFile = "{$dir}index.m3u8";
 
                 // Add resolution playlist entry to the master playlist
-                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$value},AUDIO=\"audio_group\"\n";
+                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$value},AUDIO=\"audio_group\"".PHP_EOL;
                 $masterPlaylist .= "res{$value}/index.m3u8".PHP_EOL;
 
                 // Append FFmpeg command for this resolution
@@ -108,7 +110,7 @@ class HLSProcessor
             $outputFile = "{$dir}index.m3u8";
 
             // Add resolution playlist entry to the master playlist
-            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$resolution},AUDIO=\"audio_group\"\n";
+            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$resolution},AUDIO=\"audio_group\"".PHP_EOL;
             $masterPlaylist .= "res{$resolution}/index.m3u8".PHP_EOL;
 
             // Append FFmpeg command for this resolution

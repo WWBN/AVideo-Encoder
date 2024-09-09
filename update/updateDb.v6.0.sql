@@ -1,0 +1,1 @@
+UPDATE configurations_encoder SET  version = '6.0', modified = now() WHERE id = 1;
