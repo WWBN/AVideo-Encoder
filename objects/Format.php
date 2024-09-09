@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/HLSProcessor.php';
+
 if (!class_exists('Format')) {
     if (!class_exists('ObjectYPT')) {
         require_once $global['systemRootPath'] . 'objects/Object.php';
@@ -69,7 +71,6 @@ if (!class_exists('Format')) {
                 'audioBitrate' => 160,   // Reduced from 192
             ),
         );
-
 
         public static function getSearchFieldsNames()
         {
@@ -606,7 +607,7 @@ if (!class_exists('Format')) {
             return $result;
         }
 
-        private static function loadEncoderConfiguration()
+        static function loadEncoderConfiguration()
         {
             $availableConfiguration = self::getAvailableConfigurations();
 
@@ -885,7 +886,13 @@ if (!class_exists('Format')) {
             _error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) { // it is HLS
                 if (empty($fc) || $format_id == 30) {
-                    $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
+                    if(empty($global['disableHLSAudioMultitrack'])){
+                        _error_log("AVideo-Encoder Format::exec use HLSProcessor");
+                        $dynamic = HLSProcessor::createHLSWithAudioTracks($pathFileName, $destinationFile);
+                    }else{
+                        _error_log("AVideo-Encoder Format::exec disableHLSAudioMultitrack");
+                        $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
+                    }
                     $destinationFile = $dynamic[0];
                     $fc = $dynamic[1];
                 } else { // use default 3 resolutions
@@ -914,8 +921,8 @@ if (!class_exists('Format')) {
                     if (empty($encoder->getId())) {/* dequeued */
                         _error_log("id=(" . $encoder_queue_id . ") dequeued");
                     } else {
-
-                        if (empty($try) && self::fixFile($pathFileName, $encoder_queue_id)) {
+                        //if (empty($try) && self::fixFile($pathFileName, $encoder_queue_id)) {
+                        if (empty($try)) {
                             self::exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try + 1);
                         } else {
                             $msg = json_encode($output);
