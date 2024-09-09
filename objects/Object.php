@@ -149,6 +149,7 @@ abstract class ObjectYPT implements ObjectInterface {
                 } elseif (strtolower($value) == 'modified') {
                     $fields[] = " {$value} = now() ";
                 } else {
+                    $this->$value = str_replace("'", '', $this->$value);
                     $fields[] = " `{$value}` = '{$this->$value}' ";
                 }
             }
