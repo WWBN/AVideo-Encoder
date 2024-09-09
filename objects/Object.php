@@ -188,7 +188,7 @@ abstract class ObjectYPT implements ObjectInterface {
          * @var array $global
          */
         
-        error_log($sql);
+        //error_log($sql);
         $insert_row = $global['mysqli']->query($sql);
 
         if ($insert_row) {
