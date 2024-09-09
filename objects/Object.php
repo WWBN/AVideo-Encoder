@@ -187,6 +187,8 @@ abstract class ObjectYPT implements ObjectInterface {
         /**
          * @var array $global
          */
+        
+        error_log($sql);
         $insert_row = $global['mysqli']->query($sql);
 
         if ($insert_row) {
@@ -197,7 +199,7 @@ abstract class ObjectYPT implements ObjectInterface {
             }
             return $id;
         } else {
-            error_log($sql . ' Error : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error.' '.$sql);
+            error_log($sql . ' Error : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
             return false;
         }
     }
