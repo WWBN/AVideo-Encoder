@@ -87,7 +87,7 @@ class HLSProcessor
 
                 // Add resolution playlist entry to the master playlist
                 $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$value},AUDIO=\"audio_group\"\n";
-                $masterPlaylist .= "res{$value}/index.m3u8 \n";
+                $masterPlaylist .= "res{$value}/index.m3u8".PHP_EOL;
 
                 // Append FFmpeg command for this resolution
                 $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $value, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
@@ -109,7 +109,7 @@ class HLSProcessor
 
             // Add resolution playlist entry to the master playlist
             $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$resolution},AUDIO=\"audio_group\"\n";
-            $masterPlaylist .= "res{$resolution}/index.m3u8 \n";
+            $masterPlaylist .= "res{$resolution}/index.m3u8".PHP_EOL;
 
             // Append FFmpeg command for this resolution
             $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $resolution, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
