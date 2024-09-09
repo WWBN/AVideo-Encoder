@@ -91,14 +91,14 @@ class HLSProcessor
 
                 // Append FFmpeg command for this resolution
                 $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $value, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
-                
+
                 $resolutionsFound++;
             } else {
                 _error_log("HLSProcessor: Skipped resolution {$value} for {$pathFileName} (video height is {$resolution})");
             }
         }
 
-        if(empty($resolutionsFound)){
+        if (empty($resolutionsFound)) {
             // did not find any resolution, process the default one
             $encodingSettings = Format::ENCODING_SETTINGS[480];
             $rate = $encodingSettings['maxrate']; // Use the maxrate from ENCODING_SETTINGS
@@ -113,7 +113,7 @@ class HLSProcessor
 
             // Append FFmpeg command for this resolution
             $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $resolution, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
-            
+
             $resolutionsFound++;
         }
 
@@ -132,7 +132,7 @@ class HLSProcessor
     {
         $command = " -vf scale=-2:{$resolution} -b:v {$bitrate}k -r {$framerate} " .
             "-movflags +faststart -hls_time 6 -hls_key_info_file {$keyInfoFile} -hls_playlist_type vod " .
-            "-map 0:v -c:v h264 -f hls {$outputFile}";
+            "-map 0:v -c:v h264 -profile:v main -pix_fmt yuv420p -f hls {$outputFile}";
 
         return $command;
     }
@@ -158,10 +158,10 @@ class HLSProcessor
             $track->language = isset($stream['tags']['language']) ? $stream['tags']['language'] : 'Default';
             $track->title = isset($stream['tags']['title']) ? $stream['tags']['title'] : $track->language;
 
-            if($track->language == 'und'){
+            if ($track->language == 'und') {
                 $track->language = 'Default';
             }
-            if($track->title == 'und'){
+            if ($track->title == 'und') {
                 $track->title = 'Default';
             }
             $tracks[] = $track;
