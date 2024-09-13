@@ -1294,7 +1294,7 @@ class Encoder extends ObjectYPT
                     unlink($lockFile); // Remove the lock file before returning
                     return false;
                 }
-                unlink($lockFile); // Remove the lock file before returning
+                @unlink($lockFile); // Remove the lock file before returning
                 return static::run(0);
             }
         } else {
