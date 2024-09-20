@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__.'/HLSProcessor.php';
+require_once __DIR__ . '/HLSProcessor.php';
 
 if (!class_exists('Format')) {
     if (!class_exists('ObjectYPT')) {
@@ -886,10 +886,10 @@ if (!class_exists('Format')) {
             _error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) { // it is HLS
                 if (empty($fc) || $format_id == 30) {
-                    if(empty($global['disableHLSAudioMultitrack'])){
+                    if (empty($global['disableHLSAudioMultitrack'])) {
                         _error_log("AVideo-Encoder Format::exec use HLSProcessor");
                         $dynamic = HLSProcessor::createHLSWithAudioTracks($pathFileName, $destinationFile);
-                    }else{
+                    } else {
                         _error_log("AVideo-Encoder Format::exec disableHLSAudioMultitrack");
                         $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
                     }
@@ -1001,8 +1001,13 @@ if (!class_exists('Format')) {
 
             $errorLogFile = tempnam(sys_get_temp_dir(), 'video_error_log');
 
+            // Check if the file extension is compatible with -allowed_extensions ALL
+            $compatibleExtensions = ['m3u8', 'mpd']; // Add any other compatible extensions here
+            $fileExtension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            $isCompatible = in_array($fileExtension, $compatibleExtensions);
+
             $complement = '';
-            if ($allowed_extensions) {
+            if ($allowed_extensions && $isCompatible) {
                 $complement = '-allowed_extensions ALL';
             }
 
@@ -1032,7 +1037,7 @@ if (!class_exists('Format')) {
             unlink($errorLogFile);
 
             if (!empty($content)) {
-                if ($allowed_extensions) {
+                if ($allowed_extensions && $isCompatible) {
                     return self::videoFileHasErrors($filename, false);
                 }
                 _error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
@@ -1041,6 +1046,7 @@ if (!class_exists('Format')) {
                 return false;
             }
         }
+
 
         private static function execOrder($format_order, $pathFileName, $destinationFile, $encoder_queue_id)
         {
