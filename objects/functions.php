@@ -1505,7 +1505,7 @@ function addVideo($link, $streamers_id, $title = "") {
         $e->setReturn_vars(json_encode($obj));
         $encoders_ids[] = $e->save();
     }
-    $obj->queue_id = $encoders_ids[0];
+    $obj->queue_id = empty($encoders_ids)?0:$encoders_ids[0];
     return $obj;
 }
 
