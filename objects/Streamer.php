@@ -270,6 +270,8 @@ if (!class_exists('Streamer')) {
             $config = new Configuration();
             if (version_compare($config->getVersion(), '4.0') < 0) {
                 $pass = substr($pass, 0, 45);
+            }else{
+                $pass = substr($pass, 0, 255);
             }
             $this->pass = $pass;
         }
