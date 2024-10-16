@@ -529,68 +529,68 @@ function decideFromPlugin()
 function decideFormatOrder()
 {
     global $global;
-    if (!empty($_GET['webm']) && empty($_POST['webm'])) {
-        $_POST['webm'] = $_GET['webm'];
+    if (!empty($_GET['webm']) && empty($_REQUEST['webm'])) {
+        $_REQUEST['webm'] = $_GET['webm'];
     }
-    error_log("decideFormatOrder: " . json_encode($_POST));
-    if (!empty($_POST['inputAutoHLS']) && strtolower($_POST['inputAutoHLS']) !== "false") {
+    error_log("decideFormatOrder: " . json_encode($_REQUEST));
+    if (!empty($_REQUEST['inputAutoHLS']) && strtolower($_REQUEST['inputAutoHLS']) !== "false") {
         error_log("decideFormatOrder: auto HLS");
         $_SESSION['format'] = 'inputAutoHLS';
         return (6);
-    } elseif (!empty($_POST['inputAutoMP4']) && strtolower($_POST['inputAutoMP4']) !== "false") {
+    } elseif (!empty($_REQUEST['inputAutoMP4']) && strtolower($_REQUEST['inputAutoMP4']) !== "false") {
         error_log("decideFormatOrder: auto MP4");
         $_SESSION['format'] = 'inputAutoMP4';
         return (7);
-    } elseif (empty($global['disableWebM']) && !empty($_POST['inputAutoWebm']) && strtolower($_POST['inputAutoWebm']) !== "false") {
+    } elseif (empty($global['disableWebM']) && !empty($_REQUEST['inputAutoWebm']) && strtolower($_REQUEST['inputAutoWebm']) !== "false") {
         error_log("decideFormatOrder: auto WebM");
         $_SESSION['format'] = 'inputAutoWebm';
         return (8);
-    } elseif (!empty($_POST['inputAutoAudio']) && strtolower($_POST['inputAutoAudio']) !== "false") {
+    } elseif (!empty($_REQUEST['inputAutoAudio']) && strtolower($_REQUEST['inputAutoAudio']) !== "false") {
         error_log("decideFormatOrder: auto Audio");
         $_SESSION['format'] = 'inputAutoAudio';
         return (60);
-    } elseif (!empty($_POST['inputHLS']) && strtolower($_POST['inputHLS']) !== "false") {
+    } elseif (!empty($_REQUEST['inputHLS']) && strtolower($_REQUEST['inputHLS']) !== "false") {
         error_log("decideFormatOrder: Multi bitrate HLS encrypted");
         return (9);
-    } elseif (empty($_POST['webm']) || $_POST['webm'] === 'false') {
+    } elseif (empty($_REQUEST['webm']) || $_REQUEST['webm'] === 'false') {
         // mp4 only
         if (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) { // all resolutions
             error_log("decideFormatOrder: MP4 All");
             return (80);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low - HD");
             return (79);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD - HD");
             return (78);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 Low SD");
             return (77);
         } elseif (
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 HD");
             return (76);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 SD");
             return (75);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false'
         ) {
             error_log("decideFormatOrder: MP4 LOW");
             return (74);
@@ -601,36 +601,36 @@ function decideFormatOrder()
     } else {
         // mp4 and webm
         if (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) { // all resolutions
             return (87);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             return (86);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false' &&
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false' &&
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             return (85);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false' &&
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false' &&
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false'
         ) {
             return (84);
         } elseif (
-            !empty($_POST['inputHD']) && $_POST['inputHD'] !== 'false'
+            !empty($_REQUEST['inputHD']) && $_REQUEST['inputHD'] !== 'false'
         ) {
             return (83);
         } elseif (
-            !empty($_POST['inputSD']) && $_POST['inputSD'] !== 'false'
+            !empty($_REQUEST['inputSD']) && $_REQUEST['inputSD'] !== 'false'
         ) {
             return (82);
         } elseif (
-            !empty($_POST['inputLow']) && $_POST['inputLow'] !== 'false'
+            !empty($_REQUEST['inputLow']) && $_REQUEST['inputLow'] !== 'false'
         ) {
             return (81);
         } else {
@@ -1301,8 +1301,8 @@ function convertDates()
     if (!empty($_GET['releaseDate'])) {
         $_GET['releaseDate'] = convertToServerDate($_GET['releaseDate'], $timezone);
     }
-    if (!empty($_POST['releaseDate'])) {
-        $_POST['releaseDate'] = convertToServerDate($_POST['releaseDate'], $timezone);
+    if (!empty($_REQUEST['releaseDate'])) {
+        $_REQUEST['releaseDate'] = convertToServerDate($_REQUEST['releaseDate'], $timezone);
     }
     if (!empty($_REQUEST['releaseDate'])) {
         $_REQUEST['releaseDate'] = convertToServerDate($_REQUEST['releaseDate'], $timezone);
