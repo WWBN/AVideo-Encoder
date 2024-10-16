@@ -21,4 +21,6 @@ $object->videoTitle = @$_REQUEST['videoTitle'];
 
 $object->addVideo = addVideo($object->videoURL, $object->login->streamers_id, $object->videoTitle);
 
+$object->error = !empty($object->addVideo->error);
+
 die(json_encode($object));
