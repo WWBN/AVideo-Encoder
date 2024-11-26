@@ -348,7 +348,8 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                             </div>
                             <div id="signin" class="tab-pane fade">
                                 <?php
-                                include './index_signin.php';
+                                //include './index_signin.php';
+                                include './index_signin_deprecated.php';
                                 ?>
                             </div>
                             <?php
