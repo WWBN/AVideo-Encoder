@@ -518,6 +518,55 @@ class Encoder extends ObjectYPT
         return false;
     }
 
+    static function isPythonAndPytubeInstalled()
+    {
+        $pythonCommand = 'python3 --version';
+        $pytubeCommand = 'python3 -m pip show pytube';
+
+        // Check if Python is installed
+        exec($pythonCommand, $pythonOutput, $pythonReturnCode);
+        if ($pythonReturnCode !== 0) {
+            error_log("Python is not installed. Please install Python on Ubuntu using the following commands:");
+            error_log("sudo apt update && sudo apt install -y python3 python3-pip");
+            return false;
+        }
+
+        // Check if pytube is installed
+        exec($pytubeCommand, $pytubeOutput, $pytubeReturnCode);
+        if ($pytubeReturnCode !== 0) {
+            error_log("Pytube is not installed. Install it using pip with the following command:");
+            error_log("python3 -m pip install pytube");
+            return false;
+        }
+
+        // Both Python and pytube are installed
+        return true;
+    }
+
+    public static function downloadWithPytube($video_url, $filename)
+    {
+        global $global;
+
+        $pythonScript = $global['systemRootPath'] . "objects/youtube.py";
+        $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename));
+        _error_log("downloadWithPytube($video_url, $filename) " . $command);
+        exec($command, $output, $return_var);
+
+        $response = new stdClass();
+        $response->command = $command;
+        $response->output = $output;
+        $response->error = $return_var !== 0;
+
+        if ($response->error) {
+            $response->msg = "Error downloading video. Check progress.json for details.";
+        } else {
+            $response->msg = "Video downloaded successfully.";
+        }
+
+        return $response;
+    }
+
+
     public static function downloadFile($queue_id)
     {
 
@@ -578,15 +627,25 @@ class Encoder extends ObjectYPT
         }
 
         if (!empty($q->getVideoDownloadedLink())) {
-            //begin youtube-dl downloading and symlink it to the video temp file
-            $response = static::getYoutubeDl($q->getVideoDownloadedLink(), $queue_id, $obj->pathFileName);
-            if (!empty($response)) {
-                _error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
-                $obj->pathFileName = $response;
-                $obj->error = false;
-            } else {
-                _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
-                $obj->error = false;
+            $videoURL = $q->getVideoDownloadedLink();
+            $downloadWithPytubeFilename = '';
+            if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($videoURL)) {
+                $downloadWithPytubeFilename = 'video_download_' . $queue_id;
+                $response = self::downloadWithPytube($videoURL, $downloadWithPytubeFilename);
+            }
+            if(empty($downloadWithPytubeFilename) || $response->error){
+                //begin youtube-dl downloading and symlink it to the video temp file
+                $response = static::getYoutubeDl($videoURL, $queue_id, $obj->pathFileName);
+                if (!empty($response)) {
+                    _error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
+                    $obj->pathFileName = $response;
+                    $obj->error = false;
+                } else {
+                    _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
+                    $obj->error = false;
+                }
+            }else{
+                $obj->pathFileName =  "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/video.mp4";
             }
         } else {
             _error_log("downloadFile: not using getYoutubeDl");
@@ -631,7 +690,7 @@ class Encoder extends ObjectYPT
         _error_log("downloadFile: " . json_encode($obj));
         if (empty($obj->error)) {
             self::setDownloaded($queue_id, $obj->pathFileName);
-        }else{
+        } else {
             self::setStatusError($queue_id, $obj->msg, 1);
         }
         return $obj;
@@ -701,14 +760,14 @@ class Encoder extends ObjectYPT
                         if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                             _error_log("getYoutubeDl: ERROR try oauth ");
                             return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
-                        }else{
-                            if(!empty($addOauthFromProvider)){
+                        } else {
+                            if (!empty($addOauthFromProvider)) {
                                 _error_log("getYoutubeDl: ERROR addOauthFromProvider not empty");
                             }
-                            if(!isYouTubeUrl($videoURL)){
+                            if (!isYouTubeUrl($videoURL)) {
                                 _error_log("getYoutubeDl: ERROR not a youtube URL $videoURL");
                             }
-                            if(!Encoder::streamerHasOauth('youtube', $streamers_id)){
+                            if (!Encoder::streamerHasOauth('youtube', $streamers_id)) {
                                 _error_log("getYoutubeDl: ERROR streamers_id does not have oauth streamers_id=$streamers_id");
                             }
                         }
@@ -2122,7 +2181,7 @@ class Encoder extends ObjectYPT
         $time_end = microtime(true);
         $execution_time = number_format($time_end - $time_start, 3);
         $error = "sendToStreamer {$url} in {$execution_time} seconds ";
-        _error_log($error . json_encode($obj).' debug_backtrace='.json_encode(debug_backtrace()));
+        _error_log($error . json_encode($obj) . ' debug_backtrace=' . json_encode(debug_backtrace()));
 
         $newObj = $obj;
         unset($newObj->postFields);
