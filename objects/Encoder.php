@@ -2600,6 +2600,10 @@ class Encoder extends ObjectYPT
                 @rrmdir($file);
             }
         }
+        $files = glob("{$global['systemRootPath']}videos/pytube/video_download_{$this->id}"); // get all file names
+        foreach ($files as $file) { // iterate files
+            @rrmdir($file);
+        }
         $this->deleteOriginal();
 
         if (!empty($global['progressiveUpload'])) {
