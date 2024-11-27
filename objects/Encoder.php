@@ -543,12 +543,88 @@ class Encoder extends ObjectYPT
         return true;
     }
 
-    public static function downloadWithPytube($video_url, $filename)
+    public static function getTitleFromLinkWithPytube($video_url)
+    {
+        global $global;
+
+        $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
+        $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
+        if(!file_exists($metadataFile)){
+            $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
+        }
+
+        if(file_exists($metadataFile)){
+            $content = file_get_contents($metadataFile);
+            $json = json_decode($content);
+            return $json->title;
+        }
+        return false;
+    }
+
+    public static function getDescriptionFromLinkWithPytube($video_url)
+    {
+        global $global;
+
+        $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
+        $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
+        if(!file_exists($metadataFile)){
+            $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
+        }
+
+        if(file_exists($metadataFile)){
+            $content = file_get_contents($metadataFile);
+            $json = json_decode($content);
+            return $json->description;
+        }
+        return false;
+    }
+
+    public static function getDurationFromLinkWithPytube($video_url)
+    {
+        global $global;
+
+        $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
+        $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
+        if(!file_exists($metadataFile)){
+            $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
+        }
+
+        if(file_exists($metadataFile)){
+            $content = file_get_contents($metadataFile);
+            $json = json_decode($content);
+            return $json->duration_seconds;
+        }
+        return false;
+    }
+
+    public static function getThumbsFromLinkWithPytube($video_url, $returnFileName = false)
+    {
+        global $global;
+
+        $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
+        $File = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/thumbs.jpg";
+        if(!file_exists($File)){
+            $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'thumbnail');
+        }
+
+        if(file_exists($File)){
+            if ($returnFileName) {
+                return $File;
+            } else {
+                $content = url_get_contents($File);
+                //unlink($returnTmpfname);
+                return $content;
+            }
+        }
+        return false;
+    }
+
+    public static function downloadWithPytube($video_url, $filename, $action = 'video')
     {
         global $global;
 
         $pythonScript = $global['systemRootPath'] . "objects/youtube.py";
-        $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename));
+        $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename)." {$action}");
         _error_log("downloadWithPytube($video_url, $filename) " . $command);
         exec($command, $output, $return_var);
 
@@ -556,6 +632,10 @@ class Encoder extends ObjectYPT
         $response->command = $command;
         $response->output = $output;
         $response->error = $return_var !== 0;
+        $response->filename = $filename;
+        $response->metadata = "{$global['systemRootPath']}videos/pytube/{$response->filename}/metadata.json";
+        $response->thumbnail = "{$global['systemRootPath']}videos/pytube/{$response->filename}/thumbs.jpg";
+        $response->video = "{$global['systemRootPath']}videos/pytube/{$response->filename}/video.mp4";
 
         if ($response->error) {
             $response->msg = "Error downloading video. Check progress.json for details.";
@@ -2704,13 +2784,20 @@ class Encoder extends ObjectYPT
 
     public static function getTitleFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
+        if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
+            $resp = self::getTitleFromLinkWithPytube($link);
+            if(!empty($resp)){
+                return array('error' => false, 'output' => $resp);
+            }
+        }
         $prepend = '';
         if (!isWindows()) {
             $prepend = 'LC_ALL=en_US.UTF-8 ';
         }
+        
         $link = str_replace("'", '', $link);
         $link = escapeshellarg($link);
-        $response = array('error' => true, 'output' => array());
+        $response = array('error' => true, 'output' => '');
         $cmd = $prepend . self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --skip-download -e {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
         if ($return_val !== 0) {
@@ -2730,6 +2817,12 @@ class Encoder extends ObjectYPT
 
     public static function getDurationFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
+        if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
+            $resp = self::getDurationFromLinkWithPytube($link);
+            if(!empty($resp)){
+                return static::parseSecondsToDuration($resp);
+            }
+        }
         $link = escapeshellarg($link);
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --get-duration --skip-download {$link}";
         exec($cmd . "  2>&1", $output, $return_val);
@@ -2751,6 +2844,13 @@ class Encoder extends ObjectYPT
 
     public static function getThumbsFromLink($link, $streamers_id, $returnFileName = false, $addOauthFromProvider = '')
     {
+        if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
+            $resp = self::getThumbsFromLinkWithPytube($link, $returnFileName);
+            if(!empty($resp)){
+                return $resp;
+            }
+        }
+
         $link = str_replace(array('"', "'"), array('', ''), $link);
         $link = escapeshellarg($link);
 
@@ -2796,6 +2896,13 @@ class Encoder extends ObjectYPT
         if (empty($link)) {
             return '';
         }
+        
+        if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
+            $resp = self::getDescriptionFromLinkWithPytube($link);
+            if(!empty($resp)){
+                return $resp;
+            }
+        }
         $link = escapeshellarg($link);
         $tmpfname = _get_temp_file('thumbs');
         $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist --force-ipv4 --write-description --skip-download  -o \"{$tmpfname}\" {$link}";
@@ -2836,6 +2943,11 @@ class Encoder extends ObjectYPT
     public static function getYouTubeDLCommand($addOauthFromProvider = '', $streamers_id = 0, $forceYoutubeDL = false)
     {
         global $global;
+        $cacheDir = '/var/www/.cache/';
+        if(!is_dir($cacheDir)){
+            @mkdir($cacheDir);
+        }
+
         $ytdl = "youtube-dl ";
         if (!empty($global['youtube-dl'])) {
             $ytdl = $global['youtube-dl'] . ' ';
