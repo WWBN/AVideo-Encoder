@@ -82,6 +82,8 @@ def add_user_agent():
         ("Accept-Language", "en-US,en;q=0.9"),
         ("Accept", "*/*"),
         ("Connection", "keep-alive"),
+        ("X-Forwarded-For", "203.0.113.1"),  # Example valid IP
+        ("X-Real-IP", "203.0.113.1"),        # Example valid IP
     ]
     opener = urllib.request.build_opener()
     opener.addheaders = headers
