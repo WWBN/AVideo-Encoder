@@ -63,6 +63,16 @@ def patched_get_throttling_function_name(js: str) -> str:
 ssl._create_default_https_context = ssl._create_unverified_context
 pytube.cipher.get_throttling_function_name = patched_get_throttling_function_name
 
+# Add a User-Agent header to urllib requests
+def add_user_agent():
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    opener = urllib.request.build_opener()
+    opener.addheaders = [("User-Agent", user_agent)]
+    urllib.request.install_opener(opener)
+
+# Ensure User-Agent is applied
+add_user_agent()
+
 def log_system_details():
     print("Logging system details:")
     print(f"Python version: {sys.version}")
@@ -214,6 +224,7 @@ def main():
     os.makedirs(folder_name, exist_ok=True)
 
     try:
+        add_user_agent()  # Ensure all requests include a user-agent
         log_system_details()  # Log environment details
         print(f"Attempting to access YouTube video: {url}")
         yt = YouTube(url)
@@ -236,7 +247,6 @@ def main():
         print(f"Error encountered during processing: {e}")
         import traceback
         traceback.print_exc()
-
 
 if __name__ == "__main__":
     main()
