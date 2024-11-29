@@ -622,7 +622,7 @@ class Encoder extends ObjectYPT
     public static function downloadWithPytube($video_url, $filename, $action = 'video')
     {
         global $global;
-
+        $video_url = str_replace(array('\\', "'"), array('', ''), $video_url);
         $pythonScript = $global['systemRootPath'] . "objects/youtube.py";
         $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename)." {$action}");
         _error_log("downloadWithPytube($video_url, $filename) " . $command);
