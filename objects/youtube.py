@@ -6,6 +6,9 @@ import sys
 import subprocess
 import urllib.request
 from datetime import datetime, timedelta
+import http.client
+http.client.HTTPConnection.debuglevel = 1
+
 
 # Function to ensure pytube is installed
 def ensure_pytube_installed():
@@ -65,10 +68,19 @@ pytube.cipher.get_throttling_function_name = patched_get_throttling_function_nam
 
 # Add a User-Agent header to urllib requests
 def add_user_agent():
-    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"
+    headers = [
+        ("User-Agent", user_agent),
+        ("Accept-Language", "en-US,en;q=0.9"),
+        ("Accept-Encoding", "gzip, deflate, br"),
+        ("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"),
+        ("Connection", "keep-alive"),
+        ("Upgrade-Insecure-Requests", "1"),
+    ]
     opener = urllib.request.build_opener()
-    opener.addheaders = [("User-Agent", user_agent)]
+    opener.addheaders = headers
     urllib.request.install_opener(opener)
+
 
 # Ensure User-Agent is applied
 add_user_agent()
@@ -79,9 +91,6 @@ def log_system_details():
     print(f"Pytube version: {pytube.__version__}")
     print(f"SSL version: {ssl.OPENSSL_VERSION}")
     print(f"System platform: {sys.platform}")
-    print("Environment variables:")
-    for key, value in os.environ.items():
-        print(f"{key}: {value}")
 
 def save_progress(stream, bytes_remaining, folder):
     try:
