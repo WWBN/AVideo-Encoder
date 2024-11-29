@@ -63,66 +63,89 @@ def patched_get_throttling_function_name(js: str) -> str:
 ssl._create_default_https_context = ssl._create_unverified_context
 pytube.cipher.get_throttling_function_name = patched_get_throttling_function_name
 
+def log_system_details():
+    print("Logging system details:")
+    print(f"Python version: {sys.version}")
+    print(f"Pytube version: {pytube.__version__}")
+    print(f"SSL version: {ssl.OPENSSL_VERSION}")
+    print(f"System platform: {sys.platform}")
+    print("Environment variables:")
+    for key, value in os.environ.items():
+        print(f"{key}: {value}")
+
 def save_metadata(yt, folder):
-    metadata = {
-        "title": yt.title if yt.title else "No Title",
-        "description": yt.description if yt.description else "No Description",
-        "url": yt.watch_url,
-        "duration_seconds": yt.length,  # Add duration in seconds
-        "created_date": datetime.now().isoformat()  # Track creation time
-    }
-    os.makedirs(folder, exist_ok=True)
-    metadata_file_path = os.path.join(folder, "metadata.json")
-    with open(metadata_file_path, "w") as meta_file:
-        json.dump(metadata, meta_file, indent=4)
-    print(f"Metadata saved successfully to '{metadata_file_path}'.")
+    try:
+        metadata = {
+            "title": yt.title if yt.title else "No Title",
+            "description": yt.description if yt.description else "No Description",
+            "url": yt.watch_url,
+            "duration_seconds": yt.length,  # Add duration in seconds
+            "created_date": datetime.now().isoformat()  # Track creation time
+        }
+        os.makedirs(folder, exist_ok=True)
+        metadata_file_path = os.path.join(folder, "metadata.json")
+        with open(metadata_file_path, "w") as meta_file:
+            json.dump(metadata, meta_file, indent=4)
+        print(f"Metadata saved successfully to '{metadata_file_path}'.")
+    except Exception as e:
+        print(f"Error saving metadata: {e}")
+        raise
 
 def save_thumbnail(yt, folder):
-    """Save the highest resolution thumbnail available."""
-    video_id = yt.video_id
-    thumbnail_urls = [
-        f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg",  # Highest resolution
-        f"https://img.youtube.com/vi/{video_id}/sddefault.jpg",     # Standard definition
-        f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",     # High quality
-        f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg",     # Medium quality
-        yt.thumbnail_url  # Default thumbnail
-    ]
-    
-    thumbnail_path = os.path.join(folder, "thumbs.jpg")
-    os.makedirs(folder, exist_ok=True)
-    
-    for url in thumbnail_urls:
-        try:
-            urllib.request.urlretrieve(url, thumbnail_path)
-            print(f"Thumbnail downloaded successfully to '{thumbnail_path}' from URL: {url}")
-            return  # Exit the loop on success
-        except Exception as e:
-            print(f"Failed to download thumbnail from '{url}': {e}")
-    
-    print(f"Could not download any thumbnails for video '{yt.title}'.")
-
-
+    try:
+        video_id = yt.video_id
+        thumbnail_urls = [
+            f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg",  # Highest resolution
+            f"https://img.youtube.com/vi/{video_id}/sddefault.jpg",     # Standard definition
+            f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg",     # High quality
+            f"https://img.youtube.com/vi/{video_id}/mqdefault.jpg",     # Medium quality
+            yt.thumbnail_url  # Default thumbnail
+        ]
+        
+        thumbnail_path = os.path.join(folder, "thumbs.jpg")
+        os.makedirs(folder, exist_ok=True)
+        
+        for url in thumbnail_urls:
+            try:
+                urllib.request.urlretrieve(url, thumbnail_path)
+                print(f"Thumbnail downloaded successfully to '{thumbnail_path}' from URL: {url}")
+                return  # Exit the loop on success
+            except Exception as e:
+                print(f"Failed to download thumbnail from '{url}': {e}")
+        
+        print(f"Could not download any thumbnails for video '{yt.title}'.")
+    except Exception as e:
+        print(f"Error in save_thumbnail: {e}")
+        raise
 
 def download_video(yt, folder):
-    video_stream = yt.streams.get_highest_resolution()
-    video_path = os.path.join(folder, "video.mp4")
-    yt.register_on_progress_callback(lambda stream, chunk, bytes_remaining: save_progress(stream, bytes_remaining, folder))
-    video_stream.download(output_path=folder, filename="video.mp4")
-    print(f"Video downloaded successfully to '{video_path}'.")
+    try:
+        video_stream = yt.streams.get_highest_resolution()
+        video_path = os.path.join(folder, "video.mp4")
+        yt.register_on_progress_callback(lambda stream, chunk, bytes_remaining: save_progress(stream, bytes_remaining, folder))
+        video_stream.download(output_path=folder, filename="video.mp4")
+        print(f"Video downloaded successfully to '{video_path}'.")
+    except Exception as e:
+        print(f"Error downloading video: {e}")
+        raise
 
 def save_progress(stream, bytes_remaining, folder):
-    total_size = stream.filesize
-    downloaded = total_size - bytes_remaining
-    progress = {
-        "total_size": total_size,
-        "downloaded": downloaded,
-        "progress": round((downloaded / total_size) * 100, 2)
-    }
-    os.makedirs(folder, exist_ok=True)
-    progress_file_path = os.path.join(folder, "progress.json")
-    with open(progress_file_path, "w") as progress_file:
-        json.dump(progress, progress_file, indent=4)
-    print(f"Progress saved to '{progress_file_path}'.")
+    try:
+        total_size = stream.filesize
+        downloaded = total_size - bytes_remaining
+        progress = {
+            "total_size": total_size,
+            "downloaded": downloaded,
+            "progress": round((downloaded / total_size) * 100, 2)
+        }
+        os.makedirs(folder, exist_ok=True)
+        progress_file_path = os.path.join(folder, "progress.json")
+        with open(progress_file_path, "w") as progress_file:
+            json.dump(progress, progress_file, indent=4)
+        print(f"Progress saved to '{progress_file_path}'.")
+    except Exception as e:
+        print(f"Error saving progress: {e}")
+        raise
 
 def clean_old_folders(base_folder, days=7):
     """Delete folders older than a specified number of days."""
@@ -154,12 +177,17 @@ def main():
     base_folder = os.path.join(script_dir, '../videos/pytube/')
     url = sys.argv[1]
     folder_name = os.path.join(base_folder, sys.argv[2])
-    action = sys.argv[3].lower() if len(sys.argv) > 3 else "video"
+    action = sys.argv[3].lower() if len(sys.argv) > 3 else "all"
 
     os.makedirs(folder_name, exist_ok=True)
 
     try:
+        log_system_details()  # Log environment details
+        print(f"Attempting to access YouTube video: {url}")
         yt = YouTube(url)
+        print(f"Video title: {yt.title}")
+        print(f"Available streams: {yt.streams}")
+        
         if action == "metadata":
             save_metadata(yt, folder_name)
         elif action == "thumbnail":
@@ -173,10 +201,11 @@ def main():
         else:
             print("Invalid action specified. Use 'metadata', 'thumbnail', 'video', or 'all'.")
         
-        # Clean old folders after the operation
         clean_old_folders(base_folder)
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error encountered: {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
