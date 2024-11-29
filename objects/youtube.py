@@ -155,36 +155,34 @@ def clean_old_folders(base_folder, days=7):
 def get_metadata_safe(yt):
     """Safely retrieve metadata from YouTube object."""
     metadata = {}
-    try:
-        metadata["title"] = yt.title if hasattr(yt, "title") and yt.title else "Unknown Title"
-    except Exception as e:
-        print(f"Error retrieving title: {e}")
-        metadata["title"] = "Unknown Title"
 
-    try:
-        metadata["description"] = yt.description if hasattr(yt, "description") and yt.description else "No Description"
-    except Exception as e:
-        print(f"Error retrieving description: {e}")
-        metadata["description"] = "No Description"
+    def fetch_metadata():
+        try:
+            metadata["title"] = yt.title if hasattr(yt, "title") and yt.title else "Unknown Title"
+            metadata["description"] = yt.description if hasattr(yt, "description") and yt.description else "No Description"
+            metadata["url"] = yt.watch_url if hasattr(yt, "watch_url") else "Unknown URL"
+            metadata["duration_seconds"] = yt.length if hasattr(yt, "length") else 0
+            return True  # Indicate success
+        except Exception as e:
+            print(f"Error retrieving metadata: {e}")
+            return False
 
-    try:
-        metadata["url"] = yt.watch_url if hasattr(yt, "watch_url") else "Unknown URL"
-    except Exception as e:
-        print(f"Error retrieving URL: {e}")
-        metadata["url"] = "Unknown URL"
-
-    try:
-        metadata["duration_seconds"] = yt.length if hasattr(yt, "length") else 0
-    except Exception as e:
-        print(f"Error retrieving video length: {e}")
-        metadata["duration_seconds"] = 0
-
+    # Try fetching metadata directly, fallback to proxies if needed
+    success = attempt_with_proxies(fetch_metadata)
+    if not success:
+        print("Failed to retrieve metadata with all proxies.")
+        metadata = {
+            "title": "Unknown Title",
+            "description": "No Description",
+            "url": "Unknown URL",
+            "duration_seconds": 0,
+        }
     return metadata
 
 def save_metadata(yt, folder):
     """Save metadata with fallback."""
     try:
-        metadata = get_metadata_safe(yt)
+        metadata = get_metadata_safe(yt)  # Proxy-enabled metadata retrieval
         metadata["created_date"] = datetime.now().isoformat()  # Track creation time
         os.makedirs(folder, exist_ok=True)
         metadata_file_path = os.path.join(folder, "metadata.json")
