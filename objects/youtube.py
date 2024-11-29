@@ -14,12 +14,6 @@ http.client.HTTPConnection.debuglevel = 0  # Set to 1 for verbose HTTP output
 
 # Define the proxy list once at the top
 PROXIES = [
-    'http://44.218.183.55:80',
-    'http://44.195.247.145:80',
-    'http://160.86.242.23:8080',
-    'http://116.203.135.164:8090',
-    'http://35.215.216.90:80',
-    'http://47.252.29.28:11222',
     'http://68.178.168.41:80',
     'http://148.72.165.171:10501',
     'http://47.242.47.64:8888',
