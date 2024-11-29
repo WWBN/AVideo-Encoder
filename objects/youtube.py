@@ -8,6 +8,7 @@ import urllib.request
 from datetime import datetime, timedelta
 import http.client
 import socket
+import concurrent.futures
 
 http.client.HTTPConnection.debuglevel = 0  # Set to 1 for verbose HTTP output
 
@@ -226,44 +227,81 @@ def save_thumbnail(yt, folder):
         return False
 
 def download_video(yt, folder):
-    """Download the video at the highest resolution, with fallback."""
+    """Download the video at the highest resolution, with merging audio and video."""
     try:
-        video_stream = yt.streams.get_highest_resolution()
-        if video_stream is None:
-            print("No streams available to download.")
+        # Get the highest resolution video-only stream
+        video_stream = yt.streams.filter(adaptive=True, type="video").order_by('resolution').desc().first()
+        # Get the highest quality audio-only stream
+        audio_stream = yt.streams.filter(adaptive=True, type="audio").order_by('abr').desc().first()
+        
+        if video_stream is None or audio_stream is None:
+            print("No suitable streams available to download.")
             return False
+        
         print(f"Selected video stream: {video_stream}")
+        print(f"Selected audio stream: {audio_stream}")
+        
         video_path = os.path.join(folder, "video.mp4")
-        yt.register_on_progress_callback(
-            lambda stream, chunk, bytes_remaining: save_progress(stream, chunk, bytes_remaining, folder)
-        )
+        audio_path = os.path.join(folder, "audio.mp4")
+        output_path = os.path.join(folder, "merged_video.mp4")
+        
+        # Download video and audio streams
         video_stream.download(output_path=folder, filename="video.mp4")
-        print(f"Video downloaded successfully to '{video_path}'.")
+        audio_stream.download(output_path=folder, filename="audio.mp4")
+        
+        print("Downloaded video and audio streams. Merging them now...")
+        
+        # Merge video and audio using ffmpeg
+        merge_command = [
+            'ffmpeg',
+            '-y',  # Overwrite output file if it exists
+            '-i', video_path,
+            '-i', audio_path,
+            '-c', 'copy',
+            output_path
+        ]
+        subprocess.run(merge_command, check=True)
+        
+        print(f"Video merged successfully to '{output_path}'.")
+        # Optionally, remove the separate video and audio files
+        os.remove(video_path)
+        os.remove(audio_path)
         return True
     except Exception as e:
-        print(f"Error downloading video: {e}")
+        print(f"Error downloading or merging video: {e}")
         return False
 
 def attempt_with_proxies(function, *args):
     # First attempt without proxy
     reset_proxy()
-    success = function(*args)
-    if success:
-        return True
-    else:
-        for proxy in PROXIES:
-            print(f"Retrying with proxy {proxy}")
-            try:
-                set_proxy(proxy)
-                success = function(*args)
-                if success:
-                    return True
-            except Exception as e:
-                print(f"Failed with proxy {proxy}: {e}")
-            finally:
-                reset_proxy()
-        print("All proxies failed.")
-        return False
+    try:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(function, *args)
+            success = future.result(timeout=10)
+        if success:
+            return True
+    except Exception as e:
+        print(f"Function failed without proxy: {e}")
+    except concurrent.futures.TimeoutError:
+        print("Function timed out without proxy")
+
+    for proxy in PROXIES:
+        print(f"Retrying with proxy {proxy}")
+        try:
+            set_proxy(proxy)
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(function, *args)
+                success = future.result(timeout=10)
+            if success:
+                return True
+        except concurrent.futures.TimeoutError:
+            print(f"Proxy {proxy} timed out")
+        except Exception as e:
+            print(f"Failed with proxy {proxy}: {e}")
+        finally:
+            reset_proxy()
+    print("All proxies failed.")
+    return False
 
 def main():
     if len(sys.argv) < 3:
@@ -285,28 +323,14 @@ def main():
         print(f"Attempting to access YouTube video: {url}")
 
         yt = None
-        # Attempt to create YouTube object, retrying with proxies if necessary
-        success = False
-        # First attempt without proxy
-        reset_proxy()
-        try:
+
+        def create_youtube_object():
+            nonlocal yt
             yt = YouTube(url)
-            success = True
-        except Exception as e:
-            print(f"Failed to create YouTube object without proxy: {e}")
-        if not success:
-            for proxy in PROXIES:
-                print(f"Retrying with proxy {proxy}")
-                try:
-                    set_proxy(proxy)
-                    yt = YouTube(url)
-                    print(f"Successfully created YouTube object with proxy {proxy}")
-                    success = True
-                    break
-                except Exception as e:
-                    print(f"Failed to create YouTube object with proxy {proxy}: {e}")
-                finally:
-                    reset_proxy()
+            return True
+
+        success = attempt_with_proxies(create_youtube_object)
+
         if not success:
             print("Failed to access YouTube video with all proxies.")
             sys.exit(1)
