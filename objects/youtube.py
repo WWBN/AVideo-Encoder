@@ -210,12 +210,18 @@ def download_video(yt, folder):
         if video_stream is None:
             print("No streams available to download.")
             return
+        print(f"Selected video stream: {video_stream}")
         video_path = os.path.join(folder, "video.mp4")
-        yt.register_on_progress_callback(lambda stream, chunk, bytes_remaining: save_progress(stream, bytes_remaining, folder))
+        yt.register_on_progress_callback(
+            lambda stream, chunk, bytes_remaining: save_progress(stream, bytes_remaining, folder)
+        )
         video_stream.download(output_path=folder, filename="video.mp4")
         print(f"Video downloaded successfully to '{video_path}'.")
     except Exception as e:
         print(f"Error downloading video: {e}")
+        import traceback
+        traceback.print_exc()
+
 
 
 def main():
