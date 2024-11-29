@@ -13,18 +13,7 @@ import concurrent.futures
 http.client.HTTPConnection.debuglevel = 0  # Set to 1 for verbose HTTP output
 
 # Define the proxy list once at the top
-PROXIES = [
-    'http://68.178.168.41:80',
-    'http://148.72.165.171:10501',
-    'http://47.242.47.64:8888',
-    'http://200.174.198.86:8888',
-    'http://13.208.56.180:80',
-    'http://5.252.22.45:80',
-    'http://20.111.54.16:8123',
-    'http://157.254.53.50:80',
-    'http://54.152.3.36:80',
-    'http://13.36.113.81:3128'
-]
+PROXIES = []
 
 
 # Function to ensure pytube is installed
