@@ -14,5 +14,9 @@
             <span class="fas fa-user-circle"></span>
             <strong><?php echo __('User'); ?>:</strong> <?php echo Login::getStreamerUser(); ?>
         </p>
+        <p>
+            <span class="fa-solid fa-file-upload"></span>
+            <strong><?php echo __('Max File Size'); ?>:</strong> <?php echo get_max_file_size(); ?>
+        </p>
     </div>
 </div>

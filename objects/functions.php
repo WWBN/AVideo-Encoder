@@ -188,24 +188,36 @@ function file_get_intbound_contents($url, $bindto_addr_family)
     return file_get_contents($url, false, $stream_context);
 }
 
-// Returns a file size limit in bytes based on the PHP upload_max_filesize
-// and post_max_size
-function file_upload_max_size()
-{
-    static $max_size = -1;
+function file_upload_max_size() {
+    // Retrieve the values from php.ini
+    $uploadMaxFileSize = ini_get('upload_max_filesize');
+    $postMaxSize = ini_get('post_max_size');
 
-    if ($max_size < 0) {
-        // Start with post_max_size.
-        $max_size = parse_size(ini_get('post_max_size'));
+    // Convert both values to bytes
+    $uploadMaxFileSizeBytes = convertToBytes($uploadMaxFileSize);
+    $postMaxSizeBytes = convertToBytes($postMaxSize);
 
-        // If upload_max_size is less, then reduce. Except if upload_max_size is
-        // zero, which indicates no limit.
-        $upload_max = parse_size(ini_get('upload_max_filesize'));
-        if ($upload_max > 0 && $upload_max < $max_size) {
-            $max_size = $upload_max;
-        }
+    // Return the smaller of the two values
+    return min($uploadMaxFileSizeBytes, $postMaxSizeBytes);
+}
+
+function convertToBytes($value) {
+    $unit = strtoupper(substr($value, -1));
+    $bytes = (int)$value;
+
+    switch ($unit) {
+        case 'G':
+            $bytes *= 1024 ** 3;
+            break;
+        case 'M':
+            $bytes *= 1024 ** 2;
+            break;
+        case 'K':
+            $bytes *= 1024;
+            break;
     }
-    return $max_size;
+
+    return $bytes;
 }
 
 function parse_size($size)
