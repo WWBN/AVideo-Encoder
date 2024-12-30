@@ -28,7 +28,9 @@ $siteURL = rtrim($siteURL, '/') . '/';
 
 // Determine the folder name based on the current script directory
 $folderName = basename(dirname(getcwd()));
-$databaseName = "AVideoEncoder_" . preg_replace("/[^0-9a-z]/i", "", $folderName);
+// Extract the domain name from the URL
+$domainName = preg_replace("/[^0-9a-z]/i", "", parse_url($siteURL, PHP_URL_HOST));
+$databaseName = "AVideoEncoder_" . $domainName . "_" . preg_replace("/[^0-9a-z]/i", "", $folderName);
 $webSiteRootURL = $siteURL . "Encoder/";
 
 $databaseUser = empty($argv[2]) ? $databaseUser : $argv[2];
