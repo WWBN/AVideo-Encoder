@@ -25,11 +25,14 @@ while (!filter_var($siteURL, FILTER_VALIDATE_URL)) {
     $siteURL = trim(readline(""));
 }
 $siteURL = rtrim($siteURL, '/') . '/';
-$databaseName = ("AVideoEncoder_".preg_replace("/[^0-9a-z]/i", "", parse_url($siteURL, PHP_URL_HOST)));
+
+// Determine the folder name based on the current script directory
+$folderName = basename(dirname(getcwd()));
+$databaseName = "AVideoEncoder_" . preg_replace("/[^0-9a-z]/i", "", $folderName);
 $webSiteRootURL = $siteURL . "Encoder/";
 
-$databaseUser = empty($argv[2])?$databaseUser:$argv[2];
-$databasePass = empty($argv[3])?$databasePass:$argv[3];
+$databaseUser = empty($argv[2]) ? $databaseUser : $argv[2];
+$databasePass = empty($argv[3]) ? $databasePass : $argv[3];
 $systemAdminPass = empty($argv[4]) ? "123" : $argv[4];
 $databaseName = empty($argv[5]) ? $databaseName : $argv[5];
 $webSiteRootURL = empty($argv[6]) ? $webSiteRootURL : $argv[6];
@@ -39,13 +42,13 @@ $databasePort = empty($argv[8]) ? '3306' : $argv[8];
 // install.php siteURL databaseUser databasePass systemAdminPass databaseName webSiteRootURLEncoder databaseHost databasePort
 
 $_POST['systemRootPath'] = str_replace("install", "", getcwd());
-if(!is_dir($_POST['systemRootPath'])) {
+if (!is_dir($_POST['systemRootPath'])) {
     $_POST['systemRootPath'] = "/var/www/html/YouPHPTube/Encoder/";
-    if(!is_dir($_POST['systemRootPath'])) {
+    if (!is_dir($_POST['systemRootPath'])) {
         $_POST['systemRootPath'] = "/var/www/html/AVideo/Encoder/";
     }
 }
-echo "Installing in {$_POST['systemRootPath']}".PHP_EOL;
+echo "Installing in {$_POST['systemRootPath']}" . PHP_EOL;
 $_POST['databaseHost'] = $databaseHost;
 $_POST['databaseUser'] = $databaseUser;
 $_POST['databasePass'] = $databasePass;
@@ -72,5 +75,5 @@ if (file_exists($streamerConfiguration)) {
 
     $global['mysqli']->query($sql);
 } else {
-    echo PHP_EOL."File not found {$streamerConfiguration}".PHP_EOL;
+    echo PHP_EOL . "File not found {$streamerConfiguration}" . PHP_EOL;
 }
