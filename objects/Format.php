@@ -889,12 +889,15 @@ if (!class_exists('Format')) {
                     if (empty($global['disableHLSAudioMultitrack'])) {
                         _error_log("AVideo-Encoder Format::exec use HLSProcessor");
                         $dynamic = HLSProcessor::createHLSWithAudioTracks($pathFileName, $destinationFile);
+                        _error_log("AVideo-Encoder Format::exec use HLSProcessor Complete");
                     } else {
                         _error_log("AVideo-Encoder Format::exec disableHLSAudioMultitrack");
                         $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
                     }
                     $destinationFile = $dynamic[0];
                     $fc = $dynamic[1];
+                    
+                    _error_log("AVideo-Encoder Format::exec destinationFile=$destinationFile fc=$fc ");
                 } else { // use default 3 resolutions
                     $destinationFile = self::preProcessHLS($destinationFile);
                 }
@@ -908,6 +911,7 @@ if (!class_exists('Format')) {
             $code = replaceFFMPEG($code);
             $code = removeUserAgentIfNotURL($code);
             if (empty($code)) {
+                _error_log("AVideo-Encoder Format::exec code is empty ");
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
                 $obj->code = $code;

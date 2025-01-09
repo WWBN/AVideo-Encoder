@@ -25,11 +25,11 @@ class HLSProcessor
 
         if (file_exists($keyInfoFile)) {
             // Reuse existing keyinfo and key
-            _error_log("HLSProcessor: Reusing existing key and keyinfo");
+            _error_log("HLSProcessor: createHLSWithAudioTracks Reusing existing key and keyinfo");
             $keyFileName = basename(file($keyInfoFile)[0]); // Extract key filename from keyinfo
         } else {
             // Create encryption key
-            _error_log("HLSProcessor: Creating new encryption key and keyinfo");
+            _error_log("HLSProcessor: createHLSWithAudioTracks Creating new encryption key and keyinfo");
             $key = openssl_random_pseudo_bytes(16);
             $keyFileName = "enc_" . uniqid() . ".key";
             file_put_contents($destinationFile . $keyFileName, $key);
@@ -61,14 +61,15 @@ class HLSProcessor
                 "-hls_segment_filename \"{$audioTsPattern}\" {$audioFile}";
 
             $audioCommand = removeUserAgentIfNotURL($audioCommand);
-            _error_log("Executing audio FFmpeg command: {$audioCommand}");
+            _error_log("HLSProcessor: createHLSWithAudioTracks Executing audio FFmpeg command: {$audioCommand}");
             exec($audioCommand, $output, $result_code); // Execute FFmpeg command
 
             if (!file_exists($audioFile)) {
-                _error_log("audioFile error: {$audioCommand} " . json_encode(array($output)));
+                _error_log("HLSProcessor: createHLSWithAudioTracks audioFile error: {$audioCommand} " . json_encode(array($output)));
                 rmdir("{$destinationFile}audio_tracks/{$langDir}");
                 unset($audioTracks[$key]);
             } else {
+                _error_log("HLSProcessor: createHLSWithAudioTracks audioFile Success" );
                 // Add audio track entry to the master playlist
                 $default = ($track->index == 0) ? "YES" : "NO"; // Set first audio track as default
                 $masterPlaylist .= "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio_group\",NAME=\"{$track->title}\",LANGUAGE=\"{$language}\",DEFAULT={$default},AUTOSELECT=YES,URI=\"audio_tracks/{$langDir}/audio.m3u8\"".PHP_EOL;
@@ -80,6 +81,7 @@ class HLSProcessor
         // Generate HLS files for each resolution
         foreach ($resolutions as $key => $value) {
             if ($resolution >= $value) {
+                _error_log("HLSProcessor: createHLSWithAudioTracks Resolution found: {$value}");
                 $encodingSettings = Format::ENCODING_SETTINGS[$value];
                 $rate = $encodingSettings['maxrate']; // Use the maxrate from ENCODING_SETTINGS
                 $framerate = isset($videoFramerate[$key]) && $videoFramerate[$key] > 0 ? $videoFramerate[$key] : 30;
@@ -96,11 +98,12 @@ class HLSProcessor
 
                 $resolutionsFound++;
             } else {
-                _error_log("HLSProcessor: Skipped resolution {$value} for {$pathFileName} (video height is {$resolution})");
+                _error_log("HLSProcessor: createHLSWithAudioTracks Skipped resolution {$value} for {$pathFileName} (video height is {$resolution})");
             }
         }
 
         if (empty($resolutionsFound)) {
+            _error_log("HLSProcessor: createHLSWithAudioTracks Resolution found is empty");
             // did not find any resolution, process the default one
             $encodingSettings = Format::ENCODING_SETTINGS[480];
             $rate = $encodingSettings['maxrate']; // Use the maxrate from ENCODING_SETTINGS
@@ -124,7 +127,7 @@ class HLSProcessor
 
         // Write the master playlist to the destination file
         file_put_contents($destinationFile . "index.m3u8", $masterPlaylist);
-        _error_log("Master playlist written to: {$destinationFile}index.m3u8");
+        _error_log("HLSProcessor: createHLSWithAudioTracks Master playlist written to: {$destinationFile}index.m3u8");
 
         return array($destinationFile, $ffmpegCommand);
     }
