@@ -915,8 +915,8 @@ if (!class_exists('Format')) {
                 $obj->msg = "Code not found ($format_id, $pathFileName, $destinationFile, $encoder_queue_id)";
             } else {
                 $obj->code = $code;
-                _error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] ");
                 $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
+                _error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] {$progressFile} ");
                 $encoder->exec($code . " 1> \"{$progressFile}\"  2>&1", $output, $return_val);
                 if (self::progressFileHasVideosWithErrors($progressFile)) {
                     _error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));

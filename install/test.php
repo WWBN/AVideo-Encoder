@@ -50,7 +50,10 @@ $filesURL = array(
     //'https://4k.ypt.me/1080/Christmas_Tree_Pan.mp4',//(NO AUDIO)
     'https://4k.ypt.me/4K/Hisense.mp4',
     'https://4k.ypt.me/4K/Rocket_to_Space.mp4',
+    'https://4k.ypt.me/4K/beach-uhd_3840_2160_30fps.mp4',
     'https://4k.ypt.me/4K/Time_Scapes.mp4',
+    'https://4k.ypt.me/1080/big_buck_bunny_720p_30mb.mp4',
+    'https://4k.ypt.me/1080/rain-hd_1920_1080_30fps.mp4',
 );
 
 foreach ($filesURL as $value) {
