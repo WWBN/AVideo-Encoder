@@ -2,13 +2,35 @@
 
 class MP4Processor
 {
-    public static function createMP4($pathFileName, $destinationFile)
+    
+    public static function createMP4MaxResolutionFromQueueId($pathFileName, $encoder_queue_id, $maxResolution = 1080){
+        $inputResolution = self::getResolution($pathFileName);
+        if($inputResolution> $maxResolution){
+            $inputResolution = $maxResolution;
+        }
+        $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', $inputResolution);
+        return self::createMP4($pathFileName, $destinationFile, $encoder_queue_id, $inputResolution);
+    }
+
+    public static function createMP4MaxResolution($pathFileName, $destinationFile, $maxResolution = 1080){
+        
+        $inputResolution = self::getResolution($pathFileName);
+        if($inputResolution> $maxResolution){
+            $inputResolution = $maxResolution;
+        }
+        return self::createMP4($pathFileName, $destinationFile, 0, $inputResolution);
+    }
+
+    public static function createMP4($pathFileName, $destinationFile, $encoder_queue_id = 0, $inputResolution = null)
     {
+        global $global;
         // Get allowed resolutions from Format::ENCODING_SETTINGS
         $allowedResolutions = array_keys(Format::ENCODING_SETTINGS);
 
         // Get the resolution of the input file
-        $inputResolution = self::getResolution($pathFileName);
+        if ($inputResolution === null) {
+            $inputResolution = self::getResolution($pathFileName);
+        }
 
         // Determine the target resolution
         $targetResolution = self::getClosestResolution($inputResolution, $allowedResolutions);
@@ -27,6 +49,11 @@ class MP4Processor
             $targetResolution,
             $encodingSettings
         );
+
+        if(!empty($encoder_queue_id)){
+            $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
+            $command = "{$command} > 1 $progressFile 2>&1";
+        }
 
         // Execute the FFmpeg command
         _error_log("MP4Processor: Executing FFmpeg command: $command");
@@ -64,6 +91,7 @@ class MP4Processor
     private static function generateFFmpegCommand($inputFile, $outputFile, $resolution, $encodingSettings)
     {
         $ffmpeg = get_ffmpeg() . " -i $inputFile " .
+            '-preset veryfast '.
             "-vf scale=-2:$resolution " .
             "-b:v {$encodingSettings['maxrate']}k " .
             "-minrate {$encodingSettings['minrate']}k " .

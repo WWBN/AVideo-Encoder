@@ -25,6 +25,7 @@ class MP3Processor
     private static function generateFFmpegCommand($inputFile, $outputFile, $audioBitrate)
     {
         $ffmpeg = get_ffmpeg() . " -i $inputFile " .
+            '-preset veryfast '.
             "-vn -c:a libmp3lame -b:a {$audioBitrate}k " .
             "-movflags +faststart " .
             "$outputFile";

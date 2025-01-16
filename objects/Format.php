@@ -902,7 +902,12 @@ if (!class_exists('Format')) {
                     $destinationFile = self::preProcessHLS($destinationFile);
                 }
             } elseif ($format_id == 31) { // it is MP4
-                $fc = self::getDynamicCommandFromMP4($pathFileName, $encoder_queue_id);
+                $advancedCustom = getAdvancedCustomizedObjectData();
+                if(!empty($advancedCustom->singleResolution->value)){
+                    return MP4Processor::createMP4MaxResolutionFromQueueId($pathFileName, $encoder_queue_id, $advancedCustom->singleResolution->value);
+                }else{
+                    $fc = self::getDynamicCommandFromMP4($pathFileName, $encoder_queue_id);
+                }
             } elseif ($format_id == 32) { // it is WebM
                 $fc = self::getDynamicCommandFromWebm($pathFileName, $encoder_queue_id);
             }
