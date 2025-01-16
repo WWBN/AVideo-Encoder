@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/HLSProcessor.php';
+require_once __DIR__ . '/MP4Processor.php';
+require_once __DIR__ . '/MP3Processor.php';
 
 if (!class_exists('Format')) {
     if (!class_exists('ObjectYPT')) {
@@ -113,7 +115,7 @@ if (!class_exists('Format')) {
             }
             return $row;
         }
-        
+
         public function run($pathFileName, $encoder_queue_id)
         {
             _error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) " . json_encode(debug_backtrace()));
@@ -896,16 +898,21 @@ if (!class_exists('Format')) {
                     }
                     $destinationFile = $dynamic[0];
                     $fc = $dynamic[1];
-                    
+
                     _error_log("AVideo-Encoder Format::exec destinationFile=$destinationFile fc=$fc ");
                 } else { // use default 3 resolutions
                     $destinationFile = self::preProcessHLS($destinationFile);
                 }
             } elseif ($format_id == 31) { // it is MP4
+                _error_log("AVideo-Encoder Format::exec line=" . __LINE__);
+
                 $advancedCustom = getAdvancedCustomizedObjectData();
-                if(!empty($advancedCustom->singleResolution->value)){
+                _error_log("AVideo-Encoder Format::exec line=" . __LINE__);
+                if (!empty($advancedCustom->singleResolution->value)) {
+                    _error_log("AVideo-Encoder Format::exec MP4Processor::createMP4MaxResolutionFromQueueId($pathFileName, $encoder_queue_id, {$advancedCustom->singleResolution->value})");
                     return MP4Processor::createMP4MaxResolutionFromQueueId($pathFileName, $encoder_queue_id, $advancedCustom->singleResolution->value);
-                }else{
+                } else {
+                    _error_log("AVideo-Encoder Format::exec line=" . __LINE__);
                     $fc = self::getDynamicCommandFromMP4($pathFileName, $encoder_queue_id);
                 }
             } elseif ($format_id == 32) { // it is WebM

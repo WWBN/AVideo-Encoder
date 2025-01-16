@@ -9,7 +9,6 @@ class HLSProcessor
         $advancedCustom = getAdvancedCustomizedObjectData();
         //_error_log('createMP3AndPM4IfNeed '.json_encode($advancedCustom));
         if($advancedCustom->autoConvertToMp4){
-            require_once __DIR__.'/MP4Processor.php';
             try {
                 MP4Processor::createMP4($pathFileName, $destinationFile.'index.mp4');
             } catch (Exception $e) {
@@ -18,7 +17,6 @@ class HLSProcessor
             
         }
         if($advancedCustom->autoConvertVideosToMP3){
-            require_once __DIR__.'/MP3Processor.php';
             // Usage example
             try {
                 MP3Processor::createMP3($pathFileName, $destinationFile.'index.mp3');

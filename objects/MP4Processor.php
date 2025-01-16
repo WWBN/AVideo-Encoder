@@ -4,6 +4,8 @@ class MP4Processor
 {
     
     public static function createMP4MaxResolutionFromQueueId($pathFileName, $encoder_queue_id, $maxResolution = 1080){
+        _error_log("MP4Processor::createMP4MaxResolutionFromQueueId [$pathFileName, $encoder_queue_id, $maxResolution ] ");
+            
         $inputResolution = self::getResolution($pathFileName);
         if($inputResolution> $maxResolution){
             $inputResolution = $maxResolution;
@@ -23,6 +25,7 @@ class MP4Processor
 
     public static function createMP4($pathFileName, $destinationFile, $encoder_queue_id = 0, $inputResolution = null)
     {
+        _error_log("MP4Processor::createMP4 [$pathFileName, $destinationFile, $encoder_queue_id, $inputResolution ] ");
         global $global;
         // Get allowed resolutions from Format::ENCODING_SETTINGS
         $allowedResolutions = array_keys(Format::ENCODING_SETTINGS);
@@ -52,7 +55,7 @@ class MP4Processor
 
         if(!empty($encoder_queue_id)){
             $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
-            $command = "{$command} > 1 $progressFile 2>&1";
+            $command = "{$command} 1> $progressFile 2>&1";
         }
 
         // Execute the FFmpeg command
@@ -60,8 +63,9 @@ class MP4Processor
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0) {
-            _error_log("MP4Processor: FFmpeg failed with output: " . json_encode($output));
-            throw new Exception("Failed to create MP4 file.");
+            _error_log("MP4Processor: FFmpeg failed with output: $resultCode $command" . json_encode($output));
+            var_dump($resultCode, $output, $command);
+            throw new Exception("Failed to create MP4 file. $resultCode $command " . json_encode($output));
         }
 
         _error_log("MP4Processor: MP4 file created successfully at $destinationFile");
