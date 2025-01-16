@@ -2,6 +2,32 @@
 
 class HLSProcessor
 {
+
+    static function createMP3AndPM4IfNeed($pathFileName, $destinationFile){
+        global $global;
+        
+        $advancedCustom = getAdvancedCustomizedObjectData();
+        //_error_log('createMP3AndPM4IfNeed '.json_encode($advancedCustom));
+        if($advancedCustom->autoConvertToMp4){
+            require_once __DIR__.'/MP4Processor.php';
+            try {
+                MP4Processor::createMP4($pathFileName, $destinationFile.'index.mp4');
+            } catch (Exception $e) {
+                _error_log("Error creating MP4: " . $e->getMessage());
+            }
+            
+        }
+        if($advancedCustom->autoConvertVideosToMP3){
+            require_once __DIR__.'/MP3Processor.php';
+            // Usage example
+            try {
+                MP3Processor::createMP3($pathFileName, $destinationFile.'index.mp3');
+            } catch (Exception $e) {
+                _error_log("Error creating MP3: " . $e->getMessage());
+            }
+        }
+    }
+
     public static function createHLSWithAudioTracks($pathFileName, $destinationFile)
     {
         // Detect video resolution and audio tracks
@@ -43,6 +69,8 @@ class HLSProcessor
         // Initialize the master playlist content
         $masterPlaylist = "#EXTM3U" . PHP_EOL;
         $masterPlaylist .= "#EXT-X-VERSION:3" . PHP_EOL;
+
+        self::createMP3AndPM4IfNeed($pathFileName, $destinationFile);
 
         // Generate separate audio-only HLS streams for each audio track
         foreach ($audioTracks as $key => $track) {

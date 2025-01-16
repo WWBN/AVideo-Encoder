@@ -1259,7 +1259,7 @@ class Encoder extends ObjectYPT
 
     public static function run($try = 0)
     {
-        global $global;
+        global $global, $advancedCustom;
         $maxTries = 4;
         $lockFile = sys_get_temp_dir() . '/encoder_run.lock';
 

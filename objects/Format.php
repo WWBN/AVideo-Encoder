@@ -113,7 +113,7 @@ if (!class_exists('Format')) {
             }
             return $row;
         }
-
+        
         public function run($pathFileName, $encoder_queue_id)
         {
             _error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) " . json_encode(debug_backtrace()));
