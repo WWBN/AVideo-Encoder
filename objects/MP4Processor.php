@@ -10,8 +10,14 @@ class MP4Processor
         if($inputResolution> $maxResolution){
             $inputResolution = $maxResolution;
         }
-        $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', $inputResolution);
-        return self::createMP4($pathFileName, $destinationFile, $encoder_queue_id, $inputResolution);
+        // Get allowed resolutions from Format::ENCODING_SETTINGS
+        $allowedResolutions = array_keys(Format::ENCODING_SETTINGS);
+        // Determine the target resolution
+        $targetResolution = self::getClosestResolution($inputResolution, $allowedResolutions);
+
+        $destinationFile = Encoder::getTmpFileName($encoder_queue_id, 'mp4', $targetResolution);
+        _error_log("MP4Processor::createMP4MaxResolutionFromQueueId [$pathFileName, $encoder_queue_id, $maxResolution ] [{$inputResolution}p] => [{$targetResolution}p] $destinationFile");
+        return self::createMP4($pathFileName, $destinationFile, $encoder_queue_id, $targetResolution);
     }
 
     public static function createMP4MaxResolution($pathFileName, $destinationFile, $maxResolution = 1080){
