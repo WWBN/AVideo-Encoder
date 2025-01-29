@@ -8,47 +8,50 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 
 if (empty($global['allowed'])) {
-    $global['allowed'] = array();
+    $global['allowed'] = [];
 }
 
-// Ensure extensions are in lowercase and unique
 $global['allowed'] = array_map('strtolower', $global['allowed']);
 $global['allowed'] = array_unique($global['allowed']);
 
-$files = array();
+$files = [];
 
 if (Login::canBulkEncode()) {
     if (!empty($_POST['path'])) {
-        $path = rtrim($_POST['path'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $path = realpath($_POST['path']);
+        if ($path === false) {
+            error_log("Bulk Encode Error: realpath() failed for " . $_POST['path']);
+            echo json_encode(["error" => "Invalid path"]);
+            exit;
+        }
+        $path .= DIRECTORY_SEPARATOR;
+        error_log("Bulk Encode: Resolved path - " . $path);
 
-        // Log the received path
-        error_log("Bulk Encode: Received path - " . $path);
-
-        if (!file_exists($path)) {
-            error_log("Bulk Encode Error: Path does not exist - " . $path);
-            echo json_encode(["error" => "Path does not exist"]);
+        if (!file_exists($path) || !is_readable($path)) {
+            error_log("Bulk Encode Error: Path not accessible - " . $path);
+            echo json_encode(["error" => "Path not accessible"]);
             exit;
         }
 
-        if (!is_readable($path)) {
-            error_log("Bulk Encode Error: Path is not readable - " . $path);
-            echo json_encode(["error" => "Path is not readable"]);
-            exit;
-        }
+        $video_array = [];
+        $dirContents = scandir($path);
 
-        $video_array = array();
-        foreach ($global['allowed'] as $ext) {
-            $filesFound = glob($path . "*." . $ext);
-            if ($filesFound === false) {
-                error_log("Bulk Encode Error: glob() failed for extension .$ext in path $path");
-            } else {
-                error_log("Bulk Encode: Found " . count($filesFound) . " files with extension .$ext");
+        if ($dirContents !== false) {
+            foreach ($dirContents as $file) {
+                $filePath = $path . $file;
+                if (is_file($filePath)) {
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($ext, $global['allowed'])) {
+                        $video_array[] = $filePath;
+                    }
+                }
             }
-            $video_array = array_merge($video_array, $filesFound);
+        } else {
+            error_log("Bulk Encode Error: scandir() failed for " . $path);
         }
 
         if (empty($video_array)) {
-            error_log("Bulk Encode Warning: No files found in the directory.");
+            error_log("Bulk Encode Warning: No files found.");
         }
 
         $addedFiles = [];
@@ -57,7 +60,6 @@ if (Login::canBulkEncode()) {
             if (isset($addedFiles[strtolower($value)])) {
                 continue;
             }
-
             $addedFiles[strtolower($value)] = true;
             $path_parts = pathinfo($value);
 
@@ -73,7 +75,7 @@ if (Login::canBulkEncode()) {
         exit;
     }
 } else {
-    error_log("Bulk Encode Error: User does not have permission to bulk encode.");
+    error_log("Bulk Encode Error: User does not have permission.");
     echo json_encode(["error" => "Permission denied"]);
     exit;
 }
