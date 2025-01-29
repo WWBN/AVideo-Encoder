@@ -28,7 +28,7 @@ foreach ($scanVars as $value) {
 
     foreach ($filterURL as $key => $value) {
         if (!empty($scanThis[$value])) {
-            if (!filter_var($scanThis[$value], FILTER_VALIDATE_URL) || !preg_match("/^http.*/i", $scanThis[$value])) {
+            if (!filter_var($scanThis[$value], FILTER_VALIDATE_URL) || !preg_match("/^(http|ftp).*/i", $scanThis[$value])) {
                 //_error_log($value.' attack ' . json_encode($_SERVER), AVideoLog::$SECURITY);
                 unset($scanThis[$value]);
             } else {

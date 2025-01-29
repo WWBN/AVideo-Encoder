@@ -682,7 +682,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        if (file_exists($obj->pathFileName)) {
+        if (file_exists($obj->pathFileName) && filesize($obj->pathFileName) > 20) {
             if ($q->getStatus() == 'queue') {
                 self::setDownloaded($queue_id, $obj->pathFileName);
             }
@@ -708,25 +708,34 @@ class Encoder extends ObjectYPT
 
         if (!empty($q->getVideoDownloadedLink())) {
             $videoURL = $q->getVideoDownloadedLink();
-            $downloadWithPytubeFilename = '';
-            if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($videoURL)) {
-                $downloadWithPytubeFilename = 'video_download_' . $queue_id;
-                $response = self::downloadWithPytube($videoURL, $downloadWithPytubeFilename);
-            }
-            if(empty($downloadWithPytubeFilename) || $response->error){
-                //begin youtube-dl downloading and symlink it to the video temp file
-                $response = static::getYoutubeDl($videoURL, $queue_id, $obj->pathFileName);
-                if (!empty($response)) {
-                    _error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
-                    $obj->pathFileName = $response;
-                    $obj->error = false;
-                } else {
-                    _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
-                    $obj->error = false;
-                }
+
+            if(isFTPURL($videoURL)){
+                require_once __DIR__ . '/FTPDownloader.php';
+                FTPDownloader::copy($videoURL, $obj->pathFileName);
+                $obj->error = !file_exists($obj->pathFileName);
             }else{
-                $obj->pathFileName =  "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/video.mp4";
+
+                $downloadWithPytubeFilename = '';
+                if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($videoURL)) {
+                    $downloadWithPytubeFilename = 'video_download_' . $queue_id;
+                    $response = self::downloadWithPytube($videoURL, $downloadWithPytubeFilename);
+                }
+                if(empty($downloadWithPytubeFilename) || $response->error){
+                    //begin youtube-dl downloading and symlink it to the video temp file
+                    $response = static::getYoutubeDl($videoURL, $queue_id, $obj->pathFileName);
+                    if (!empty($response)) {
+                        _error_log("downloadFile:getYoutubeDl SUCCESS queue_id = {$queue_id}");
+                        $obj->pathFileName = $response;
+                        $obj->error = false;
+                    } else {
+                        _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
+                        $obj->error = false;
+                    }
+                }else{
+                    $obj->pathFileName =  "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/video.mp4";
+                }
             }
+
         } else {
             _error_log("downloadFile: not using getYoutubeDl");
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
@@ -980,9 +989,9 @@ class Encoder extends ObjectYPT
             $sql .= " AND streamers_id = {$streamers_id} ";
         }
 
-        $sql .= " ORDER BY 
-            CASE WHEN priority IS NULL THEN 1 ELSE 0 END ASC, 
-            priority ASC, 
+        $sql .= " ORDER BY
+            CASE WHEN priority IS NULL THEN 1 ELSE 0 END ASC,
+            priority ASC,
             e.id ASC ";
         //var_dump($sql);
         /**
@@ -2794,7 +2803,7 @@ class Encoder extends ObjectYPT
         if (!isWindows()) {
             $prepend = 'LC_ALL=en_US.UTF-8 ';
         }
-        
+
         $link = str_replace("'", '', $link);
         $link = escapeshellarg($link);
         $response = array('error' => true, 'output' => '');
@@ -2896,7 +2905,7 @@ class Encoder extends ObjectYPT
         if (empty($link)) {
             return '';
         }
-        
+
         if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
             $resp = self::getDescriptionFromLinkWithPytube($link);
             if(!empty($resp)){

@@ -1432,6 +1432,10 @@ function _error_log($message)
     error_log($str);
 }
 
+function isFTPURL($url){
+    return preg_match('/^ftps?:/i', $url);
+}
+
 function addVideo($link, $streamers_id, $title = "") {
     $obj = new stdClass();
     // remove list parameter from
@@ -1599,7 +1603,7 @@ function addQueryStringParameter($url, $varname, $value)
         parse_str($parsedUrl['query'], $query);
     }
     $query[$varname] = $value;
-    
+
     // Ensure 'current' is the last parameter
     $currentValue = null;
     if (isset($query['current'])) {
