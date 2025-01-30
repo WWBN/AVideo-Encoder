@@ -52,7 +52,9 @@ if (empty($e->getId())) {
     $e->setTitle($path_parts['filename']);
     $e->setPriority($s->getPriority());
 
-    if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
+    if (strtolower(pathinfo($_POST['fileURI'], PATHINFO_EXTENSION)) === 'mp3') {
+        $e->setFormats_idFromOrder(89); //Audio to MP4
+    }else if (!empty($_POST['audioOnly']) && $_POST['audioOnly'] !== 'false') {
         if (!empty($_POST['spectrum']) && $_POST['spectrum'] !== 'false') {
             $e->setFormats_idFromOrder(70); // video to spectrum [(6)MP4 to MP3] -> [(5)MP3 to spectrum] -> [(2)MP4 to webm]
         } else {
@@ -86,7 +88,7 @@ if (empty($e->getId())) {
 } else {
     $e->setStatus(Encoder::STATUS_QUEUE);
     $id = $e->save();
-    
+
     $obj = Encoder::getVideosId($id);
 }
 // start queue now
