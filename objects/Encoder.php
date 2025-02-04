@@ -805,6 +805,7 @@ class Encoder extends ObjectYPT
                 $videoURL2 = str_replace(' ', '-', $videoURL);
                 if(file_exists($videoURL2)){
                     $videoURL = $videoURL2;
+                    return _rename($videoURL, $destinationFile) ? $destinationFile : $videoURL;
                 }else{
                     _error_log("getYoutubeDl: Local file does not exists $videoURL " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
                     return false;
