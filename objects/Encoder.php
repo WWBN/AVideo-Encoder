@@ -799,6 +799,19 @@ class Encoder extends ObjectYPT
     {
         global $global;
         $videoURL = str_replace("'", '', $videoURL);
+        $videoURL = trim($videoURL);
+        if(strpos($videoURL, "/") === 0){
+            if(!file_exists($videoURL)){
+                $videoURL2 = str_replace(' ', '-', $videoURL);
+                if(file_exists($videoURL2)){
+                    $videoURL = $videoURL2;
+                }else{
+                    _error_log("getYoutubeDl: Local file does not exists $videoURL " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+                    return false;
+                }
+            }
+        }
+
         $videoURL = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
 
