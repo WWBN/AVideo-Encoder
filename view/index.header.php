@@ -59,6 +59,53 @@
         function changeLang() {
             document.getElementById('form_lang').submit();
         }
+
+        <?php
+        // Convert GET parameters into JavaScript object
+        $getParams = json_encode($_GET);
+
+        // Convert POST parameters into JavaScript object (if session exists)
+        $postParams = !empty($_POST) ? json_encode($_POST) : '{}';
+        ?>
+
+        function setTimezoneCookie() {
+            var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            var existingTimezone = getCookie('timezone');
+            var url = new URL(window.location.href);
+            var urlTimezone = url.searchParams.get("timezone");
+
+            if (timezone !== existingTimezone) {
+                document.cookie = "timezone=" + timezone + ";path=/";
+
+                // Only reload if the timezone parameter is not in the URL or different
+                if (timezone !== urlTimezone) {
+                    var getParams = <?php echo $getParams; ?>; // PHP GET parameters
+                    var postParams = <?php echo $postParams; ?>; // PHP POST parameters
+
+                    // Convert objects to URL query string
+                    Object.keys(getParams).forEach(key => url.searchParams.set(key, getParams[key]));
+                    url.searchParams.set("timezone", timezone); // Add timezone parameter
+
+                    // Create a form to submit POST data
+                    var form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = url.toString();
+
+                    for (var key in postParams) {
+                        if (postParams.hasOwnProperty(key)) {
+                            var hiddenField = document.createElement("input");
+                            hiddenField.type = "hidden";
+                            hiddenField.name = key;
+                            hiddenField.value = postParams[key];
+                            form.appendChild(hiddenField);
+                        }
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit(); // Auto-submit form to preserve POST data
+                }
+            }
+        }
     </script>
 
     <style>
