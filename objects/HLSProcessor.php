@@ -3,23 +3,23 @@
 class HLSProcessor
 {
 
-    static function createMP3AndPM4IfNeed($pathFileName, $destinationFile){
+    static function createMP3AndPM4IfNeed($pathFileName, $destinationFile)
+    {
         global $global;
-        
+
         $advancedCustom = getAdvancedCustomizedObjectData();
         //_error_log('createMP3AndPM4IfNeed '.json_encode($advancedCustom));
-        if($advancedCustom->autoConvertToMp4){
+        if ($advancedCustom->autoConvertToMp4) {
             try {
-                MP4Processor::createMP4($pathFileName, $destinationFile.'index.mp4');
+                MP4Processor::createMP4($pathFileName, $destinationFile . 'index.mp4');
             } catch (Exception $e) {
                 _error_log("Error creating MP4: " . $e->getMessage());
             }
-            
         }
-        if($advancedCustom->autoConvertVideosToMP3){
+        if ($advancedCustom->autoConvertVideosToMP3) {
             // Usage example
             try {
-                MP3Processor::createMP3($pathFileName, $destinationFile.'index.mp3');
+                MP3Processor::createMP3($pathFileName, $destinationFile . 'index.mp3');
             } catch (Exception $e) {
                 _error_log("Error creating MP3: " . $e->getMessage());
             }
@@ -82,9 +82,15 @@ class HLSProcessor
             $audioTsPattern = "{$destinationFile}audio_tracks/{$langDir}/audio_%03d.ts"; // Pattern for audio .ts segments
 
             // Correctly map the audio track and add VOD parameters
-            $audioCommand = get_ffmpeg() . " -i {$pathFileName} -map 0:a:{$track->index} -c:a aac -b:a 128k " .
-                "-movflags +faststart -f hls -hls_time 6 -hls_playlist_type vod " .
-                "-hls_segment_filename \"{$audioTsPattern}\" {$audioFile}";
+            $audioCommand = get_ffmpeg() . " -i {$pathFileName} "
+                . " -map 0:a:{$track->index} -c:a aac -b:a 128k "
+                // Enforce identical segment time
+                . " -movflags +faststart -f hls -hls_time 6 "
+                . " -hls_flags independent_segments+split_by_time "
+                . " -hls_playlist_type vod "
+                . " -hls_segment_filename \"{$audioTsPattern}\" {$audioFile}";
+
+
 
             $audioCommand = removeUserAgentIfNotURL($audioCommand);
             _error_log("HLSProcessor: createHLSWithAudioTracks Executing audio FFmpeg command: {$audioCommand}");
@@ -116,7 +122,9 @@ class HLSProcessor
                 $outputFile = "{$dir}index.m3u8";
 
                 // Add resolution playlist entry to the master playlist
-                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$value},AUDIO=\"audio_group\"" . PHP_EOL;
+                $width = self::getScaledWidth($pathFileName, $value);
+                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$value},AUDIO=\"audio_group\"" . PHP_EOL;
+
                 $masterPlaylist .= "res{$value}/index.m3u8" . PHP_EOL;
 
                 // Append FFmpeg command for this resolution
@@ -139,7 +147,9 @@ class HLSProcessor
             $outputFile = "{$dir}index.m3u8";
 
             // Add resolution playlist entry to the master playlist
-            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION=-2x{$resolution},AUDIO=\"audio_group\"" . PHP_EOL;
+            $width = self::getScaledWidth($pathFileName, $resolution);
+            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$resolution},AUDIO=\"audio_group\"" . PHP_EOL;
+
             $masterPlaylist .= "res{$resolution}/index.m3u8" . PHP_EOL;
 
             // Append FFmpeg command for this resolution
@@ -161,12 +171,25 @@ class HLSProcessor
     // FFmpeg Command Generation for HLS with Audio Tracks for a Specific Resolution
     private static function getFFmpegCommandForResolution($inputFile, $resolution, $bitrate, $framerate, $audioTracks, $keyInfoFile, $outputFile)
     {
-        $command = " -vf scale=-2:{$resolution} -b:v {$bitrate}k -r {$framerate} " .
-            "-movflags +faststart -hls_time 6 -hls_key_info_file {$keyInfoFile} -hls_playlist_type vod " .
-            "-map 0:v -c:v h264 -profile:v main -pix_fmt yuv420p -f hls {$outputFile}";
+        // Force a keyframe every 6 seconds to match segment boundaries
+        // Also set hls_flags=independent_segments+split_by_time
+        $forceKeyFrames = "expr:gte(t,n_forced*6)";
+
+        $command = " -force_key_frames \"{$forceKeyFrames}\" "
+            . " -vf scale=-2:{$resolution} -b:v {$bitrate}k -r {$framerate} "
+            . " -movflags +faststart "
+            . " -hls_time 6 "
+            . " -hls_flags independent_segments+split_by_time "
+            . " -hls_key_info_file {$keyInfoFile} "
+            . " -hls_playlist_type vod "
+            . " -map 0:v "
+            . " -c:v h264 -profile:v main -pix_fmt yuv420p "
+            . " -f hls {$outputFile}";
 
         return $command;
     }
+
+
 
     // Function to get video resolution
     private static function getResolution($pathFileName)
@@ -199,5 +222,18 @@ class HLSProcessor
         }
 
         return $tracks;
+    }
+
+    private static function getScaledWidth($pathFileName, $targetHeight)
+    {
+        $command = get_ffprobe() . " -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x {$pathFileName}";
+        $output = shell_exec($command);
+        list($originalWidth, $originalHeight) = explode('x', trim($output));
+
+        // Calculate proportional width based on the target height
+        $width = intval(($targetHeight / $originalHeight) * $originalWidth);
+
+        // Round down to the nearest multiple of 2 (required by H.264 codec)
+        return $width - ($width % 2);
     }
 }
