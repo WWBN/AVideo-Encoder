@@ -1284,7 +1284,7 @@ class Encoder extends ObjectYPT
     {
         global $global, $advancedCustom;
         $maxTries = 4;
-        $lockFile = sys_get_temp_dir() . '/encoder_run.lock';
+        $lockFile = sys_get_temp_dir() . '/encoder_run.'.md5($global['webSiteRootURL']).'.lock';
 
         // Check if the lock file exists
         if (file_exists($lockFile)) {
