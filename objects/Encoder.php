@@ -2247,6 +2247,9 @@ class Encoder extends ObjectYPT
         if ($errno = curl_errno($curl)) {
             $error_message = curl_strerror($errno);
             $obj->msg = "sendToStreamer cURL error ({$errno}): {$error_message} => {$target} ";
+            if ($errno == 28) { // Timeout
+                $obj->doNotRetry = true;
+            }
         } else {
             if (is_object($obj->response)) {
                 $obj->error = $obj->response->error;

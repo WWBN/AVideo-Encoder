@@ -7,3 +7,7 @@ require_once $global['systemRootPath'].'objects/Encoder.php';
 $e = Encoder::run();
 $resp = json_encode($e);
 echo $resp;
+if (!empty($global['mysqli'])) {
+    $global['mysqli']->close();
+    unset($global['mysqli']); // opcional, para limpar a variável
+}
