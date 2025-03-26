@@ -227,13 +227,28 @@ class HLSProcessor
     private static function getScaledWidth($pathFileName, $targetHeight)
     {
         $command = get_ffprobe() . " -v error -select_streams v:0 -show_entries stream=width,height -of csv=p=0:s=x {$pathFileName}";
-        $output = shell_exec($command);
-        list($originalWidth, $originalHeight) = explode('x', trim($output));
+        $output = trim(shell_exec($command));
 
-        // Calculate proportional width based on the target height
+        if (empty($output) || strpos($output, 'x') === false) {
+            _error_log("FFprobe failed to get dimensions: output=[$output], using default 16:9 fallback");
+            return self::getDefaultWidth($targetHeight);
+        }
+
+        list($originalWidth, $originalHeight) = explode('x', $output);
+
+        if (empty($originalWidth) || empty($originalHeight) || $originalHeight == 0) {
+            _error_log("Invalid dimensions received: width=[$originalWidth], height=[$originalHeight], using default 16:9 fallback");
+            return self::getDefaultWidth($targetHeight);
+        }
+
         $width = intval(($targetHeight / $originalHeight) * $originalWidth);
-
-        // Round down to the nearest multiple of 2 (required by H.264 codec)
         return $width - ($width % 2);
+    }
+
+    private static function getDefaultWidth($targetHeight)
+    {
+        // 16:9 ratio → width = height * (16 / 9)
+        $width = intval($targetHeight * (16 / 9));
+        return $width - ($width % 2); // ensure even number
     }
 }
