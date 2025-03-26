@@ -330,10 +330,10 @@ class Encoder extends ObjectYPT
         $this->filename = $filename;
     }
 
-    public function setStatus($status)
+    public function setStatus($status, $setStreamerLog = true)
     {
         _error_log("Encoder::setStatus($status) " . json_encode(debug_backtrace()));
-        if (!empty($this->id) && $status != $this->status) {
+        if ($setStreamerLog && !empty($this->id) && $status != $this->status) {
             self::setStreamerLog($this->id, "Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
         }
         $this->status = $status;
@@ -3017,7 +3017,15 @@ class Encoder extends ObjectYPT
             'type' => $type,
             'videos_id' => $return_vars->videos_id,
         );
-        return self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+        if (!empty($response->doNotRetry)) {
+            _error_log("sendToStreamer timeout. Not retrying.");
+            $q = new Encoder($encoder_queue_id);
+            $q->setStatus(Encoder::STATUS_ERROR);
+            $q->setStatus_obs("sendToStreamer timeout. Not retrying.");
+            $q->save();
+        }
+        return $response;
     }
 
     public static function getVideosId($encoder_queue_id)
