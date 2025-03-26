@@ -549,11 +549,11 @@ class Encoder extends ObjectYPT
 
         $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
         $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
-        if(!file_exists($metadataFile)){
+        if (!file_exists($metadataFile)) {
             $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
         }
 
-        if(file_exists($metadataFile)){
+        if (file_exists($metadataFile)) {
             $content = file_get_contents($metadataFile);
             $json = json_decode($content);
             return $json->title;
@@ -567,11 +567,11 @@ class Encoder extends ObjectYPT
 
         $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
         $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
-        if(!file_exists($metadataFile)){
+        if (!file_exists($metadataFile)) {
             $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
         }
 
-        if(file_exists($metadataFile)){
+        if (file_exists($metadataFile)) {
             $content = file_get_contents($metadataFile);
             $json = json_decode($content);
             return $json->description;
@@ -585,11 +585,11 @@ class Encoder extends ObjectYPT
 
         $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
         $metadataFile = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/metadata.json";
-        if(!file_exists($metadataFile)){
+        if (!file_exists($metadataFile)) {
             $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'metadata');
         }
 
-        if(file_exists($metadataFile)){
+        if (file_exists($metadataFile)) {
             $content = file_get_contents($metadataFile);
             $json = json_decode($content);
             return $json->duration_seconds;
@@ -603,11 +603,11 @@ class Encoder extends ObjectYPT
 
         $downloadWithPytubeFilename = 'video_download_' . md5($video_url);
         $File = "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/thumbs.jpg";
-        if(!file_exists($File)){
+        if (!file_exists($File)) {
             $response = self::downloadWithPytube($video_url, $downloadWithPytubeFilename, 'thumbnail');
         }
 
-        if(file_exists($File)){
+        if (file_exists($File)) {
             if ($returnFileName) {
                 return $File;
             } else {
@@ -624,7 +624,7 @@ class Encoder extends ObjectYPT
         global $global;
         $video_url = str_replace(array('\\', "'"), array('', ''), $video_url);
         $pythonScript = $global['systemRootPath'] . "objects/youtube.py";
-        $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename)." {$action}");
+        $command = escapeshellcmd("python3 $pythonScript " . escapeshellarg($video_url) . " " . escapeshellarg($filename) . " {$action}");
         _error_log("downloadWithPytube($video_url, $filename) " . $command);
         exec($command, $output, $return_var);
 
@@ -709,18 +709,18 @@ class Encoder extends ObjectYPT
         if (!empty($q->getVideoDownloadedLink())) {
             $videoURL = $q->getVideoDownloadedLink();
 
-            if(isFTPURL($videoURL)){
+            if (isFTPURL($videoURL)) {
                 require_once __DIR__ . '/FTPDownloader.php';
                 FTPDownloader::copy($videoURL, $obj->pathFileName);
                 $obj->error = !file_exists($obj->pathFileName);
-            }else{
+            } else {
 
                 $downloadWithPytubeFilename = '';
                 if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($videoURL)) {
                     $downloadWithPytubeFilename = 'video_download_' . $queue_id;
                     $response = self::downloadWithPytube($videoURL, $downloadWithPytubeFilename);
                 }
-                if(empty($downloadWithPytubeFilename) || $response->error){
+                if (empty($downloadWithPytubeFilename) || $response->error) {
                     //begin youtube-dl downloading and symlink it to the video temp file
                     $response = static::getYoutubeDl($videoURL, $queue_id, $obj->pathFileName);
                     if (!empty($response)) {
@@ -731,11 +731,10 @@ class Encoder extends ObjectYPT
                         _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
                         $obj->error = false;
                     }
-                }else{
+                } else {
                     $obj->pathFileName =  "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/video.mp4";
                 }
             }
-
         } else {
             _error_log("downloadFile: not using getYoutubeDl");
             //symlink the downloaded file to the video temp file ($obj-pathFileName)
@@ -800,13 +799,13 @@ class Encoder extends ObjectYPT
         global $global;
         $videoURL = str_replace("'", '', $videoURL);
         $videoURL = trim($videoURL);
-        if(strpos($videoURL, "/") === 0){
-            if(!file_exists($videoURL)){
+        if (strpos($videoURL, "/") === 0) {
+            if (!file_exists($videoURL)) {
                 $videoURL2 = str_replace(' ', '-', $videoURL);
-                if(file_exists($videoURL2)){
+                if (file_exists($videoURL2)) {
                     $videoURL = $videoURL2;
                     return _rename($videoURL, $destinationFile) ? $destinationFile : $videoURL;
-                }else{
+                } else {
                     _error_log("getYoutubeDl: Local file does not exists $videoURL " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
                     return false;
                 }
@@ -1284,7 +1283,7 @@ class Encoder extends ObjectYPT
     {
         global $global, $advancedCustom;
         $maxTries = 4;
-        $lockFile = sys_get_temp_dir() . '/encoder_run.'.md5($global['webSiteRootURL']).'.lock';
+        $lockFile = sys_get_temp_dir() . '/encoder_run.' . md5($global['webSiteRootURL']) . '.lock';
 
         // Check if the lock file exists
         if (file_exists($lockFile)) {
@@ -1367,7 +1366,14 @@ class Encoder extends ObjectYPT
                     $encoder->setStatus(Encoder::STATUS_ENCODING);
                     $encoder->save();
                     self::run(0);
-                    self::sendImages($objFile->pathFileName, $return_vars, $encoder);
+                    $response = self::sendImages($objFile->pathFileName, $return_vars, $encoder);
+                    if (!empty($response->doNotRetry)) {
+                        $obj->msg = "sendToStreamer timeout. Not retrying";
+                        _error_log("Encoder::run: Encoder Run: " . json_encode($obj));
+                        self::setStatusError($encoder->getId(), $obj->msg);
+                        unlink($lockFile); // Remove the lock file before returning
+                        return false;
+                    }
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
                     if (!empty($resp->error)) {
@@ -2813,7 +2819,7 @@ class Encoder extends ObjectYPT
     {
         if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
             $resp = self::getTitleFromLinkWithPytube($link);
-            if(!empty($resp)){
+            if (!empty($resp)) {
                 return array('error' => false, 'output' => $resp);
             }
         }
@@ -2846,7 +2852,7 @@ class Encoder extends ObjectYPT
     {
         if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
             $resp = self::getDurationFromLinkWithPytube($link);
-            if(!empty($resp)){
+            if (!empty($resp)) {
                 return static::parseSecondsToDuration($resp);
             }
         }
@@ -2873,7 +2879,7 @@ class Encoder extends ObjectYPT
     {
         if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
             $resp = self::getThumbsFromLinkWithPytube($link, $returnFileName);
-            if(!empty($resp)){
+            if (!empty($resp)) {
                 return $resp;
             }
         }
@@ -2926,7 +2932,7 @@ class Encoder extends ObjectYPT
 
         if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($link)) {
             $resp = self::getDescriptionFromLinkWithPytube($link);
-            if(!empty($resp)){
+            if (!empty($resp)) {
                 return $resp;
             }
         }
@@ -2971,7 +2977,7 @@ class Encoder extends ObjectYPT
     {
         global $global;
         $cacheDir = '/var/www/.cache/';
-        if(!is_dir($cacheDir)){
+        if (!is_dir($cacheDir)) {
             @mkdir($cacheDir);
         }
 
