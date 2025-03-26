@@ -1295,7 +1295,7 @@ class Encoder extends ObjectYPT
             if (time() - $lockFileTime > 3) {
                 unlink($lockFile);
             } else {
-                _error_log("Encoder::run: Lock file exists, exiting to prevent duplicate run.");
+                _error_log("Encoder::run: Lock file exists, exiting to prevent duplicate run. $lockFile");
                 return false;
             }
         }
