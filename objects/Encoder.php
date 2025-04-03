@@ -3041,13 +3041,14 @@ class Encoder extends ObjectYPT
             'type' => $type,
             'videos_id' => $return_vars->videos_id,
         );
-        $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         if (!empty($response->doNotRetry)) {
             _error_log("sendToStreamer timeout. Not retrying.");
             $q = new Encoder($encoder_queue_id);
             $q->setStatus(Encoder::STATUS_ERROR);
             $q->setStatus_obs("sendToStreamer timeout. Not retrying.");
             $q->save();
+        }else{
+            $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         }
         return $response;
     }
