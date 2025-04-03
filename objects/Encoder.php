@@ -2239,6 +2239,9 @@ class Encoder extends ObjectYPT
             }
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
+            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+
             if (empty($curl)) {
                 $obj->msg = "sendToStreamer cURL is empty ";
                 return $obj;
