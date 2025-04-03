@@ -2239,8 +2239,8 @@ class Encoder extends ObjectYPT
             }
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
+            curl_setopt($curl, CURLOPT_TIMEOUT, 5);
 
             if (empty($curl)) {
                 $obj->msg = "sendToStreamer cURL is empty ";
@@ -2695,39 +2695,60 @@ class Encoder extends ObjectYPT
     public function delete()
     {
         global $global;
+
+        _error_log("delete() called for ID={$this->id}");
+
         if (empty($this->id)) {
+            _error_log("delete() aborted: empty ID");
             return false;
         }
-        $files = glob("{$global['systemRootPath']}videos/{$this->id}_tmpFile*"); // get all file names
-        foreach ($files as $file) { // iterate files
+
+        _error_log("delete() deleting tmp files 1...");
+        $files = glob("{$global['systemRootPath']}videos/{$this->id}_tmpFile*");
+        foreach ($files as $file) {
             if (is_file($file)) {
+                _error_log("delete() unlinking file: {$file}");
                 unlink($file);
-            } // delete file
-            else {
+            } else {
+                _error_log("delete() removing directory: {$file}");
                 rrmdir($file);
             }
         }
-        $files = glob("{$global['systemRootPath']}videos/avideoTmpFile_{$this->id}*"); // get all file names
-        foreach ($files as $file) { // iterate files
+
+        _error_log("delete() deleting tmp files 2...");
+        $files = glob("{$global['systemRootPath']}videos/avideoTmpFile_{$this->id}*");
+        foreach ($files as $file) {
             if (is_file($file)) {
+                _error_log("delete() unlinking avideoTmpFile: {$file}");
                 @unlink($file);
-            } // delete file
-            else {
+            } else {
+                _error_log("delete() removing avideoTmpFile dir: {$file}");
                 @rrmdir($file);
             }
         }
-        $files = glob("{$global['systemRootPath']}videos/pytube/video_download_{$this->id}"); // get all file names
-        foreach ($files as $file) { // iterate files
+
+        _error_log("delete() deleting pytube downloads...");
+        $files = glob("{$global['systemRootPath']}videos/pytube/video_download_{$this->id}");
+        foreach ($files as $file) {
+            _error_log("delete() removing pytube download dir: {$file}");
             @rrmdir($file);
         }
+
+        _error_log("delete() calling deleteOriginal()...");
         $this->deleteOriginal();
 
         if (!empty($global['progressiveUpload'])) {
+            _error_log("delete() progressiveUpload enabled, deleting file via Upload::deleteFile()");
             Upload::deleteFile($this->id);
         }
+
+        _error_log("delete() setting streamer log...");
         self::setStreamerLog($this->id, 'Files Deleted', Encoder::LOG_TYPE_INFO);
+
+        _error_log("delete() calling parent::delete()");
         return parent::delete();
     }
+
 
     private function deleteOriginal()
     {
