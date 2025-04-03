@@ -1429,6 +1429,9 @@ function _error_log($message)
         // Append the log entry at the bottom of the file
         file_put_contents($global['systemRootPath'] . 'videos/aVideoEncoder.log', $str . PHP_EOL, FILE_APPEND);
     }
+    if(isCommandLineInterface()){
+        echo $str.PHP_EOL;
+    }
     error_log($str);
 }
 
