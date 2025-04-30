@@ -194,8 +194,7 @@ class Encoder extends ObjectYPT
          * @var object $global['mysqli']
          */
         $this->worker_pid = intval($this->worker_pid);
-        $this->setTitle($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getTitle()))));
-        $this->setStatus_obs($global['mysqli']->real_escape_string(str_replace('\\\\', '', stripslashes($this->getStatus_obs()))));
+
         _error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ") streamers_id={$this->streamers_id} ");
         return parent::save();
     }
@@ -1092,7 +1091,7 @@ class Encoder extends ObjectYPT
     public static function getFromFilename($filename)
     {
         global $global;
-        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE filename = '$filename' LIMIT 1 ";
+        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE filename = '" . $global['mysqli']->real_escape_string($filename) . "' LIMIT 1 ";
 
         /**
          * @var array $global
@@ -1110,7 +1109,7 @@ class Encoder extends ObjectYPT
     public static function getFromFileURI($fileURI)
     {
         global $global;
-        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE fileURI = '$fileURI' LIMIT 1 ";
+        $sql = "SELECT * FROM  " . static::getTableName() . " WHERE fileURI = '" . $global['mysqli']->real_escape_string($fileURI) . "' LIMIT 1 ";
 
         /**
          * @var array $global

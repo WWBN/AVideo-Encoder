@@ -402,7 +402,12 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 for (i = 0; i < response.length; i++) {
                                     if (!response[i])
                                         continue;
-                                    $('#files').append('<li class="list-group-item" path="' + response[i].path + '" id="li' + i + '"><span class="label label-success" style="display: none;"><span class="glyphicon glyphicon-ok"></span> <?php echo __('Added on queue'); ?>.. </span> ' + response[i].name + '<div class="material-switch pull-right"><input id="someSwitchOption' + response[i].id + '" class="someSwitchOption" type="checkbox"/><label for="someSwitchOption' + response[i].id + '" class="label-primary"></label></div></li>');
+
+                                    $('<li class="list-group-item"><span class="label label-success" style="display: none;"><span class="glyphicon glyphicon-ok"></span> <?php echo __('Added on queue'); ?>.. </span><div class="material-switch pull-right"><input id="someSwitchOption' + response[i].id + '" class="someSwitchOption" type="checkbox"/><label for="someSwitchOption' + response[i].id + '" class="label-primary"></label></div></li>')
+                                        .appendTo('#files')
+                                        .attr('id', 'li' + i)
+                                        .attr('path', response[i].path)
+                                        .append(response[i].name);
                                 }
                             }
                         }
