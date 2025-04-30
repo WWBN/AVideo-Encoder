@@ -65,8 +65,8 @@ if (Login::canBulkEncode()) {
 
             $obj = new stdClass();
             $obj->id = $id++;
-            $obj->path = utf8_encode($value);
-            $obj->name = utf8_encode($path_parts['basename']);
+            $obj->path = mb_convert_encoding($value, 'UTF-8');
+            $obj->name = mb_convert_encoding($path_parts['basename'], 'UTF-8');
             $files[] = $obj;
         }
     } else {
