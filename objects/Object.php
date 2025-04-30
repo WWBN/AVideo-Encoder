@@ -149,8 +149,8 @@ abstract class ObjectYPT implements ObjectInterface {
                 } elseif (strtolower($value) == 'modified') {
                     $fields[] = " {$value} = now() ";
                 } else {
-                    $this->$value = str_replace("'", '', $this->$value);
-                    $fields[] = " `{$value}` = '{$this->$value}' ";
+                    $escapedValue = $global['mysqli']->real_escape_string($this->$value);
+                    $fields[] = " `{$value}` = '{$escapedValue}' ";
                 }
             }
             $sql .= implode(", ", $fields);
@@ -175,8 +175,8 @@ abstract class ObjectYPT implements ObjectInterface {
                             $fields[] = " {$id} ";
                         }
                     }else{
-                        $this->$value = str_replace(array("'", '\\'), array('', ''), $this->$value);
-                        $fields[] = " '{$this->$value}' ";
+                        $escapedValue = $global['mysqli']->real_escape_string($this->$value);
+                        $fields[] = " '{$escapedValue}' ";
                     }
                 }
             }
