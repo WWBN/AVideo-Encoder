@@ -4,6 +4,8 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 require_once '../objects/Login.php';
 
+session_write_close();
+
 if (empty($_POST['fileURI'])) {
     die("File URI Not found");
 }
