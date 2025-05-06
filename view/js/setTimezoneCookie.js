@@ -10,4 +10,6 @@ function getCookie(name) {
 }
 
 // Call this function on page load
-setTimezoneCookie();
+if(typeof setTimezoneCookie == 'function'){
+    setTimezoneCookie();
+}
