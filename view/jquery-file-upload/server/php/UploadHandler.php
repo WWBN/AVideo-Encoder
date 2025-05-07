@@ -1149,9 +1149,11 @@ class UploadHandler
             $file_path = $this->get_upload_path($file->name);
             $append_file = $content_range && is_file($file_path) &&
                 $file->size > $this->get_file_size($file_path);
+            error_log("DEBUG: Trying to move file to {$file_path}");
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
                 // multipart/formdata uploads (POST method uploads)
                 if ($append_file) {
+                    error_log("DEBUG: Appending to file");
                     file_put_contents(
                         $file_path,
                         fopen($uploaded_file, 'r'),
@@ -1343,7 +1345,7 @@ class UploadHandler
             if(!empty($post)){
                 $redirect = stripslashes($post);
             }
-            
+
             if ($redirect && preg_match($this->options['redirect_allow_target'], $redirect)) {
                 return $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
             }
