@@ -19,6 +19,8 @@ $(function () {
         //xhrFields: {withCredentials: true},
         url: 'view/jquery-file-upload/server/php/?PHPSESSID=' + PHPSESSID,
         maxChunkSize: 5000000, // 5 MB
+        maxNumberOfFiles: 5,
+        acceptFileTypes: /(\.|\/)(mp4|m3u8|webm|ogg|ogv|mp3|wav|aac|flac)$/i,
         add: function (e, data) {
             selectedFileName = data.files[0].name;
             var videos_id = $('#update_video_id').val();
@@ -118,7 +120,7 @@ $(function () {
             }else{
                 $('#videos_id').val(0);
             }
-            
+
             data.submit();
         } else {
             data.formData = {
