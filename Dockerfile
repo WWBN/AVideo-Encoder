@@ -71,6 +71,7 @@ RUN apt-get install -y --no-install-recommends \
       mysqli \
       opcache \
       pdo_mysql \
+      imagemagick \
       zip && \
     rm -rf \
       /tmp/* \
