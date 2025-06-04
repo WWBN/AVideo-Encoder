@@ -729,7 +729,7 @@ if (!class_exists('Format')) {
             _error_log("Encoder:Format:: preProcessDynamicHLS($pathFileName, $destinationFile) [resolutions=" . json_encode($resolutions) . "] [height={$height}] [$destinationFile=$destinationFile]");
             // create a directory
             mkdir($destinationFile);
-            // create a encryption key
+            // create an encryption key
             $key = openssl_random_pseudo_bytes(16);
             $keyFileName = "enc_" . uniqid() . ".key";
             file_put_contents($destinationFile . $keyFileName, $key);
