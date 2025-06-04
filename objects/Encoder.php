@@ -2608,29 +2608,29 @@ class Encoder extends ObjectYPT
         /**
          * @var string $ffmpeg
          */
-        $palleteFile = "{$pathFileName}palette.png";
+        $paletteFile = "{$pathFileName}palette.png";
         $pathFileNameE = escapeshellarg($pathFileName);
-        $palleteFileE = escapeshellarg($palleteFile);
+        $paletteFileE = escapeshellarg($paletteFile);
         $destinationFileE = escapeshellarg($destinationFile);
-        eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$palleteFileE}";');
+        eval('$ffmpeg =get_ffmpeg(true)." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vf fps=10,scale=320:-1:flags=lanczos,palettegen {$paletteFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);
         $execution_time = ($time_end - $time_start);
         _error_log("getGif: takes {$execution_time} sec to complete");
-        if ($return_val !== 0 && !file_exists($palleteFile)) {
-            _error_log("Create Pallete Gif Image error: {$ffmpeg} " . json_encode($output));
+        if ($return_val !== 0 && !file_exists($paletteFile)) {
+            _error_log("Create palette Gif image error: {$ffmpeg} " . json_encode($output));
             return $global['systemRootPath'] . "view/img/notfound.gif";
         } else {
             // I've discovered that if the ss parameter comes before the input flag, a tremendous time penalty is avoided.
             // Also I've developed this ffmpeg line to allow unusual aspect videos to be letter boxed
-            // so that they don't get rendered incorrectly on the avideo site. https://superuser.com/a/891478
+            // so that they don't get rendered incorrectly on the AVideo site. https://superuser.com/a/891478
 
-            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileNameE} -i {$palleteFileE} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFileE}";');
+            eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileNameE} -i {$paletteFileE} -filter_complex \"fps=10,scale=(iw*sar)*min(320/(iw*sar)\,180/ih):ih*min(320/(iw*sar)\,180/ih):flags=lanczos[x];[x][1:v]paletteuse, pad=320:180:(320-iw*min(320/iw\,180/ih))/2:(180-ih*min(320/iw\,180/ih))/2\" {$destinationFileE}";');
             $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
             exec($ffmpeg . " 2>&1", $output, $return_val);
             if ($return_val !== 0 && !file_exists($destinationFile)) {
-                _error_log("Create Gif Image error 1: {$ffmpeg} " . json_encode($output));
+                _error_log("Create Gif image error 1: {$ffmpeg} " . json_encode($output));
                 eval('$ffmpeg =get_ffmpeg()." -ss {$duration} -t {$howLong} -i {$pathFileNameE} -i {$pathFileNameE}palette.png -filter_complex \"fps=10,scale=320:-1:flags=lanczos[x];[x][1:v]paletteuse\" {$destinationFileE}";');
                 $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
                 exec($ffmpeg . " 2>&1", $output, $return_val);
@@ -2654,7 +2654,7 @@ class Encoder extends ObjectYPT
             return false;
         }
         if (!file_exists($pathFileName)) {
-            _error_log("getWebpImage: error file not exists " . $pathFileName);
+            _error_log("getWebpImage: error file does not exist " . $pathFileName);
             return false;
         }
         global $global;
@@ -2758,8 +2758,9 @@ class Encoder extends ObjectYPT
         $files = glob("{$global['systemRootPath']}videos/original_" . $this->getFilename() . "*"); // get all file names
         foreach ($files as $file) { // iterate files
             if (is_file($file)) {
+                // delete file
                 unlink($file);
-            } // delete file
+            }
         }
         return true;
     }
@@ -2815,7 +2816,7 @@ class Encoder extends ObjectYPT
     /**
      *
      * @param string $link channel link
-     * @return Array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
+     * @return array {"url": "DeHSfLqwqxg", "_type": "url", "ie_key": "Youtube", "id": "DeHSfLqwqxg", "title": "COMMERCIALS IN REAL LIFE"}
      */
     public static function getReverseVideosJsonListFromLink($link, $streamers_id, $addOauthFromProvider = '')
     {
