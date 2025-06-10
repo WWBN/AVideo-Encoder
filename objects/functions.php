@@ -45,6 +45,7 @@ function getFFmpegScaleToForceOriginalAspectRatio($width, $height)
 function replaceFFMPEG($cmd)
 {
     $cmd = removeUserAgentIfNotURL($cmd);
+    $cmd = str_replace("\\'", "'", $cmd);
     if (preg_match('/-user_agent/', $cmd)) {
         return $cmd;
     }

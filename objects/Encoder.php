@@ -2180,7 +2180,25 @@ class Encoder extends ObjectYPT
     {
         //var_dump("sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)" . json_encode(debug_backtrace()));exit;
         $time_start = microtime(true);
-        _error_log("sendToStreamer to {$target} ");
+        if (!empty($encoder)) {
+            // if is the spectrum (mp3 to hls) only send the mp4 if it is set to convert to mp4
+            if ($encoder->getFormats_id() == 33 && isset($postFields['format']) && $postFields['format'] == 'mp4') {
+                $advancedCustom = getAdvancedCustomizedObjectData();
+                if (!$advancedCustom->autoConvertToMp4) {
+                    _error_log("sendToStreamer it is the spectrum (mp3 to hls) and autoConvertToMp4 is false, returning empty object");
+                    _error_log(json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+                    $obj = new stdClass();
+                    $obj->error = false;
+                    return  $obj;
+                }else{
+                    _error_log("sendToStreamer it is the spectrum (mp3 to hls) mp4 file will be sent");
+                }
+            }
+            $f = new Format($encoder->getFormats_id());
+            _error_log("sendToStreamer Format selected for encoding: " . $f->getName() . " (ID: " . $encoder->getFormats_id() . ") FormatToSend=" . (isset($postFields['format']) ? $postFields['format'] : 'not set'));
+        } else {
+            _error_log("sendToStreamer to {$target} FormatToSend=" . (isset($postFields['format']) ? $postFields['format'] : 'not set'));
+        }
         $removeAfterSend = array('spectrumimage', 'rawVideo', 'image', 'gifimage', 'webpimage', 'video');
         if (!empty($encoder)) {
             if (empty($return_vars)) {
@@ -3047,7 +3065,7 @@ class Encoder extends ObjectYPT
             $q->setStatus(Encoder::STATUS_ERROR);
             $q->setStatus_obs("sendToStreamer timeout. Not retrying.");
             $q->save();
-        }else{
+        } else {
             $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         }
         return $response;
