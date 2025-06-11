@@ -2265,7 +2265,7 @@ class Encoder extends ObjectYPT
             }
             $obj->response_raw = curl_exec($curl);
         } catch (\Throwable $th) {
-            $obj->msg = $th->getMessage();
+            $obj->msg = $th->getMessage().' URL='.$url;
             return $obj;
         }
         $obj->response = json_decode($obj->response_raw);
