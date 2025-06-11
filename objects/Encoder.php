@@ -2254,10 +2254,11 @@ class Encoder extends ObjectYPT
             } catch (\Throwable $th) {
                 _error_log("sendToStreamer($target,  " . json_encode($postFields));
             }
+            $timeout = 10;
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
-            curl_setopt($curl, CURLOPT_TIMEOUT, 5);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 
             if (empty($curl)) {
                 $obj->msg = "sendToStreamer cURL is empty ";
