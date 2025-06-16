@@ -43,7 +43,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
 
 <head>
     <?php
-    include __DIR__.'/index.header.php';
+    include __DIR__ . '/index.header.php';
     ?>
 </head>
 
@@ -785,26 +785,36 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 return "Created: " + row.created + "<br>Modified: " + row.modified;
                             },
                             "status": function(column, row) {
-                                var btn = '<button class="btn btn-default" data-toggle="popover" title="<?php echo __('Details'); ?>" data-content="' + row.status_obs + '"><label class="glyphicon glyphicon-alert"></label></button> ';
-                                var label = "warning";
-                                if (row.status == "error") {
-                                    label = "danger";
-                                } else
-                                if (row.status == "done") {
-                                    label = "success";
-                                } else
-                                if (row.status == "queue") {
-                                    label = "primary";
-                                }
-                                var status = '<span class="label label-' + label + '">' + row.status + '</span>';
+                                let content = '';
 
-                                var remainTimeHuman = '';
-                                if (row.encoding_status.remainTimeHuman) {
-                                    remainTimeHuman = '<span class="label label-default">ETA ' + row.encoding_status.remainTimeHuman + '</span>';
+                                // Define label class for status
+                                let labelClass = 'label-warning';
+                                if (row.status === "error") {
+                                    labelClass = 'label-danger';
+                                } else if (row.status === "done") {
+                                    labelClass = 'label-success';
+                                } else if (row.status === "queue") {
+                                    labelClass = 'label-primary';
+                                } else if (row.status === "encoding") {
+                                    labelClass = 'label-info';
                                 }
 
-                                return btn + status + "<br>" + row.status_obs + "<br>" + remainTimeHuman;
+                                // Main status
+                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${row.status}</span><br>`;
+
+                                // ETA
+                                if (row.encoding_status && row.encoding_status.remainTimeHuman) {
+                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${row.encoding_status.remainTimeHuman}</small><br>`;
+                                }
+
+                                // Status observation or error message
+                                if (row.status_obs) {
+                                    content += `<small style="white-space: normal;"><i class="fa fa-info-circle"></i> ${row.status_obs}</small>`;
+                                }
+
+                                return content;
                             },
+
                             "title": function(column, row) {
                                 var l = getLocation(row.streamer);
                                 videos_id = 0;

@@ -195,7 +195,7 @@ class Encoder extends ObjectYPT
          */
         $this->worker_pid = intval($this->worker_pid);
 
-        _error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ") streamers_id={$this->streamers_id} ");
+        _error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ") streamers_id={$this->streamers_id} status_obs={$this->status_obs} ");
         return parent::save();
     }
 
@@ -357,12 +357,13 @@ class Encoder extends ObjectYPT
 
     public function setStatus_obs($status_obs)
     {
-        if (empty($status_ob)) {
+        if (empty($status_obs)) {
             return false;
         }
         _error_log("Encoder::setStatus_obs " . json_encode(debug_backtrace()));
         $old_status_obs = $this->status_obs;
         $this->status_obs = substr($status_obs, 0, 200);
+
         if (!empty($this->id) && $old_status_obs !== $this->status_obs) {
             self::setStreamerLog($this->id, $this->status_obs, Encoder::LOG_TYPE_StatusObs);
         }
@@ -1330,7 +1331,7 @@ class Encoder extends ObjectYPT
                     $encoder = new Encoder($encoder->getId());
                     $return_vars = json_decode($encoder->getReturn_vars());
                 }
-                $encoder->setStatus_obs("Start in " . date("Y-m-d H:i:s"));
+                $encoder->setStatus_obs("Started at " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
                 if ($objFile->error && !self::canEncodeNow() && !self::canDownloadNow()) {
@@ -1853,14 +1854,21 @@ class Encoder extends ObjectYPT
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->videoFileSize = humanFileSize(filesize($file));
-        //_error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
+        _error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
         $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus(Encoder::STATUS_DONE);
             $u->save();
         } elseif ($obj->error) {
-            _error_log("AVideo-Streamer sendFile error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+            if(!empty($obj->response) && !empty($obj->response->msg) && !empty($encoder)){
+                $encoder->setStatus(Encoder::STATUS_ERROR);
+                $encoder->setStatus_obs($obj->response->msg);
+                $savedId = $encoder->save();
+                _error_log("AVideo-Streamer sendFile error: ". ' '. json_encode($obj->response->msg) . ' savedId=' . $savedId);
+            }else{
+                _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)). ' '. json_encode($obj) );
+            }
         }
         return $obj;
     }
