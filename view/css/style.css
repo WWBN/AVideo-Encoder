@@ -19,7 +19,7 @@
     }
 
 .progress>.progress-type {
-    color: #FFF; 
+    color: #FFF;
     text-shadow: 0px 0px 5px #000;
     padding: 3px 10px 2px !important;
     white-space: nowrap; /* Prevents the text from wrapping */
@@ -33,7 +33,7 @@
     font-weight: 800;
     padding: 3px 10px 2px !important;
     text-align: right;
-    color: #000; 
+    color: #000;
     text-shadow: 0px 0px 5px #FFF;
 }
 
@@ -118,6 +118,7 @@
 .downloadProgress {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
+    margin-bottom: 2px;
 }
 
 #config .checkboxes label {
@@ -161,4 +162,50 @@ body {
     white-space: nowrap;  /* Keep text in a single line */
     overflow: hidden;     /* Hide overflow text */
     text-overflow: ellipsis;  /* Show ellipsis for overflow text */
+}
+
+.label-priority {
+    background-color: #777;
+    color: white;
+    margin-left: 10px;
+}
+
+.label-status {
+    margin-left: 10px;
+}
+
+.label-status-error {
+    background-color: #d9534f;
+}
+
+.label-status-done {
+    background-color: #5cb85c;
+}
+
+.label-status-queue {
+    background-color: #337ab7;
+}
+
+.label-status-encoding {
+    background-color: #5bc0de;
+}
+
+.label-status-downloading {
+    background-color: #f0ad4e;
+}
+
+.label-status-downloaded {
+    background-color: #f7b731;
+}
+
+.label-status-transferring {
+    background-color: #8e44ad;
+}
+
+.label-status-packing {
+    background-color: #e67e22;
+}
+
+.label-status-fixing {
+    background-color: #16a085;
 }

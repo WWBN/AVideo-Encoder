@@ -1,17 +1,21 @@
-<div id="encodeProgress{id}" class="animate__animated animate__flipInX">
-    <a href="{site}" class="btn btn-default" target="_blank">{site}</a>
+<div id="encodeProgress{id}" class="animate__animated animate__flipInX panel panel-default" style="margin-bottom: 10px;">
+    <div class="panel-heading">
+        <a href="{site}" class="btn btn-xs btn-default" target="_blank">{site}</a>
+        <span class="label label-priority">Priority {priority}</span>
+        <span class="label {statusLabelClass}">{statusText}</span>
+    </div>
     <div class="progress progress-striped active encodingProgress" id="encodingProgress{id}" style="margin: 0;">
-        <div class="progress-bar  progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-            aria-valuemax="100" style="width: 0;">
+        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+            aria-valuemax="100" style="width: 0%;">
             <span class="sr-only">0% Complete</span>
         </div>
         <span class="text-Outline-white progress-type col-xs-8">
-            <span class="badge ">Priority {priority}</span> {title}
+            <strong>{title}</strong>
         </span>
-        <span class="text-Outline-black progress-completed col-xs-4">{name}</span>
+        <span class="text-Outline-black progress-completed col-xs-4 text-right">{name}</span>
     </div>
     <div class="progress progress-striped active downloadProgress" id="downloadProgress{id}" style="height: 10px;">
-        <div class="progress-bar  progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-            aria-valuemax="100" style="width: 0;"></div>
+        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+            aria-valuemax="100" style="width: 0%;"></div>
     </div>
 </div>

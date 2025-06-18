@@ -126,9 +126,9 @@ if (!class_exists('Format')) {
             $path_parts = pathinfo($pathFileName);
             if (!file_exists($pathFileName)) {
                 _error_log("AVideo-Encoder Format::run($pathFileName, $encoder_queue_id) ERROR File not found");
-                $obj->msg = 'file not found';
+                $obj->msg = "file not found $pathFileName";
                 $obj->addInQueueAgain = true;
-
+                $obj->code = 404;
                 return $obj;
             }
             /**
@@ -920,6 +920,7 @@ if (!class_exists('Format')) {
             }
             $code = '';
             eval('$code ="' . addcslashes($fc, '"') . '";');
+
             $code = replaceFFMPEG($code);
             $code = removeUserAgentIfNotURL($code);
             if (empty($code)) {

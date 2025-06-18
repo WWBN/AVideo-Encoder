@@ -1,17 +1,21 @@
 <?php
 
-interface ObjectInterface {
+interface ObjectInterface
+{
 
     public static function getTableName();
 
     public static function getSearchFieldsNames();
 }
 
-abstract class ObjectYPT implements ObjectInterface {
+abstract class ObjectYPT implements ObjectInterface
+{
 
     private $fieldsName = [];
+    protected $id;
 
-    protected function load($id) {
+    protected function load($id)
+    {
         $user = self::getFromDb($id);
         if (empty($user)) {
             return false;
@@ -22,17 +26,19 @@ abstract class ObjectYPT implements ObjectInterface {
         return true;
     }
 
-    public function __construct($id) {
+    public function __construct($id)
+    {
         if (!empty($id)) {
             // get data from id
             $this->load($id);
         }
     }
 
-    protected static function getFromDb($id) {
+    protected static function getFromDb($id)
+    {
         global $global;
         $id = intval($id);
-        $sql = "SELECT * FROM " . static::getTableName() . " WHERE  id = $id LIMIT 1";
+        $sql = "SELECT SQL_NO_CACHE * FROM " . static::getTableName() . " WHERE id = $id LIMIT 1";
         $global['lastQuery'] = $sql;
         /**
          * @var array $global
@@ -41,7 +47,9 @@ abstract class ObjectYPT implements ObjectInterface {
         return $res ? $res->fetch_assoc() : false;
     }
 
-    public static function getAll() {
+
+    public static function getAll()
+    {
         global $global;
         $sql = "SELECT * FROM  " . static::getTableName() . " WHERE 1=1 ";
 
@@ -63,7 +71,8 @@ abstract class ObjectYPT implements ObjectInterface {
         return $rows;
     }
 
-    public static function getTotal() {
+    public static function getTotal()
+    {
         //will receive
         //current=1&rowCount=10&sort[sender]=asc&searchPhrase=
         global $global;
@@ -80,7 +89,8 @@ abstract class ObjectYPT implements ObjectInterface {
         return $res->num_rows;
     }
 
-    public static function getSqlFromPost() {
+    public static function getSqlFromPost()
+    {
 
         global $global;
         $sql = self::getSqlSearchFromPost();
@@ -113,7 +123,8 @@ abstract class ObjectYPT implements ObjectInterface {
         return $sql;
     }
 
-    public static function getSqlSearchFromPost() {
+    public static function getSqlSearchFromPost()
+    {
         $sql = "";
         if (!empty($_POST['searchPhrase'])) {
             $_GET['q'] = $_POST['searchPhrase'];
@@ -137,7 +148,8 @@ abstract class ObjectYPT implements ObjectInterface {
         return $sql;
     }
 
-    public function save() {
+    public function save()
+    {
         global $global;
         $fieldsName = $this->getAllFields();
         if (!empty($this->id)) {
@@ -167,14 +179,14 @@ abstract class ObjectYPT implements ObjectInterface {
                 } elseif (!isset($this->$value)) {
                     $fields[] = " NULL ";
                 } else {
-                    if(preg_match('/_id$/', $value)){
+                    if (preg_match('/_id$/', $value)) {
                         $id = intval($this->$value);
-                        if(empty($id)){
+                        if (empty($id)) {
                             $fields[] = " NULL ";
-                        }else{
+                        } else {
                             $fields[] = " {$id} ";
                         }
-                    }else{
+                    } else {
                         $escapedValue = $global['mysqli']->real_escape_string($this->$value);
                         $fields[] = " '{$escapedValue}' ";
                     }
@@ -187,7 +199,7 @@ abstract class ObjectYPT implements ObjectInterface {
         /**
          * @var array $global
          */
-        
+
         //error_log($sql);
         $insert_row = $global['mysqli']->query($sql);
 
@@ -204,7 +216,8 @@ abstract class ObjectYPT implements ObjectInterface {
         }
     }
 
-    private function getAllFields() {
+    private function getAllFields()
+    {
         global $global, $mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase;
         $sql = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '{$mysqlDatabase}' AND TABLE_NAME = '" . static::getTableName() . "'";
         $global['lastQuery'] = $sql;
@@ -237,7 +250,8 @@ abstract class ObjectYPT implements ObjectInterface {
         }
     }
 
-    public function delete() {
+    public function delete()
+    {
         global $global;
         if (!empty($this->id)) {
             $sql = "DELETE FROM " . static::getTableName() . " ";
@@ -252,5 +266,4 @@ abstract class ObjectYPT implements ObjectInterface {
         error_log("Id for table " . static::getTableName() . " not defined for deletion");
         return false;
     }
-
 }

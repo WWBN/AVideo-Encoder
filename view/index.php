@@ -449,6 +449,73 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     });
                 }
 
+                function updateQueueItemVisual(queueItem) {
+                    const id = queueItem.id;
+                    const selector = '#encodeProgress' + id;
+
+                    if (!$(selector).length) {
+                        // Item ainda não existe, será criado por createQueueItem
+                        return;
+                    }
+
+                    const status = queueItem.status.toLowerCase();
+                    const statusText = status.toUpperCase();
+
+                    const statusClasses = {
+                        encoding: 'label-status-encoding',
+                        downloading: 'label-status-downloading',
+                        downloaded: 'label-status-downloaded',
+                        queue: 'label-status-queue',
+                        error: 'label-status-error',
+                        done: 'label-status-done',
+                        transferring: 'label-status-transferring',
+                        packing: 'label-status-packing',
+                        fixing: 'label-status-fixing'
+                    };
+
+                    const obsClass = {
+                        error: 'text-danger',
+                        encoding: 'text-info',
+                        downloading: 'text-warning',
+                        downloaded: 'text-success',
+                        done: 'text-success',
+                        queue: 'text-muted',
+                        transferring: 'text-primary',
+                        packing: 'text-primary',
+                        fixing: 'text-primary'
+                    };
+
+                    // Atualiza status label
+                    const statusLabel = $(selector).find('.label-status');
+                    statusLabel.removeClass().addClass('label label-status ' + (statusClasses[status] || 'label-default')).text(statusText);
+
+                    // Atualiza título e nome, se quiser:
+                    $(selector).find('.progress-type').html(`<strong>${queueItem.title}</strong>`);
+                    $(selector).find('.progress-completed').html(queueItem.name);
+
+                    // Atualiza status_obs
+                    const status_obs = queueItem.status_obs?.trim();
+                    const obsSelector = $(selector).find('.status-obs-container');
+                    if (status_obs) {
+                        if (!obsSelector.length) {
+                            $(selector).append(
+                                `<div class="panel-body status-obs-container" style="padding: 5px 10px;">
+                                    <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
+                                        <i class="fa fa-info-circle"></i> ${status_obs}
+                                    </small>
+                                </div>`
+                            );
+                        } else {
+                            obsSelector.html(`<small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
+                                <i class="fa fa-info-circle"></i> ${status_obs}
+                              </small>`);
+                        }
+                    } else {
+                        obsSelector.remove(); // Remove se não tiver mais texto
+                    }
+                }
+
+
                 function setEncodingProgress(id, progress, text) {
                     var selector = "#encodingProgress" + id;
                     if (!isNaN(progress)) {
@@ -488,9 +555,13 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         success: function(response) {
                             if (response.queue_list.length) {
                                 for (i = 0; i < response.queue_list.length; i++) {
-                                    createQueueItem(response.queue_list[i], response.queue_list[i - 1]);
+                                    const item = response.queue_list[i];
+                                    if ($('#encodeProgress' + item.id).length) {
+                                        updateQueueItemVisual(item);
+                                    } else {
+                                        createQueueItem(item, response.queue_list[i - 1]);
+                                    }
                                 }
-
                             }
                             if (response.downloaded.length > 0) {
                                 for (i = 0; i < response.downloaded.length; i++) {
@@ -569,23 +640,62 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                     if ($('#encodeProgress' + queueItem.id).length) {
                         return false;
                     }
-                    console.log(queueItemAfter);
 
-                    var itemsArray = {};
-                    itemsArray.id = queueItem.id;
-                    itemsArray.site = queueItem.streamer_site;
-                    itemsArray.priority = queueItem.streamer_priority;
-                    itemsArray.title = queueItem.title;
-                    itemsArray.name = queueItem.name;
+                    const status = queueItem.status.toLowerCase();
 
-                    var item = arrayToTemplate(itemsArray, createQueueTemplate);
+                    const statusClasses = {
+                        encoding: 'label-status-encoding',
+                        downloading: 'label-status-downloading',
+                        downloaded: 'label-status-downloaded',
+                        queue: 'label-status-queue',
+                        error: 'label-status-error',
+                        done: 'label-status-done',
+                        transferring: 'label-status-transferring',
+                        packing: 'label-status-packing',
+                        fixing: 'label-status-fixing'
+                    };
 
-                    if (typeof queueItemAfter === 'undefined' || !$("#" + queueItemAfter.id).length) {
+                    const obsClass = {
+                        error: 'text-danger',
+                        encoding: 'text-info',
+                        downloading: 'text-warning',
+                        downloaded: 'text-success',
+                        done: 'text-success',
+                        queue: 'text-muted',
+                        transferring: 'text-primary',
+                        packing: 'text-primary',
+                        fixing: 'text-primary'
+                    };
+
+                    const status_obs = queueItem.status_obs?.trim();
+                    const status_obs_block = status_obs ?
+                        `<div class="panel-body" style="padding: 5px 10px;">
+                            <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
+                                <i class="fa fa-info-circle"></i> ${status_obs}
+                            </small>
+                        </div>` : '';
+
+                    const itemsArray = {
+                        id: queueItem.id,
+                        site: queueItem.streamer_site,
+                        priority: queueItem.streamer_priority,
+                        title: queueItem.title,
+                        name: queueItem.name,
+                        statusText: status.toUpperCase(),
+                        statusLabelClass: 'label label-status ' + (statusClasses[status] || 'label-default'),
+                        status_obs_block: status_obs_block
+                    };
+
+                    const item = arrayToTemplate(itemsArray, createQueueTemplate);
+
+                    if (typeof queueItemAfter === 'undefined' || !$("#encodeProgress" + queueItemAfter.id).length) {
                         $("#encoding").append(item);
                     } else {
-                        $(item).insertAfter("#" + queueItemAfter.id);
+                        $(item).insertAfter("#encodeProgress" + queueItemAfter.id);
                     }
+                    updateQueueItemVisual(queueItem);
                 }
+
 
                 function removeQueueItem(id) {
                     checkProgressRemoveTimeout[id] = setTimeout(function() {

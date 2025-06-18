@@ -196,7 +196,10 @@ class Encoder extends ObjectYPT
         $this->worker_pid = intval($this->worker_pid);
 
         _error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ") streamers_id={$this->streamers_id} status_obs={$this->status_obs} ");
-        return parent::save();
+        $id = parent::save();
+        $this->id = $id;
+        _error_log("Encoder::save id=(" . $this->getId() . ")". ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        return $id;
     }
 
     public static function getAll($onlyMine = false, $errorOnly = false)
@@ -1158,8 +1161,12 @@ class Encoder extends ObjectYPT
     private static function setStatusError($queue_id, $msg, $notifyIsDone = false)
     {
         global $global;
-        _error_log("setStatusError($queue_id, $msg, $notifyIsDone) " . json_encode(debug_backtrace()));
         $q = new Encoder($queue_id);
+        _error_log("setStatusError($queue_id, $msg, $notifyIsDone) isUploadLimitMsg status_obs=" . $q->getStatus_obs() . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        if (self::isUploadLimitMsg($q->getStatus_obs())) {
+            return false;
+        }
+
         $q->setStatus(Encoder::STATUS_ERROR);
         $q->setStatus_obs($msg);
         $saved = $q->save();
@@ -1302,13 +1309,16 @@ class Encoder extends ObjectYPT
 
         // Create the lock file with the current time
         file_put_contents($lockFile, time());
+        _error_log("Encoder::run: Lock file created $lockFile");
 
         if ($try > $maxTries) {
+            _error_log("Encoder::run: Lock file deleted maxTries $lockFile");
             unlink($lockFile); // Remove the lock file before returning
             return false;
         }
 
         if (self::areDownloading(array(Encoder::STATUS_DOWNLOADING))) {
+            _error_log("Encoder::run: Lock file deleted areDownloading $lockFile");
             //_error_log("You have a video downloading now, please wait ");
             unlink($lockFile); // Remove the lock file before returning
             return false;
@@ -1419,7 +1429,9 @@ class Encoder extends ObjectYPT
                         } else {
                             $msg = "Encoder::run: Send message error = " . $response->msg;
                             _error_log($msg);
-                            self::setStatusError($encoder->getId(), $msg, 1);
+                            if (!self::isUploadLimitMsg($encoder->getStatus_obs())) {
+                                self::setStatusError($encoder->getId(), $msg, 1);
+                            }
                             unlink($lockFile); // Remove the lock file before returning
                             return false;
                         }
@@ -1438,6 +1450,7 @@ class Encoder extends ObjectYPT
                         if (empty($obj->videos_id)) {
                             $errorMsg[] = 'We could not get videos_id check the streamer logs';
                             self::setStatusError($encoder->getId(), "We could not get videos_id check the streamer logs", 1);
+                            _error_log("Encoder::run: Lock file deleted getVideosId $lockFile");
                             unlink($lockFile); // Remove the lock file before returning
                             return false;
                         }
@@ -1460,6 +1473,7 @@ class Encoder extends ObjectYPT
                     if ($setError) {
                         self::setStatusError($encoder->getId(), "try [{$try}] ", 1);
                     }
+                    _error_log("Encoder::run: Lock file deleted setError $lockFile");
                     unlink($lockFile); // Remove the lock file before returning
                     return false;
                 }
@@ -1486,7 +1500,7 @@ class Encoder extends ObjectYPT
             $msg .= (count($rows) == 1) ? " is encoding" : " are encoding";
             $obj->msg = $msg;
         }
-
+        _error_log("Encoder::run: Lock file deleted $lockFile");
         // Remove the lock file before returning
         unlink($lockFile);
         return $obj;
@@ -1865,13 +1879,18 @@ class Encoder extends ObjectYPT
                 $encoder->setStatus(Encoder::STATUS_ERROR);
                 $encoder->setStatus_obs($obj->response->msg);
                 $savedId = $encoder->save();
-                _error_log("AVideo-Streamer sendFile error: ". ' '. json_encode($obj->response->msg) . ' savedId=' . $savedId);
+                _error_log("AVideo-Streamer sendFile error: ". json_encode($obj->response->msg) . ' savedId=' . $savedId . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
             }else{
                 _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)). ' '. json_encode($obj) );
             }
         }
         return $obj;
     }
+
+    private static function isUploadLimitMsg($text)
+     {
+         return stripos($text, 'upload limit reached') !== false;
+     }
 
     public static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0)
     {
@@ -2200,6 +2219,7 @@ class Encoder extends ObjectYPT
                     return  $obj;
                 }else{
                     _error_log("sendToStreamer it is the spectrum (mp3 to hls) mp4 file will be sent");
+                    $postFields['forceIndex'] = 1;
                 }
             }
             $f = new Format($encoder->getFormats_id());
@@ -2287,7 +2307,12 @@ class Encoder extends ObjectYPT
             }
         } else {
             if (is_object($obj->response)) {
-                $obj->error = $obj->response->error;
+                if (isset($obj->response->error)) {
+                    $obj->error = $obj->response->error;
+                }
+                if (isset($obj->response->code)) {
+                    $obj->code = $obj->response->code;
+                }
                 if (!empty($obj->response->msg)) {
                     $obj->msg = $obj->response->msg;
                 }
