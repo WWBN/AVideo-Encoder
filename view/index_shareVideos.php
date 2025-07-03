@@ -1,4 +1,5 @@
 
+
 <div class="panel panel-default">
     <div class="panel-heading">
         <?php
@@ -42,6 +43,7 @@
                         <span class="glyphicon glyphicon-info-sign"></span> <?php echo __('Share videos from YouTube and a few'); ?> <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank"><?php echo __('more sites'); ?></a>.
                     </div>
                     <form id="downloadForm" onsubmit="">
+                        <input type="hidden" name="youtubeCookie" id="youtubeCookie" value="">
                         <div class="form-group">
                             <div class="input-group">
                                 <input type="url" class="form-control" id="inputVideoURL" placeholder="http://..." />
@@ -62,7 +64,7 @@
                             ?>
                             <div class="form-group">
                                 <div style="display: flex;">
-                                    <?php 
+                                    <?php
                                     echo getCategoriesSelect('download_categories_id');
                                     ?>
                                 </div>
@@ -113,7 +115,7 @@
                         ?>
                         <div class="form-group">
                             <div style="display: flex;">
-                                <?php 
+                                <?php
                                 echo getCategoriesSelect('bulk_categories_id');
                                 ?>
                             </div>

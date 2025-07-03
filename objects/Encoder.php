@@ -198,7 +198,7 @@ class Encoder extends ObjectYPT
         _error_log("Encoder::save id=(" . $this->getId() . ") title=(" . $this->getTitle() . ") streamers_id={$this->streamers_id} status_obs={$this->status_obs} ");
         $id = parent::save();
         $this->id = $id;
-        _error_log("Encoder::save id=(" . $this->getId() . ")". ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        _error_log("Encoder::save id=(" . $this->getId() . ")" . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         return $id;
     }
 
@@ -1868,29 +1868,29 @@ class Encoder extends ObjectYPT
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->videoFileSize = humanFileSize(filesize($file));
-        _error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
+        _error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj));
         $obj->file = $file;
 
         if (isset($u) && $u !== false && $obj->error == false) {
             $u->setStatus(Encoder::STATUS_DONE);
             $u->save();
         } elseif ($obj->error) {
-            if(!empty($obj->response) && !empty($obj->response->msg) && !empty($encoder)){
+            if (!empty($obj->response) && !empty($obj->response->msg) && !empty($encoder)) {
                 $encoder->setStatus(Encoder::STATUS_ERROR);
                 $encoder->setStatus_obs($obj->response->msg);
                 $savedId = $encoder->save();
-                _error_log("AVideo-Streamer sendFile error: ". json_encode($obj->response->msg) . ' savedId=' . $savedId . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
-            }else{
-                _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)). ' '. json_encode($obj) );
+                _error_log("AVideo-Streamer sendFile error: " . json_encode($obj->response->msg) . ' savedId=' . $savedId . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+            } else {
+                _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)) . ' ' . json_encode($obj));
             }
         }
         return $obj;
     }
 
     private static function isUploadLimitMsg($text)
-     {
-         return stripos($text, 'upload limit reached') !== false;
-     }
+    {
+        return stripos($text, 'upload limit reached') !== false;
+    }
 
     public static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0)
     {
@@ -2217,7 +2217,7 @@ class Encoder extends ObjectYPT
                     $obj = new stdClass();
                     $obj->error = false;
                     return  $obj;
-                }else{
+                } else {
                     _error_log("sendToStreamer it is the spectrum (mp3 to hls) mp4 file will be sent");
                     $postFields['forceIndex'] = 1;
                 }
@@ -2294,7 +2294,7 @@ class Encoder extends ObjectYPT
             }
             $obj->response_raw = curl_exec($curl);
         } catch (\Throwable $th) {
-            $obj->msg = $th->getMessage().' URL='.$url;
+            $obj->msg = $th->getMessage() . ' URL=' . $url;
             return $obj;
         }
         $obj->response = json_decode($obj->response_raw);
@@ -3054,7 +3054,7 @@ class Encoder extends ObjectYPT
         global $global;
         $cacheDir = '/var/www/.cache/';
         if (!is_dir($cacheDir)) {
-            @mkdir($cacheDir);
+            @mkdir($cacheDir, 0755, true);
         }
 
         $ytdl = "youtube-dl ";
@@ -3065,6 +3065,15 @@ class Encoder extends ObjectYPT
         } elseif (file_exists("/usr/local/bin/youtube-dl")) {
             $ytdl = "/usr/local/bin/youtube-dl ";
         }
+
+        // add the youtubeCookie
+        $s = new Streamer($streamers_id);
+        $cookieFile = $s->getYoutubeCookieFilePath();
+        if (!empty($cookieFile) && file_exists($cookieFile)) {
+            $cookieFileEscaped = escapeshellarg($cookieFile);
+            $ytdl .= " --cookie {$cookieFileEscaped} ";
+        }
+
         if (!empty($addOauthFromProvider) || !empty($global['usingOauth'])) {
             $accessToken = self::streamerHasOauth($addOauthFromProvider, $streamers_id);
             if (empty($accessToken)) {
@@ -3075,9 +3084,11 @@ class Encoder extends ObjectYPT
                 $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
             }
         }
+
         _error_log("getYouTubeDLCommand($addOauthFromProvider, $streamers_id, $forceYoutubeDL)");
         return $ytdl;
     }
+
 
     public static function setStreamerLog($encoder_queue_id, $msg, $type)
     {

@@ -1,0 +1,21 @@
+{
+  "name": "YouTube Cookie Exporter",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": ["cookies", "tabs", "storage"],
+  "host_permissions": [
+    "https://www.youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_script.js"]
+    }
+  ]
+}

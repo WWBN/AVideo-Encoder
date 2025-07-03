@@ -18,29 +18,16 @@ if(!Login::isLogged()){
 }
 
 $s = new Streamer(Login::getStreamerId());
-$jsonString = $s->getJson();
 
-if(empty($jsonString)){
-    $json = array();
-}else{
-    $json = json_decode($jsonString, true);
-}
+$saved = $s->updateJson($_REQUEST['provider'], $_REQUEST);
+$json = $s->getJson();
 
-$json[$_REQUEST['provider']] = $_REQUEST;
-
-if(!empty($json[$_REQUEST['provider']]['json']) && is_string($json[$_REQUEST['provider']]['json'])){
-    $json[$_REQUEST['provider']]['json'] = json_decode($json[$_REQUEST['provider']]['json']);
-}
-
-$s->setJson($json);
-
-$saved = $s->save();
 
 $response = array(
     'error' => empty($saved),
     'saved' => $saved,
     'msg' => '',
-    'json'=>$json
+    'json'=> json_decode($json)
 );
 
 echo json_encode($response);

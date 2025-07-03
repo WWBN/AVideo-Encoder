@@ -1149,6 +1149,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                                 "webm": $('#inputWebM').is(":checked"),
                                                 "override_status": $('#override_status').val(),
                                                 "videoURL": $('#inputVideoURL').val(),
+                                                "youtubeCookie": $('#youtubeCookie').val(),
                                                 "update_video_id": $('#update_video_id').val(),
                                                 "inputHLS": $('#inputHLS').is(":checked"),
                                                 "inputLow": $('#inputLow').is(":checked"),
@@ -1196,6 +1197,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                         $.ajax({
                             url: 'youtubeDl.json?<?php echo getPHPSessionIDURL(); ?>',
                             data: {
+                                "youtubeCookie": $('#youtubeCookie').val(),
                                 "videoURL": $('#inputVideoURL').val(),
                                 "audioOnly": $('#inputAudioOnly').is(":checked"),
                                 "spectrum": $('#inputAudioSpectrum').is(":checked"),

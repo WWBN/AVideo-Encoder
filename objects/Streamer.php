@@ -26,7 +26,7 @@ if (!class_exists('Streamer')) {
                 $global = [];
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
-            //echo $sql;exit;            
+            //echo $sql;exit;
             /**
              * @var array $global
              * @var object $global['mysqli']
@@ -270,7 +270,7 @@ if (!class_exists('Streamer')) {
             $config = new Configuration();
             if (version_compare($config->getVersion(), '4.0') < 0) {
                 $pass = substr($pass, 0, 45);
-            }else{
+            } else {
                 $pass = substr($pass, 0, 255);
             }
             $this->pass = $pass;
@@ -319,6 +319,22 @@ if (!class_exists('Streamer')) {
             $this->json = $json;
         }
 
+        function updateJson($parameter, $value)
+        {
+            $jsonString = $this->getJson();
+
+            if (empty($jsonString)) {
+                $json = array();
+            } else {
+                $json = json_decode($jsonString, true);
+            }
+            $json[$parameter] = $value;
+
+            $this->setJson($json);
+
+            return $this->save();
+        }
+
         static function revalidateToken($streamers_id, $provider)
         {
             $response = array(
@@ -326,7 +342,7 @@ if (!class_exists('Streamer')) {
                 'msg' => '',
                 'provider' =>  $provider,
             );
-            
+
             if (empty($provider)) {
                 $response['msg'] = "Provider is empty";
                 return $response;
@@ -335,18 +351,18 @@ if (!class_exists('Streamer')) {
             $s = new Streamer($streamers_id);
             $jsonString = $s->getJson();
             if (empty($jsonString)) {
-                $response['msg'] = "There is no token for this streamers_id = $streamers_id [$provider] ".json_encode(debug_backtrace());
+                $response['msg'] = "There is no token for this streamers_id = $streamers_id [$provider] " . json_encode(debug_backtrace());
                 return $response;
             } else {
                 $json = json_decode($jsonString, true);
             }
             $response['json'] = $json;
-            if(empty($json[$provider]['json']["restream.ypt.me"]['access_token'])){
+            if (empty($json[$provider]['json']["restream.ypt.me"]['access_token'])) {
                 $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'];
-            }else{
+            } else {
                 $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['access_token'];
             }
-            
+
             if (empty($response['accessToken'])) {
                 _error_log(json_encode($json));
                 $response['msg'] = "revalidateToken($streamers_id, $provider) access_token is empty ";
@@ -378,7 +394,7 @@ if (!class_exists('Streamer')) {
             $response['error'] = empty($response['respJson']) || $response['respJson']['error'];
             $response['msg'] = empty($response['respJson']) ? 'Empty response' : $response['respJson']['msg'];
             $response['saved'] = false;
-            if(empty($response['error'] ) && !empty($response['respJson']['new_access_token'])){
+            if (empty($response['error']) && !empty($response['respJson']['new_access_token'])) {
                 $json[$provider]['json']["restream.ypt.me"]['accessToken'] = $response['respJson']['new_access_token'];
                 $json[$provider]['json']["restream.ypt.me"]['expires'] = $response['respJson']['expires'];
 
@@ -392,14 +408,58 @@ if (!class_exists('Streamer')) {
             return $response;
         }
 
-        static function getAccessToken($streamers_id, $provider){
+        static function getAccessToken($streamers_id, $provider)
+        {
             $json = self::revalidateToken($streamers_id, $provider);
             //var_dump($json);exit;
-            if(empty($json['accessToken']["access_token"])){
+            if (empty($json['accessToken']["access_token"])) {
                 _error_log(json_encode($json));
                 return false;
             }
             return $json['accessToken']["access_token"];
+        }
+
+        function getYoutubeCookieFilePath()
+        {
+            $jsonString = $this->getJson();
+            if (empty($jsonString)) {
+                return '';
+            }
+
+            $json = json_decode($jsonString, true);
+            if (empty($json['youtubeCookie'])) {
+                return '';
+            }
+
+            $cookie = $json['youtubeCookie'];
+
+            // Decode if it's a stringified JSON
+            if (is_string($cookie)) {
+                $cookie = json_decode($cookie, true);
+            }
+
+            if (!is_array($cookie) || empty($cookie)) {
+                return '';
+            }
+
+            // Build Netscape-format cookie content
+            $lines = [];
+            foreach ($cookie as $item) {
+                $lines[] = implode("\t", [
+                    $item['domain'] ?? '',
+                    $item['hostOnly'] ? 'FALSE' : 'TRUE',
+                    $item['path'] ?? '/',
+                    $item['secure'] ? 'TRUE' : 'FALSE',
+                    $item['expirationDate'] ?? 0,
+                    $item['name'] ?? '',
+                    $item['value'] ?? '',
+                ]);
+            }
+
+            $cookieFilePath = tempnam(sys_get_temp_dir(), 'ytcookie_');
+            file_put_contents($cookieFilePath, implode(PHP_EOL, $lines) . PHP_EOL);
+
+            return $cookieFilePath;
         }
     }
 }

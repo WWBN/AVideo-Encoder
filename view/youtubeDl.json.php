@@ -21,7 +21,8 @@ if (empty($_REQUEST['videoURL'])) {
     if (!Login::canUpload()) {
         $obj->msg = "This user can not upload files";
     } else {
-        if (!($streamers_id = Login::getStreamerId())) {
+        $streamers_id = Login::getStreamerId();
+        if (!$streamers_id) {
             $obj->msg = "There is no streamer site";
         } else {
             // if it is a channel
@@ -39,6 +40,7 @@ if (empty($_REQUEST['videoURL'])) {
                 if (!empty($_REQUEST['endIndex'])) {
                     $end = intval($_REQUEST['endIndex']);
                 }
+
                 error_log("Processing Channel {$start} to {$end}");
                 $list = Encoder::getReverseVideosJsonListFromLink($_REQUEST['videoURL'], Login::getStreamerId());
                 $i = $start;
@@ -64,6 +66,13 @@ if (empty($_REQUEST['videoURL'])) {
                         echo "Error: " . $e->getMessage() . "\n";
                     }
                 } else {
+                    $streamers_id = Login::getStreamerId();
+
+                    if(!empty($_REQUEST['youtubeCookie'])){
+                        $s = new Streamer($streamers_id);
+                        $s = new Streamer(Login::getStreamerId());
+                        $saved = $s->updateJson('youtubeCookie', $_REQUEST['youtubeCookie']);
+                    }
                     $obj = addVideo($_REQUEST['videoURL'], $streamers_id, @$_REQUEST['videoTitle']);
                 }
             }
