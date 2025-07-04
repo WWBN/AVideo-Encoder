@@ -49,6 +49,7 @@
         var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
         var webSiteRootURL = '<?php echo $streamerURL; ?>';
         var PHPSESSID = '<?php echo session_id(); ?>';
+        var acceptFileTypes = /(\.|\/)(<?php echo implode('|', $global['allowed']); ?>)$/i;
     </script>
 
     <link href="<?php echo $streamerURL; ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
