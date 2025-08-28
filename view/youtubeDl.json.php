@@ -11,22 +11,27 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 session_write_close();
 
 if (empty($_REQUEST['videoURL'])) {
+    error_log("youtubeDl.json: videoURL is empty");
     $obj->msg = "videoURL is empty";
 } else {
     if (!empty($_REQUEST['webSiteRootURL']) && !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && empty($_REQUEST['justLogin'])) {
-        error_log("youtubeDl.json: Login::run");
+        error_log("youtubeDl.json: Attempting login with provided credentials");
         Login::run($_REQUEST['user'], $_REQUEST['pass'], $_REQUEST['webSiteRootURL'], true);
     }
 
     if (!Login::canUpload()) {
+        error_log("youtubeDl.json: User does not have upload permissions");
         $obj->msg = "This user can not upload files";
     } else {
         if (!($streamers_id = Login::getStreamerId())) {
+            error_log("youtubeDl.json: No streamer site found");
             $obj->msg = "There is no streamer site";
         } else {
+            error_log("youtubeDl.json: Streamer ID found: {$streamers_id}");
             // if it is a channel
             $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
             if (preg_match($rexexp, $_REQUEST['videoURL'])) {
+                error_log("youtubeDl.json: Processing YouTube channel URL");
                 if (!Login::canBulkEncode()) {
                     $obj->msg = "Channel Import is disabled";
                     die(json_encode($obj));
@@ -54,6 +59,7 @@ if (empty($_REQUEST['videoURL'])) {
                 error_log("Process Done Total {$i}");
             } else {
                 if (isFTPURL($_REQUEST['videoURL'])) {
+                    error_log("youtubeDl.json: Detected FTP URL");
                     require_once __DIR__ . '/../objects/FTPDownloader.php';
                     try {
                         $downloader = new FTPDownloader($_REQUEST['videoURL']);
@@ -64,6 +70,7 @@ if (empty($_REQUEST['videoURL'])) {
                         echo "Error: " . $e->getMessage() . "\n";
                     }
                 } else {
+                    error_log("youtubeDl.json: Adding video with URL: {$_REQUEST['videoURL']}");
                     $obj = addVideo($_REQUEST['videoURL'], $streamers_id, @$_REQUEST['videoTitle']);
                 }
             }
@@ -72,6 +79,7 @@ if (empty($_REQUEST['videoURL'])) {
 }
 
 if (empty($doNotDie)) {
+    error_log("youtubeDl.json: Sending response");
     echo (json_encode($obj));
     exit;
 }
