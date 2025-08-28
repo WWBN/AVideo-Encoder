@@ -89,10 +89,15 @@ if (isset($_REQUEST['videoTitle'])) {
     error_log("youtubeDl.json: Cleaned video title: {$_REQUEST['videoTitle']}");
 }
 
-if (isset($_REQUEST['videoDownloadedLink'])) {
-    $_REQUEST['videoDownloadedLink'] = cleanFilename($_REQUEST['videoDownloadedLink']);
-    error_log("youtubeDl.json: Cleaned video downloaded link: {$_REQUEST['videoDownloadedLink']}");
+// Check if videoDownloadedLink is set
+if (!isset($_REQUEST['videoDownloadedLink']) || empty($_REQUEST['videoDownloadedLink'])) {
+    error_log("youtubeDl.json: videoDownloadedLink is missing or empty in \\$_REQUEST");
+    $_REQUEST['videoDownloadedLink'] = ""; // Set a default empty value or handle appropriately
 }
+
+// Clean videoDownloadedLink
+$_REQUEST['videoDownloadedLink'] = cleanFilename($_REQUEST['videoDownloadedLink']);
+error_log("youtubeDl.json: Cleaned video downloaded link: {$_REQUEST['videoDownloadedLink']}");
 
 // Add logging before calling queueFiles
 error_log("youtubeDl.json: Calling queueFiles with videoDownloadedLink: {$_REQUEST['videoDownloadedLink']} and videoTitle: {$_REQUEST['videoTitle']}");
