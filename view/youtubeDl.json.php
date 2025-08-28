@@ -91,8 +91,16 @@ if (isset($_REQUEST['videoTitle'])) {
 
 // Ensure $obj is populated before sending the response
 if (empty((array)$obj)) {
-    error_log("youtubeDl.json: $obj is empty, adding default error message");
+    error_log("youtubeDl.json: Object is empty, adding default error message");
     $obj->msg = "An unknown error occurred";
+}
+
+// Convert $obj to JSON for logging
+$objAsJson = json_encode($obj);
+if ($objAsJson === false) {
+    $jsonError = json_last_error_msg();
+    error_log("youtubeDl.json: Failed to encode object for logging - {$jsonError}");
+    $objAsJson = "{\"error\":\"Failed to encode object\"}";
 }
 
 if (empty($doNotDie)) {
