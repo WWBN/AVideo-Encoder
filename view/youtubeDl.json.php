@@ -79,7 +79,14 @@ if (empty($_REQUEST['videoURL'])) {
 }
 
 if (empty($doNotDie)) {
-    error_log("youtubeDl.json: Sending response");
-    echo (json_encode($obj));
+    $resp = json_encode($obj);
+    if ($resp === false) {
+        $jsonError = json_last_error_msg();
+        error_log("youtubeDl.json: JSON encoding error - {$jsonError}");
+        $resp = json_encode(["error" => "JSON encoding failed", "details" => $jsonError]);
+    } else {
+        error_log("youtubeDl.json: Sending response {$resp}");
+    }
+    echo $resp;
     exit;
 }
