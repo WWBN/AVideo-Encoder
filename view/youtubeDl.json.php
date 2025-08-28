@@ -89,9 +89,18 @@ if (isset($_REQUEST['videoTitle'])) {
     error_log("youtubeDl.json: Cleaned video title: {$_REQUEST['videoTitle']}");
 }
 
+if (isset($_REQUEST['videoDownloadedLink'])) {
+    $_REQUEST['videoDownloadedLink'] = cleanFilename($_REQUEST['videoDownloadedLink']);
+    error_log("youtubeDl.json: Cleaned video downloaded link: {$_REQUEST['videoDownloadedLink']}");
+}
+
+// Add logging before calling queueFiles
+error_log("youtubeDl.json: Calling queueFiles with videoDownloadedLink: {$_REQUEST['videoDownloadedLink']} and videoTitle: {$_REQUEST['videoTitle']}");
+
 // Ensure $obj is populated before sending the response
 if (empty((array)$obj)) {
-    error_log("youtubeDl.json: Object is empty, adding default error message");
+    error_log("youtubeDl.json: Object is empty after queueFiles. Debugging...");
+    error_log("youtubeDl.json: videoDownloadedLink: {$_REQUEST['videoDownloadedLink']}, videoTitle: {$_REQUEST['videoTitle']}");
     $obj->msg = "An unknown error occurred";
 }
 
