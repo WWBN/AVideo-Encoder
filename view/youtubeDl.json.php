@@ -10,6 +10,11 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 session_write_close();
 
+function cleanFilename($filename) {
+    // Remove BOM (Byte Order Mark) and other unwanted characters
+    return preg_replace('/[^\w\d\-_\. ]/', '', preg_replace('/^\xEF\xBB\xBF/', '', $filename));
+}
+
 if (empty($_REQUEST['videoURL'])) {
     error_log("youtubeDl.json: videoURL is empty");
     $obj->msg = "videoURL is empty";
@@ -29,7 +34,7 @@ if (empty($_REQUEST['videoURL'])) {
         } else {
             error_log("youtubeDl.json: Streamer ID found: {$streamers_id}");
             // if it is a channel
-            $rexexp = "/^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/";
+            $rexexp = "/^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/(channel|user).+/";
             if (preg_match($rexexp, $_REQUEST['videoURL'])) {
                 error_log("youtubeDl.json: Processing YouTube channel URL");
                 if (!Login::canBulkEncode()) {
@@ -67,7 +72,8 @@ if (empty($_REQUEST['videoURL'])) {
                         $downloader->queueFiles();
                         $downloader->close();
                     } catch (Exception $e) {
-                        echo "Error: " . $e->getMessage() . "\n";
+                        error_log("youtubeDl.json: FTPDownloader exception - " . $e->getMessage());
+                        $obj->msg = "FTP download failed: " . $e->getMessage();
                     }
                 } else {
                     error_log("youtubeDl.json: Adding video with URL: {$_REQUEST['videoURL']}");
@@ -76,6 +82,17 @@ if (empty($_REQUEST['videoURL'])) {
             }
         }
     }
+}
+
+if (isset($_REQUEST['videoTitle'])) {
+    $_REQUEST['videoTitle'] = cleanFilename($_REQUEST['videoTitle']);
+    error_log("youtubeDl.json: Cleaned video title: {$_REQUEST['videoTitle']}");
+}
+
+// Ensure $obj is populated before sending the response
+if (empty((array)$obj)) {
+    error_log("youtubeDl.json: $obj is empty, adding default error message");
+    $obj->msg = "An unknown error occurred";
 }
 
 if (empty($doNotDie)) {
