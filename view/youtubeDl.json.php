@@ -92,7 +92,7 @@ if (isset($_REQUEST['videoTitle'])) {
 
 // Avoid sanitizing URLs
 if (!isset($_REQUEST['videoDownloadedLink']) || empty($_REQUEST['videoDownloadedLink'])) {
-    error_log("youtubeDl.json: videoDownloadedLink is missing or empty in \\$_REQUEST");
+    error_log("youtubeDl.json: videoDownloadedLink is missing or empty in \$_REQUEST");
 } else {
     error_log("youtubeDl.json: videoDownloadedLink provided: " . $_REQUEST['videoDownloadedLink']);
 }
