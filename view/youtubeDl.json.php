@@ -71,12 +71,13 @@ if (empty($_REQUEST['videoURL'])) {
                         $downloader->connect();
                         $downloader->queueFiles();
                         $downloader->close();
+                        $obj = (object)['error' => false, 'msg' => 'Files queued'];
                     } catch (Exception $e) {
                         error_log("youtubeDl.json: FTPDownloader exception - " . $e->getMessage());
-                        $obj->msg = "FTP download failed: " . $e->getMessage();
+                        $obj = (object)['error' => true, 'msg' => "FTP download failed: " . $e->getMessage()];
                     }
                 } else {
-                    error_log("youtubeDl.json: Adding video with URL: {$_REQUEST['videoURL']}");
+                    error_log("youtubeDl.json: Adding video with URL: " . $_REQUEST['videoURL']);
                     $obj = addVideo($_REQUEST['videoURL'], $streamers_id, @$_REQUEST['videoTitle']);
                 }
             }
@@ -86,27 +87,21 @@ if (empty($_REQUEST['videoURL'])) {
 
 if (isset($_REQUEST['videoTitle'])) {
     $_REQUEST['videoTitle'] = cleanFilename($_REQUEST['videoTitle']);
-    error_log("youtubeDl.json: Cleaned video title: {$_REQUEST['videoTitle']}");
+    error_log("youtubeDl.json: Cleaned video title: " . $_REQUEST['videoTitle']);
 }
 
-// Check if videoDownloadedLink is set
+// Avoid sanitizing URLs
 if (!isset($_REQUEST['videoDownloadedLink']) || empty($_REQUEST['videoDownloadedLink'])) {
     error_log("youtubeDl.json: videoDownloadedLink is missing or empty in \\$_REQUEST");
-    $_REQUEST['videoDownloadedLink'] = ""; // Set a default empty value or handle appropriately
+} else {
+    error_log("youtubeDl.json: videoDownloadedLink provided: " . $_REQUEST['videoDownloadedLink']);
 }
-
-// Clean videoDownloadedLink
-$_REQUEST['videoDownloadedLink'] = cleanFilename($_REQUEST['videoDownloadedLink']);
-error_log("youtubeDl.json: Cleaned video downloaded link: {$_REQUEST['videoDownloadedLink']}");
-
-// Add logging before calling queueFiles
-error_log("youtubeDl.json: Calling queueFiles with videoDownloadedLink: {$_REQUEST['videoDownloadedLink']} and videoTitle: {$_REQUEST['videoTitle']}");
 
 // Ensure $obj is populated before sending the response
 if (empty((array)$obj)) {
-    error_log("youtubeDl.json: Object is empty after queueFiles. Debugging...");
-    error_log("youtubeDl.json: videoDownloadedLink: {$_REQUEST['videoDownloadedLink']}, videoTitle: {$_REQUEST['videoTitle']}");
-    $obj->msg = "An unknown error occurred";
+    error_log("youtubeDl.json: Object is empty after processing. Debugging...");
+    error_log("youtubeDl.json: videoURL: " . $_REQUEST['videoURL'] . ", videoTitle: " . $_REQUEST['videoTitle']);
+    $obj = (object)['error' => true, 'msg' => "An unknown error occurred"];
 }
 
 // Convert $obj to JSON for logging
@@ -114,7 +109,7 @@ $objAsJson = json_encode($obj);
 if ($objAsJson === false) {
     $jsonError = json_last_error_msg();
     error_log("youtubeDl.json: Failed to encode object for logging - {$jsonError}");
-    $objAsJson = "{\"error\":\"Failed to encode object\"}";
+    $objAsJson = json_encode(["error" => true, "msg" => "Failed to encode object", "details" => $jsonError]);
 }
 
 if (empty($doNotDie)) {
@@ -122,9 +117,9 @@ if (empty($doNotDie)) {
     if ($resp === false) {
         $jsonError = json_last_error_msg();
         error_log("youtubeDl.json: JSON encoding error - {$jsonError}");
-        $resp = json_encode(["error" => "JSON encoding failed", "details" => $jsonError]);
+        $resp = json_encode(["error" => true, "msg" => "JSON encoding failed", "details" => $jsonError]);
     } else {
-        error_log("youtubeDl.json: Sending response {$resp}");
+        error_log("youtubeDl.json: Sending response " . $resp);
     }
     echo $resp;
     exit;
