@@ -82,12 +82,11 @@ class HLSProcessor
             $audioTsPattern = "{$destinationFile}audio_tracks/{$langDir}/audio_%03d.ts"; // Pattern for audio .ts segments
 
             // Correctly map the audio track and add VOD parameters
-            $audioCommand = get_ffmpeg() . " -i {$pathFileName} "
-                . " -map 0:a:{$track->index} -c:a aac -b:a 128k "
-                // Enforce identical segment time
-                . " -movflags +faststart -f hls -hls_time 6 "
-                . " -hls_flags independent_segments+split_by_time "
-                . " -hls_playlist_type vod "
+            $audioCommand = get_ffmpeg() . " -y -i {$pathFileName} "
+                . " -vn -map 0:a:{$track->index} "
+                . " -c:a aac -profile:a aac_low -ac 2 -ar 48000 -b:a 128k "
+                . " -f hls -hls_time 6 -hls_flags independent_segments+split_by_time "
+                . " -hls_playlist_type vod -hls_segment_type mpegts "
                 . " -hls_segment_filename \"{$audioTsPattern}\" {$audioFile}";
 
 
