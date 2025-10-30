@@ -62,7 +62,7 @@
                             ?>
                             <div class="form-group">
                                 <div style="display: flex;">
-                                    <?php 
+                                    <?php
                                     echo getCategoriesSelect('download_categories_id');
                                     ?>
                                 </div>
@@ -113,7 +113,7 @@
                         ?>
                         <div class="form-group">
                             <div style="display: flex;">
-                                <?php 
+                                <?php
                                 echo getCategoriesSelect('bulk_categories_id');
                                 ?>
                             </div>
@@ -131,13 +131,18 @@
     <div class="panel-footer">
         <div class="availableResolutionsLabels">
             <?php
-            $resolutionsInfo = Format::getAvailableResolutionsInfo();
+            // Show resolutions that will actually be encoded for this user
+            $resolutionsInfo = Format::getAvailableResolutionsInfoForUser();
 
-            foreach ($resolutionsInfo as $value) {
-                if (empty($value['resolutionChecked'])) {
-                    continue;
+            if (!empty($resolutionsInfo)) {
+                foreach ($resolutionsInfo as $value) {
+                    if (empty($value['resolutionChecked'])) {
+                        continue;
+                    }
+                    echo $value['label'] . ' ';
                 }
-                echo $value['label'];
+            } else {
+                echo '<small class="text-warning">' . __('No resolutions available for encoding') . '</small>';
             }
             ?>
         </div>

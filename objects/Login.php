@@ -13,10 +13,10 @@ if (!class_exists('Login')) {
             if (strpos($url, '/live?p=') !== false) {
                 $parsedUrl = parse_url($url);
                 $path = isset($parsedUrl['path']) ? $parsedUrl['path'] : '';
-                
+
                 // Remove everything after the last '/' before '/live?p='
                 $path = substr($path, 0, strrpos($path, '/live?p='));
-                
+
                 return $parsedUrl['scheme'] . '://' . $parsedUrl['host'] . $path . '/';
             }
             return $url;
@@ -244,6 +244,23 @@ if (!class_exists('Login')) {
                 return 0;
             }
             return intval($_SESSION['login']->streamers_id);
+        }
+
+        /**
+         * Get allowed resolutions for the logged user from login session
+         * @return array|null Array of allowed resolutions or null if not set
+         */
+        static function getAllowedResolutions() {
+            if (!static::isLogged()) {
+                return null;
+            }
+
+            // Check if allowedResolutions exists in session
+            if (!empty($_SESSION['login']->allowedResolutions) && is_array($_SESSION['login']->allowedResolutions)) {
+                return $_SESSION['login']->allowedResolutions;
+            }
+
+            return null;
         }
 
     }

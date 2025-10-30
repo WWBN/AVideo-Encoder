@@ -557,6 +557,65 @@ if (!class_exists('Format')) {
             return $resolutions;
         }
 
+        /**
+         * Get available resolutions info with user group restrictions applied
+         * Shows only the resolutions that will actually be encoded for the current user
+         * @return array Array of resolution info considering user restrictions
+         */
+        public static function getAvailableResolutionsInfoForUser()
+        {
+            $resolutions = [];
+            $availableResolutions = Format::getAvailableResolutions();
+
+            // Get the final resolutions that will be used for encoding (with user restrictions)
+            $finalResolutions = self::getSelectedResolutionsWithUserRestrictions();
+
+            foreach ($availableResolutions as $key => $resolution) {
+                // Check if this resolution will actually be encoded for the current user
+                $resolutionWillBeEncoded = (array_search($resolution, $finalResolutions, true) !== false);
+
+                if (!$resolutionWillBeEncoded) {
+                    continue; // Skip resolutions that won't be encoded
+                }
+
+                $label = "<span class='label label-";
+
+                // Different color based on user permissions
+                require_once __DIR__ . '/Login.php';
+                $userAllowedResolutions = Login::getAllowedResolutions();
+
+                if (empty($userAllowedResolutions) || in_array($resolution, $userAllowedResolutions)) {
+                    $label .= "success"; // Green for allowed resolutions
+                } else {
+                    $label .= "default"; // Gray for encoder-only resolutions
+                }
+
+                $label .= "'>{$resolution}p ";
+
+                // Add quality indicators
+                if ($resolution == 720) {
+                    $label .= '<span class="label label-danger">HD</span>';
+                } elseif ($resolution == 1080) {
+                    $label .= '<span class="label label-danger">FHD</span>';
+                } elseif ($resolution == 1440) {
+                    $label .= '<span class="label label-danger">FHD+</span>';
+                } elseif ($resolution == 2160) {
+                    $label .= '<span class="label label-danger">4K</span>';
+                }
+                $label .= " </span>";
+
+                $resolutions[] = array(
+                    'resolutionChecked' => 'checked', // All returned resolutions will be encoded
+                    'label' => $label,
+                    'resolution' => $resolution,
+                );
+            }
+
+            _error_log("Format::getAvailableResolutionsInfoForUser - Final resolutions for display: " . json_encode(array_column($resolutions, 'resolution')));
+
+            return $resolutions;
+        }
+
         public static function sanitizeResolutions($resolutions)
         {
             if (is_array($resolutions)) {
@@ -609,6 +668,58 @@ if (!class_exists('Format')) {
             return $result;
         }
 
+        /**
+         * Get final resolutions to encode based on user restrictions and encoder settings
+         * @param array|null $userAllowedResolutions Resolutions from login response
+         * @param array $encoderEnabledResolutions Resolutions enabled in encoder
+         * @return array Final resolutions to use
+         */
+        private static function getFinalResolutions($userAllowedResolutions, $encoderEnabledResolutions) {
+            // Se não há restrições do usuário, usar as do encoder
+            if (empty($userAllowedResolutions) || !is_array($userAllowedResolutions)) {
+                _error_log("Format::getFinalResolutions - No user restrictions, using encoder resolutions: " . json_encode($encoderEnabledResolutions));
+                return $encoderEnabledResolutions;
+            }
+
+            // Calcular intersecção (apenas as que estão em ambos)
+            $finalResolutions = array_intersect($userAllowedResolutions, $encoderEnabledResolutions);
+
+            // Se não há nenhuma resolução em comum, usar as do encoder (fallback)
+            if (empty($finalResolutions)) {
+                _error_log("Format::getFinalResolutions - No intersection, fallback to encoder resolutions. User: " . json_encode($userAllowedResolutions) . " Encoder: " . json_encode($encoderEnabledResolutions));
+                return $encoderEnabledResolutions;
+            }
+
+            // Remover duplicatas e ordenar
+            $finalResolutions = array_unique($finalResolutions);
+            sort($finalResolutions);
+
+            _error_log("Format::getFinalResolutions - Final resolutions after filtering. User: " . json_encode($userAllowedResolutions) . " Encoder: " . json_encode($encoderEnabledResolutions) . " Final: " . json_encode($finalResolutions));
+
+            return $finalResolutions;
+        }
+
+        /**
+         * Get selected resolutions with user group restrictions applied
+         * @return array Final resolutions to use for encoding
+         */
+        private static function getSelectedResolutionsWithUserRestrictions()
+        {
+            // Get encoder configured resolutions
+            $encoderResolutions = self::getSelectedResolutions();
+
+            // Get user allowed resolutions from login session
+            require_once __DIR__ . '/Login.php';
+            $userAllowedResolutions = Login::getAllowedResolutions();
+
+            // Apply user restrictions
+            $finalResolutions = self::getFinalResolutions($userAllowedResolutions, $encoderResolutions);
+
+            _error_log("Format::getSelectedResolutionsWithUserRestrictions - User allowed: " . json_encode($userAllowedResolutions) . " Encoder enabled: " . json_encode($encoderResolutions) . " Final: " . json_encode($finalResolutions));
+
+            return $finalResolutions;
+        }
+
         static function loadEncoderConfiguration()
         {
             $availableConfiguration = self::getAvailableConfigurations();
@@ -618,7 +729,8 @@ if (!class_exists('Format')) {
             $audioBitrate = [];
             $videoFramerate = [];
 
-            $selectedResolutions = self::getSelectedResolutions();
+            // Use the new method that applies user group restrictions
+            $selectedResolutions = self::getSelectedResolutionsWithUserRestrictions();
 
             sort($selectedResolutions);
 
@@ -630,6 +742,13 @@ if (!class_exists('Format')) {
                 array_push($audioBitrate, $availableConfiguration["audioBitrate"][$key]);
                 array_push($videoFramerate, $availableConfiguration["videoFramerate"][$key]);
             }
+
+            _error_log("Format::loadEncoderConfiguration - Final encoder config: " . json_encode(array(
+                "resolutions" => $resolutions,
+                "bandwidth" => $bandwidth,
+                "audioBitrate" => $audioBitrate,
+                "videoFramerate" => $videoFramerate
+            )));
 
             return array(
                 "resolutions" => $resolutions,
