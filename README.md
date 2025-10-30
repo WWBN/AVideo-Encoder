@@ -36,7 +36,7 @@ Ok, check this out! https://tutorials.avideo.com/video/streamer-and-encoder
 
 ### Are you having a hard time to configure or install AVideo or any of its resources? fell free to ask us for help:
 
-https://www.youphptube.com/services
+https://www.streamphp.com/services
 
 
 
