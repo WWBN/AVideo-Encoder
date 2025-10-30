@@ -562,13 +562,13 @@ if (!class_exists('Format')) {
          * Shows only the resolutions that will actually be encoded for the current user
          * @return array Array of resolution info considering user restrictions
          */
-        public static function getAvailableResolutionsInfoForUser()
+        public static function getAvailableResolutionsInfoForUser($streamersId)
         {
             $resolutions = [];
             $availableResolutions = Format::getAvailableResolutions();
 
             // Get the final resolutions that will be used for encoding (with user restrictions)
-            $finalResolutions = self::getSelectedResolutionsWithUserRestrictions();
+            $finalResolutions = self::getSelectedResolutionsWithUserRestrictions($streamersId);
 
             foreach ($availableResolutions as $key => $resolution) {
                 // Check if this resolution will actually be encoded for the current user
@@ -582,7 +582,7 @@ if (!class_exists('Format')) {
 
                 // Different color based on user permissions
                 require_once __DIR__ . '/Login.php';
-                $userAllowedResolutions = Login::getAllowedResolutions();
+                $userAllowedResolutions = Login::getAllowedResolutions($streamersId);
 
                 if (empty($userAllowedResolutions) || in_array($resolution, $userAllowedResolutions)) {
                     $label .= "success"; // Green for allowed resolutions
@@ -703,14 +703,14 @@ if (!class_exists('Format')) {
          * Get selected resolutions with user group restrictions applied
          * @return array Final resolutions to use for encoding
          */
-        private static function getSelectedResolutionsWithUserRestrictions()
+        private static function getSelectedResolutionsWithUserRestrictions($streamersId)
         {
             // Get encoder configured resolutions
             $encoderResolutions = self::getSelectedResolutions();
 
             // Get user allowed resolutions from login session
             require_once __DIR__ . '/Login.php';
-            $userAllowedResolutions = Login::getAllowedResolutions();
+            $userAllowedResolutions = Login::getAllowedResolutions($streamersId);
 
             // Apply user restrictions
             $finalResolutions = self::getFinalResolutions($userAllowedResolutions, $encoderResolutions);
@@ -720,7 +720,7 @@ if (!class_exists('Format')) {
             return $finalResolutions;
         }
 
-        static function loadEncoderConfiguration()
+        static function loadEncoderConfiguration($streamersId)
         {
             $availableConfiguration = self::getAvailableConfigurations();
 
@@ -730,7 +730,7 @@ if (!class_exists('Format')) {
             $videoFramerate = [];
 
             // Use the new method that applies user group restrictions
-            $selectedResolutions = self::getSelectedResolutionsWithUserRestrictions();
+            $selectedResolutions = self::getSelectedResolutionsWithUserRestrictions($streamersId);
 
             sort($selectedResolutions);
 
@@ -764,7 +764,10 @@ if (!class_exists('Format')) {
             //$audioTracks = self::getAudioTracks($pathFileName);
             $advancedCustom = getAdvancedCustomizedObjectData();
 
-            $encoderConfig = self::loadEncoderConfiguration();
+            $encoder = new Encoder($encoder_queue_id);
+            $streamersId = $encoder->getStreamers_id();
+
+            $encoderConfig = self::loadEncoderConfiguration($streamersId);
             $resolutions = $encoderConfig['resolutions'];
             $bandwidth = $encoderConfig['bandwidth'];
             $videoFramerate = $encoderConfig['videoFramerate'];
@@ -833,12 +836,14 @@ if (!class_exists('Format')) {
             return $command;
         }
 
-        private static function preProcessDynamicHLS($pathFileName, $destinationFile)
+        private static function preProcessDynamicHLS($pathFileName, $destinationFile, $encoder_queue_id)
         {
+            $encoder = new Encoder($encoder_queue_id);
+            $streamersId = $encoder->getStreamers_id();
             $height = self::getResolution($pathFileName);
             //$audioTracks = self::getAudioTracks($pathFileName);
             // TODO: This method should be refactored to use loadEncoderConfiguration instead of getAvailableConfigurations...
-            $encoderConfig = self::loadEncoderConfiguration();
+            $encoderConfig = self::loadEncoderConfiguration($streamersId);
             $resolutions = $encoderConfig['resolutions'];
             $bandwidth = $encoderConfig['bandwidth'];
             $audioBitrate = $encoderConfig['audioBitrate'];
@@ -1009,11 +1014,11 @@ if (!class_exists('Format')) {
                 if (empty($fc) || $format_id == 30) {
                     if (empty($global['disableHLSAudioMultitrack'])) {
                         _error_log("AVideo-Encoder Format::exec use HLSProcessor");
-                        $dynamic = HLSProcessor::createHLSWithAudioTracks($pathFileName, $destinationFile);
+                        $dynamic = HLSProcessor::createHLSWithAudioTracks($pathFileName, $destinationFile, $encoder_queue_id);
                         _error_log("AVideo-Encoder Format::exec use HLSProcessor Complete");
                     } else {
                         _error_log("AVideo-Encoder Format::exec disableHLSAudioMultitrack");
-                        $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile);
+                        $dynamic = self::preProcessDynamicHLS($pathFileName, $destinationFile, $encoder_queue_id);
                     }
                     $destinationFile = $dynamic[0];
                     $fc = $dynamic[1];

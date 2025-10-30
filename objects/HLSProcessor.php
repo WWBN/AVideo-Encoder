@@ -26,12 +26,14 @@ class HLSProcessor
         }
     }
 
-    public static function createHLSWithAudioTracks($pathFileName, $destinationFile)
+    public static function createHLSWithAudioTracks($pathFileName, $destinationFile, $encoder_queue_id)
     {
+        $encoder = new Encoder($encoder_queue_id);
+        $streamersId = $encoder->getStreamers_id();
         // Detect video resolution and audio tracks
         $resolution = self::getResolution($pathFileName);
         $audioTracks = self::getAudioTracks($pathFileName); // Detect audio tracks
-        $encoderConfig = Format::loadEncoderConfiguration();
+        $encoderConfig = Format::loadEncoderConfiguration($streamersId);
         $resolutions = $encoderConfig['resolutions'];
         $bandwidth = $encoderConfig['bandwidth'];
         $videoFramerate = $encoderConfig['videoFramerate'];
@@ -137,22 +139,25 @@ class HLSProcessor
 
         if (empty($resolutionsFound)) {
             _error_log("HLSProcessor: createHLSWithAudioTracks Resolution found is empty");
-            // did not find any resolution, process the default one
-            $encodingSettings = Format::ENCODING_SETTINGS[480];
+            // Use the lowest allowed resolution for the user as fallback
+            $fallbackResolution = !empty($resolutions) ? min($resolutions) : 240;
+            _error_log("HLSProcessor: createHLSWithAudioTracks Using fallback resolution: {$fallbackResolution}p (user allowed resolutions: " . json_encode($resolutions) . ")");
+
+            $encodingSettings = Format::ENCODING_SETTINGS[$fallbackResolution];
             $rate = $encodingSettings['maxrate']; // Use the maxrate from ENCODING_SETTINGS
-            $framerate = isset($videoFramerate[$key]) && $videoFramerate[$key] > 0 ? $videoFramerate[$key] : 30;
-            $dir = $destinationFile . "res{$resolution}/";
+            $framerate = isset($videoFramerate[0]) && $videoFramerate[0] > 0 ? $videoFramerate[0] : 30;
+            $dir = $destinationFile . "res{$fallbackResolution}/";
             mkdir($dir);
             $outputFile = "{$dir}index.m3u8";
 
             // Add resolution playlist entry to the master playlist
-            $width = self::getScaledWidth($pathFileName, $resolution);
-            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$resolution},AUDIO=\"audio_group\"" . PHP_EOL;
+            $width = self::getScaledWidth($pathFileName, $fallbackResolution);
+            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$fallbackResolution},AUDIO=\"audio_group\"" . PHP_EOL;
 
-            $masterPlaylist .= "res{$resolution}/index.m3u8" . PHP_EOL;
+            $masterPlaylist .= "res{$fallbackResolution}/index.m3u8" . PHP_EOL;
 
             // Append FFmpeg command for this resolution
-            $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $resolution, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
+            $ffmpegCommand .= self::getFFmpegCommandForResolution($pathFileName, $fallbackResolution, $rate, $framerate, $audioTracks, $keyInfoFile, $outputFile);
 
             $resolutionsFound++;
         }

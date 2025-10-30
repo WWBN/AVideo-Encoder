@@ -132,7 +132,7 @@
         <div class="availableResolutionsLabels">
             <?php
             // Show resolutions that will actually be encoded for this user
-            $resolutionsInfo = Format::getAvailableResolutionsInfoForUser();
+            $resolutionsInfo = Format::getAvailableResolutionsInfoForUser(Login::getStreamerId());
 
             if (!empty($resolutionsInfo)) {
                 foreach ($resolutionsInfo as $value) {

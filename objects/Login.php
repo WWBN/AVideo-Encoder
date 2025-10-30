@@ -250,19 +250,81 @@ if (!class_exists('Login')) {
          * Get allowed resolutions for the logged user from login session
          * @return array|null Array of allowed resolutions or null if not set
          */
-        static function getAllowedResolutions() {
-            if (!static::isLogged()) {
-                return null;
-            }
+        static function getAllowedResolutions($streamersId) {
+            _error_log("Login::getAllowedResolutions - isLogged: " . json_encode(static::isLogged()));
+            _error_log("Login::getAllowedResolutions - Session login data: " . json_encode($_SESSION['login'] ?? 'no session'));
 
-            // Check if allowedResolutions exists in session
-            if (!empty($_SESSION['login']->allowedResolutions) && is_array($_SESSION['login']->allowedResolutions)) {
+            // First, check if we have a logged user with valid allowedResolutions
+            if (static::isLogged() && !empty($_SESSION['login']->allowedResolutions) && is_array($_SESSION['login']->allowedResolutions)) {
+                _error_log("Login::getAllowedResolutions - Found allowedResolutions: " . json_encode($_SESSION['login']->allowedResolutions));
                 return $_SESSION['login']->allowedResolutions;
             }
 
+            // If user is not logged in OR allowedResolutions is null/empty, try to re-login using database streamer credentials
+            if (!static::isLogged()) {
+                _error_log("Login::getAllowedResolutions - User not logged in, attempting re-login with database credentials");
+            } else {
+                _error_log("Login::getAllowedResolutions - allowedResolutions is null, attempting re-login with database credentials");
+            }
+
+            if (self::retryLoginWithDatabaseCredentials($streamersId)) {
+                // After re-login, check again for allowedResolutions
+                if (static::isLogged() && !empty($_SESSION['login']->allowedResolutions) && is_array($_SESSION['login']->allowedResolutions)) {
+                    _error_log("Login::getAllowedResolutions - Found allowedResolutions after re-login: " . json_encode($_SESSION['login']->allowedResolutions));
+                    return $_SESSION['login']->allowedResolutions;
+                }
+            }
+
+            _error_log("Login::getAllowedResolutions - No allowedResolutions found even after re-login attempt");
             return null;
         }
 
-    }
+        /**
+         * Attempt to re-login using database streamer credentials
+         * @return bool True if re-login was successful, false otherwise
+         */
+        private static function retryLoginWithDatabaseCredentials($streamersId) {
+            try {
+                if (!$streamersId) {
+                    _error_log("Login::retryLoginWithDatabaseCredentials - No streamers_id found");
+                    return false;
+                }
+
+                // Load streamer from database
+                require_once __DIR__ . '/Streamer.php';
+                $streamer = new Streamer($streamersId);
+                if (!$streamer->getId()) {
+                    _error_log("Login::retryLoginWithDatabaseCredentials - Streamer not found in database: $streamersId");
+                    return false;
+                }
+
+                $user = $streamer->getUser();
+                $pass = $streamer->getPass(); // This should be the encoded password
+                $streamerURL = $streamer->getStreamerURL();
+
+                if (empty($user) || empty($pass) || empty($streamerURL)) {
+                    _error_log("Login::retryLoginWithDatabaseCredentials - Missing credentials: user=$user, pass=" . (empty($pass) ? 'empty' : 'set') . ", url=$streamerURL");
+                    return false;
+                }
+
+                _error_log("Login::retryLoginWithDatabaseCredentials - Attempting re-login with user: $user, url: $streamerURL");
+
+                // Perform login with encoded password
+                self::run($user, $pass, $streamerURL, true);
+
+                // Check if login was successful and we now have allowedResolutions
+                if (self::isLogged() && isset($_SESSION['login']->allowedResolutions)) {
+                    _error_log("Login::retryLoginWithDatabaseCredentials - Re-login successful");
+                    return true;
+                }
+
+                _error_log("Login::retryLoginWithDatabaseCredentials - Re-login failed or no allowedResolutions returned");
+                return false;
+
+            } catch (Exception $e) {
+                _error_log("Login::retryLoginWithDatabaseCredentials - Exception: " . $e->getMessage());
+                return false;
+            }
+        }    }
 
 }
