@@ -716,6 +716,9 @@ function encryptPassword($password, $streamerURL)
 
 function zipDirectory($destinationFile)
 {
+    //increase max execution time
+    set_time_limit(3600);
+
     // Get real path for our folder
     $rootPath = realpath($destinationFile);
     if (empty($rootPath)) {
