@@ -2282,7 +2282,7 @@ class Encoder extends ObjectYPT
             } catch (\Throwable $th) {
                 _error_log("sendToStreamer($target,  " . json_encode($postFields));
             }
-            $timeout = 10;
+            $timeout = 1800; // 30 minutes
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $timeout);
