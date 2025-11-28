@@ -23,7 +23,7 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
     //echo "Success: file extension OK\n";
     //chack if is an audio
     $type = "video";
-    if (strcasecmp($extension, 'mp3') == 0 || strcasecmp($extension, 'wav') == 0) {
+    if (in_array(strtolower($extension), Encoder::AUDIO_EXTENSIONS)) {
         $type = 'audio';
     }
 

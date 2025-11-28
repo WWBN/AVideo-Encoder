@@ -38,6 +38,8 @@ class Encoder extends ObjectYPT
     const LOG_TYPE_ERROR = 'error';
     const LOG_TYPE_INFO = 'info';
 
+    const AUDIO_EXTENSIONS = ['mp3', 'aac', 'm4a', 'ogg', 'opus', 'flac', 'wav', 'wma'];
+
     protected $id;
     protected $fileURI;
     protected $filename;
@@ -794,6 +796,7 @@ class Encoder extends ObjectYPT
         _error_log($msg);
         $encoder->setStatus(Encoder::STATUS_DOWNLOADED);
         $encoder->setStatus_obs($msg);
+        $encoder->setDownloadedFileName($filePath);
         return $encoder->save();
     }
 
