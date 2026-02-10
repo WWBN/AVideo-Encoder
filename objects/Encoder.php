@@ -776,9 +776,8 @@ class Encoder extends ObjectYPT
             $destination = "{$dstFilepath}{$filename}";
             //_error_log("downloadFile: error");
             $obj->msg = "Could not save file {$url} in $destination";
-            _error_log("downloadFile: trying getYoutubeDl queue_id = {$queue_id}");
-            $response = static::getYoutubeDl($url, $queue_id, $destination);
-            $obj->error = !file_exists($destination);
+            // Note: Removed duplicate getYoutubeDl retry here since getYoutubeDl already
+            // has multiple fallback strategies built-in. Double retry was causing excessive attempts.
         }
         _error_log("downloadFile: " . json_encode($obj));
         if (empty($obj->error)) {
@@ -3231,14 +3230,14 @@ class Encoder extends ObjectYPT
 
         // Use alternate player clients to bypass restrictions
         if (strpos($ytdl, 'yt-dlp') !== false) {
-            $ytdlExtraOptions .= ' --extractor-retries 10';
+            $ytdlExtraOptions .= ' --extractor-retries 3';
             // Don't specify player_client - let yt-dlp use its built-in defaults
             // Specifying clients can cause issues if yt-dlp is outdated
             // IMPORTANT: Update yt-dlp frequently with: yt-dlp -U or pip install -U yt-dlp
             // Add sleep between requests to avoid rate limiting
             $ytdlExtraOptions .= ' --sleep-requests 1';
-            // Add retry for fragments
-            $ytdlExtraOptions .= ' --fragment-retries 10';
+            // Add retry for fragments (keep low since we have multiple strategies)
+            $ytdlExtraOptions .= ' --fragment-retries 3';
             // Ignore errors and continue if possible
             $ytdlExtraOptions .= ' --ignore-errors';
             // Use a realistic browser user agent
