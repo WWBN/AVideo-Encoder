@@ -10,29 +10,29 @@ LABEL maintainer="TRW <trw@acoby.de>" \
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-ENV SERVER_NAME localhost
-ENV SERVER_URL https://localhost/
+ENV SERVER_NAME=localhost
+ENV SERVER_URL=https://localhost/
 
-ENV DB_MYSQL_HOST database
-ENV DB_MYSQL_PORT 3306
-ENV DB_MYSQL_NAME avideo
-ENV DB_MYSQL_USER avideo
-ENV DB_MYSQL_PASSWORD avideo
+ENV DB_MYSQL_HOST=database
+ENV DB_MYSQL_PORT=3306
+ENV DB_MYSQL_NAME=avideo
+ENV DB_MYSQL_USER=avideo
+ENV DB_MYSQL_PASSWORD=avideo
 
-ENV STREAMER_URL https://localhost/
-ENV STREAMER_USER admin
-ENV STREAMER_PASSWORD password
-ENV STREAMER_PRIORITY 1
+ENV STREAMER_URL=https://localhost/
+ENV STREAMER_USER=admin
+ENV STREAMER_PASSWORD=password
+ENV STREAMER_PRIORITY=1
 
-ENV CREATE_TLS_CERTIFICATE yes
-ENV TLS_CERTIFICATE_FILE /etc/apache2/ssl/localhost.crt
-ENV TLS_CERTIFICATE_KEY /etc/apache2/ssl/localhost.key
-ENV CONTACT_EMAIL admin@localhost
+ENV CREATE_TLS_CERTIFICATE=yes
+ENV TLS_CERTIFICATE_FILE=/etc/apache2/ssl/localhost.crt
+ENV TLS_CERTIFICATE_KEY=/etc/apache2/ssl/localhost.key
+ENV CONTACT_EMAIL=admin@localhost
 
-ENV PHP_POST_MAX_SIZE 100M
-ENV PHP_UPLOAD_MAX_FILESIZE 100M
-ENV PHP_MAX_EXECUTION_TIME 7200
-ENV PHP_MEMORY_LIMIT 512M
+ENV PHP_POST_MAX_SIZE=100M
+ENV PHP_UPLOAD_MAX_FILESIZE=100M
+ENV PHP_MAX_EXECUTION_TIME=7200
+ENV PHP_MEMORY_LIMIT=512M
 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
@@ -56,7 +56,8 @@ RUN apt-get install -y --no-install-recommends \
       python3-pip \
       libzip-dev \
       libonig-dev \
-      wget && \
+      wget \
+      libmagickwand-dev && \
     docker-php-ext-configure gd --with-freetype=/usr/include --with-jpeg=/usr/include && \
     docker-php-ext-install -j$(nproc) \
       bcmath \
@@ -71,15 +72,16 @@ RUN apt-get install -y --no-install-recommends \
       mysqli \
       opcache \
       pdo_mysql \
-      imagemagick \
       zip && \
+    pecl install imagick && \
+    docker-php-ext-enable imagick && \
     rm -rf \
       /tmp/* \
       /var/lib/apt/lists/* \
       /var/tmp/* \
       /root/.cache && \
     a2enmod rewrite expires headers ssl && \
-    pip3 install -U youtube-dl && \
+    pip3 install -U yt-dlp && \
     rm -rf /var/www/html/*
 
 COPY install /var/www/html/install
