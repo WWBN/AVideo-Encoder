@@ -3,13 +3,13 @@
  * Check and Install JavaScript Runtimes for yt-dlp
  *
  * This script checks if Deno and Node.js are installed and accessible
- * by the web server user (www-data). If not, it provides installation
- * instructions for Ubuntu.
+ * by the web server user (www-data). If not, it automatically installs
+ * and configures them for Ubuntu/Debian systems.
  *
  * Usage: php checkJSRuntime.php
  *
  * @author AVideo Encoder
- * @version 1.0
+ * @version 2.0
  */
 
 if (php_sapi_name() !== 'cli') {
@@ -40,6 +40,31 @@ function printHeader($title) {
     printMsg(" $title", COLOR_BOLD . COLOR_BLUE);
     printMsg("═══════════════════════════════════════════════════════════════", COLOR_BLUE);
     echo PHP_EOL;
+}
+
+/**
+ * Execute a command and display output in real-time
+ */
+function execCommand($command, $description = '') {
+    if (!empty($description)) {
+        printMsg("→ $description", COLOR_YELLOW);
+    }
+    printMsg("  Running: $command", COLOR_RESET);
+
+    $returnCode = 0;
+    passthru($command . " 2>&1", $returnCode);
+
+    return $returnCode === 0;
+}
+
+/**
+ * Execute a command silently and return success status
+ */
+function execCommandSilent($command) {
+    $output = [];
+    $returnCode = 0;
+    exec($command . " 2>&1", $output, $returnCode);
+    return ['success' => $returnCode === 0, 'output' => implode("\n", $output)];
 }
 
 /**
@@ -112,11 +137,16 @@ function getFileOwner($path) {
 }
 
 /**
+ * Check if running as root
+ */
+function isRoot() {
+    return trim(shell_exec('whoami')) === 'root';
+}
+
+/**
  * Check Deno installation
  */
 function checkDeno() {
-    printHeader("Checking Deno Runtime");
-
     $status = [
         'installed' => false,
         'path' => '',
@@ -151,42 +181,105 @@ function checkDeno() {
     }
 
     if ($status['installed']) {
-        printMsg("✓ Deno is installed", COLOR_GREEN);
-        printMsg("  Path: " . $status['path'], COLOR_RESET);
-        printMsg("  Version: " . $status['version'], COLOR_RESET);
-
-        // Check permissions
-        $perms = getFilePermissions($status['path']);
-        $owner = getFileOwner($status['path']);
-        printMsg("  Permissions: $perms", COLOR_RESET);
-        printMsg("  Owner: " . ($owner ? "{$owner['user']}:{$owner['group']}" : 'unknown'), COLOR_RESET);
-
         // Check if accessible by www-data
         if (isExecutableByWwwData($status['path'])) {
             $status['accessible'] = true;
             $status['permissions_ok'] = true;
-            printMsg("✓ Deno is accessible by www-data", COLOR_GREEN);
-        } else {
-            printMsg("✗ Deno is NOT accessible by www-data", COLOR_RED);
-
-            // Check if it's in a user home directory
-            if (strpos($status['path'], '/root/') !== false || strpos($status['path'], '/home/') !== false) {
-                printMsg("  → The binary is in a home directory that www-data cannot access", COLOR_YELLOW);
-            }
         }
-    } else {
-        printMsg("✗ Deno is NOT installed", COLOR_RED);
     }
 
     return $status;
 }
 
 /**
+ * Install Deno runtime
+ */
+function installDeno() {
+    printHeader("Installing Deno Runtime");
+
+    if (!isRoot()) {
+        printMsg("✗ Root privileges required to install Deno", COLOR_RED);
+        return false;
+    }
+
+    // Install Deno using the official installer
+    printMsg("Downloading and installing Deno...", COLOR_YELLOW);
+
+    // Use DENO_INSTALL to install to /usr/local
+    $installCmd = "DENO_INSTALL=/usr/local curl -fsSL https://deno.land/install.sh | sh";
+    $result = execCommand($installCmd, "Installing Deno to /usr/local");
+
+    if (!$result) {
+        // Try alternative: install to root home and copy
+        printMsg("Trying alternative installation method...", COLOR_YELLOW);
+        execCommand("curl -fsSL https://deno.land/install.sh | sh", "Installing Deno to home directory");
+
+        // Copy to global location
+        $homeDenoPath = getenv('HOME') . '/.deno/bin/deno';
+        if (file_exists($homeDenoPath)) {
+            execCommand("cp $homeDenoPath /usr/local/bin/deno", "Copying Deno to /usr/local/bin");
+            execCommand("chmod 755 /usr/local/bin/deno", "Setting permissions");
+        }
+    }
+
+    // Verify installation
+    if (file_exists('/usr/local/bin/deno')) {
+        execCommand("chmod 755 /usr/local/bin/deno", "Ensuring correct permissions");
+        printMsg("✓ Deno installed successfully", COLOR_GREEN);
+        return true;
+    }
+
+    printMsg("✗ Deno installation failed", COLOR_RED);
+    return false;
+}
+
+/**
+ * Fix Deno permissions for www-data access
+ */
+function fixDenoPermissions($denoStatus) {
+    printHeader("Fixing Deno Permissions");
+
+    if (!isRoot()) {
+        printMsg("✗ Root privileges required to fix permissions", COLOR_RED);
+        return false;
+    }
+
+    $sourcePath = $denoStatus['path'];
+    if (empty($sourcePath)) {
+        $sourcePath = '/root/.deno/bin/deno';
+    }
+
+    if (!file_exists($sourcePath)) {
+        printMsg("✗ Deno binary not found at: $sourcePath", COLOR_RED);
+        return false;
+    }
+
+    // Check if it's in a home directory - need to copy to global location
+    if (strpos($sourcePath, '/root/') !== false || strpos($sourcePath, '/home/') !== false) {
+        printMsg("Deno is in a home directory, copying to /usr/local/bin...", COLOR_YELLOW);
+
+        execCommand("rm -f /usr/local/bin/deno", "Removing existing deno link/file");
+        execCommand("cp $sourcePath /usr/local/bin/deno", "Copying Deno binary");
+        execCommand("chmod 755 /usr/local/bin/deno", "Setting permissions");
+    } else {
+        // Just fix permissions
+        execCommand("chmod 755 $sourcePath", "Fixing Deno permissions");
+    }
+
+    // Verify
+    if (isExecutableByWwwData('/usr/local/bin/deno') || isExecutableByWwwData($sourcePath)) {
+        printMsg("✓ Deno is now accessible by www-data", COLOR_GREEN);
+        return true;
+    }
+
+    printMsg("✗ Failed to fix Deno permissions", COLOR_RED);
+    return false;
+}
+
+/**
  * Check Node.js installation
  */
 function checkNodeJS() {
-    printHeader("Checking Node.js Runtime");
-
     $status = [
         'installed' => false,
         'path' => '',
@@ -224,37 +317,87 @@ function checkNodeJS() {
     }
 
     if ($status['installed']) {
-        printMsg("✓ Node.js is installed", COLOR_GREEN);
-        printMsg("  Path: " . $status['path'], COLOR_RESET);
-        printMsg("  Version: " . $status['version'], COLOR_RESET);
-
-        // Check permissions
-        $perms = getFilePermissions($status['path']);
-        $owner = getFileOwner($status['path']);
-        printMsg("  Permissions: $perms", COLOR_RESET);
-        printMsg("  Owner: " . ($owner ? "{$owner['user']}:{$owner['group']}" : 'unknown'), COLOR_RESET);
-
         // Check if accessible by www-data
         if (isExecutableByWwwData($status['path'])) {
             $status['accessible'] = true;
             $status['permissions_ok'] = true;
-            printMsg("✓ Node.js is accessible by www-data", COLOR_GREEN);
-        } else {
-            printMsg("✗ Node.js is NOT accessible by www-data", COLOR_RED);
         }
-    } else {
-        printMsg("✗ Node.js is NOT installed", COLOR_RED);
     }
 
     return $status;
 }
 
 /**
+ * Install Node.js runtime
+ */
+function installNodeJS() {
+    printHeader("Installing Node.js Runtime");
+
+    if (!isRoot()) {
+        printMsg("✗ Root privileges required to install Node.js", COLOR_RED);
+        return false;
+    }
+
+    // Update apt first
+    execCommand("apt-get update", "Updating package lists");
+
+    // Try to install Node.js LTS via NodeSource
+    printMsg("Installing Node.js LTS via NodeSource...", COLOR_YELLOW);
+
+    $result = execCommand("curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -", "Setting up NodeSource repository");
+
+    if ($result) {
+        execCommand("apt-get install -y nodejs", "Installing Node.js");
+    } else {
+        // Fallback to Ubuntu repository
+        printMsg("NodeSource setup failed, trying Ubuntu repository...", COLOR_YELLOW);
+        execCommand("apt-get install -y nodejs npm", "Installing Node.js from Ubuntu repository");
+    }
+
+    // Verify installation
+    if (commandExists('node')) {
+        $version = getVersion('node');
+        printMsg("✓ Node.js installed successfully: $version", COLOR_GREEN);
+        return true;
+    }
+
+    printMsg("✗ Node.js installation failed", COLOR_RED);
+    return false;
+}
+
+/**
+ * Fix Node.js permissions for www-data access
+ */
+function fixNodePermissions($nodeStatus) {
+    printHeader("Fixing Node.js Permissions");
+
+    if (!isRoot()) {
+        printMsg("✗ Root privileges required to fix permissions", COLOR_RED);
+        return false;
+    }
+
+    $nodePath = $nodeStatus['path'];
+    if (empty($nodePath) || !file_exists($nodePath)) {
+        printMsg("✗ Node.js binary not found", COLOR_RED);
+        return false;
+    }
+
+    execCommand("chmod 755 $nodePath", "Fixing Node.js permissions");
+
+    // Verify
+    if (isExecutableByWwwData($nodePath)) {
+        printMsg("✓ Node.js is now accessible by www-data", COLOR_GREEN);
+        return true;
+    }
+
+    printMsg("✗ Failed to fix Node.js permissions", COLOR_RED);
+    return false;
+}
+
+/**
  * Check yt-dlp installation
  */
 function checkYtdlp() {
-    printHeader("Checking yt-dlp");
-
     $status = [
         'installed' => false,
         'path' => '',
@@ -265,177 +408,154 @@ function checkYtdlp() {
         $status['installed'] = true;
         $status['path'] = getCommandPath('yt-dlp');
         $status['version'] = getVersion('yt-dlp');
-
-        printMsg("✓ yt-dlp is installed", COLOR_GREEN);
-        printMsg("  Path: " . $status['path'], COLOR_RESET);
-        printMsg("  Version: " . $status['version'], COLOR_RESET);
-    } else {
-        printMsg("✗ yt-dlp is NOT installed", COLOR_RED);
     }
 
     return $status;
 }
 
 /**
- * Print installation instructions for Deno
+ * Install yt-dlp
  */
-function printDenoInstallInstructions($denoStatus) {
-    printHeader("Deno Installation Instructions (Ubuntu Only)");
+function installYtdlp() {
+    printHeader("Installing yt-dlp");
 
-    printMsg("Run the following commands as root:", COLOR_YELLOW);
-    echo PHP_EOL;
-
-    if (!$denoStatus['installed']) {
-        printMsg("# Install Deno", COLOR_BLUE);
-        echo "curl -fsSL https://deno.land/install.sh | sh" . PHP_EOL;
-        echo PHP_EOL;
+    if (!isRoot()) {
+        printMsg("✗ Root privileges required to install yt-dlp", COLOR_RED);
+        return false;
     }
 
-    if ($denoStatus['installed'] && !$denoStatus['accessible']) {
-        printMsg("# Copy Deno to a globally accessible location", COLOR_BLUE);
-
-        $sourcePath = $denoStatus['path'];
-        if (empty($sourcePath)) {
-            $sourcePath = '/root/.deno/bin/deno';
+    // Try pip first (recommended method)
+    if (commandExists('pip3')) {
+        printMsg("Installing yt-dlp via pip3...", COLOR_YELLOW);
+        $result = execCommand("pip3 install --upgrade yt-dlp", "Installing yt-dlp with pip3");
+        if ($result && commandExists('yt-dlp')) {
+            printMsg("✓ yt-dlp installed successfully via pip3", COLOR_GREEN);
+            return true;
         }
-
-        echo "# Remove existing link/file if exists" . PHP_EOL;
-        echo "sudo rm -f /usr/local/bin/deno" . PHP_EOL;
-        echo PHP_EOL;
-        echo "# Copy the binary" . PHP_EOL;
-        echo "sudo cp $sourcePath /usr/local/bin/deno" . PHP_EOL;
-        echo PHP_EOL;
-        echo "# Set correct permissions" . PHP_EOL;
-        echo "sudo chmod 755 /usr/local/bin/deno" . PHP_EOL;
-        echo PHP_EOL;
-        echo "# Verify it works" . PHP_EOL;
-        echo "sudo -u www-data /usr/local/bin/deno --version" . PHP_EOL;
     }
 
-    if (!$denoStatus['installed']) {
-        echo PHP_EOL;
-        printMsg("# After installing, copy to global location:", COLOR_BLUE);
-        echo "sudo cp ~/.deno/bin/deno /usr/local/bin/deno" . PHP_EOL;
-        echo "sudo chmod 755 /usr/local/bin/deno" . PHP_EOL;
-        echo PHP_EOL;
-        printMsg("# Verify installation:", COLOR_BLUE);
-        echo "sudo -u www-data /usr/local/bin/deno --version" . PHP_EOL;
+    // Try direct download as fallback
+    printMsg("Trying direct download method...", COLOR_YELLOW);
+    execCommand("curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp", "Downloading yt-dlp");
+    execCommand("chmod a+rx /usr/local/bin/yt-dlp", "Setting permissions");
+
+    if (commandExists('yt-dlp')) {
+        printMsg("✓ yt-dlp installed successfully", COLOR_GREEN);
+        return true;
     }
 
-    echo PHP_EOL;
+    printMsg("✗ yt-dlp installation failed", COLOR_RED);
+    return false;
 }
 
 /**
- * Print installation instructions for Node.js
+ * Update yt-dlp to latest version
  */
-function printNodeJSInstallInstructions($nodeStatus) {
-    printHeader("Node.js Installation Instructions (Ubuntu Only)");
+function updateYtdlp() {
+    printHeader("Updating yt-dlp");
 
-    printMsg("Run the following commands as root:", COLOR_YELLOW);
-    echo PHP_EOL;
-
-    if (!$nodeStatus['installed']) {
-        printMsg("# Option 1: Install Node.js from Ubuntu repository (simpler)", COLOR_BLUE);
-        echo "sudo apt update" . PHP_EOL;
-        echo "sudo apt install -y nodejs npm" . PHP_EOL;
-        echo PHP_EOL;
-
-        printMsg("# Option 2: Install Node.js LTS via NodeSource (recommended for latest version)", COLOR_BLUE);
-        echo "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -" . PHP_EOL;
-        echo "sudo apt install -y nodejs" . PHP_EOL;
-        echo PHP_EOL;
-
-        printMsg("# Verify installation:", COLOR_BLUE);
-        echo "node --version" . PHP_EOL;
-        echo "sudo -u www-data node --version" . PHP_EOL;
+    // Try self-update first
+    $result = execCommandSilent("yt-dlp -U");
+    if ($result['success']) {
+        printMsg("✓ yt-dlp updated successfully", COLOR_GREEN);
+        return true;
     }
 
-    if ($nodeStatus['installed'] && !$nodeStatus['accessible']) {
-        printMsg("# Fix Node.js permissions", COLOR_BLUE);
-        $nodePath = $nodeStatus['path'];
-
-        echo "sudo chmod 755 $nodePath" . PHP_EOL;
-        echo PHP_EOL;
-        echo "# Verify it works" . PHP_EOL;
-        echo "sudo -u www-data $nodePath --version" . PHP_EOL;
+    // Try pip upgrade
+    if (commandExists('pip3')) {
+        printMsg("Trying pip3 upgrade...", COLOR_YELLOW);
+        execCommand("pip3 install --upgrade yt-dlp", "Upgrading yt-dlp with pip3");
     }
 
-    echo PHP_EOL;
+    $version = getVersion('yt-dlp');
+    printMsg("yt-dlp version: $version", COLOR_GREEN);
+    return true;
 }
 
 /**
- * Print yt-dlp configuration instructions
+ * Configure yt-dlp to use Node.js if Deno is not available
  */
-function printYtdlpConfigInstructions($denoStatus, $nodeStatus) {
-    printHeader("yt-dlp Configuration");
+function configureYtdlpRuntime($denoStatus, $nodeStatus) {
+    if ($nodeStatus['accessible'] && !$denoStatus['accessible']) {
+        printHeader("Configuring yt-dlp Runtime");
+        printMsg("Configuring yt-dlp to use Node.js...", COLOR_YELLOW);
 
-    if ($denoStatus['accessible'] || $nodeStatus['accessible']) {
-        printMsg("✓ At least one JavaScript runtime is available!", COLOR_GREEN);
-        echo PHP_EOL;
+        // Create or update yt-dlp config
+        $configContent = "--js-runtimes nodejs\n";
+        $configFile = "/etc/yt-dlp.conf";
 
-        if ($denoStatus['accessible'] && $nodeStatus['accessible']) {
-            printMsg("Both Deno and Node.js are available. yt-dlp will use Deno by default.", COLOR_RESET);
-        } elseif ($nodeStatus['accessible'] && !$denoStatus['accessible']) {
-            printMsg("Only Node.js is available. Configure yt-dlp to use it:", COLOR_YELLOW);
-            echo PHP_EOL;
-            echo "# Add to yt-dlp config file:" . PHP_EOL;
-            echo "echo '--js-runtimes nodejs' | sudo tee -a /etc/yt-dlp.conf" . PHP_EOL;
+        // Check if config already has this setting
+        if (file_exists($configFile)) {
+            $currentConfig = file_get_contents($configFile);
+            if (strpos($currentConfig, '--js-runtimes') === false) {
+                file_put_contents($configFile, $currentConfig . $configContent);
+                printMsg("✓ Added Node.js runtime configuration to $configFile", COLOR_GREEN);
+            } else {
+                printMsg("Runtime already configured in $configFile", COLOR_RESET);
+            }
+        } else {
+            file_put_contents($configFile, $configContent);
+            printMsg("✓ Created $configFile with Node.js runtime configuration", COLOR_GREEN);
+        }
+    }
+}
+
+/**
+ * Display status of a runtime
+ */
+function displayStatus($name, $status, $isAccessibilityCheck = true) {
+    if ($isAccessibilityCheck) {
+        if ($status['accessible']) {
+            printMsg("✓ $name: " . $status['version'] . " (accessible by www-data)", COLOR_GREEN);
+            printMsg("  Path: " . $status['path'], COLOR_RESET);
+        } elseif ($status['installed']) {
+            printMsg("⚠ $name: " . $status['version'] . " (NOT accessible by www-data)", COLOR_YELLOW);
+            printMsg("  Path: " . $status['path'], COLOR_RESET);
+        } else {
+            printMsg("✗ $name: Not installed", COLOR_RED);
         }
     } else {
-        printMsg("✗ No JavaScript runtime is accessible by www-data!", COLOR_RED);
-        printMsg("YouTube downloads will fail until you install Deno or Node.js.", COLOR_YELLOW);
+        if ($status['installed']) {
+            printMsg("✓ $name: " . $status['version'], COLOR_GREEN);
+            printMsg("  Path: " . $status['path'], COLOR_RESET);
+        } else {
+            printMsg("✗ $name: Not installed", COLOR_RED);
+        }
     }
-
-    echo PHP_EOL;
 }
 
 /**
- * Summary and status
+ * Summary and final status
  */
 function printSummary($denoStatus, $nodeStatus, $ytdlpStatus) {
-    printHeader("Summary");
-
-    $allGood = true;
+    printHeader("Final Status");
 
     // yt-dlp status
-    if ($ytdlpStatus['installed']) {
-        printMsg("✓ yt-dlp: " . $ytdlpStatus['version'], COLOR_GREEN);
-    } else {
-        printMsg("✗ yt-dlp: Not installed", COLOR_RED);
-        $allGood = false;
-    }
+    displayStatus("yt-dlp", $ytdlpStatus, false);
 
     // Deno status
-    if ($denoStatus['accessible']) {
-        printMsg("✓ Deno: " . $denoStatus['version'] . " (accessible by www-data)", COLOR_GREEN);
-    } elseif ($denoStatus['installed']) {
-        printMsg("⚠ Deno: " . $denoStatus['version'] . " (NOT accessible by www-data)", COLOR_YELLOW);
-    } else {
-        printMsg("✗ Deno: Not installed", COLOR_RED);
-    }
+    displayStatus("Deno", $denoStatus, true);
 
     // Node.js status
-    if ($nodeStatus['accessible']) {
-        printMsg("✓ Node.js: " . $nodeStatus['version'] . " (accessible by www-data)", COLOR_GREEN);
-    } elseif ($nodeStatus['installed']) {
-        printMsg("⚠ Node.js: " . $nodeStatus['version'] . " (NOT accessible by www-data)", COLOR_YELLOW);
-    } else {
-        printMsg("✗ Node.js: Not installed", COLOR_RED);
-    }
+    displayStatus("Node.js", $nodeStatus, true);
 
     echo PHP_EOL;
 
     // Overall status
+    $allGood = true;
     if ($denoStatus['accessible'] || $nodeStatus['accessible']) {
         printMsg("═══════════════════════════════════════════════════════════════", COLOR_GREEN);
         printMsg(" ✓ YouTube downloads should work correctly!", COLOR_GREEN);
         printMsg("═══════════════════════════════════════════════════════════════", COLOR_GREEN);
     } else {
         printMsg("═══════════════════════════════════════════════════════════════", COLOR_RED);
-        printMsg(" ✗ YouTube downloads will NOT work!", COLOR_RED);
-        printMsg("   You need to install Deno or Node.js and make it accessible", COLOR_RED);
-        printMsg("   to the www-data user.", COLOR_RED);
+        printMsg(" ✗ YouTube downloads may NOT work!", COLOR_RED);
+        printMsg("   No JavaScript runtime is accessible by www-data.", COLOR_RED);
         printMsg("═══════════════════════════════════════════════════════════════", COLOR_RED);
+        $allGood = false;
+    }
+
+    if (!$ytdlpStatus['installed']) {
         $allGood = false;
     }
 
@@ -449,39 +569,88 @@ function printSummary($denoStatus, $nodeStatus, $ytdlpStatus) {
 // =============================================================================
 
 printMsg(PHP_EOL . "╔═══════════════════════════════════════════════════════════════╗", COLOR_BOLD);
-printMsg("║     AVideo Encoder - JavaScript Runtime Checker                ║", COLOR_BOLD);
+printMsg("║     AVideo Encoder - JavaScript Runtime Installer             ║", COLOR_BOLD);
 printMsg("║     For yt-dlp YouTube Download Support                        ║", COLOR_BOLD);
 printMsg("╚═══════════════════════════════════════════════════════════════╝", COLOR_BOLD);
 
-printMsg(PHP_EOL . "⚠ IMPORTANT: Installation commands are for Ubuntu/Debian only!", COLOR_YELLOW);
-
 // Check current user
 $currentUser = trim(shell_exec('whoami'));
-printMsg("Running as user: $currentUser", COLOR_RESET);
+printMsg(PHP_EOL . "Running as user: $currentUser", COLOR_RESET);
 
-if ($currentUser !== 'root') {
-    printMsg("⚠ Warning: Some checks may fail without root privileges", COLOR_YELLOW);
+if (!isRoot()) {
+    printMsg("⚠ Warning: Running without root privileges - installations may fail", COLOR_YELLOW);
+    printMsg("  Recommend running as: sudo php " . basename(__FILE__), COLOR_YELLOW);
 }
 
-// Run checks
+// =============================================================================
+// Step 1: Check and install yt-dlp
+// =============================================================================
+printHeader("Step 1: Checking yt-dlp");
+
 $ytdlpStatus = checkYtdlp();
+displayStatus("yt-dlp", $ytdlpStatus, false);
+
+if (!$ytdlpStatus['installed']) {
+    printMsg(PHP_EOL . "yt-dlp is not installed. Installing now...", COLOR_YELLOW);
+    installYtdlp();
+    $ytdlpStatus = checkYtdlp();
+} else {
+    // Update yt-dlp to latest version
+    printMsg(PHP_EOL . "Checking for yt-dlp updates...", COLOR_YELLOW);
+    updateYtdlp();
+    $ytdlpStatus = checkYtdlp();
+}
+
+// =============================================================================
+// Step 2: Check and install Deno
+// =============================================================================
+printHeader("Step 2: Checking Deno Runtime");
+
+$denoStatus = checkDeno();
+displayStatus("Deno", $denoStatus, true);
+
+if (!$denoStatus['installed']) {
+    printMsg(PHP_EOL . "Deno is not installed. Installing now...", COLOR_YELLOW);
+    installDeno();
+    $denoStatus = checkDeno();
+} elseif (!$denoStatus['accessible']) {
+    printMsg(PHP_EOL . "Deno is installed but not accessible by www-data. Fixing...", COLOR_YELLOW);
+    fixDenoPermissions($denoStatus);
+    $denoStatus = checkDeno();
+}
+
+// =============================================================================
+// Step 3: Check and install Node.js (as fallback)
+// =============================================================================
+printHeader("Step 3: Checking Node.js Runtime");
+
+$nodeStatus = checkNodeJS();
+displayStatus("Node.js", $nodeStatus, true);
+
+// Install Node.js if Deno is not accessible (as a fallback)
+if (!$denoStatus['accessible']) {
+    if (!$nodeStatus['installed']) {
+        printMsg(PHP_EOL . "Node.js is not installed. Installing as fallback...", COLOR_YELLOW);
+        installNodeJS();
+        $nodeStatus = checkNodeJS();
+    } elseif (!$nodeStatus['accessible']) {
+        printMsg(PHP_EOL . "Node.js is installed but not accessible by www-data. Fixing...", COLOR_YELLOW);
+        fixNodePermissions($nodeStatus);
+        $nodeStatus = checkNodeJS();
+    }
+}
+
+// =============================================================================
+// Step 4: Configure yt-dlp runtime if needed
+// =============================================================================
 $denoStatus = checkDeno();
 $nodeStatus = checkNodeJS();
+configureYtdlpRuntime($denoStatus, $nodeStatus);
 
-// Print summary
+// =============================================================================
+// Final Summary
+// =============================================================================
 $allGood = printSummary($denoStatus, $nodeStatus, $ytdlpStatus);
-
-// Print installation instructions if needed
-if (!$denoStatus['accessible']) {
-    printDenoInstallInstructions($denoStatus);
-}
-
-if (!$nodeStatus['accessible']) {
-    printNodeJSInstallInstructions($nodeStatus);
-}
-
-// Print yt-dlp config instructions
-printYtdlpConfigInstructions($denoStatus, $nodeStatus);
 
 // Exit with appropriate code
 exit($allGood ? 0 : 1);
