@@ -833,37 +833,38 @@ class Encoder extends ObjectYPT
         exec($cmd . "  1> {$progressFile} 2>&1", $output, $return_val);
         _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
         if ($return_val !== 0) {
-            //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-            $error = $cmd . PHP_EOL . print_r($output, true);
-            _error_log($error);
-            self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
+            // Read the progress file to get the actual error message from yt-dlp
+            $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
+            $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
+            _error_log("getYoutubeDl ERROR (attempt 1): return_val={$return_val} error={$ytdlpError}");
+            self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 1): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+
             $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
-            //echo "\n**Trying Youtube DL **".$cmd;
             _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
             exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
             if ($return_val !== 0) {
-                //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                $error = $cmd . PHP_EOL . print_r($output, true);
-                _error_log($error);
-                self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
+                $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
+                $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
+                _error_log("getYoutubeDl ERROR (attempt 2): return_val={$return_val} error={$ytdlpError}");
+                self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 2): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+
                 $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
-                //echo "\n**Trying Youtube DL **".$cmd;
                 _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                 exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
                 if ($return_val !== 0) {
-                    //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                    $error = $cmd . PHP_EOL . print_r($output, true);
-                    _error_log($error);
-                    self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
+                    $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
+                    $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
+                    _error_log("getYoutubeDl ERROR (attempt 3): return_val={$return_val} error={$ytdlpError}");
+                    self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 3): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+
                     $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
-                    //echo "\n**Trying Youtube DL **".$cmd;
                     _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
                     exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
                     if ($return_val !== 0) {
-                        //echo "\n**ERROR Youtube DL **".$code . "\n" . print_r($output, true);
-                        $error = $cmd . PHP_EOL . print_r($output, true);
-                        _error_log($error);
-                        self::setStreamerLog($queue_id, 'Fail to download line=' . __LINE__ . ' ' . $error, Encoder::LOG_TYPE_ERROR);
+                        $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
+                        $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
+                        _error_log("getYoutubeDl ERROR (attempt 4 - final): return_val={$return_val} error={$ytdlpError}");
+                        self::setStreamerLog($queue_id, 'yt-dlp download failed (all attempts). Error: ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
 
                         if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                             _error_log("getYoutubeDl: ERROR try oauth ");
@@ -3052,6 +3053,68 @@ class Encoder extends ObjectYPT
         }
     }
 
+    /**
+     * Read the yt-dlp output file and extract error messages for clearer logging
+     * @param string $progressFile Path to the progress/output file
+     * @return string The extracted error message or a summary of the output
+     */
+    public static function getYtdlpErrorFromFile($progressFile)
+    {
+        if (!file_exists($progressFile)) {
+            return "Progress file not found: {$progressFile}";
+        }
+
+        $content = @file_get_contents($progressFile);
+        if (empty($content)) {
+            return "Progress file is empty or unreadable";
+        }
+
+        // Look for common yt-dlp error patterns
+        $errorPatterns = [
+            '/ERROR:\s*(.+)/i',
+            '/WARNING:\s*(.+)/i',
+            '/Sign in to confirm (you\'?re not a bot|your age)/i',
+            '/Video unavailable/i',
+            '/Private video/i',
+            '/This video is not available/i',
+            '/Unable to extract/i',
+            '/HTTP Error \d+/i',
+            '/This video has been removed/i',
+            '/copyright/i',
+            '/age-restricted/i',
+            '/members-only/i',
+            '/premium/i',
+            '/This video requires payment/i',
+            '/confirm your age/i',
+            '/bot detection/i',
+        ];
+
+        $errors = [];
+        foreach ($errorPatterns as $pattern) {
+            if (preg_match_all($pattern, $content, $matches)) {
+                foreach ($matches[0] as $match) {
+                    $errors[] = trim($match);
+                }
+            }
+        }
+
+        if (!empty($errors)) {
+            // Return unique errors, limited to avoid extremely long messages
+            $uniqueErrors = array_unique($errors);
+            return implode(' | ', array_slice($uniqueErrors, 0, 5));
+        }
+
+        // If no specific error found, return last lines of output (likely contains the error)
+        $lines = array_filter(explode("\n", trim($content)));
+        if (count($lines) > 0) {
+            // Get last 3 non-empty lines
+            $lastLines = array_slice($lines, -3);
+            return "Last output: " . implode(' ', array_map('trim', $lastLines));
+        }
+
+        return "Unknown error (no output captured)";
+    }
+
     public static function getYouTubeDLCommand($addOauthFromProvider = '', $streamers_id = 0, $forceYoutubeDL = false)
     {
         global $global;
@@ -3075,10 +3138,19 @@ class Encoder extends ObjectYPT
 
         // Use alternate player clients to bypass restrictions
         if (strpos($ytdl, 'yt-dlp') !== false) {
-            $ytdlExtraOptions .= ' --extractor-retries 5';
-            $ytdlExtraOptions .= ' --extractor-args "youtube:player_client=default,ios,web_creator"';
+            $ytdlExtraOptions .= ' --extractor-retries 10';
+            // Try multiple player clients - android and ios often work when web doesn't
+            $ytdlExtraOptions .= ' --extractor-args "youtube:player_client=android,ios,web"';
+            // Add sleep between requests to avoid rate limiting
+            $ytdlExtraOptions .= ' --sleep-requests 1';
+            // Add retry for fragments
+            $ytdlExtraOptions .= ' --fragment-retries 10';
+            // Ignore errors and continue if possible
+            $ytdlExtraOptions .= ' --ignore-errors';
+            // Add user agent to look like a real browser
+            $ytdlExtraOptions .= ' --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"';
 
-            // Check for cookies file to authenticate with YouTube
+            // Optional: Check for cookies file (only if admin has set one up for the server)
             $cookiesPaths = [
                 '/var/www/.config/yt-dlp/cookies.txt',
                 '/root/.config/yt-dlp/cookies.txt',
