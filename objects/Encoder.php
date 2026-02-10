@@ -817,6 +817,17 @@ class Encoder extends ObjectYPT
             }
         }
 
+        // Check if JavaScript runtime is available for YouTube downloads
+        if (isYouTubeUrl($videoURL)) {
+            $jsRuntime = self::checkJSRuntimeAvailable();
+            if (!$jsRuntime['available']) {
+                _error_log("getYoutubeDl: JavaScript runtime not available - " . $jsRuntime['error']);
+                self::setStreamerLog($queue_id, "ERROR: JavaScript runtime required for YouTube. " . $jsRuntime['error'], Encoder::LOG_TYPE_ERROR);
+                return false;
+            }
+            _error_log("getYoutubeDl: Using JavaScript runtime: {$jsRuntime['runtime']} at {$jsRuntime['path']}");
+        }
+
         $videoURLEscaped = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
         $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
@@ -3106,6 +3117,101 @@ class Encoder extends ObjectYPT
     }
 
     /**
+     * Check if a JavaScript runtime (Deno or Node.js) is installed and accessible
+     * This is required by yt-dlp for YouTube downloads since YouTube now uses JS protection
+     *
+     * @return array ['available' => bool, 'runtime' => string|null, 'path' => string|null, 'error' => string|null]
+     */
+    public static function checkJSRuntimeAvailable()
+    {
+        static $cachedResult = null;
+
+        // Return cached result if already checked
+        if ($cachedResult !== null) {
+            return $cachedResult;
+        }
+
+        $result = [
+            'available' => false,
+            'runtime' => null,
+            'path' => null,
+            'error' => null,
+            'deno' => ['installed' => false, 'path' => null, 'accessible' => false],
+            'nodejs' => ['installed' => false, 'path' => null, 'accessible' => false]
+        ];
+
+        // Check Deno
+        $denoPaths = [
+            '/usr/local/bin/deno',
+            '/usr/bin/deno'
+        ];
+
+        foreach ($denoPaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                $result['deno']['installed'] = true;
+                $result['deno']['path'] = $path;
+
+                // Check if accessible (test execution)
+                $output = shell_exec("$path --version 2>&1");
+                if (!empty($output) && stripos($output, 'deno') !== false) {
+                    $result['deno']['accessible'] = true;
+                    $result['available'] = true;
+                    $result['runtime'] = 'deno';
+                    $result['path'] = $path;
+                }
+                break;
+            }
+        }
+
+        // Check Node.js
+        $nodePaths = [
+            '/usr/local/bin/node',
+            '/usr/bin/node',
+            '/usr/bin/nodejs'
+        ];
+
+        foreach ($nodePaths as $path) {
+            if (file_exists($path) && is_executable($path)) {
+                $result['nodejs']['installed'] = true;
+                $result['nodejs']['path'] = $path;
+
+                // Check if accessible (test execution)
+                $output = shell_exec("$path --version 2>&1");
+                if (!empty($output) && preg_match('/v\d+/', $output)) {
+                    $result['nodejs']['accessible'] = true;
+                    if (!$result['available']) {
+                        $result['available'] = true;
+                        $result['runtime'] = 'nodejs';
+                        $result['path'] = $path;
+                    }
+                }
+                break;
+            }
+        }
+
+        // Set error message if not available
+        if (!$result['available']) {
+            $errorParts = [];
+
+            if (!$result['deno']['installed'] && !$result['nodejs']['installed']) {
+                $errorParts[] = "Neither Deno nor Node.js is installed";
+            } else {
+                if ($result['deno']['installed'] && !$result['deno']['accessible']) {
+                    $errorParts[] = "Deno is installed at {$result['deno']['path']} but not accessible";
+                }
+                if ($result['nodejs']['installed'] && !$result['nodejs']['accessible']) {
+                    $errorParts[] = "Node.js is installed at {$result['nodejs']['path']} but not accessible";
+                }
+            }
+
+            $result['error'] = implode('. ', $errorParts) . ". Run 'php install/checkJSRuntime.php' for installation instructions (Ubuntu only).";
+        }
+
+        $cachedResult = $result;
+        return $result;
+    }
+
+    /**
      * Returns an array of different download strategies to try as fallbacks
      * Each strategy uses a different approach to maximize chances of success
      */
@@ -3142,19 +3248,19 @@ class Encoder extends ObjectYPT
             'cmd' => "{$baseCmd} --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}"
         ];
 
-        // Strategy 2: Try with iOS player client (often bypasses restrictions)
+        // Strategy 2: Try with web client (default, most compatible)
         if (file_exists($ytdlPath)) {
             $strategies[] = [
-                'name' => 'iOS client',
-                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=ios' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}"
+                'name' => 'Web client',
+                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=web' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
             ];
         }
 
-        // Strategy 3: Try with tv_embedded client (doesn't require PO token)
+        // Strategy 3: Try with mweb client (mobile web, often works when others fail)
         if (file_exists($ytdlPath)) {
             $strategies[] = [
-                'name' => 'TV Embedded client',
-                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=tv_embedded' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+                'name' => 'Mobile Web client',
+                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=mweb' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
             ];
         }
 
