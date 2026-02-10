@@ -3139,18 +3139,17 @@ class Encoder extends ObjectYPT
         // Use alternate player clients to bypass restrictions
         if (strpos($ytdl, 'yt-dlp') !== false) {
             $ytdlExtraOptions .= ' --extractor-retries 10';
-            // Use player clients that DON'T require PO Tokens (as of 2024+)
-            // mweb (mobile web), tv_embedded, and mediaconnect don't require PO tokens
-            // android, ios, and web now require PO tokens and will fail without them
-            $ytdlExtraOptions .= ' --extractor-args "youtube:player_client=mweb,tv_embedded,mediaconnect"';
+            // Don't specify player_client - let yt-dlp use its built-in defaults
+            // Specifying clients can cause issues if yt-dlp is outdated
+            // IMPORTANT: Update yt-dlp frequently with: yt-dlp -U or pip install -U yt-dlp
             // Add sleep between requests to avoid rate limiting
             $ytdlExtraOptions .= ' --sleep-requests 1';
             // Add retry for fragments
             $ytdlExtraOptions .= ' --fragment-retries 10';
             // Ignore errors and continue if possible
             $ytdlExtraOptions .= ' --ignore-errors';
-            // Add user agent to look like a real browser (mobile user agent for mweb)
-            $ytdlExtraOptions .= ' --user-agent "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"';
+            // Use a realistic browser user agent
+            $ytdlExtraOptions .= ' --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"';
 
             // Optional: Check for cookies file (only if admin has set one up for the server)
             $cookiesPaths = [
