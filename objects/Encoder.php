@@ -818,73 +818,64 @@ class Encoder extends ObjectYPT
             }
         }
 
-        $videoURL = escapeshellarg($videoURL);
+        $videoURLEscaped = escapeshellarg($videoURL);
         $tmpfname = _get_temp_file('youtubeDl');
+        $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
 
         $e = new Encoder($queue_id);
         $streamers_id = $e->getStreamers_id();
 
-        //$cmd = "youtube-dl -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}";
-        //echo "\n**Trying Youtube DL **".$cmd;
-        $progressFile = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
-        _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} progressFile={$progressFile} " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
+        // Define fallback strategies with different approaches
+        $strategies = self::getYoutubeDlStrategies($addOauthFromProvider, $streamers_id, $tmpfname, $videoURLEscaped);
 
-        exec($cmd . "  1> {$progressFile} 2>&1", $output, $return_val);
-        _error_log("getYoutubeDl: Getting from Youtube DL {$cmd} done {$progressFile} ");
-        if ($return_val !== 0) {
-            // Read the progress file to get the actual error message from yt-dlp
-            $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
-            $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
-            _error_log("getYoutubeDl ERROR (attempt 1): return_val={$return_val} error={$ytdlpError}");
-            self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 1): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+        $return_val = 1;
+        $lastError = '';
 
-            $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
-            _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
-            exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
-            if ($return_val !== 0) {
-                $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
-                $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
-                _error_log("getYoutubeDl ERROR (attempt 2): return_val={$return_val} error={$ytdlpError}");
-                self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 2): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+        foreach ($strategies as $index => $strategy) {
+            $strategyNum = $index + 1;
+            $strategyName = $strategy['name'];
+            $cmd = $strategy['cmd'];
 
-                $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}";
-                _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
-                exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
-                if ($return_val !== 0) {
-                    $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
-                    $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
-                    _error_log("getYoutubeDl ERROR (attempt 3): return_val={$return_val} error={$ytdlpError}");
-                    self::setStreamerLog($queue_id, 'yt-dlp download failed (attempt 3): ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+            _error_log("getYoutubeDl: Strategy {$strategyNum} ({$strategyName}): {$cmd} progressFile={$progressFile}");
+            self::setStreamerLog($queue_id, "Trying download strategy {$strategyNum}: {$strategyName}", Encoder::LOG_TYPE_INFO);
 
-                    $cmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id) . "  --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}";
-                    _error_log("getYoutubeDl: Getting from Youtube other option DL {$cmd}");
-                    exec($cmd . "  1> {$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt  2>&1", $output, $return_val);
-                    if ($return_val !== 0) {
-                        $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
-                        $error = $cmd . PHP_EOL . print_r($output, true) . PHP_EOL . "yt-dlp output: " . $ytdlpError;
-                        _error_log("getYoutubeDl ERROR (attempt 4 - final): return_val={$return_val} error={$ytdlpError}");
-                        self::setStreamerLog($queue_id, 'yt-dlp download failed (all attempts). Error: ' . $ytdlpError, Encoder::LOG_TYPE_ERROR);
+            exec($cmd . " 1> {$progressFile} 2>&1", $output, $return_val);
 
-                        if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
-                            _error_log("getYoutubeDl: ERROR try oauth ");
-                            return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
-                        } else {
-                            if (!empty($addOauthFromProvider)) {
-                                _error_log("getYoutubeDl: ERROR addOauthFromProvider not empty");
-                            }
-                            if (!isYouTubeUrl($videoURL)) {
-                                _error_log("getYoutubeDl: ERROR not a youtube URL $videoURL");
-                            }
-                            if (!Encoder::streamerHasOauth('youtube', $streamers_id)) {
-                                _error_log("getYoutubeDl: ERROR streamers_id does not have oauth streamers_id=$streamers_id");
-                            }
-                        }
-                        return false;
-                    }
-                }
+            if ($return_val === 0) {
+                _error_log("getYoutubeDl: Strategy {$strategyNum} ({$strategyName}) SUCCESS");
+                break;
             }
+
+            $ytdlpError = self::getYtdlpErrorFromFile($progressFile);
+            $lastError = $ytdlpError;
+            _error_log("getYoutubeDl ERROR strategy {$strategyNum} ({$strategyName}): return_val={$return_val} error={$ytdlpError}");
+            self::setStreamerLog($queue_id, "Strategy {$strategyNum} ({$strategyName}) failed: " . substr($ytdlpError, 0, 200), Encoder::LOG_TYPE_ERROR);
+
+            // Small delay between attempts to avoid rate limiting
+            sleep(2);
         }
+
+        // If all strategies failed, try with OAuth as last resort
+        if ($return_val !== 0) {
+            if (empty($addOauthFromProvider) && isYouTubeUrl($videoURL) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
+                _error_log("getYoutubeDl: All strategies failed, trying with OAuth");
+                self::setStreamerLog($queue_id, "Trying OAuth authentication as last resort", Encoder::LOG_TYPE_INFO);
+                return self::getYoutubeDl($videoURL, $queue_id, $destinationFile, 'youtube');
+            } else {
+                if (!empty($addOauthFromProvider)) {
+                    _error_log("getYoutubeDl: ERROR OAuth already tried");
+                }
+                if (!isYouTubeUrl($videoURL)) {
+                    _error_log("getYoutubeDl: ERROR not a youtube URL $videoURL");
+                }
+                if (!Encoder::streamerHasOauth('youtube', $streamers_id)) {
+                    _error_log("getYoutubeDl: ERROR streamers_id does not have oauth streamers_id=$streamers_id");
+                }
+                self::setStreamerLog($queue_id, "All download strategies failed. Last error: " . $lastError, Encoder::LOG_TYPE_ERROR);
+            }
+            return false;
+        }
+
         $file = $tmpfname . ".mp4";
         if (!file_exists($file)) {
             _error_log("getYoutubeDl: ERROR MP4 NOT FOUND {$file} ");
@@ -3113,6 +3104,108 @@ class Encoder extends ObjectYPT
         }
 
         return "Unknown error (no output captured)";
+    }
+
+    /**
+     * Returns an array of different download strategies to try as fallbacks
+     * Each strategy uses a different approach to maximize chances of success
+     */
+    private static function getYoutubeDlStrategies($addOauthFromProvider, $streamers_id, $tmpfname, $videoURL)
+    {
+        global $global;
+
+        $baseCmd = self::getYouTubeDLCommand($addOauthFromProvider, $streamers_id);
+        $ytdlPath = "/usr/local/bin/yt-dlp";
+        $youtubeDlPath = "/usr/local/bin/youtube-dl";
+
+        // Check for cookies file
+        $cookiesOption = '';
+        $cookiesPaths = [
+            '/var/www/.config/yt-dlp/cookies.txt',
+            '/root/.config/yt-dlp/cookies.txt',
+            '/var/www/.cache/youtube_cookies.txt',
+        ];
+        if (!empty($global['yt-dlp-cookies'])) {
+            array_unshift($cookiesPaths, $global['yt-dlp-cookies']);
+        }
+        foreach ($cookiesPaths as $cookiesPath) {
+            if (file_exists($cookiesPath)) {
+                $cookiesOption = ' --cookies ' . escapeshellarg($cookiesPath);
+                break;
+            }
+        }
+
+        $strategies = [];
+
+        // Strategy 1: Default - best quality MP4
+        $strategies[] = [
+            'name' => 'Default (best MP4)',
+            'cmd' => "{$baseCmd} --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}"
+        ];
+
+        // Strategy 2: Try with iOS player client (often bypasses restrictions)
+        if (file_exists($ytdlPath)) {
+            $strategies[] = [
+                'name' => 'iOS client',
+                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=ios' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}"
+            ];
+        }
+
+        // Strategy 3: Try with tv_embedded client (doesn't require PO token)
+        if (file_exists($ytdlPath)) {
+            $strategies[] = [
+                'name' => 'TV Embedded client',
+                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=tv_embedded' --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        // Strategy 4: Try with cookies if available
+        if (!empty($cookiesOption)) {
+            $strategies[] = [
+                'name' => 'With cookies',
+                'cmd' => "{$baseCmd}{$cookiesOption} --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        // Strategy 5: Accept any format (more flexible)
+        $strategies[] = [
+            'name' => 'Any format',
+            'cmd' => "{$baseCmd} --no-check-certificate --force-ipv4 --no-playlist -k -o '{$tmpfname}.%(ext)s' {$videoURL}"
+        ];
+
+        // Strategy 6: Try with legacy server connect (helps with some servers)
+        if (file_exists($ytdlPath)) {
+            $strategies[] = [
+                'name' => 'Legacy server connect',
+                'cmd' => "{$ytdlPath} --legacy-server-connect --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        // Strategy 7: Try with web_embedded client
+        if (file_exists($ytdlPath)) {
+            $strategies[] = [
+                'name' => 'Web Embedded client',
+                'cmd' => "{$ytdlPath} --extractor-args 'youtube:player_client=web_embedded' --no-check-certificate --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        // Strategy 8: Fallback to youtube-dl if available
+        if (file_exists($youtubeDlPath)) {
+            $strategies[] = [
+                'name' => 'youtube-dl fallback',
+                'cmd' => "{$youtubeDlPath} --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        // Strategy 9: Minimal options (remove all extra flags)
+        if (file_exists($ytdlPath)) {
+            $strategies[] = [
+                'name' => 'Minimal options',
+                'cmd' => "{$ytdlPath} -o {$tmpfname}.mp4 {$videoURL}"
+            ];
+        }
+
+        return $strategies;
     }
 
     public static function getYouTubeDLCommand($addOauthFromProvider = '', $streamers_id = 0, $forceYoutubeDL = false)
