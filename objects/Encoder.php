@@ -3068,16 +3068,16 @@ class Encoder extends ObjectYPT
         } elseif (file_exists("/usr/local/bin/youtube-dl")) {
             $ytdl = "/usr/local/bin/youtube-dl ";
         }
-        
+
         // Add YouTube workaround options to handle common yt-dlp issues
         // This helps bypass YouTube's bot detection and API changes
         $ytdlExtraOptions = '';
-        
+
         // Use alternate player clients to bypass restrictions
         if (strpos($ytdl, 'yt-dlp') !== false) {
             $ytdlExtraOptions .= ' --extractor-retries 5';
             $ytdlExtraOptions .= ' --extractor-args "youtube:player_client=default,ios,web_creator"';
-            
+
             // Check for cookies file to authenticate with YouTube
             $cookiesPaths = [
                 '/var/www/.config/yt-dlp/cookies.txt',
@@ -3095,9 +3095,9 @@ class Encoder extends ObjectYPT
                 }
             }
         }
-        
+
         $ytdl .= $ytdlExtraOptions;
-        
+
         if (!empty($addOauthFromProvider) || !empty($global['usingOauth'])) {
             $accessToken = self::streamerHasOauth($addOauthFromProvider, $streamers_id);
             if (empty($accessToken)) {
