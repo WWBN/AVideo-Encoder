@@ -1638,6 +1638,7 @@ class Encoder extends ObjectYPT
         $this->setStatus(Encoder::STATUS_TRANSFERRING);
         $this->save();
         _error_log("Encoder::send() order_id=$order_id");
+
         /**
          * @var array $global
          */
@@ -1653,7 +1654,7 @@ class Encoder extends ObjectYPT
                     $format = pathinfo($file, PATHINFO_EXTENSION);
                     preg_match('/([^_]+).' . $format . '$/', $file, $matches);
                     $resolution = @$matches[1];
-                    if ($resolution == 'converted' || $resolution == 'converted.mp4') {
+                    if ($resolution == 'converted' || $resolution == 'converted.mp4' || $resolution == 'autoConverted') {
                         $resolution = '';
                     }
                     if ($resolution == 'converted.mp4palette') {
@@ -1712,6 +1713,16 @@ class Encoder extends ObjectYPT
             }
             $return->sends[] = $r;
         }
+
+        // Send auto-converted MP3 after main video files (so the video type is set correctly by the MP4)
+        if (!in_array($order_id, $global['sendAll'])) {
+            $mp3AutoFile = self::getTmpFileName($this->id, 'mp3', 'autoConverted');
+            if (file_exists($mp3AutoFile)) {
+                _error_log("Encoder::send() sending auto-converted MP3");
+                $return->sends[] = static::sendFileChunk($mp3AutoFile, $return_vars, 'mp3', $this);
+            }
+        }
+
         $this->setStatus(Encoder::STATUS_DONE);
         // check if autodelete is enabled
         $config = new Configuration();

@@ -165,6 +165,9 @@ if (!class_exists('Format')) {
                 $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $path_parts['extension']);
                 $obj = static::execOrder($this->order, $pathFileName, $destinationFile, $encoder_queue_id);
             }
+            if (!$obj->error) {
+                self::autoCreateMP3IfNeeded($pathFileName, $encoder_queue_id, $this->order);
+            }
             return $obj;
         }
 
@@ -370,6 +373,44 @@ if (!class_exists('Format')) {
                 $obj = static::execOrder(40, $pathFileName, $destinationFile, $encoder_queue_id);
             }
             return $obj;
+        }
+
+        /**
+         * Automatically create an MP3 from the source video if autoConvertVideosToMP3 is enabled.
+         * Skips if the source is audio, or if the format already handles MP3 creation (HLS, spectrum, audio extraction).
+         */
+        private static function autoCreateMP3IfNeeded($pathFileName, $encoder_queue_id, $order)
+        {
+            // Orders that already create or handle MP3: 6=Dynamic HLS, 9=HLS, 60=Video to MP3, 70=Video to Spectrum, 71=Video to Audio
+            $skipOrders = [6, 9, 60, 70, 71];
+            if (in_array($order, $skipOrders)) {
+                return;
+            }
+
+            $advancedCustom = getAdvancedCustomizedObjectData();
+            if (empty($advancedCustom->autoConvertVideosToMP3)) {
+                return;
+            }
+
+            // Only for video source files, not audio
+            $ext = strtolower(pathinfo($pathFileName, PATHINFO_EXTENSION));
+            if (in_array($ext, Encoder::AUDIO_EXTENSIONS)) {
+                _error_log("autoCreateMP3IfNeeded: Skipping, source is audio ($ext)");
+                return;
+            }
+
+            $mp3File = Encoder::getTmpFileName($encoder_queue_id, 'mp3', 'autoConverted');
+            if (file_exists($mp3File)) {
+                _error_log("autoCreateMP3IfNeeded: MP3 already exists at $mp3File");
+                return;
+            }
+
+            try {
+                _error_log("autoCreateMP3IfNeeded: Creating MP3 from $pathFileName to $mp3File");
+                MP3Processor::createMP3($pathFileName, $mp3File);
+            } catch (Exception $e) {
+                _error_log("autoCreateMP3IfNeeded: Error creating MP3: " . $e->getMessage());
+            }
         }
 
         private static function preProcessHLS($destinationFile)
