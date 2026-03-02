@@ -52,7 +52,9 @@ foreach ($_REQUEST as $key => $value) {
     if (empty($_REQUEST[$value])) {
         continue;
     }
-    $_REQUEST[$value] = str_replace('/[^a-z0-9.:/-]/i', '', trim($_REQUEST[$value]));
+    if (is_string($_REQUEST[$value])) {
+        $_REQUEST[$value] = preg_replace('/[^a-z0-9.:\/\-]/i', '', trim($_REQUEST[$value]));
+    }
 }
 
 $obj->playlists_id = intval($_REQUEST['playlists_id']);

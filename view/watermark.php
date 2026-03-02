@@ -37,8 +37,18 @@ ob_start();
 //header("Access-Control-Allow-Origin: *");
 if (!empty($_REQUEST['_'])) {
     $array = json_decode(base64_decode($_REQUEST['_']));
-    foreach ($array as $key => $value) {
-        $_REQUEST[$key] = $value;
+    if (is_object($array) || is_array($array)) {
+        foreach ($array as $key => $value) {
+            // Security: only allow whitelisted keys to be set via base64 bypass
+            $allowedKeys = array('file', 'watermark_text', 'watermark_token', 'videos_id', 'protectionToken', 'isMobile', 'resolution');
+            if (in_array($key, $allowedKeys)) {
+                if (is_string($value)) {
+                    $_REQUEST[$key] = $value;
+                } elseif (is_numeric($value)) {
+                    $_REQUEST[$key] = $value;
+                }
+            }
+        }
     }
     unset($_REQUEST['_']);
 }
@@ -104,6 +114,7 @@ if ($obj->resolution < 360) {
 }
 
 $input = "{$_REQUEST['file']}" . ((strpos($_REQUEST['file'], '?') !== false) ? "&" : "?") . "watermark_token={$_REQUEST['watermark_token']}";
+$inputEscaped = escapeshellarg($input);
 
 $text = $_REQUEST['watermark_text'];
 $outputTextPath = "$dir{$_REQUEST['videos_id']}/" . md5("{$text}") . "/";
@@ -150,7 +161,7 @@ if (!isRunning($outputPath)) {
         file_put_contents($localFileDownload_lock, time());
         file_put_contents($localFileDownload_index, "");
         //$ffmpeg = "ffmpeg -i \"$input\" -c copy -bsf:a aac_adtstoasc {$localFilePath} ";
-        $ffmpeg = "ffmpeg -i \"$input\" {$downloadCodec} -f hls -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$localFileDownload_HLS} ";
+        $ffmpeg = "ffmpeg -i {$inputEscaped} {$downloadCodec} -f hls -hls_time {$hls_time} -hls_list_size 0  -hls_playlist_type vod {$localFileDownload_HLS} ";
 
         error_log("Watermark: download video $ffmpeg");
 

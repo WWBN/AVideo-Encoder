@@ -9,13 +9,22 @@ if (empty($_GET['totalClips'])) {
 }
 
 $url = base64_decode($_GET['base64Url']);
+
+// Security: validate URL
+if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+    error_log("getSpiritsFromVideo: Invalid URL rejected: {$url}");
+    die();
+}
+// Remove shell metacharacters from URL
+$url = str_replace(array('"', "'", '`', '$', '\\', ';', '|', '&', '(', ')', '{', '}', '<', '>', "\n", "\r", "\0"), '', $url);
+
 $parts = explode("?token", $url);
 $baseName = md5($parts[0]);
 $imageFileName = $global['systemRootPath'] . "videos/sprit_{$baseName}.jpg";
 //$url = "http://127.0.0.1/AVideo/videos/_YPTuniqid_5a01ef79b04ec6.24051213_HD.mp4";
 
-$tileWidth = $_GET['tileWidth'];
-$numberOfTiles = $_GET['totalClips'];
+$tileWidth = intval($_GET['tileWidth']);
+$numberOfTiles = intval($_GET['totalClips']);
 
 $tileHeight = intval($tileWidth / 16 * 9);
 
@@ -37,7 +46,14 @@ if (!file_exists($imageFileName)) {
         echo url_get_contents($global['systemRootPath'] . "view/img/creatingImages.jpg");
     }
     //call createsprits
-    $command = (getPHP()." \"{$global['systemRootPath']}objects/createSpiritsFromVideo.php\" \"$url\" \"$step\" \"$tileWidth\" \"$tileHeight\" \"$imageFileName\" \"$numberOfTiles\" \"$baseName\"");
+    $urlEscaped = escapeshellarg($url);
+    $stepEscaped = escapeshellarg($step);
+    $tileWidthEscaped = escapeshellarg($tileWidth);
+    $tileHeightEscaped = escapeshellarg($tileHeight);
+    $imageFileNameEscaped = escapeshellarg($imageFileName);
+    $numberOfTilesEscaped = escapeshellarg($numberOfTiles);
+    $baseNameEscaped = escapeshellarg($baseName);
+    $command = (getPHP()." \"{$global['systemRootPath']}objects/createSpiritsFromVideo.php\" {$urlEscaped} {$stepEscaped} {$tileWidthEscaped} {$tileHeightEscaped} {$imageFileNameEscaped} {$numberOfTilesEscaped} {$baseNameEscaped}");
     error_log("getSpritsFromVideo: {$command}");
     if(!empty($_REQUEST['sync'])){
         exec($command." 1");

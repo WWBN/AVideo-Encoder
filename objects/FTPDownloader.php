@@ -67,7 +67,10 @@ class FTPDownloader
 
         $savePath = str_replace('..', '', $savePath);
 
-        $command = "wget -O \"$savePath\" \"$ftpUrl\" ";
+        $savePathEscaped = escapeshellarg($savePath);
+        $ftpUrlEscaped = escapeshellarg($ftpUrl);
+
+        $command = "wget -O {$savePathEscaped} {$ftpUrlEscaped} ";
 
         exec($command);
 

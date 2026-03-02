@@ -7,7 +7,7 @@ if (file_exists("../videos/configuration.php")) {
 $_POST['databaseName'] = str_replace('-', '_', $_POST['databaseName']);
 require_once '../objects/functions.php';
 
-$installationVersion = '6.0';
+$installationVersion = '7.0';
 
 header('Content-Type: application/json');
 
