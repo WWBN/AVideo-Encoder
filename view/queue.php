@@ -23,7 +23,7 @@ if (!empty($_POST['user']) && !empty($_POST['pass']) && !empty($_POST['notifyURL
 $e = new Encoder(@$_POST['id']);
 if (empty($e->getId())) {
     if (!Login::canUpload()) {
-        $error = "This user can not upload files User=" . Login::getStreamerUser() . " URL=" . Login::getStreamerURL();
+        $error = "This user can not upload files User=" . Login::getStreamerUser() . " URL=" . Login::getStreamerURL(). ' POST='.json_encode($_POST);
         if (isCommandLineInterface()) {
             echo $error . PHP_EOL;
         }
