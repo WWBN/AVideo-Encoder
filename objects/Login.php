@@ -36,6 +36,9 @@ if (!class_exists('Login')) {
                 $_runLogin = array();
             }
             if (empty($_runLogin[$index])) {
+                // Decode HTML entities in username (e.g. &oacute; -> ó) to handle
+                // special characters sent from remote AVideo sites
+                $user = html_entity_decode($user, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 ini_set('memory_limit', '50M');
                 ini_set('max_execution_time', 10);
                 error_log("Login::run ($user, ***, $aVideoURL, $encodedPass)");
