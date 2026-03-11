@@ -10,9 +10,11 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 
 session_write_close();
 
-function cleanFilename($filename) {
-    // Remove BOM (Byte Order Mark) and other unwanted characters
-    return preg_replace('/[^\w\d\-_\. ]/', '', preg_replace('/^\xEF\xBB\xBF/', '', $filename));
+if (!function_exists('cleanFilename')) {
+    function cleanFilename($filename) {
+        // Remove BOM (Byte Order Mark) and other unwanted characters
+        return preg_replace('/[^\w\d\-_\. ]/', '', preg_replace('/^\xEF\xBB\xBF/', '', $filename));
+    }
 }
 
 if (empty($_REQUEST['videoURL'])) {

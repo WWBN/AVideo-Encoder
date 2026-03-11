@@ -7,8 +7,6 @@ if (!isCommandLineInterface()) {
     return die('Command Line only');
 }
 
-$doNotDie = 1;
-
 $_REQUEST['user'] = 'admin';
 $_REQUEST['pass'] = '123';
 //$_POST['inputAutoHLS'] = true;
@@ -16,26 +14,25 @@ $_REQUEST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
 $_REQUEST['notifyURL'] = str_ireplace(array('rtmp://'), array(''), $_REQUEST['notifyURL']);
 $_REQUEST['webSiteRootURL'] = $_REQUEST['notifyURL'];
 
-//var_dump($global['webSiteRootURL']);exit;
-/*
-$filesURL = array(
-    'http://4k.ypt.me/1080/Christmas_Tree_Bokeh.mp4',
-    'http://4k.ypt.me/1080/Galaxy_With_Customization.mp4',
-    'http://4k.ypt.me/1080/Earth_from_Space.mov',
-    'http://4k.ypt.me/1080/Snow.mp4',
-    'http://4k.ypt.me/4K/Elecard_about_Tomsk_part1_HEVC_UHD.mp4',
-);
+require_once $global['systemRootPath'] . 'objects/Encoder.php';
+require_once $global['systemRootPath'] . 'objects/Login.php';
+require_once $global['systemRootPath'] . 'objects/Streamer.php';
+require_once $global['systemRootPath'] . 'objects/functions.php';
 
-foreach ($filesURL as $value) {
-    $_POST['fileURI'] = $value;
-    $path_parts = pathinfo($_POST['fileURI']);
-    $basename = explode(".", $path_parts['basename']);
-    $_POST['filename'] = str_replace(array(".", "_"), array(" ", " "), $basename[0]);
-    echo "Processing: ".json_encode($_POST) . PHP_EOL;
-    include $global['systemRootPath'].'view/queue.php';
-    echo "Include: {$_POST['filename']}" . PHP_EOL;
+// Login once before processing all videos
+Login::run($_REQUEST['user'], $_REQUEST['pass'], $_REQUEST['webSiteRootURL'], true);
+
+if (!Login::canUpload()) {
+    die('This user can not upload files' . PHP_EOL);
 }
-*/
+
+$streamers_id = Login::getStreamerId();
+if (empty($streamers_id)) {
+    die('There is no streamer site' . PHP_EOL);
+}
+
+echo "Logged in. Streamer ID: {$streamers_id}" . PHP_EOL;
+
 $filesURL = array(
     /*
     'https://www.youtube.com/watch?v=PaXVZJFfgJA',
@@ -48,6 +45,8 @@ $filesURL = array(
     //'https://www.youtube.com/watch?v=e4zRaWV2YEQ',
     //'https://4k.ypt.me/1080/Raindrops_Videvo.mp4',//(NO AUDIO)
     //'https://4k.ypt.me/1080/Christmas_Tree_Pan.mp4',//(NO AUDIO)
+    'https://www.youtube.com/watch?v=f1wxBXqPtCM',
+    'https://www.youtube.com/watch?v=UsL0LiBb9RQ',
     'https://4k.ypt.me/4K/Hisense.mp4',
     'https://4k.ypt.me/4K/Rocket_to_Space.mp4',
     'https://4k.ypt.me/4K/beach-uhd_3840_2160_30fps.mp4',
@@ -56,10 +55,16 @@ $filesURL = array(
     'https://4k.ypt.me/1080/rain-hd_1920_1080_30fps.mp4',
 );
 
-foreach ($filesURL as $value) {
-    $_REQUEST['videoURL'] = $value;
-    echo "Processing: {$value}" . PHP_EOL;
-    include $global['systemRootPath'].'view/youtubeDl.json.php';
+foreach ($filesURL as $key => $value) {
+    $index = $key + 1;
+    $total = count($filesURL);
+    echo "[{$index}/{$total}] Processing: {$value}" . PHP_EOL;
+    $result = addVideo($value, $streamers_id);
+    if (!empty($result->error)) {
+        echo "[{$index}/{$total}] ERROR: " . (isset($result->text) ? $result->text : json_encode($result)) . PHP_EOL;
+    } else {
+        echo "[{$index}/{$total}] Queued: " . (isset($result->text) ? $result->text : 'OK') . " (queue_id: " . (isset($result->queue_id) ? $result->queue_id : 'N/A') . ")" . PHP_EOL;
+    }
 }
 
 
