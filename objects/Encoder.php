@@ -3174,11 +3174,12 @@ class Encoder extends ObjectYPT
             }
         }
 
-        // Check Node.js
+        // Check Node.js (some distros use 'nodejs' binary name instead of 'node')
         $nodePaths = [
             '/usr/local/bin/node',
             '/usr/bin/node',
-            '/usr/bin/nodejs'
+            '/usr/bin/nodejs',
+            '/usr/local/bin/nodejs'
         ];
 
         foreach ($nodePaths as $path) {
@@ -3192,7 +3193,7 @@ class Encoder extends ObjectYPT
                     $result['nodejs']['accessible'] = true;
                     if (!$result['available']) {
                         $result['available'] = true;
-                        $result['runtime'] = 'nodejs';
+                        $result['runtime'] = 'node';
                         $result['path'] = $path;
                     }
                 }

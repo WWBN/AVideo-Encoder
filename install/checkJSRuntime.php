@@ -317,6 +317,18 @@ function checkNodeJS() {
     }
 
     if ($status['installed']) {
+        // If binary is 'nodejs' but 'node' doesn't exist, create symlink for yt-dlp compatibility
+        if (basename($status['path']) === 'nodejs' && !commandExists('node')) {
+            $nodeLink = dirname($status['path']) . '/node';
+            if (isRoot()) {
+                printMsg("Creating symlink: $nodeLink -> {$status['path']}", COLOR_YELLOW);
+                execCommand("ln -sf {$status['path']} $nodeLink", "Creating node symlink");
+                if (file_exists($nodeLink)) {
+                    $status['path'] = $nodeLink;
+                }
+            }
+        }
+
         // Check if accessible by www-data
         if (isExecutableByWwwData($status['path'])) {
             $status['accessible'] = true;
@@ -359,6 +371,19 @@ function installNodeJS() {
         $version = getVersion('node');
         printMsg("✓ Node.js installed successfully: $version", COLOR_GREEN);
         return true;
+    }
+
+    // Some distros install as 'nodejs' only - create symlink so yt-dlp can find 'node'
+    if (commandExists('nodejs') && !commandExists('node')) {
+        $nodejsPath = getCommandPath('nodejs');
+        $nodeLink = dirname($nodejsPath) . '/node';
+        printMsg("Creating symlink: $nodeLink -> $nodejsPath", COLOR_YELLOW);
+        execCommand("ln -sf $nodejsPath $nodeLink", "Creating node symlink");
+        if (commandExists('node')) {
+            $version = getVersion('node');
+            printMsg("✓ Node.js installed successfully (via symlink): $version", COLOR_GREEN);
+            return true;
+        }
     }
 
     printMsg("✗ Node.js installation failed", COLOR_RED);
@@ -476,13 +501,25 @@ function updateYtdlp() {
  * Configure yt-dlp to use Node.js if Deno is not available
  */
 function configureYtdlpRuntime($denoStatus, $nodeStatus) {
+    $configFile = "/etc/yt-dlp.conf";
+
+    // Fix any existing config that uses the wrong runtime name 'nodejs' (should be 'node')
+    if (file_exists($configFile)) {
+        $currentConfig = file_get_contents($configFile);
+        if (strpos($currentConfig, '--js-runtimes nodejs') !== false) {
+            printHeader("Fixing yt-dlp Runtime Configuration");
+            $currentConfig = str_replace('--js-runtimes nodejs', '--js-runtimes node', $currentConfig);
+            file_put_contents($configFile, $currentConfig);
+            printMsg("✓ Fixed invalid runtime name 'nodejs' to 'node' in $configFile", COLOR_GREEN);
+        }
+    }
+
     if ($nodeStatus['accessible'] && !$denoStatus['accessible']) {
         printHeader("Configuring yt-dlp Runtime");
         printMsg("Configuring yt-dlp to use Node.js...", COLOR_YELLOW);
 
         // Create or update yt-dlp config
-        $configContent = "--js-runtimes nodejs\n";
-        $configFile = "/etc/yt-dlp.conf";
+        $configContent = "--js-runtimes node\n";
 
         // Check if config already has this setting
         if (file_exists($configFile)) {
