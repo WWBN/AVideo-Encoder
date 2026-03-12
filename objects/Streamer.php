@@ -26,7 +26,7 @@ if (!class_exists('Streamer')) {
                 $global = [];
             }
             $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
-            //echo $sql;exit;            
+            //echo $sql;exit;
             /**
              * @var array $global
              * @var object $global['mysqli']
@@ -326,7 +326,7 @@ if (!class_exists('Streamer')) {
                 'msg' => '',
                 'provider' =>  $provider,
             );
-            
+
             if (empty($provider)) {
                 $response['msg'] = "Provider is empty";
                 return $response;
@@ -341,12 +341,16 @@ if (!class_exists('Streamer')) {
                 $json = json_decode($jsonString, true);
             }
             $response['json'] = $json;
+            if (empty($json[$provider]['json']["restream.ypt.me"])) {
+                $response['msg'] = "No restream token found for provider '$provider' on streamers_id = $streamers_id";
+                return $response;
+            }
             if(empty($json[$provider]['json']["restream.ypt.me"]['access_token'])){
-                $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'];
+                $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['accessToken'] ?? null;
             }else{
                 $response['accessToken'] = $json[$provider]['json']["restream.ypt.me"]['access_token'];
             }
-            
+
             if (empty($response['accessToken'])) {
                 _error_log(json_encode($json));
                 $response['msg'] = "revalidateToken($streamers_id, $provider) access_token is empty ";

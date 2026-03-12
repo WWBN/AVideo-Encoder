@@ -3154,15 +3154,22 @@ class Encoder extends ObjectYPT
         // Check Deno
         $denoPaths = [
             '/usr/local/bin/deno',
-            '/usr/bin/deno'
+            '/usr/bin/deno',
+            '/root/.deno/bin/deno'
         ];
 
+        // Try to find deno via 'which' if not in known paths
+        $whichDeno = trim(shell_exec("which deno 2>/dev/null") ?? '');
+        if (!empty($whichDeno) && !in_array($whichDeno, $denoPaths)) {
+            array_unshift($denoPaths, $whichDeno);
+        }
+
         foreach ($denoPaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
+            if (file_exists($path)) {
                 $result['deno']['installed'] = true;
                 $result['deno']['path'] = $path;
 
-                // Check if accessible (test execution)
+                // Check if accessible by actually running it
                 $output = shell_exec("$path --version 2>&1");
                 if (!empty($output) && stripos($output, 'deno') !== false) {
                     $result['deno']['accessible'] = true;
@@ -3174,6 +3181,20 @@ class Encoder extends ObjectYPT
             }
         }
 
+        // If deno not found via file_exists, try running it directly
+        if (!$result['deno']['installed']) {
+            $output = shell_exec("deno --version 2>&1");
+            if (!empty($output) && stripos($output, 'deno') !== false) {
+                $denoPath = trim(shell_exec("command -v deno 2>/dev/null") ?? '');
+                $result['deno']['installed'] = true;
+                $result['deno']['path'] = !empty($denoPath) ? $denoPath : 'deno';
+                $result['deno']['accessible'] = true;
+                $result['available'] = true;
+                $result['runtime'] = 'deno';
+                $result['path'] = $result['deno']['path'];
+            }
+        }
+
         // Check Node.js (some distros use 'nodejs' binary name instead of 'node')
         $nodePaths = [
             '/usr/local/bin/node',
@@ -3182,12 +3203,18 @@ class Encoder extends ObjectYPT
             '/usr/local/bin/nodejs'
         ];
 
+        // Try to find node via 'which' if not in known paths
+        $whichNode = trim(shell_exec("which node 2>/dev/null") ?? '');
+        if (!empty($whichNode) && !in_array($whichNode, $nodePaths)) {
+            array_unshift($nodePaths, $whichNode);
+        }
+
         foreach ($nodePaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
+            if (file_exists($path)) {
                 $result['nodejs']['installed'] = true;
                 $result['nodejs']['path'] = $path;
 
-                // Check if accessible (test execution)
+                // Check if accessible by actually running it
                 $output = shell_exec("$path --version 2>&1");
                 if (!empty($output) && preg_match('/v\d+/', $output)) {
                     $result['nodejs']['accessible'] = true;
@@ -3198,6 +3225,22 @@ class Encoder extends ObjectYPT
                     }
                 }
                 break;
+            }
+        }
+
+        // If node not found via file_exists, try running it directly
+        if (!$result['nodejs']['installed']) {
+            $output = shell_exec("node --version 2>&1");
+            if (!empty($output) && preg_match('/v\d+/', $output)) {
+                $nodePath = trim(shell_exec("command -v node 2>/dev/null") ?? '');
+                $result['nodejs']['installed'] = true;
+                $result['nodejs']['path'] = !empty($nodePath) ? $nodePath : 'node';
+                $result['nodejs']['accessible'] = true;
+                if (!$result['available']) {
+                    $result['available'] = true;
+                    $result['runtime'] = 'node';
+                    $result['path'] = $result['nodejs']['path'];
+                }
             }
         }
 
@@ -3360,6 +3403,24 @@ class Encoder extends ObjectYPT
             $ytdlExtraOptions .= ' --ignore-errors';
             // Use a realistic browser user agent
             $ytdlExtraOptions .= ' --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"';
+
+            // Explicitly set JS runtimes with full paths so yt-dlp finds them even if www-data has a limited PATH
+            $jsRuntimeCheck = self::checkJSRuntimeAvailable();
+            if (!empty($jsRuntimeCheck['available'])) {
+                $jsRuntimes = [];
+                if (!empty($jsRuntimeCheck['deno']['accessible']) && !empty($jsRuntimeCheck['deno']['path'])) {
+                    $jsRuntimes[] = 'deno:' . $jsRuntimeCheck['deno']['path'];
+                }
+                if (!empty($jsRuntimeCheck['nodejs']['accessible']) && !empty($jsRuntimeCheck['nodejs']['path'])) {
+                    $jsRuntimes[] = 'node:' . $jsRuntimeCheck['nodejs']['path'];
+                }
+                if (!empty($jsRuntimes)) {
+                    $ytdlExtraOptions .= ' --js-runtimes ' . implode(',', $jsRuntimes);
+                    _error_log("getYouTubeDLCommand: JS runtimes detected: " . implode(',', $jsRuntimes));
+                }
+            } else {
+                _error_log("getYouTubeDLCommand: WARNING - No JS runtime available! " . ($jsRuntimeCheck['error'] ?? 'unknown error'));
+            }
 
             // Optional: Check for cookies file (only if admin has set one up for the server)
             $cookiesPaths = [
