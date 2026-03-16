@@ -35,6 +35,20 @@ if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $ur
     error_log("getImage: Invalid URL rejected: {$url}");
     die();
 }
+// SSRF protection: block requests to private/internal network addresses
+$_ssrfParsed = parse_url($url);
+$_ssrfHost = isset($_ssrfParsed['host']) ? $_ssrfParsed['host'] : '';
+if (empty($_ssrfHost) || preg_match('/^(localhost|.*\.local)$/i', $_ssrfHost)) {
+    error_log("getImage: SSRF attempt blocked for host: {$_ssrfHost}");
+    die();
+}
+// Check direct IP notation and DNS-resolved addresses against private ranges
+$_ssrfIP = filter_var($_ssrfHost, FILTER_VALIDATE_IP) ? $_ssrfHost : gethostbyname($_ssrfHost);
+if (ip_is_private($_ssrfIP)) {
+    error_log("getImage: SSRF attempt blocked - host '{$_ssrfHost}' resolves to private IP '{$_ssrfIP}'");
+    die();
+}
+unset($_ssrfParsed, $_ssrfHost, $_ssrfIP);
 // Remove shell metacharacters from URL
 $url = str_replace(array('"', "'", '`', '$', '\\', ';', '|', '&', '(', ')', '{', '}', '<', '>', "\n", "\r", "\0"), '', $url);
 $urlEscaped = escapeshellarg($url);

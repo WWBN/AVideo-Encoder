@@ -20,6 +20,24 @@ require_once '../objects/Encoder.php';
 header('Access-Control-Allow-Origin: *');
 $url = base64_decode($_GET['base64Url']);
 
+// SSRF protection: validate URL and block access to private/internal network addresses
+if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+    error_log("getImageMP4: Invalid URL rejected: {$url}");
+    die();
+}
+$_ssrfParsed = parse_url($url);
+$_ssrfHost = isset($_ssrfParsed['host']) ? $_ssrfParsed['host'] : '';
+if (empty($_ssrfHost) || preg_match('/^(localhost|.*\.local)$/i', $_ssrfHost)) {
+    error_log("getImageMP4: SSRF attempt blocked for host: {$_ssrfHost}");
+    die();
+}
+$_ssrfIP = filter_var($_ssrfHost, FILTER_VALIDATE_IP) ? $_ssrfHost : gethostbyname($_ssrfHost);
+if (ip_is_private($_ssrfIP)) {
+    error_log("getImageMP4: SSRF attempt blocked - host '{$_ssrfHost}' resolves to private IP '{$_ssrfIP}'");
+    die();
+}
+unset($_ssrfParsed, $_ssrfHost, $_ssrfIP);
+
 if (!isURLaVODVideo($url)) {
     error_log("ERROR URL is not a VOD {$url}");
     die();
