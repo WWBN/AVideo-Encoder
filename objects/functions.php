@@ -706,10 +706,14 @@ function ip_is_private($ip)
  */
 function encryptPassword($password, $streamerURL)
 {
-    $url = "{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password);
+    // Generate a time-limited HMAC token keyed on the main server's URL.
+    // Both sides know this value: the main server has it as $global['webSiteRootURL']
+    // and the encoder already has it here as $streamerURL.
+    $token = hash_hmac('sha256', (string) floor(time() / 300), $streamerURL);
+    $url = "{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password) . "&token=" . urlencode($token);
     $streamerEncrypt = json_decode(url_get_contents($url));
     if (empty($streamerEncrypt) || empty($streamerEncrypt->encryptedPassword)) {
-        error_log("ERROR on encryptPassword " . $url);
+        error_log("ERROR on encryptPassword " . $streamerURL . "objects/encryptPass.json.php");
     }
     return $streamerEncrypt->encryptedPassword;
 }
