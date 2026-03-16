@@ -98,12 +98,16 @@ abstract class ObjectYPT implements ObjectInterface
         if (!empty($_POST['sort'])) {
             $orderBy = [];
             foreach ($_POST['sort'] as $key => $value) {
-                /**
-                 * @var array $global
-                 */
-                $key = $global['mysqli']->real_escape_string($key);
-                $value = $global['mysqli']->real_escape_string($value);
-                $orderBy[] = " {$key} {$value} ";
+                // Prevent SQL injection: allow only alphanumeric characters and underscores in column names
+                $key = preg_replace('/[^a-zA-Z0-9_]/', '', $key);
+                // Restrict sort direction to a strict whitelist
+                $value = strtolower(trim($value));
+                if (!in_array($value, ['asc', 'desc'])) {
+                    $value = 'asc';
+                }
+                if (!empty($key)) {
+                    $orderBy[] = " `{$key}` {$value} ";
+                }
             }
             $sql .= " ORDER BY " . implode(",", $orderBy);
         } else {
