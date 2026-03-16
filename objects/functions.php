@@ -714,6 +714,7 @@ function encryptPassword($password, $streamerURL)
     $streamerEncrypt = json_decode(url_get_contents($url));
     if (empty($streamerEncrypt) || empty($streamerEncrypt->encryptedPassword)) {
         error_log("ERROR on encryptPassword " . $streamerURL . "objects/encryptPass.json.php");
+        return '';
     }
     return $streamerEncrypt->encryptedPassword;
 }
