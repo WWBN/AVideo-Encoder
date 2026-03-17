@@ -56,7 +56,7 @@ if (preg_match('/\.mp3$/i', $parts[0])) {
     $type = 'audio';
 }
 
-$url = str_replace(array('"', "'"), array('', ''), $url);
+$url = str_replace(array('"', "'", '`', '$', '\\', ';', '|', '&', '(', ')', '{', '}', '<', '>', "\n", "\r", "\0"), '', $url);
 $url = escapeshellarg($url);
 error_log("getImageMP4 Starts: {$url}");
 

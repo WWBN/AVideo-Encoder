@@ -62,10 +62,12 @@ $height = $tileHeight + $pxBetweenTiles;
 $mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
 $mapHeight = $tileHeight * (ceil($numberOfTiles / 10));
 
-$cmd = get_ffmpeg() . " -i \"{$url}\" -map 0:v:0 -vf fps=1/{$step},"
-        . getFFmpegScaleToForceOriginalAspectRatio($tileWidth, $tileHeight) . 
+$urlEscaped = escapeshellarg($url);
+$outPatternEscaped = escapeshellarg("{$dirname}out%03d.png");
+$cmd = get_ffmpeg() . " -i {$urlEscaped} -map 0:v:0 -vf fps=1/{$step},"
+        . getFFmpegScaleToForceOriginalAspectRatio($tileWidth, $tileHeight) .
         " -frames:v 100 "
-        . " \"{$dirname}out%03d.png\"  2>&1 ";
+        . " {$outPatternEscaped}  2>&1 ";
 
 $cmd = removeUserAgentIfNotURL($cmd);
 error_log("CreateSpirits: $cmd");
