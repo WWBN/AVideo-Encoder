@@ -1,20 +1,39 @@
 <img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
 
 # AVideo - Encoder
-### This is the Encoder for <a href="https://avideo.com/" target="_blank">AVideo</a>.
-AVideo is a video-sharing Platform software, the open source solution that is freely available to everyone. When you download AVideo Platform instance, you can create your own video sharing site, AVideo will help you import and encode videos from other sites like Youtube, Vimeo, etc. and you can share directly on your website. In addition, you can use Facebook or Google login to register users on your site.
 
-#### Want to manage multiple encoders? <a href="http://git-encoder-network.avideo.tube/" class="" target="_blank">AVideo Encoder Network</a> (Optional)
+<p align="center">
+	<a href="https://github.com/WWBN/AVideo-Encoder/actions/workflows/validate.yml"><img alt="Validate/Lint" src="https://github.com/WWBN/AVideo-Encoder/actions/workflows/validate.yml/badge.svg?branch=master"></a>
+	<a href="https://github.com/WWBN/AVideo-Encoder/actions/workflows/tests.yml"><img alt="PHPUnit Tests" src="https://github.com/WWBN/AVideo-Encoder/actions/workflows/tests.yml/badge.svg?branch=master"></a>
+	<a href="https://github.com/WWBN/AVideo-Encoder/actions/workflows/codeql.yaml"><img alt="CodeQL" src="https://github.com/WWBN/AVideo-Encoder/actions/workflows/codeql.yaml/badge.svg?branch=master"></a>
+	<a href="https://github.com/WWBN/AVideo-Encoder/actions/workflows/docker-image.yml"><img alt="Docker Image CI" src="https://github.com/WWBN/AVideo-Encoder/actions/workflows/docker-image.yml/badge.svg?branch=master"></a>
+</p>
 
-### If you are not sure what is AVideo Platform, go to our <a href="https://demo.avideo.com/" target="_blank">demo</a> page or visit our <a href="https://avideo.tube/" target="_blank">AVideo Platform Official Site</a>
+This repository contains the dedicated encoder service for <a href="https://avideo.com/" target="_blank">AVideo</a>. It is responsible for ingesting media, managing encoding jobs, generating derivatives, and sending processed media back to an AVideo streamer instance.
 
+AVideo is an open source video platform that lets you run your own video site, import content from supported providers, and manage transcoding on your own infrastructure.
 
-* <a href="https://flix.avideo.com/" target="_blank">AVideo Platform Flix Style Demo</a>
-  - We provide you a Flix site sample. On this site you can subscribe (with real money on PayPal). this subscription will allow you to watch our private videos. There is an user that you can use to see how it works. user: test and pass: test.
-* <a href="https://tutorials.avideo.com/" target="_blank">AVideo Platform Tutorials Gallery</a>
-  - We've provided a sample Video Gallery site, which is also our tutorials site. On this sample you can login, subscribe, like, dislike and comment. but you can not upload videos.
-* <a href="http://demo.avideo.com/" target="_blank">AVideo Platform Full-Access Demo</a>
-  - We provide you a Demo site sample with full access to the admin account. You will need an admin password to upload and manage videos, it is by default. user: admin and pass: 123. Also there is a non admin user and password (Only for comments). user: test and pass: test.
+## Highlights
+
+- Dedicated encoding queue for the AVideo platform
+- FFmpeg-based video and audio processing
+- Import support for remote media sources and video platforms
+- Dockerized deployment option
+- GitHub Actions workflows for linting, tests, security analysis, and Docker image publishing
+
+## Related Links
+
+- Official site: <a href="https://avideo.tube/" target="_blank">avideo.tube</a>
+- Main platform repository: <a href="https://github.com/WWBN/AVideo" target="_blank">WWBN/AVideo</a>
+- Public encoder: <a href="https://encoder.avideo.com/" target="_blank">encoder.avideo.com</a>
+- Encoder network: <a href="http://git-encoder-network.avideo.tube/" target="_blank">AVideo Encoder Network</a>
+- Installation tutorial: <a href="https://tutorials.avideo.com/video/streamer-and-encoder" target="_blank">Streamer and Encoder tutorial</a>
+
+## Demo Instances
+
+- <a href="https://flix.avideo.com/" target="_blank">Flix Style Demo</a>
+- <a href="https://tutorials.avideo.com/" target="_blank">Tutorials Gallery</a>
+- <a href="http://demo.avideo.com/" target="_blank">Full-Access Demo</a>
 
 # First thing...
 I would humbly like to thank God for giving me the necessary knowledge, motivation, resources and idea to be able to execute this project. Without God's permission this would never be possible.
@@ -27,14 +46,14 @@ I would humbly like to thank God for giving me the necessary knowledge, motivati
 
 ## Important Information
 
-> Streamer can be installed on any Server, including Windows, but the encoder and Livestream should work fine on any Linux distribution. However we recommend Ubuntu 16 or 17 without any kind of control panel.
-> The problem with cPanel, Plesk, Webmin, VestaCP, etc. It's because we need full root access to install some libs, and maybe compile them. Another important point is that to make Livestream work, we need to compile Nginx and the control panels often prevent us from running the commands forcing the installation available only on your panel.
+> The streamer can run on multiple environments, including Windows, but the encoder is designed around Linux tooling and shell access. A Linux server with administrative access is strongly recommended.
+> Hosting panels such as cPanel, Plesk, Webmin, and similar environments can block required system-level dependencies or command execution. For production deployments, prefer a VPS or dedicated server where you control the operating system packages and services.
 
-I don´t want to read I just want you to show me how to install!!
+I do not want to read, I just want installation instructions.
 
-Ok, check this out! https://tutorials.avideo.com/video/streamer-and-encoder
+Start here: https://tutorials.avideo.com/video/streamer-and-encoder
 
-### Are you having a hard time to configure or install AVideo or any of its resources? fell free to ask us for help:
+### Need help installing or configuring AVideo?
 
 https://streamphp.com/services
 
@@ -46,18 +65,21 @@ https://streamphp.com/services
 </div>
 
 # Why do I need the Encoder?
-You may want to install the encoder for a few reasons:
-If you have a faster server than the public encoder server (which is likely to happen) or If you'd like a private way of encoding your videos
+You should install the encoder when:
 
-But the mandatory installation if you are using a private network. The public encoder will not have access to send the videos to your streamer site
+- You want private or dedicated transcoding capacity
+- Your infrastructure is faster than the public encoder service
+- Your streamer is on a private network or behind a firewall
+- Your server does not expose a public IP address
 
-If your server does not have a public IP or uses an IP on some of these bands:
+The public encoder cannot reliably push media back to streamer instances that are only reachable through private address space such as:
+
 - 10.0.0.0/8
 - 127.0.0.0/8 (Localhost)
 - 172.16.0.0/12
 - 192.168.0.0/16
 
-Surely you need to install an encoder
+In these cases, a private encoder installation is required.
 
 # AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
@@ -69,21 +91,27 @@ Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
 
 # Server Requirements
 
-In order for you to be able to run AVideo, there are certain tools that need to be installed on your server. Don't worry, they are all FREE. To have a look at complete list of required tools, click the link below.
+The repository depends on operating system tools in addition to PHP application code. Based on the current codebase and Docker image, the practical requirements are:
 
-- Linux (Kernel 2.6.32+)
-- PHP 8+
-- MySQL 5.0+
-- Apache web server 2.x (with mod_rewrite enabled)
-- FFMPEG
-- PHP Shell Exec Access, *Note: This function is disabled when PHP is running in safe mode.*
+- Linux server with shell access
+- Apache 2.x with `mod_rewrite` enabled
+- PHP 8.1+ for current CI coverage
+- MySQL or MariaDB
+- FFmpeg and FFprobe
+- Python 3
+- `yt-dlp`
+- `exiftool`
+- PHP command execution functions such as `exec` and `shell_exec`
+
+> Note: the current Dockerfile still uses a legacy `php:7-apache` base image even though the repository CI validates PHP 8.1 to 8.3. If you rely on Docker for production, treat the image definition as a compatibility item that should be reviewed separately.
 
 # What is new on this version?
-Since version 4.x+ we separate the streamer website from the encoder website, so that we can distribute the application on different servers.
-- The Streamer site, is the main front end and has as main function to attend the visitors of the site, through a layout based on the youtube experience, you can host the streamer site in any common internet host can host it (Windows or Linux).
-- The Encoder site, will be better than the original encoder, the new encoder will be in charge of managing a media encoding queue. You can download the encoder here: https://github.com/WWBN/AVideo-Encoder. but to install it you will need ssh access to your server, usually only VPS servers give you that kind of access, that code uses commands that use the Linux shell and consume more CPU.
-- I will have to install the encoder and the streamer?
-No. We will be providing a public encoder, we will build the encoder in such a way that several streamers can use the same encoder. We are also providing source code for this, so you can install it internally and manage your own encoding priority.
+Since version 4.x, the streamer and encoder are separated so they can be deployed independently.
+
+- The streamer site is the main user-facing application.
+- The encoder site is responsible for queueing and processing media conversions.
+- You can use the public encoder service or operate your own private encoder infrastructure.
+- A private encoder is the recommended choice when you need predictable throughput, network isolation, or infrastructure-level control.
 
 <div align="center">
 <img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png">
@@ -95,14 +123,9 @@ If you want the old version with Streamer and Encoder together (Version 3.4.1) d
 
 # Docker
 
-We've created a Docker environment for the AVideo platform together with the
-AVideo Encoder. You can either run docker build on this git repository or you
-can pull the latest image from Docker hub. It will be updated on any commit
-here. Also there are tags for official releases.
+This repository includes a Docker environment for the AVideo Encoder. You can build the image directly from this repository or pull a published image when available.
 
-The docker image can be configured automatically via some environment
-variables. The following options are available and should respect the normal
-install GUI.
+The container can be configured through environment variables that mirror the installer options:
 
 - `SERVER_NAME` defines the name of the server used for internal configuration - default is `localhost`
 - `SERVER_URL` defines the external URL of the encoder - default is `https://localhost/`
