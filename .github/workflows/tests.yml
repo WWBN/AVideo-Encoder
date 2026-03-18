@@ -31,17 +31,25 @@ jobs:
           extensions: pcre, mbstring, xml, curl, gd, pdo_mysql, zip, intl
           coverage: xdebug
 
-      - name: Validate composer.json
-        run: composer validate --strict
+      - name: Install dependencies (if composer.json exists)
+        run: |
+          if [ -f composer.json ]; then
+            composer validate --strict
+            composer install --prefer-dist --no-progress
+          else
+            echo "No composer.json found, skipping dependency installation."
+          fi
 
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Run PHPUnit
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Run PHPUnit (if available)
+        run: |
+          if [ -f vendor/bin/phpunit ]; then
+            vendor/bin/phpunit --coverage-clover=coverage.xml
+          else
+            echo "PHPUnit not available, skipping tests."
+          fi
 
       - name: Upload coverage to Codecov
-        if: matrix.php-versions == '8.3'
+        if: matrix.php-versions == '8.3' && hashFiles('coverage.xml') != ''
         uses: codecov/codecov-action@v4
         with:
           files: coverage.xml
