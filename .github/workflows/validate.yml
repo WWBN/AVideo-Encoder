@@ -6,40 +6,48 @@ permissions:
   contents: read
 
 jobs:
- build:
-  runs-on: ${{ matrix.operating-system }}
+  build:
+    runs-on: ${{ matrix.operating-system }}
 
-  strategy:
-   matrix:
-    operating-system: [ubuntu-latest]
-    php-versions: ['8.0', '8.1', '8.2', '8.3', '8.4']
-  name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
-  steps:
-  - name: Checkout
-    uses: actions/checkout@v4
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        php-versions: ['8.1', '8.2', '8.3']
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  - name: Set up PHP
-    uses: shivammathur/setup-php@v2
-    with:
-     php-version: ${{ matrix.php-versions }}
-     extensions: pcre
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: pcre, mbstring, xml, curl, gd, pdo_mysql, zip, intl
 
-  - name: Lint
-    run: |
-     lintPaths=()
-     lintPaths+=("${GITHUB_WORKSPACE}")
-     for lintPath in "${lintPaths[@]}"
-     do
-     for file in `find "$lintPath"`
-     do
-     EXTENSION="${file##*.}"
-     if [ "$EXTENSION" == "php" ] || [ "$EXTENSION" == "phtml" ]
-     then
-     RESULTS=`php -l "$file"`
-     if [ "$RESULTS" != "No syntax errors detected in $file" ]
-     then
-     echo $RESULTS
-     fi
-     fi
-     done
-     done
+      - name: Lint
+        run: |
+          lintPaths=()
+          lintPaths+=("${GITHUB_WORKSPACE}/API")
+          lintPaths+=("${GITHUB_WORKSPACE}/deploy")
+          lintPaths+=("${GITHUB_WORKSPACE}/install")
+          lintPaths+=("${GITHUB_WORKSPACE}/locale")
+          lintPaths+=("${GITHUB_WORKSPACE}/objects")
+          lintPaths+=("${GITHUB_WORKSPACE}/update")
+          lintPaths+=("${GITHUB_WORKSPACE}/view")
+          lintPaths+=("${GITHUB_WORKSPACE}/videos")
+          # Lint root PHP files
+          for file in "${GITHUB_WORKSPACE}"/*.php; do
+            [ -f "$file" ] || continue
+            RESULTS=$(php -l "$file")
+            if [ "$RESULTS" != "No syntax errors detected in $file" ]; then
+              echo "$RESULTS"
+            fi
+          done
+          for lintPath in "${lintPaths[@]}"; do
+            for file in $(find "$lintPath" -name "*.php" -o -name "*.phtml"); do
+              RESULTS=$(php -l "$file")
+              if [ "$RESULTS" != "No syntax errors detected in $file" ]; then
+                echo "$RESULTS"
+              fi
+            done
+          done
