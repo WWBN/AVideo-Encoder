@@ -1,4 +1,6 @@
-<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
+<p align="center">
+	<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png" alt="AVideo Encoder" />
+</p>
 
 # AVideo - Encoder
 
@@ -59,10 +61,9 @@ https://streamphp.com/services
 
 
 
-<div align="center">
-<img src="https://camo.githubusercontent.com/154b7098b81a7a8d43d0fdd4414dbec2079d0bad/68747470733a2f2f706c6174666f726d2e61766964656f2e636f6d2f776562736974652f6173736574732f3135312f696d616765732f656e636f6465725f696d672e706e67">
-<a href="https://encoder.avideo.com/" target="_blank">View Public Encoder</a>
-</div>
+<p align="center">
+	<a href="https://encoder.avideo.com/" target="_blank">View Public Encoder</a>
+</p>
 
 # Why do I need the Encoder?
 You should install the encoder when:
@@ -83,11 +84,12 @@ In these cases, a private encoder installation is required.
 
 # AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
-<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png"/>
-<div align="center">
 
-<a href="https://demo.avideo.com/" target="_blank">View Demo</a>
-</div>
+<p align="center">
+	<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png" alt="AVideo Platform" />
+	<br />
+	<a href="https://demo.avideo.com/" target="_blank">View Demo</a>
+</p>
 
 # Server Requirements
 
@@ -113,10 +115,11 @@ Since version 4.x, the streamer and encoder are separated so they can be deploye
 - You can use the public encoder service or operate your own private encoder infrastructure.
 - A private encoder is the recommended choice when you need predictable throughput, network isolation, or infrastructure-level control.
 
-<div align="center">
-<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png">
-<a href="https://github.com/WWBN/AVideo-Encoder" target="_blank">Download Encoder</a>
-</div>
+<p align="center">
+	<img src="https://avideo.tube/website/assets/151/images/avideo_encoder1.png" alt="Download AVideo Encoder" />
+	<br />
+	<a href="https://github.com/WWBN/AVideo-Encoder" target="_blank">Download Encoder</a>
+</p>
 
 # Older version
 If you want the old version with Streamer and Encoder together (Version 3.4.1) download it <a href="https://github.com/WWBN/AVideo/releases/tag/3.4.1">here</a>
