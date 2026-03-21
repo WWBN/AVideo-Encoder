@@ -9,27 +9,10 @@ if (empty($_GET['totalClips'])) {
 }
 
 $url = base64_decode($_GET['base64Url']);
-
-// Security: validate URL
-if (!filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
-    error_log("getSpiritsFromVideo: Invalid URL rejected: {$url}");
+$url = getExternalHttpUrlForShell($url, 'getSpiritsFromVideo');
+if ($url === false) {
     die();
 }
-// SSRF protection: block requests to private/internal network addresses
-$_ssrfParsed = parse_url($url);
-$_ssrfHost = isset($_ssrfParsed['host']) ? $_ssrfParsed['host'] : '';
-if (empty($_ssrfHost) || preg_match('/^(localhost|.*\.local)$/i', $_ssrfHost)) {
-    error_log("getSpiritsFromVideo: SSRF attempt blocked for host: {$_ssrfHost}");
-    die();
-}
-$_ssrfIP = filter_var($_ssrfHost, FILTER_VALIDATE_IP) ? $_ssrfHost : gethostbyname($_ssrfHost);
-if (ip_is_private($_ssrfIP)) {
-    error_log("getSpiritsFromVideo: SSRF attempt blocked - host '{$_ssrfHost}' resolves to private IP '{$_ssrfIP}'");
-    die();
-}
-unset($_ssrfParsed, $_ssrfHost, $_ssrfIP);
-// Remove shell metacharacters from URL
-$url = str_replace(array('"', "'", '`', '$', '\\', ';', '|', '&', '(', ')', '{', '}', '<', '>', "\n", "\r", "\0"), '', $url);
 
 $parts = explode("?token", $url);
 $baseName = md5($parts[0]);

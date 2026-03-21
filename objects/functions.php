@@ -674,6 +674,10 @@ function getUpdatesFiles()
 
 function ip_is_private($ip)
 {
+    if (strpos((string) $ip, ':') !== false) {
+        return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    }
+
     $pri_addrs = array(
         '10.0.0.0|10.255.255.255', // single class A network
         '172.16.0.0|172.31.255.255', // 16 contiguous class B network
@@ -696,6 +700,55 @@ function ip_is_private($ip)
     }
 
     return false;
+}
+
+function getExternalHttpUrlForShell($url, $context = 'remote URL')
+{
+    $url = trim((string) $url);
+    if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
+        error_log("{$context}: invalid URL rejected");
+        return false;
+    }
+
+    $parts = parse_url($url);
+    $host = isset($parts['host']) ? strtolower($parts['host']) : '';
+    if (empty($host) || preg_match('/^(localhost|.*\.local)$/i', $host)) {
+        error_log("{$context}: local hostname rejected ({$host})");
+        return false;
+    }
+
+    $ips = array();
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        $ips[] = $host;
+    } else {
+        $ipv4 = @gethostbynamel($host);
+        if (is_array($ipv4)) {
+            $ips = array_merge($ips, $ipv4);
+        }
+        $ipv6 = @dns_get_record($host, DNS_AAAA);
+        if (is_array($ipv6)) {
+            foreach ($ipv6 as $record) {
+                if (!empty($record['ipv6'])) {
+                    $ips[] = $record['ipv6'];
+                }
+            }
+        }
+    }
+
+    $ips = array_values(array_unique(array_filter($ips)));
+    if (empty($ips)) {
+        error_log("{$context}: hostname resolution failed ({$host})");
+        return false;
+    }
+
+    foreach ($ips as $ip) {
+        if (ip_is_private($ip)) {
+            error_log("{$context}: private or reserved IP rejected ({$host} => {$ip})");
+            return false;
+        }
+    }
+
+    return $url;
 }
 
 /**
