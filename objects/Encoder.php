@@ -2248,6 +2248,7 @@ class Encoder extends ObjectYPT
             if (empty($return_vars)) {
                 $return_vars = json_decode($encoder->getReturn_vars());
             }
+            _error_log("sendToStreamer: encoder return_vars=" . $encoder->getReturn_vars());
             $streamers_id = $encoder->getStreamers_id();
             $s = new Streamer($streamers_id);
             $aVideoURL = $s->getSiteURL();
@@ -2257,6 +2258,7 @@ class Encoder extends ObjectYPT
             $postFields['streamers_id'] = $streamers_id;
             $postFields['user'] = $user;
             $postFields['pass'] = $pass;
+            _error_log("sendToStreamer: target=$target streamers_id=$streamers_id user=$user aVideoURL=$aVideoURL pass_is_empty=" . (empty($pass) ? 'true' : 'false'));
         }
 
         if (is_object($return_vars)) {
@@ -2272,6 +2274,7 @@ class Encoder extends ObjectYPT
             if (!empty($return_vars->video_id_hash)) {
                 $postFields['video_id_hash'] = $return_vars->video_id_hash;
             }
+            _error_log("sendToStreamer: return_vars videos_id=" . (@$return_vars->videos_id) . " video_id_hash=" . (@$return_vars->video_id_hash));
         } else {
             _error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
