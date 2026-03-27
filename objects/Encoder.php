@@ -1314,7 +1314,7 @@ class Encoder extends ObjectYPT
 
         // Create the lock file with the current time
         file_put_contents($lockFile, time());
-        _error_log("Encoder::run: Lock file created $lockFile");
+        //_error_log("Encoder::run: Lock file created $lockFile");
 
         if ($try > $maxTries) {
             _error_log("Encoder::run: Lock file deleted maxTries $lockFile");
@@ -1505,7 +1505,7 @@ class Encoder extends ObjectYPT
             $msg .= (count($rows) == 1) ? " is encoding" : " are encoding";
             $obj->msg = $msg;
         }
-        _error_log("Encoder::run: Lock file deleted $lockFile");
+        //_error_log("Encoder::run: Lock file deleted $lockFile");
         // Remove the lock file before returning
         unlink($lockFile);
         return $obj;

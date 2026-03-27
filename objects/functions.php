@@ -386,16 +386,72 @@ function base64DataToImage($imgBase64)
     return base64_decode($img);
 }
 
+function getRemoteAddrFromServerArray($server)
+{
+    if (empty($server['REMOTE_ADDR'])) {
+        return '';
+    }
+
+    $remoteAddr = trim($server['REMOTE_ADDR']);
+    if (!filter_var($remoteAddr, FILTER_VALIDATE_IP)) {
+        return '';
+    }
+
+    return $remoteAddr;
+}
+
+function isPrivateOrLoopbackIP($ip)
+{
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        return false;
+    }
+
+    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+}
+
+function getForwardedClientIpFromServerArray($server)
+{
+    $ipv6 = '';
+    $headers = [
+        'HTTP_X_REAL_IP',
+        'HTTP_X_FORWARDED_FOR',
+    ];
+
+    foreach ($headers as $header) {
+        if (empty($server[$header])) {
+            continue;
+        }
+
+        $ips = explode(',', $server[$header]);
+        foreach ($ips as $ipCandidate) {
+            $ipCandidate = trim($ipCandidate);
+            if (filter_var($ipCandidate, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                return $ipCandidate;
+            }
+            if (empty($ipv6) && filter_var($ipCandidate, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+                $ipv6 = $ipCandidate;
+            }
+        }
+    }
+
+    return $ipv6;
+}
+
 function getRealIpAddr()
 {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {   //check ip from share internet
-        $ip = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {   //to check ip is pass from proxy
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
-        $ip = $_SERVER['REMOTE_ADDR'];
+    $remoteAddr = getRemoteAddrFromServerArray($_SERVER);
+    if (empty($remoteAddr)) {
+        return '127.0.0.1';
     }
-    return $ip;
+
+    if (isPrivateOrLoopbackIP($remoteAddr)) {
+        $forwardedIp = getForwardedClientIpFromServerArray($_SERVER);
+        if (!empty($forwardedIp)) {
+            return $forwardedIp;
+        }
+    }
+
+    return $remoteAddr;
 }
 
 function cleanString($text)
