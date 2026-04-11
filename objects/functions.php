@@ -1504,7 +1504,11 @@ function checkZipArchiveAndVersion()
             if (empty($phpModulesOutput)) {
                 error_log("Error: Unable to execute 'php -m'. Check if PHP CLI is configured correctly.");
             } else {
-                error_log("The ZipArchive class is not available in the PHP CLI environment. Please install the PHP Zip extension.");
+                $phpVersion = phpversion();
+                preg_match('/^(\d+\.\d+)/', $phpVersion, $m);
+                $phpMajorMinorVersion = $m[1] ?? '';
+                $aptPkg = $phpMajorMinorVersion ? 'php' . $phpMajorMinorVersion . '-zip' : 'php-zip';
+                error_log("The ZipArchive class is not available in the PHP CLI environment. On Ubuntu, install it with: sudo apt install {$aptPkg} && sudo systemctl restart apache2");
             }
         }
     }

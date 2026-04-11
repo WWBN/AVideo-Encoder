@@ -33,6 +33,16 @@ if (empty($global['tablesPrefix'])) {
 header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 require_once $global['systemRootPath'] . 'objects/security.php';
 
+if (!class_exists('mysqli')) {
+    $phpVersion = phpversion();
+    preg_match('/^(\d+\.\d+)/', $phpVersion, $m);
+    $phpMajorMinorVersion = $m[1] ?? '';
+    $aptPkg = $phpMajorMinorVersion ? 'php' . $phpMajorMinorVersion . '-mysql' : 'php-mysql';
+    $msg = "Class 'mysqli' not found. On Ubuntu, install it with: sudo apt install {$aptPkg} && sudo systemctl restart apache2";
+    error_log($msg);
+    die($msg);
+}
+
 $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase);
 
 $now = new DateTime();
