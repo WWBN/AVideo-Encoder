@@ -1508,7 +1508,7 @@ function checkZipArchiveAndVersion()
                 preg_match('/^(\d+\.\d+)/', $phpVersion, $m);
                 $phpMajorMinorVersion = $m[1] ?? '';
                 $aptPkg = $phpMajorMinorVersion ? 'php' . $phpMajorMinorVersion . '-zip' : 'php-zip';
-                error_log("The ZipArchive class is not available in the PHP CLI environment. On Ubuntu, install it with: sudo apt install {$aptPkg} && sudo systemctl restart apache2");
+                error_log("The ZipArchive class is not available in the PHP CLI environment. On Ubuntu, install and enable it with: sudo apt install {$aptPkg} && sudo phpenmod zip");
             }
         }
     }
