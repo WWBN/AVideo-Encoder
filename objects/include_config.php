@@ -38,7 +38,8 @@ if (!class_exists('mysqli')) {
     preg_match('/^(\d+\.\d+)/', $phpVersion, $m);
     $phpMajorMinorVersion = $m[1] ?? '';
     $aptPkg = $phpMajorMinorVersion ? 'php' . $phpMajorMinorVersion . '-mysql' : 'php-mysql';
-    $msg = "Class 'mysqli' not found. On Ubuntu, install it with: sudo apt install {$aptPkg} && sudo systemctl restart apache2";
+    $sep = str_repeat('=', 70);
+    $msg = "\n{$sep}\nERROR: PHP extension 'mysqli' is NOT installed or NOT enabled.\nThis extension is REQUIRED for AVideo to work.\nOn Ubuntu, fix it by running:\n  sudo apt install {$aptPkg} && sudo systemctl restart apache2\n{$sep}\n";
     error_log($msg);
     die($msg);
 }

@@ -1508,7 +1508,8 @@ function checkZipArchiveAndVersion()
                 preg_match('/^(\d+\.\d+)/', $phpVersion, $m);
                 $phpMajorMinorVersion = $m[1] ?? '';
                 $aptPkg = $phpMajorMinorVersion ? 'php' . $phpMajorMinorVersion . '-zip' : 'php-zip';
-                error_log("The ZipArchive class is not available in the PHP CLI environment. On Ubuntu, install and enable it with: sudo apt install {$aptPkg} && sudo phpenmod zip");
+                $sep = str_repeat('=', 70);
+                error_log("\n{$sep}\nERROR: PHP extension 'zip' (ZipArchive) is NOT installed or NOT enabled.\nThis extension is REQUIRED for AVideo to work.\nOn Ubuntu, fix it by running:\n  sudo apt install {$aptPkg} && sudo phpenmod zip\n{$sep}\n");
             }
         }
     }
