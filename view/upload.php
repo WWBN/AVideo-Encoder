@@ -109,14 +109,17 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
         //var_dump($obj->videos_id, $_POST);exit;
         $obj->releaseDate = @$_REQUEST['releaseDate'];
 
-        // This raises an harmless error
-        error_log("Upload.php line: " . __LINE__ . ' ' . json_encode($format));
-        $response = Encoder::sendFile('', $obj, $format, $e);
+        $e->setReturn_vars(json_encode($obj));
+        error_log("Upload.php metadata-only bootstrap line: " . __LINE__ . ' ' . json_encode(['format' => $format, 'videos_id' => $obj->videos_id, 'releaseDate' => $obj->releaseDate]));
+        $response = $e->getNewVideosId($obj);
         if (!empty($response->response->video_id)) {
             $obj->videos_id = $response->response->video_id;
         }
         if (!empty($response->response->video_id_hash)) {
             $obj->video_id_hash = $response->response->video_id_hash;
+        }
+        if (empty($obj->videos_id)) {
+            error_log("Upload.php metadata-only bootstrap did not return videos_id response=" . json_encode($response));
         }
         $e->setReturn_vars(json_encode($obj));
 

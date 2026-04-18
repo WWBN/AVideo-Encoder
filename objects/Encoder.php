@@ -1256,21 +1256,148 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public function getNewVideosId()
+    private static function buildMetadataOnlyPostFields($format, Encoder $encoder, $resolution = '')
     {
         global $global;
+
+        $videoDownloadedLink = $encoder->getVideoDownloadedLink();
+        $title = '';
+        if (empty($_POST['title'])) {
+            $title = $encoder->getTitle();
+        } elseif (!empty($_REQUEST['title'])) {
+            $title = $_REQUEST['title'];
+        } elseif (!empty($videoDownloadedLink)) {
+            $_title = Encoder::getTitleFromLink($videoDownloadedLink, $encoder->getStreamers_id());
+            $title = $_title['error'] ? '' : $_title['output'];
+        }
+
+        if (empty($_POST['description'])) {
+            if (!empty($videoDownloadedLink)) {
+                $description = $encoder->getDescriptionFromLink($videoDownloadedLink, $encoder->getStreamers_id());
+            } else {
+                $description = "";
+            }
+        } else {
+            $description = $_POST['description'];
+        }
+
+        if (empty($_POST['categories_id'])) {
+            $categories_id = 0;
+        } else {
+            $categories_id = $_POST['categories_id'];
+        }
+
+        $keep_encoding = !empty($global['progressiveUpload']);
+        $postFields = array(
+            'duration' => empty($_REQUEST['duration']) ? '' : $_REQUEST['duration'],
+            'title' => $title,
+            'first_request' => 1,
+            'categories_id' => $categories_id,
+            'format' => $format,
+            'resolution' => $resolution,
+            'videoDownloadedLink' => $videoDownloadedLink,
+            'description' => $description,
+            'downloadURL' => '',
+            'chunkFile' => '',
+            'encoderURL' => $global['webSiteRootURL'],
+            'keepEncoding' => $keep_encoding ? "1" : "0",
+        );
+
+        if (!empty($encoder->override_status)) {
+            $postFields['overrideStatus'] = $encoder->override_status;
+        }
+
+        if (!empty($_POST['usergroups_id'])) {
+            $usergroups_id = $_POST['usergroups_id'];
+            if (!is_array($usergroups_id)) {
+                $usergroups_id = [$usergroups_id];
+            }
+            $count = 0;
+            foreach ($usergroups_id as $value) {
+                $postFields["usergroups_id[{$count}]"] = $value;
+                $count++;
+            }
+        }
+
+        return $postFields;
+    }
+
+    private static function getMetadataOnlyBootstrapContext(Encoder $encoder, $format, $return_vars = null, $resolution = '')
+    {
+        $context = [
+            'encoder_id' => intval($encoder->getId()),
+            'streamers_id' => intval($encoder->getStreamers_id()),
+            'format' => $format,
+            'resolution' => $resolution,
+            'title' => $encoder->getTitle(),
+            'fileURI' => $encoder->getFileURI(),
+            'downloadedFileName' => $encoder->getDownloadedFileName(),
+        ];
+
+        if (is_object($return_vars)) {
+            $context['videos_id'] = empty($return_vars->videos_id) ? 0 : intval($return_vars->videos_id);
+            $context['video_id_hash'] = empty($return_vars->video_id_hash) ? '' : $return_vars->video_id_hash;
+            $context['releaseDate'] = empty($return_vars->releaseDate) ? '' : $return_vars->releaseDate;
+        }
+
+        return $context;
+    }
+
+    private static function mergeVideoIdentifiersFromResponse($return_vars, $response, Encoder $encoder = null)
+    {
+        if (!is_object($return_vars)) {
+            $return_vars = new stdClass();
+        }
+        if (!isset($return_vars->videos_id)) {
+            $return_vars->videos_id = 0;
+        }
+        if (!isset($return_vars->video_id_hash)) {
+            $return_vars->video_id_hash = '';
+        }
+
+        if (is_object($response) && !empty($response->response) && is_object($response->response)) {
+            if (!empty($response->response->video_id)) {
+                $return_vars->videos_id = $response->response->video_id;
+            }
+            if (!empty($response->response->video_id_hash)) {
+                $return_vars->video_id_hash = $response->response->video_id_hash;
+            }
+        }
+
+        if (!empty($encoder)) {
+            $savedReturnVars = json_decode($encoder->getReturn_vars());
+            if (is_object($savedReturnVars)) {
+                if (empty($return_vars->videos_id) && !empty($savedReturnVars->videos_id)) {
+                    $return_vars->videos_id = $savedReturnVars->videos_id;
+                }
+                if (empty($return_vars->video_id_hash) && !empty($savedReturnVars->video_id_hash)) {
+                    $return_vars->video_id_hash = $savedReturnVars->video_id_hash;
+                }
+                if (empty($return_vars->releaseDate) && !empty($savedReturnVars->releaseDate)) {
+                    $return_vars->releaseDate = $savedReturnVars->releaseDate;
+                }
+            }
+        }
+
+        return $return_vars;
+    }
+
+    public function getNewVideosId($return_vars = null, $resolution = '')
+    {
         $target = 'aVideoEncoder.json';
 
         $f = new Format($this->getFormats_id());
         $format = $f->getExtension();
-        $postFields = array(
-            'format' => $format,
-            'title' => $this->getTitle(),
-            'videoDownloadedLink' => $this->getVideoDownloadedLink(),
-            'encoderURL' => $global['webSiteRootURL'],
-        );
+        if (!is_object($return_vars)) {
+            $savedReturnVars = json_decode($this->getReturn_vars());
+            if (is_object($savedReturnVars)) {
+                $return_vars = $savedReturnVars;
+            }
+        }
+        $postFields = self::buildMetadataOnlyPostFields($format, $this, $resolution);
+        _error_log("Encoder::getNewVideosId metadata-only bootstrap " . json_encode(self::getMetadataOnlyBootstrapContext($this, $format, $return_vars, $resolution)));
         self::setStreamerLog($this->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
-        return self::sendToStreamer($target, $postFields, false, $this);
+        return self::sendToStreamer($target, $postFields, $return_vars, $this);
     }
 
     static function canDownloadNow()
@@ -1342,9 +1469,10 @@ class Encoder extends ObjectYPT
                 $encoder = new Encoder($rowNext['id']);
                 $return_vars = json_decode($encoder->getReturn_vars());
                 if (empty($return_vars->videos_id)) {
-                    $encoder->getNewVideosId();
-                    $encoder = new Encoder($encoder->getId());
-                    $return_vars = json_decode($encoder->getReturn_vars());
+                    _error_log("Encoder::run: videos_id empty for encoder_id={$encoder->getId()}, calling getVideosId to bootstrap from streamer");
+                    $return_vars = Encoder::getVideosId($encoder->getId());
+                    _error_log("Encoder::run: getVideosId returned videos_id=" . intval($return_vars->videos_id));
+                    $encoder = new Encoder($encoder->getId()); // re-read after getVideosId persists return_vars to DB
                 }
                 $encoder->setStatus_obs("Started at " . date("Y-m-d H:i:s"));
                 $encoder->save();
@@ -1781,6 +1909,9 @@ class Encoder extends ObjectYPT
         }
 
         _error_log("Encoder::sendFile videos_id={$videos_id}, format=$format");
+        if (empty($file) && empty($chunkFile)) {
+            _error_log("Encoder::sendFile has no direct media source; this call should only be used for legacy metadata-only flows format={$format} videos_id={$videos_id} encoder_id=" . (!empty($encoder) ? intval($encoder->getId()) : 0));
+        }
 
         $duration = static::getDurationFromFile($file);
         if ($duration == "EE:EE:EE" && $file != "") {
@@ -1871,7 +2002,7 @@ class Encoder extends ObjectYPT
         }
         $obj->postFields = $postFields;
 
-        if (!empty($file)) {
+        if (!empty($file) && file_exists($file)) {
             $postFields['video'] = new CURLFile($file);
             if ($format == "mp4" && !in_array($videos_id, $sentImage)) {
                 // do not send image twice
@@ -1879,11 +2010,13 @@ class Encoder extends ObjectYPT
                 //$postFields['image'] = new CURLFile(static::getImage($file, intval(static::parseDurationToSeconds($duration) / 2)));
                 //$postFields['gifimage'] = new CURLFile(static::getGifImage($file, intval(static::parseDurationToSeconds($duration) / 2), 3));
             }
+        } elseif (!empty($file)) {
+            _error_log("Encoder::sendFile source file was provided but does not exist [{$file}]");
         }
         //_error_log("AVideo-Streamer sendFile sendToStreamer: " . json_encode($postFields));
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
-        $obj->videoFileSize = humanFileSize(filesize($file));
+        $obj->videoFileSize = humanFileSize((!empty($file) && file_exists($file)) ? filesize($file) : 0);
         _error_log("AVideo-Streamer sendFile sendToStreamer done: " . json_encode($obj) );
         $obj->file = $file;
 
@@ -2286,15 +2419,34 @@ class Encoder extends ObjectYPT
         $obj->error = true;
         $obj->target = $target;
         $obj->postFields = $postFields;
+        if (!isset($postFields['video']) && empty($postFields['downloadURL']) && empty($postFields['chunkFile'])) {
+            _error_log("sendToStreamer: request is metadata-only and has no direct media source target={$target} encoder_id=" . (!empty($encoder) ? intval($encoder->getId()) : 0));
+        }
+
+        // Log outgoing request fields (binary values replaced) to diagnose empty-response issues.
+        $postFieldsLog = [];
+        foreach ($postFields as $_k => $_v) {
+            $postFieldsLog[] = $_k . '=' . (in_array($_k, ['video', 'image', 'gifimage']) ? '[BINARY]' : substr((string)$_v, 0, 200));
+        }
+        _error_log("sendToStreamer: url=$url fields=[" . implode(', ', $postFieldsLog) . "]");
+        unset($postFieldsLog, $_k, $_v);
 
         try {
             $curl = curl_init();
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($curl, CURLOPT_SAFE_UPLOAD, true);
+            // CURLOPT_FOLLOWLOCATION ensures curl follows redirects (e.g. http→https, www→non-www).
+            // Without this, a redirect returns an empty body and response_raw is "".
+            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($curl, CURLOPT_MAXREDIRS, 5);
             try {
                 if (!empty($postFields) && is_array($postFields)) {
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+                    // Do NOT set Content-Type manually here.
+                    // When CURLOPT_POSTFIELDS receives an array, curl automatically generates
+                    // the correct "multipart/form-data; boundary=..." header.
+                    // Overriding it manually (without the boundary) causes PHP on the streamer
+                    // to be unable to parse $_POST and $_FILES, resulting in empty response.
                     curl_setopt($curl, CURLOPT_POST, 1);
                     curl_setopt($curl, CURLOPT_POSTFIELDS, $postFields);
                 }
@@ -2312,6 +2464,10 @@ class Encoder extends ObjectYPT
                 return $obj;
             }
             $obj->response_raw = curl_exec($curl);
+            $obj->http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            if (empty($obj->response_raw)) {
+                _error_log("sendToStreamer: empty response_raw from $url (HTTP {$obj->http_code})");
+            }
         } catch (\Throwable $th) {
             $obj->msg = $th->getMessage().' URL='.$url;
             return $obj;
@@ -2337,6 +2493,7 @@ class Encoder extends ObjectYPT
                 }
             } else {
                 $obj->msg = 'Response was not an json object';
+                _error_log("sendToStreamer: non-JSON or empty response from {$url} raw_length=" . strlen((string) $obj->response_raw));
             }
         }
         curl_close($curl);
@@ -2351,7 +2508,6 @@ class Encoder extends ObjectYPT
         }
         foreach ($removeAfterSend as $value) {
             if (!isset($obj->postFields[$value])) {
-                _error_log("sendToStreamer $value not set");
                 continue;
             }
             if (!file_exists($obj->postFields[$value]->name)) {
@@ -3504,16 +3660,12 @@ class Encoder extends ObjectYPT
         }
         $obj->videos_id = 0;
         $obj->video_id_hash = '';
-        $f = new Format($e->getFormats_id());
-        $format = $f->getExtension();
-        $response = Encoder::sendFile('', 0, $format, $e);
-        error_log("queue: Encoder::sendFile done line=" . __LINE__) . ' ' . json_encode($response);
-        //var_dump($response);exit;
-        if (!empty($response->response->video_id)) {
-            $obj->videos_id = $response->response->video_id;
-        }
-        if (!empty($response->response->video_id_hash)) {
-            $obj->video_id_hash = $response->response->video_id_hash;
+        _error_log("Encoder::getVideosId queue_id={$encoder_queue_id} attempting metadata-only bootstrap because videos_id is empty");
+        $response = $e->getNewVideosId($obj);
+        error_log("queue: Encoder::getNewVideosId done line=" . __LINE__ . ' ' . json_encode($response));
+        $obj = self::mergeVideoIdentifiersFromResponse($obj, $response, $e);
+        if (empty($obj->videos_id)) {
+            _error_log("Encoder::getVideosId queue_id={$encoder_queue_id} metadata-only bootstrap did not return videos_id response=" . json_encode($response));
         }
 
         $e->setReturn_vars(json_encode($obj));
