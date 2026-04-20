@@ -2219,6 +2219,7 @@ class Encoder extends ObjectYPT
         }
 
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
+        _error_log("sendImages: preparing callback for encoder_id=" . intval($encoder->getId()) . " videos_id=" . intval(@$return_vars->videos_id) . " file={$file} duration={$duration} image=" . (!empty($postFields['image']) ? 'true' : 'false') . " gifimage=" . (!empty($postFields['gifimage']) ? 'true' : 'false') . " webpimage=" . (!empty($postFields['webpimage']) ? 'true' : 'false'));
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
         //var_dump($obj);exit;
@@ -2362,7 +2363,6 @@ class Encoder extends ObjectYPT
                 $advancedCustom = getAdvancedCustomizedObjectData();
                 if (!$advancedCustom->autoConvertToMp4) {
                     _error_log("sendToStreamer it is the spectrum (mp3 to hls) and autoConvertToMp4 is false, returning empty object");
-                    _error_log(json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
                     $obj = new stdClass();
                     $obj->error = false;
                     return  $obj;
@@ -2372,7 +2372,6 @@ class Encoder extends ObjectYPT
                 }
             }
             $f = new Format($encoder->getFormats_id());
-            _error_log("sendToStreamer Format selected for encoding: " . $f->getName() . " (ID: " . $encoder->getFormats_id() . ") FormatToSend=" . (isset($postFields['format']) ? $postFields['format'] : 'not set'));
         } else {
             _error_log("sendToStreamer to {$target} FormatToSend=" . (isset($postFields['format']) ? $postFields['format'] : 'not set'));
         }
@@ -2381,7 +2380,6 @@ class Encoder extends ObjectYPT
             if (empty($return_vars)) {
                 $return_vars = json_decode($encoder->getReturn_vars());
             }
-            _error_log("sendToStreamer: encoder return_vars=" . $encoder->getReturn_vars());
             $streamers_id = $encoder->getStreamers_id();
             $s = new Streamer($streamers_id);
             $aVideoURL = $s->getSiteURL();
@@ -2391,7 +2389,6 @@ class Encoder extends ObjectYPT
             $postFields['streamers_id'] = $streamers_id;
             $postFields['user'] = $user;
             $postFields['pass'] = $pass;
-            _error_log("sendToStreamer: target=$target streamers_id=$streamers_id user=$user aVideoURL=$aVideoURL pass_is_empty=" . (empty($pass) ? 'true' : 'false'));
         }
 
         if (is_object($return_vars)) {
@@ -2407,7 +2404,6 @@ class Encoder extends ObjectYPT
             if (!empty($return_vars->video_id_hash)) {
                 $postFields['video_id_hash'] = $return_vars->video_id_hash;
             }
-            _error_log("sendToStreamer: return_vars videos_id=" . (@$return_vars->videos_id) . " video_id_hash=" . (@$return_vars->video_id_hash));
         } else {
             _error_log('$return_vars is empty -[' . json_encode($return_vars) . ']- ' . json_encode(debug_backtrace()));
         }
@@ -2426,7 +2422,7 @@ class Encoder extends ObjectYPT
         // Log outgoing request fields (binary values replaced) to diagnose empty-response issues.
         $postFieldsLog = [];
         foreach ($postFields as $_k => $_v) {
-            $postFieldsLog[] = $_k . '=' . (in_array($_k, ['video', 'image', 'gifimage']) ? '[BINARY]' : substr((string)$_v, 0, 200));
+            $postFieldsLog[] = $_k . '=' . (($_v instanceof \CURLFile || in_array($_k, ['video', 'image', 'gifimage', 'webpimage', 'gifimage', 'spectrumimage'])) ? '[BINARY]' : substr((string)$_v, 0, 200));
         }
         _error_log("sendToStreamer: url=$url fields=[" . implode(', ', $postFieldsLog) . "]");
         unset($postFieldsLog, $_k, $_v);
@@ -2463,8 +2459,15 @@ class Encoder extends ObjectYPT
                 $obj->msg = "sendToStreamer cURL is empty ";
                 return $obj;
             }
+            _error_log("sendToStreamer: before curl_exec target={$target} url={$url} encoder_id=" . (!empty($encoder) ? intval($encoder->getId()) : 0));
             $obj->response_raw = curl_exec($curl);
             $obj->http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $obj->content_type = curl_getinfo($curl, CURLINFO_CONTENT_TYPE);
+            $obj->total_time = curl_getinfo($curl, CURLINFO_TOTAL_TIME);
+            $obj->primary_ip = curl_getinfo($curl, CURLINFO_PRIMARY_IP);
+            $curlErrno = curl_errno($curl);
+            $curlError = curl_error($curl);
+            _error_log("sendToStreamer: after curl_exec target={$target} url={$url} errno={$curlErrno} error=" . json_encode($curlError) . " http_code={$obj->http_code} content_type=" . json_encode($obj->content_type) . " total_time={$obj->total_time} raw_length=" . strlen((string) $obj->response_raw));
             if (empty($obj->response_raw)) {
                 _error_log("sendToStreamer: empty response_raw from $url (HTTP {$obj->http_code})");
             }
@@ -2475,7 +2478,10 @@ class Encoder extends ObjectYPT
         $obj->response = json_decode($obj->response_raw);
 
         if ($errno = curl_errno($curl)) {
-            $error_message = curl_strerror($errno);
+            $error_message = curl_error($curl);
+            if (empty($error_message)) {
+                $error_message = curl_strerror($errno);
+            }
             $obj->msg = "sendToStreamer cURL error ({$errno}): {$error_message} => {$target} URL=>{$url}";
             if ($errno == 28) { // Timeout
                 $obj->doNotRetry = true;
@@ -2523,7 +2529,7 @@ class Encoder extends ObjectYPT
         $time_end = microtime(true);
         $execution_time = number_format($time_end - $time_start, 3);
         $error = "sendToStreamer {$url} in {$execution_time} seconds ";
-        _error_log($error . json_encode($obj) . ' debug_backtrace=' . json_encode(debug_backtrace()));
+        _error_log($error . ' error=' . json_encode($obj->error) . ' msg=' . json_encode(@$obj->msg) . ' http=' . $obj->http_code);
 
         $newObj = $obj;
         unset($newObj->postFields);
