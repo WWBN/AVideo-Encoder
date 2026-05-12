@@ -2079,10 +2079,15 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        $obj = self::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
-        if (empty($obj->error)) {
-            _error_log("Encoder:sendFileChunk no need, we could download");
-            return $obj;
+        // Only attempt the pull-from-encoder method on the first call (not retries).
+        // sendFileToDownload can take 180 s to timeout; re-running it on every retry
+        // would waste ~3 × 180 s before we even start re-chunking.
+        if ($try === 0) {
+            $obj = self::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
+            if (empty($obj->error)) {
+                _error_log("Encoder:sendFileChunk no need, we could download");
+                return $obj;
+            }
         }
 
         _error_log("Encoder:sendFileChunk($file,{$return_vars->videos_id}, $format, object, $resolution, $try)");
@@ -2165,7 +2170,7 @@ class Encoder extends ObjectYPT
             if ($http_code === 413) {
                 fclose($stream);
                 _error_log("sendFileChunk: HTTP 413 on chunk {$i} ({$chunkBytes} bytes) — falling back to sendFile");
-                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
+                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, "", $fileDuration);
             }
 
             if (preg_match('/({[^{]*})\s*$/', $r, $m)) {
@@ -2183,7 +2188,7 @@ class Encoder extends ObjectYPT
                 }
                 $obj->msg = "cURL error ({$errno}): {$error_message} {$file} ({$target}) LINE " . __LINE__;
                 _error_log(json_encode($obj));
-                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
+                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, "", $fileDuration);
             }
 
             $lastResponse = $chunkResp;
