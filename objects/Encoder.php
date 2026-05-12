@@ -2102,6 +2102,9 @@ class Encoder extends ObjectYPT
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        // 4 hours: enough to transfer a 20 GB file even on a 25 Mbps link.
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 14400);
         // Use a callback to provide curl with data to transmit from the stream
         global $countCURLOPT_READFUNCTION;
         $countCURLOPT_READFUNCTION = 0;
@@ -2112,14 +2115,29 @@ class Encoder extends ObjectYPT
         });
         $r = curl_exec($ch);
         $errno = curl_errno($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error_message = curl_strerror($errno);
         //var_dump($r, $errno, $error_message);
         curl_close($ch);
 
         $r = remove_utf8_bom($r);
-        _error_log("AVideo-Streamer countCURLOPT_READFUNCTION = ($countCURLOPT_READFUNCTION) chunk answer {$r}");
+        _error_log("AVideo-Streamer countCURLOPT_READFUNCTION = ($countCURLOPT_READFUNCTION) http_code={$http_code} chunk answer {$r}");
         $obj->response_raw = $r;
-        $obj->response = json_decode($r);
+        // The response may be an Apache error page (413) followed by the PHP JSON.
+        // Extract the last {...} block so json_decode has a chance to succeed.
+        if (preg_match('/({[^{]*})\s*$/', $r, $m)) {
+            $obj->response = json_decode($m[1]);
+        } else {
+            $obj->response = json_decode($r);
+        }
+        // If Apache returned 413, retrying the PUT will always fail the same way.
+        // Skip straight to sendFile() so the streamer downloads the file instead.
+        if ($http_code === 413) {
+            _error_log("cURL got HTTP 413 on chunk PUT — server LimitRequestBody too small; falling through to sendFile ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__);
+            $obj->msg = "cURL HTTP 413 ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__;
+            _error_log(json_encode($obj));
+            return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
+        }
         if ($errno || empty($obj->response->filesize) || ($obj->response->filesize < $obj->filesize)) {
             if (is_object($obj->response) && $obj->response->filesize < $obj->filesize) {
                 _error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize) . " local Encoder file size =  " . humanFileSize($obj->filesize));
@@ -2456,10 +2474,12 @@ class Encoder extends ObjectYPT
             } catch (\Throwable $th) {
                 _error_log("sendToStreamer($target,  " . json_encode($postFields));
             }
-            $timeout = 1800; // 30 minutes
+            // 2 hours: enough for the streamer to download a 20 GB file from the encoder
+            // even on a slower link (~25 Mbps needs ~1.8 h).  Raise if needed.
+            $timeout = 7200;
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $timeout);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
             curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 
             if (empty($curl)) {
