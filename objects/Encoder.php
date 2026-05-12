@@ -1780,7 +1780,16 @@ class Encoder extends ObjectYPT
             _error_log("Encoder::send() multiResolutionOrder");
             if (in_array($order_id, $global['sendAll'])) {
                 $files = self::getTmpFiles($this->id);
-                _error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files");
+                // Sort by file size ascending: send small files (MP3, 480p) first so they are safely
+                // transferred before the large 1080p transfer begins. A 1080p download can take
+                // 30+ minutes; if something cleans up tmp files during that wait the smaller files
+                // would already be on the streamer.
+                usort($files, function ($a, $b) {
+                    $sa = file_exists($a) ? filesize($a) : 0;
+                    $sb = file_exists($b) ? filesize($b) : 0;
+                    return $sa - $sb;
+                });
+                _error_log("Encoder::send() multiResolutionOrder sendAll found (" . count($files) . ") files (sorted by size asc): " . implode(', ', array_map(function($f){ return basename($f) . '(' . (file_exists($f) ? round(filesize($f)/1048576) . 'MB' : 'MISSING') . ')'; }, $files)));
                 foreach ($files as $file) {
                     if (is_dir($file)) {
                         continue;
@@ -1794,7 +1803,8 @@ class Encoder extends ObjectYPT
                     if ($resolution == 'converted.mp4palette') {
                         continue;
                     }
-                    _error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file)");
+                    $fileExistsNow = file_exists($file);
+                    _error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file) exists=" . ($fileExistsNow ? 'yes' : 'NO - FILE DISAPPEARED'));
                     $return->sends[] = self::sendFileChunk($file, $return_vars, $format, $this, $resolution);
                 }
             } else {
@@ -2082,83 +2092,103 @@ class Encoder extends ObjectYPT
         $obj->filesize = filesize($file);
         $obj->response = "";
 
-        _error_log("Encoder::sendFileChunk file=$file");
-
-        $stream = fopen($file, 'r');
         $streamers_id = $encoder->getStreamers_id();
         $s = new Streamer($streamers_id);
         $aVideoURL = $s->getSiteURL();
 
         $target = trim($aVideoURL . "aVideoEncoderChunk.json");
         $obj->target = $target;
-        // Create a curl handle to upload to the file server
-        $ch = curl_init($target);
-        // Send a PUT request
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
-        // Let curl know that we are sending an entity body
-        curl_setopt($ch, CURLOPT_UPLOAD, true);
-        // Let curl know that we are using a chunked transfer encoding
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Transfer-Encoding: chunked'));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        // 4 hours: enough to transfer a 20 GB file even on a 25 Mbps link.
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 14400);
-        // Use a callback to provide curl with data to transmit from the stream
-        global $countCURLOPT_READFUNCTION;
-        $countCURLOPT_READFUNCTION = 0;
-        curl_setopt($ch, CURLOPT_READFUNCTION, function ($ch, $fd, $length) use ($stream) {
-            global $countCURLOPT_READFUNCTION;
-            $countCURLOPT_READFUNCTION++;
-            return fread($stream, 1024);
-        });
-        $r = curl_exec($ch);
-        $errno = curl_errno($ch);
-        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $error_message = curl_strerror($errno);
-        //var_dump($r, $errno, $error_message);
-        curl_close($ch);
 
-        $r = remove_utf8_bom($r);
-        _error_log("AVideo-Streamer countCURLOPT_READFUNCTION = ($countCURLOPT_READFUNCTION) http_code={$http_code} chunk answer {$r}");
-        $obj->response_raw = $r;
-        // The response may be an Apache error page (413) followed by the PHP JSON.
-        // Extract the last {...} block so json_decode has a chance to succeed.
-        if (preg_match('/({[^{]*})\s*$/', $r, $m)) {
-            $obj->response = json_decode($m[1]);
-        } else {
-            $obj->response = json_decode($r);
+        // Split the file into 500 MB PUT requests so each one stays well under
+        // Apache's LimitRequestBody (typically 1 GB). Using HTTP Transfer-Encoding:
+        // chunked is NOT enough — that is still a single request body; Apache counts
+        // all bytes against LimitRequestBody regardless. We must split into multiple
+        // independent requests. The receiver (aVideoEncoderChunk.json.php) appends
+        // every piece to the same temp file keyed by $fileId, then returns the
+        // assembled path so sendFile() can register it normally.
+        $chunkSize   = 500 * 1024 * 1024; // 500 MB per request
+        $totalChunks = (int) ceil($obj->filesize / max($chunkSize, 1));
+        $fileId      = bin2hex(random_bytes(8)); // unique per upload attempt (16 hex chars)
+        $lastResponse = null;
+
+        _error_log("Encoder::sendFileChunk file={$file} size=" . humanFileSize($obj->filesize) . " chunks={$totalChunks} chunkSize=" . humanFileSize($chunkSize) . " fileId={$fileId}");
+
+        $stream = fopen($file, 'r');
+        if ($stream === false) {
+            $obj->response = "sendFileChunk: could not open file for reading: {$file}";
+            _error_log($obj->response);
+            return $obj;
         }
-        // If Apache returned 413, retrying the PUT will always fail the same way.
-        // Skip straight to sendFile() so the streamer downloads the file instead.
-        if ($http_code === 413) {
-            _error_log("cURL got HTTP 413 on chunk PUT — server LimitRequestBody too small; falling through to sendFile ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__);
-            $obj->msg = "cURL HTTP 413 ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__;
-            _error_log(json_encode($obj));
-            return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
-        }
-        if ($errno || empty($obj->response->filesize) || ($obj->response->filesize < $obj->filesize)) {
-            if (is_object($obj->response) && $obj->response->filesize < $obj->filesize) {
-                _error_log("cURL error, file size is smaller, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n {$target} streamer filesize = " . humanFileSize($obj->response->filesize) . " local Encoder file size =  " . humanFileSize($obj->filesize));
-            } else {
-                _error_log("cURL error, trying again ($try) ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__);
+
+        for ($i = 0; $i < $totalChunks; $i++) {
+            $chunkBytes       = (int) min($chunkSize, $obj->filesize - ($i * $chunkSize));
+            $chunkUrl         = $target . '?file_id=' . urlencode($fileId) . '&chunk=' . $i . '&total=' . $totalChunks;
+            $bytesSentInChunk = 0;
+
+            $ch = curl_init($chunkUrl);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+            curl_setopt($ch, CURLOPT_UPLOAD, true);
+            curl_setopt($ch, CURLOPT_INFILESIZE, $chunkBytes);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 14400);
+            curl_setopt($ch, CURLOPT_READFUNCTION, function ($ch, $fd, $length) use ($stream, &$bytesSentInChunk, $chunkBytes) {
+                $remaining = $chunkBytes - $bytesSentInChunk;
+                if ($remaining <= 0) {
+                    return '';
+                }
+                $toRead = (int) min($length, $remaining, 1024 * 1024);
+                $data = fread($stream, $toRead);
+                if ($data === false) {
+                    return '';
+                }
+                $bytesSentInChunk += strlen($data);
+                return $data;
+            });
+
+            $r             = curl_exec($ch);
+            $errno         = curl_errno($ch);
+            $http_code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $error_message = curl_strerror($errno);
+            curl_close($ch);
+
+            $r = remove_utf8_bom($r);
+            _error_log("Encoder::sendFileChunk chunk " . ($i + 1) . "/{$totalChunks} http_code={$http_code} sent=" . humanFileSize($bytesSentInChunk) . " resp={$r}");
+
+            if ($http_code === 413) {
+                fclose($stream);
+                _error_log("sendFileChunk: HTTP 413 on chunk {$i} ({$chunkBytes} bytes) — falling back to sendFile");
+                return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
             }
-            if ($try <= 3) {
-                sleep($try);
-                return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try);
+
+            if (preg_match('/({[^{]*})\s*$/', $r, $m)) {
+                $chunkResp = json_decode($m[1]);
             } else {
-                //echo "cURL error ({$errno}):\n {$error_message}";
-                $obj->msg = "cURL error ({$errno}):\n {$error_message} \n {$file} \n ({$target}) LINE " . __LINE__;
+                $chunkResp = json_decode($r);
+            }
+
+            if ($errno || empty($chunkResp->file)) {
+                fclose($stream);
+                _error_log("sendFileChunk: chunk {$i}/{$totalChunks} failed errno={$errno} {$error_message} resp={$r}");
+                if ($try <= 3) {
+                    sleep($try);
+                    return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try);
+                }
+                $obj->msg = "cURL error ({$errno}): {$error_message} {$file} ({$target}) LINE " . __LINE__;
                 _error_log(json_encode($obj));
                 return self::sendFile($file, $return_vars, $format, $encoder, $resolution, $try);
             }
-        } else {
-            _error_log("cURL success, Local file: " . humanFileSize($obj->filesize) . " => Transferred file " . humanFileSize($obj->response->filesize));
-            $obj->error = false;
-            _error_log(json_encode($obj));
-            return self::sendFile(false, $return_vars, $format, $encoder, $resolution, $obj->response->file);
+
+            $lastResponse = $chunkResp;
         }
+
+        fclose($stream);
+        _error_log("sendFileChunk: all {$totalChunks} chunk(s) OK → assembled at {$lastResponse->file} size=" . humanFileSize($lastResponse->filesize ?? 0));
+        $obj->response = $lastResponse;
+        $obj->error = false;
+        return self::sendFile(false, $return_vars, $format, $encoder, $resolution, $lastResponse->file);
     }
 
     public static function sendFileToDownload($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $try = 0)
