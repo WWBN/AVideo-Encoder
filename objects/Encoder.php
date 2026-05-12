@@ -1879,7 +1879,7 @@ class Encoder extends ObjectYPT
         return $return;
     }
 
-    public static function sendFile($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $chunkFile = "")
+    public static function sendFile($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $chunkFile = "", $forceDuration = "")
     {
         global $global;
         global $sentImage;
@@ -1929,7 +1929,8 @@ class Encoder extends ObjectYPT
             _error_log("Encoder::sendFile has no direct media source; this call should only be used for legacy metadata-only flows format={$format} videos_id={$videos_id} encoder_id=" . (!empty($encoder) ? intval($encoder->getId()) : 0));
         }
 
-        $duration = static::getDurationFromFile($file);
+        // Use caller-provided duration when available (e.g. chunked upload where $file is false).
+        $duration = !empty($forceDuration) ? $forceDuration : static::getDurationFromFile($file);
         if ($duration == "EE:EE:EE" && $file != "") {
             if (isset($u) && $u !== false && $obj->error == false) {
                 self::setStatusError($encoder->getId(), 'Error on send file');
@@ -2113,6 +2114,10 @@ class Encoder extends ObjectYPT
 
         _error_log("Encoder::sendFileChunk file={$file} size=" . humanFileSize($obj->filesize) . " chunks={$totalChunks} chunkSize=" . humanFileSize($chunkSize) . " fileId={$fileId}");
 
+        // Capture duration now (file exists), before the chunk loop that may take 30+ minutes.
+        // sendFile(false, ...) would compute EE:EE:EE because $file=false; passing it explicitly avoids that.
+        $fileDuration = static::getDurationFromFile($file);
+
         $stream = fopen($file, 'r');
         if ($stream === false) {
             $obj->response = "sendFileChunk: could not open file for reading: {$file}";
@@ -2185,10 +2190,10 @@ class Encoder extends ObjectYPT
         }
 
         fclose($stream);
-        _error_log("sendFileChunk: all {$totalChunks} chunk(s) OK → assembled at {$lastResponse->file} size=" . humanFileSize($lastResponse->filesize ?? 0));
+        _error_log("sendFileChunk: all {$totalChunks} chunk(s) OK → assembled at {$lastResponse->file} size=" . humanFileSize($lastResponse->filesize ?? 0) . " duration={$fileDuration}");
         $obj->response = $lastResponse;
         $obj->error = false;
-        return self::sendFile(false, $return_vars, $format, $encoder, $resolution, $lastResponse->file);
+        return self::sendFile(false, $return_vars, $format, $encoder, $resolution, $lastResponse->file, $fileDuration);
     }
 
     public static function sendFileToDownload($file, $return_vars, $format, Encoder $encoder = null, $resolution = "", $try = 0)
