@@ -72,6 +72,14 @@ if (empty($APISecret)) {
     die(json_encode($obj));
 }
 
+// This endpoint must only operate for known/allowed streamer URLs. It should
+// never bootstrap trust from arbitrary user-supplied hosts.
+$requestedStreamerURL = addLastSlash($_REQUEST['webSiteRootURL']);
+if (!Streamer::isURLAllowed($requestedStreamerURL) || !isRegisteredStreamerURL($requestedStreamerURL)) {
+    $obj->msg = "Streamer URL is not allowed";
+    die(json_encode($obj));
+}
+
 if (!empty($_REQUEST['webSiteRootURL']) && !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && empty($_REQUEST['justLogin'])) {
     error_log("videosListToLive: Login::run");
     Login::run($_REQUEST['user'], $_REQUEST['pass'], $_REQUEST['webSiteRootURL'], true);
@@ -136,25 +144,28 @@ foreach ($json->response->videos as $value) {
         continue;
     }
 
+    $safeInputPathArg = escapeshellarg($value->path);
+
     $timeStartVideo = microtime(true);
     $outputFile = "{$dir}video_{$value->videos_id}.{$outputExtension}";
+    $safeOutputFileArg = escapeshellarg($outputFile);
     _log("Processing video ($counter) ({$value->videos_id}) ({$value->title}) ($outputFile)");
     if ($directTransmit && !isAudio($value->path)) {
-        $ffmpegInputs[] = " -re -i \"{$value->path}\" ";
+        $ffmpegInputs[] = " -re -i {$safeInputPathArg} ";
         eval('$ffmpegFilters1[] = " ' . $complexFilter1 . ' ";');
         eval('$ffmpegFilters2[] = " ' . $complexFilter2 . ' ";');
         $videos[] = $value;
         $counter++;
     } elseif (!empty($recreateAllVideos) || !file_exists($outputFile)) {
         if (isAudio($value->path)) {
-            $cmd = get_ffmpeg() . " -i \"{$value->path}\" -filter_complex '[0:a]showwaves=s={$scale_width}x{$scale_height}:mode=line,format=yuv420p[v]' -map '[v]' -map 0:a "
-                    . " {$ffmpegParameters} -y {$outputFile} ";
+            $cmd = get_ffmpeg() . " -i {$safeInputPathArg} -filter_complex '[0:a]showwaves=s={$scale_width}x{$scale_height}:mode=line,format=yuv420p[v]' -map '[v]' -map 0:a "
+                    . " {$ffmpegParameters} -y {$safeOutputFileArg} ";
         } else {
-            $cmd = get_ffmpeg() . " -i \"{$value->path}\" "
-                    . " {$ffmpegParameters} -y {$outputFile} ";
+            $cmd = get_ffmpeg() . " -i {$safeInputPathArg} "
+                    . " {$ffmpegParameters} -y {$safeOutputFileArg} ";
         }
         if (__exec($cmd)) {
-            $ffmpegInputs[] = " -re -i \"{$outputFile}\" ";
+            $ffmpegInputs[] = " -re -i {$safeOutputFileArg} ";
             eval('$ffmpegFilters1[] = " ' . $complexFilter1 . ' ";');
             eval('$ffmpegFilters2[] = " ' . $complexFilter2 . ' ";');
             $videos[] = $value;
@@ -163,7 +174,7 @@ foreach ($json->response->videos as $value) {
             _log("ERROR on video ($counter) ({$value->path})");
         }
     } else {
-        $ffmpegInputs[] = " -re -i \"{$outputFile}\" ";
+        $ffmpegInputs[] = " -re -i {$safeOutputFileArg} ";
         eval('$ffmpegFilters1[] = " ' . $complexFilter1 . ' ";');
         eval('$ffmpegFilters2[] = " ' . $complexFilter2 . ' ";');
         $videos[] = $value;
@@ -337,7 +348,7 @@ function isAudio($source)
 
 function isVideo($source)
 {
-    $cmd = get_ffprobe()." -i \"{$source}\" -show_streams -select_streams v:0 -show_entries stream=width,height -loglevel error";
+    $cmd = get_ffprobe()." -i " . escapeshellarg($source) . " -show_streams -select_streams v:0 -show_entries stream=width,height -loglevel error";
     exec($cmd . " 2>&1", $output, $return_val);
     $return = array("width" => 0, "height" => 0);
     if ($return_val !== 0) {
@@ -360,6 +371,28 @@ function isVideo($source)
         }
     }
     return false;
+}
+
+function isRegisteredStreamerURL($siteURL)
+{
+    global $global;
+    if (empty($siteURL) || empty($global['mysqli'])) {
+        return false;
+    }
+
+    $sql = "SELECT id FROM " . Streamer::getTableName() . " WHERE lower(siteURL) = lower(?) LIMIT 1";
+    $stmt = $global['mysqli']->prepare($sql);
+    if (empty($stmt)) {
+        return false;
+    }
+
+    $stmt->bind_param('s', $siteURL);
+    $stmt->execute();
+    $stmt->store_result();
+    $hasRow = $stmt->num_rows > 0;
+    $stmt->close();
+
+    return $hasRow;
 }
 
 function createWaterMark($webSiteRootURL, $path)
