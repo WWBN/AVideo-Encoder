@@ -25,19 +25,35 @@ if (!class_exists('Streamer')) {
             if (empty($global)) {
                 $global = [];
             }
-            $sql = "SELECT * FROM  " . static::getTableName() . " WHERE user = '{$user}' AND lower(siteURL) = lower('{$siteURL}') LIMIT 1";
-            //echo $sql;exit;
+            $sql = "SELECT * FROM " . static::getTableName() . " WHERE user = ? AND lower(siteURL) = lower(?) LIMIT 1";
             /**
              * @var array $global
              * @var object $global['mysqli']
              */
-            $res = $global['mysqli']->query($sql);
-            if ($res) {
-                return $res->fetch_assoc();
-            } else {
-                die($sql . '\nError : (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+            $stmt = $global['mysqli']->prepare($sql);
+            if (!$stmt) {
+                _error_log('Streamer::get prepare failed: (' . $global['mysqli']->errno . ') ' . $global['mysqli']->error);
+                return false;
             }
-            return false;
+
+            $stmt->bind_param('ss', $user, $siteURL);
+            if (!$stmt->execute()) {
+                _error_log('Streamer::get execute failed: (' . $stmt->errno . ') ' . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $res = $stmt->get_result();
+            if (!$res) {
+                _error_log('Streamer::get result failed: (' . $stmt->errno . ') ' . $stmt->error);
+                $stmt->close();
+                return false;
+            }
+
+            $row = $res->fetch_assoc();
+            $res->free();
+            $stmt->close();
+            return $row ?: false;
         }
 
         private static function getFirst()
