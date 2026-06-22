@@ -1,8 +1,14 @@
 <?php
-header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
+require_once '../objects/Login.php';
+
+if (!Login::canUpload()) {
+    http_response_code(403);
+    echo json_encode(['error' => true, 'msg' => 'Permission denied']);
+    exit;
+}
 
 $config = new Configuration();
 

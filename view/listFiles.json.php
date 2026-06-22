@@ -3,6 +3,12 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'] . 'objects/Login.php';
 header('Content-Type: application/json');
 
+if (!Login::isLogged() || !Login::canBulkEncode()) {
+    http_response_code(403);
+    echo json_encode(["error" => "Permission denied"]);
+    exit;
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('log_errors', 1);

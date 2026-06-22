@@ -5,6 +5,13 @@ require_once '../objects/Encoder.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
 header('Content-Type: application/json');
+
+if (!Login::canUpload()) {
+    http_response_code(403);
+    echo json_encode(['error' => true, 'msg' => 'Permission denied']);
+    exit;
+}
+
 $rows = Encoder::getAll(true);
 $resolutions = ['Low', 'SD', 'HD'];
 if (!is_array($rows)) {

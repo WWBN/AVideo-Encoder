@@ -187,7 +187,13 @@ if (!class_exists('Login')) {
 
         static function canBulkEncode() {
             global $global;
-            if (self::isAdmin() || empty($global['disableBulkEncode'])) {
+            if (!self::isLogged()) {
+                return false;
+            }
+            if (self::isAdmin()) {
+                return true;
+            }
+            if (empty($global['disableBulkEncode']) && self::canUpload()) {
                 return true;
             }
             return false;
