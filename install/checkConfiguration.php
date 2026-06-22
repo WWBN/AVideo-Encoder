@@ -14,14 +14,47 @@ header('Content-Type: application/json');
 $obj = new stdClass();
 $obj->post = $_POST;
 
+// Resolve installer root from current script location and do not allow writes
+// outside this encoder installation.
+$detectedSystemRootPath = realpath(__DIR__ . '/..');
+if ($detectedSystemRootPath === false) {
+    $obj->error = "Unable to resolve system root path";
+    echo json_encode($obj);
+    exit;
+}
+$detectedSystemRootPath = rtrim(str_replace('\\', '/', $detectedSystemRootPath), '/') . '/';
+
 if (empty($_POST['systemRootPath'])) {
-    $obj->error = "Your system path to application can not be empty";
+    // Keep backward compatibility with old installers that post this field,
+    // but default to detected path when absent.
+    $_POST['systemRootPath'] = $detectedSystemRootPath;
+}
+
+$postedSystemRootPath = realpath($_POST['systemRootPath']);
+if ($postedSystemRootPath === false) {
+    $obj->error = "Your system path to application ({$_POST['systemRootPath']}) is wrong";
+    echo json_encode($obj);
+    exit;
+}
+$postedSystemRootPath = rtrim(str_replace('\\', '/', $postedSystemRootPath), '/') . '/';
+
+if ($postedSystemRootPath !== $detectedSystemRootPath) {
+    $obj->error = "Your system path to application ({$_POST['systemRootPath']}) is wrong";
     echo json_encode($obj);
     exit;
 }
 
+$_POST['systemRootPath'] = $detectedSystemRootPath;
+
 if (!file_exists($_POST['systemRootPath'] . "index.php")) {
     $obj->error = "Your system path to application ({$_POST['systemRootPath']}) is wrong";
+    echo json_encode($obj);
+    exit;
+}
+
+$_POST['databaseName'] = preg_replace('/[^0-9a-z_]/i', '', (string) $_POST['databaseName']);
+if (empty($_POST['databaseName'])) {
+    $obj->error = "Database name can not be empty";
     echo json_encode($obj);
     exit;
 }
@@ -88,29 +121,45 @@ if (substr($_POST['siteURL'], -1) !== '/') {
     $_POST['siteURL'] .= "/";
 }
 
-$sql = "INSERT INTO {$tablesPrefix}streamers (siteURL, user, pass, priority, created, modified, isAdmin) VALUES ('{$_POST['siteURL']}', '{$_POST['inputUser']}', '{$_POST['inputPassword']}', 1, now(), now(), 1)";
-
-try {
-    $mysqli->query($sql);
-} catch (Exception $exc) {
-    $obj->error = 'Error: ' . $mysqli->error.PHP_EOL;
+$priority = 1;
+$stmt = $mysqli->prepare("INSERT INTO {$tablesPrefix}streamers (siteURL, user, pass, priority, created, modified, isAdmin) VALUES (?, ?, ?, ?, now(), now(), 1)");
+if ($stmt) {
+    $stmt->bind_param('sssi', $_POST['siteURL'], $_POST['inputUser'], $_POST['inputPassword'], $priority);
+    if (!$stmt->execute()) {
+        $obj->error = 'Error: ' . $stmt->error . PHP_EOL;
+    }
+    $stmt->close();
+} else {
+    $obj->error = 'Error: ' . $mysqli->error . PHP_EOL;
 }
 
-$sql = "INSERT INTO {$tablesPrefix}configurations_encoder (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, '{$_POST['allowedStreamers']}', '{$_POST['defaultPriority']}', '{$installationVersion}', now(), now())";
-
-try {
-    $mysqli->query($sql);
-} catch (Exception $exc) {
-    $obj->error = 'Error: ' . $mysqli->error.PHP_EOL;
+$defaultPriority = intval($_POST['defaultPriority']);
+$stmt = $mysqli->prepare("INSERT INTO {$tablesPrefix}configurations_encoder (id, allowedStreamersURL, defaultPriority, version, created, modified) VALUES (1, ?, ?, ?, now(), now())");
+if ($stmt) {
+    $stmt->bind_param('sis', $_POST['allowedStreamers'], $defaultPriority, $installationVersion);
+    if (!$stmt->execute()) {
+        $obj->error = 'Error: ' . $stmt->error . PHP_EOL;
+    }
+    $stmt->close();
+} else {
+    $obj->error = 'Error: ' . $mysqli->error . PHP_EOL;
 }
 
 $mysqli->close();
 
+$tablesPrefixExport = var_export((string) $tablesPrefix, true);
+$webSiteRootURLExport = var_export((string) $_POST['webSiteRootURL'], true);
+$systemRootPathExport = var_export((string) $_POST['systemRootPath'], true);
+$databaseHostExport = var_export((string) $_POST['databaseHost'], true);
+$databaseUserExport = var_export((string) $_POST['databaseUser'], true);
+$databasePassExport = var_export((string) $_POST['databasePass'], true);
+$databaseNameExport = var_export((string) $_POST['databaseName'], true);
+
 $content = "<?php
 \$global['configurationVersion'] = 2;
-\$global['tablesPrefix'] = '{$tablesPrefix}';
-\$global['webSiteRootURL'] = '{$_POST['webSiteRootURL']}';
-\$global['systemRootPath'] = '{$_POST['systemRootPath']}';
+\$global['tablesPrefix'] = {$tablesPrefixExport};
+\$global['webSiteRootURL'] = {$webSiteRootURLExport};
+\$global['systemRootPath'] = {$systemRootPathExport};
 \$global['webSiteRootPath'] = '';
 
 \$global['disableConfigurations'] = false;
@@ -123,10 +172,10 @@ $content = "<?php
 \$global['progressiveUpload'] = false;
 \$global['killWorkerOnDelete'] = false;
 
-\$mysqlHost = '{$_POST['databaseHost']}';
-\$mysqlUser = '{$_POST['databaseUser']}';
-\$mysqlPass = '{$_POST['databasePass']}';
-\$mysqlDatabase = '{$_POST['databaseName']}';
+\$mysqlHost = {$databaseHostExport};
+\$mysqlUser = {$databaseUserExport};
+\$mysqlPass = {$databasePassExport};
+\$mysqlDatabase = {$databaseNameExport};
 
 \$global['allowed'] = array('mp4', 'avi', 'mov', 'flv', 'mp3', 'wav', 'm4v', 'webm', 'wmv', 'mpg', 'mpeg', 'f4v', 'm4v', 'm4a', 'm2p', 'rm', 'vob', 'mkv', '3gp', 'mts', 'm2ts');
 /**
