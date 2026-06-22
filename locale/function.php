@@ -4,8 +4,12 @@ include 'locale.json.php';
 
 // Set Language variable
 if (isset($_POST['lang']) && !empty($_POST['lang'])) {
-    $_SESSION['lang'] = $_POST['lang'];
-    if (isset($_SESSION['lang']) && $_SESSION['lang'] === $_POST['lang']) {
+    $postedLang = preg_replace('/[^a-z_]/i', '', (string) $_POST['lang']);
+    $postedLang = basename($postedLang, '.php');
+    if (file_exists('../locale/' . $postedLang . '.php')) {
+        $_SESSION['lang'] = $postedLang;
+    }
+    if (isset($_SESSION['lang']) && $_SESSION['lang'] === $postedLang) {
         echo '<script type="text/javascript">
     window.location.replace(document.referrer);
     </script>';
@@ -37,6 +41,12 @@ function detecting_lang($languageBrowser, $default = 'en_US') {
 
 if (!isset($_SESSION['lang'])) {
     $_SESSION['lang'] = detecting_lang($langBrowser);
+}
+
+$_SESSION['lang'] = preg_replace('/[^a-z_]/i', '', (string) $_SESSION['lang']);
+$_SESSION['lang'] = basename($_SESSION['lang'], '.php');
+if (!file_exists('../locale/' . $_SESSION['lang'] . '.php')) {
+    $_SESSION['lang'] = 'en_US';
 }
 
 if (isset($_SESSION['lang'])) {

@@ -37,9 +37,14 @@ $ad = $config->getAutodelete();
 if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
     $_COOKIE['format'] = $_SESSION['format'];
 }
+
+$safeLang = htmlspecialchars(strtolower((string) @$_SESSION['lang']), ENT_QUOTES, 'UTF-8');
+$safeStreamerURL = htmlspecialchars((string) $streamerURL, ENT_QUOTES, 'UTF-8');
+$safeRequestUser = htmlspecialchars((string) @$_REQUEST['user'], ENT_QUOTES, 'UTF-8');
+$safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UTF-8');
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo strtolower(@$_SESSION['lang']); ?>">
+<html lang="<?php echo $safeLang; ?>">
 
 <head>
     <?php
@@ -54,11 +59,12 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="<?php echo $streamerURL; ?>">
+                    <a class="navbar-brand" href="<?php echo $safeStreamerURL; ?>">
                         <?php
                         if (!empty($_SESSION['login']->siteLogo)) {
+                            $safeSiteLogo = htmlspecialchars((string) $_SESSION['login']->siteLogo, ENT_QUOTES, 'UTF-8');
                         ?>
-                            <img src="<?php echo $_SESSION['login']->siteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive" />
+                            <img src="<?php echo $safeSiteLogo; ?>?<?php echo uniqid(); ?>" class="img img-responsive" />
                         <?php
                         }
                         ?>
@@ -125,7 +131,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                        <input id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control" type="url" value="<?php echo $streamerURL; ?>" required />
+                                        <input id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control" type="url" value="<?php echo $safeStreamerURL; ?>" required />
                                     </div>
                                 </div>
                             </div>
@@ -134,7 +140,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                        <input id="inputUser" placeholder="<?php echo __('User'); ?>" class="form-control" type="text" value="<?php echo @$_REQUEST['user']; ?>" required />
+                                        <input id="inputUser" placeholder="<?php echo __('User'); ?>" class="form-control" type="text" value="<?php echo $safeRequestUser; ?>" required />
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +151,7 @@ if (empty($_COOKIE['format']) && !empty($_SESSION['format'])) {
                                 <div class="col-md-8 inputGroupContainer">
                                     <div class="input-group">
                                         <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                        <input id="inputPassword" placeholder="<?php echo __('Password'); ?>" class="form-control" type="password" value="<?php echo @$_REQUEST['pass']; ?>" />
+                                        <input id="inputPassword" placeholder="<?php echo __('Password'); ?>" class="form-control" type="password" value="<?php echo $safeRequestPass; ?>" />
                                     </div>
                                 </div>
                             </div>

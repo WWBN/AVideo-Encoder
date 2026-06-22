@@ -1,25 +1,28 @@
+    <?php
+    $safeStreamerURL = htmlspecialchars((string) $streamerURL, ENT_QUOTES, 'UTF-8');
+    ?>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
 
     <title>Encoder</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $streamerURL; ?>videos/favicon.png" />
-    <link rel="icon" type="image/png" href="<?php echo $streamerURL; ?>videos/favicon.png" />
-    <link rel="shortcut icon" href="<?php echo $streamerURL; ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
-    <meta name="msapplication-TileImage" content="<?php echo $streamerURL; ?>videos/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo $safeStreamerURL; ?>videos/favicon.png" />
+    <link rel="icon" type="image/png" href="<?php echo $safeStreamerURL; ?>videos/favicon.png" />
+    <link rel="shortcut icon" href="<?php echo $safeStreamerURL; ?>videos/favicon.ico" sizes="16x16,24x24,32x32,48x48,144x144" />
+    <meta name="msapplication-TileImage" content="<?php echo $safeStreamerURL; ?>videos/favicon.png">
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/setTimezoneCookie.js" type="text/javascript"></script>
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/jquery/dist/jquery.min.js" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="<?php echo $global['webSiteRootURL']; ?>node_modules/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="<?php echo $streamerURL; ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
-    <link href="<?php echo $streamerURL; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
-    <link href="<?php echo $streamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo $streamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
+    <script src="<?php echo $safeStreamerURL; ?>node_modules/sweetalert/dist/sweetalert.min.js" type="text/javascript"></script>
+    <link href="<?php echo $safeStreamerURL; ?>node_modules/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $safeStreamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $safeStreamerURL; ?>node_modules/jquery-toast-plugin/dist/jquery.toast.min.js" type="text/javascript"></script>
 
-    <script src="<?php echo $streamerURL; ?>view/js/script.js" type="text/javascript"></script>
-    <script src="<?php echo $streamerURL; ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
+    <script src="<?php echo $safeStreamerURL; ?>view/js/script.js" type="text/javascript"></script>
+    <script src="<?php echo $safeStreamerURL; ?>node_modules/js-cookie/dist/js.cookie.js" type="text/javascript"></script>
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/polyfill.min.js" type="text/javascript"></script>
 
@@ -38,23 +41,23 @@
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/js/main.js'); ?>" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . 'view/css/style.css'); ?>" rel="stylesheet" type="text/css" />
 
-    <link href="<?php echo $streamerURL; ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
-    <link href="<?php echo $streamerURL; ?>view/theme.css.php" rel="stylesheet" type="text/css" />
-    <link href="<?php echo $streamerURL; ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $safeStreamerURL; ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
+    <link href="<?php echo $safeStreamerURL; ?>view/theme.css.php" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $safeStreamerURL; ?>node_modules/animate.css/animate.min.css" rel="stylesheet" type="text/css" />
 
 
-    <script src="<?php echo $streamerURL; ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
-    <link href="<?php echo $streamerURL; ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $safeStreamerURL; ?>view/js/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="<?php echo $safeStreamerURL; ?>view/js/jquery-ui/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <script>
-        var webSiteRootPath = '<?php echo $global['webSiteRootPath']; ?>';
-        var webSiteRootURL = '<?php echo $streamerURL; ?>';
-        var PHPSESSID = '<?php echo session_id(); ?>';
+        var webSiteRootPath = <?php echo json_encode((string) $global['webSiteRootPath'], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        var webSiteRootURL = <?php echo json_encode((string) $streamerURL, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        var PHPSESSID = <?php echo json_encode((string) session_id(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
         var acceptFileTypes = /(\.|\/)(<?php echo implode('|', $global['allowed']); ?>)$/i;
     </script>
 
-    <link href="<?php echo $streamerURL; ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
-    <link href="<?php echo $streamerURL; ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo $streamerURL; ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
+    <link href="<?php echo $safeStreamerURL; ?>view/css/flagstrap/css/flags.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+    <link href="<?php echo $safeStreamerURL; ?>view/bootstrap/bootstrapSelectPicker/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $safeStreamerURL; ?>view/bootstrap/bootstrapSelectPicker/js/bootstrap-select.js" type="text/javascript"></script>
 
     <script>
         function changeLang() {
@@ -63,10 +66,10 @@
 
         <?php
         // Convert GET parameters into JavaScript object
-        $getParams = json_encode($_GET);
+        $getParams = json_encode($_GET, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
         // Convert POST parameters into JavaScript object (if session exists)
-        $postParams = !empty($_POST) ? json_encode($_POST) : '{}';
+        $postParams = !empty($_POST) ? json_encode($_POST, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) : '{}';
         ?>
 
         function setTimezoneCookie() {
