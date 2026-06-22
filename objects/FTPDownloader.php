@@ -19,6 +19,7 @@ class FTPDownloader
 
     private function parseFtpUrl($ftpUrl)
     {
+        global $global;
         $parsedUrl = parse_url($ftpUrl);
         if (!$parsedUrl || !isset($parsedUrl['scheme']) || $parsedUrl['scheme'] !== 'ftp') {
             throw new Exception("Invalid FTP URL");
@@ -29,6 +30,43 @@ class FTPDownloader
         $this->ftpPass = $parsedUrl['pass'] ?? '';
         $this->ftpPort = $parsedUrl['port'] ?? 21;
         $this->remotePath = $parsedUrl['path'] ?? '/';
+
+        if (empty($this->ftpHost) || preg_match('/^(localhost|.*\.local)$/i', $this->ftpHost)) {
+            throw new Exception("Invalid FTP host");
+        }
+
+        if (!empty($global['allowPrivateNetworkURLs'])) {
+            return;
+        }
+
+        $ips = [];
+        if (filter_var($this->ftpHost, FILTER_VALIDATE_IP)) {
+            $ips[] = $this->ftpHost;
+        } else {
+            $ipv4 = @gethostbynamel($this->ftpHost);
+            if (is_array($ipv4)) {
+                $ips = array_merge($ips, $ipv4);
+            }
+            $ipv6 = @dns_get_record($this->ftpHost, DNS_AAAA);
+            if (is_array($ipv6)) {
+                foreach ($ipv6 as $record) {
+                    if (!empty($record['ipv6'])) {
+                        $ips[] = $record['ipv6'];
+                    }
+                }
+            }
+        }
+
+        $ips = array_values(array_unique(array_filter($ips)));
+        if (empty($ips)) {
+            throw new Exception("Could not resolve FTP host");
+        }
+
+        foreach ($ips as $ip) {
+            if (ip_is_private($ip)) {
+                throw new Exception("Private or reserved FTP host is not allowed");
+            }
+        }
     }
 
     public function connect()

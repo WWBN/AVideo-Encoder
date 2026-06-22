@@ -31,6 +31,26 @@ if (!class_exists('Login')) {
         ) {
             global $_runLogin;
             $aVideoURL = self::modifyUrl($aVideoURL);
+
+            if (empty(getExternalHttpUrlForShell($aVideoURL, 'Login::run'))) {
+                _session_start();
+                $object = new stdClass();
+                $object->streamer = false;
+                $object->streamers_id = 0;
+                $object->isLogged = false;
+                $object->isStreamerAdmin = false;
+                $object->isAdmin = false;
+                $object->canUpload = false;
+                $object->canComment = false;
+                $object->canCreateCategory = false;
+                $object->theme = '';
+                $object->categories = array();
+                $object->userGroups = array();
+                $object->PHPSESSID = session_id();
+                $_SESSION['login'] = $object;
+                return;
+            }
+
             $index = "$user, $pass, $aVideoURL";
             if (!isset($_runLogin)) {
                 $_runLogin = array();
@@ -56,11 +76,13 @@ if (!class_exists('Login')) {
                         )
                 );
 
+                // Por padrão, não verifica SSL (true). Somente verifica se explicitamente setado para false
+                $disableSSLVerification = !isset($global['disableSSLVerification']) || $global['disableSSLVerification'] !== false;
                 $opts = array(
                     "ssl" => array(
-                        "verify_peer" => false,
-                        "verify_peer_name" => false,
-                        "allow_self_signed" => true
+                        "verify_peer" => !$disableSSLVerification,
+                        "verify_peer_name" => !$disableSSLVerification,
+                        "allow_self_signed" => $disableSSLVerification
                     ),
                     'http' => array(
                         'method' => 'POST',
@@ -143,7 +165,7 @@ if (!class_exists('Login')) {
                     }
                 }
                 $object->aVideoURL = $url;
-                $object->result = $result;
+                $object->result = '';
             } else {
                 $object = $_runLogin[$index];
             }
@@ -165,6 +187,9 @@ if (!class_exists('Login')) {
         static function isLogged() {
             $isLogged = !empty($_SESSION['login']->isLogged);
             if (!$isLogged && !empty($_COOKIE['encoder_user']) && !empty($_COOKIE['encoder_pass']) && !empty($_COOKIE['encoder_aVideoURL'])) {
+                if (!Streamer::isURLAllowed($_COOKIE['encoder_aVideoURL']) || empty(getExternalHttpUrlForShell($_COOKIE['encoder_aVideoURL'], 'Login::isLogged cookie URL'))) {
+                    return false;
+                }
                 error_log("isLogged: Login::run");
                 Login::run($_COOKIE['encoder_user'], $_COOKIE['encoder_pass'], $_COOKIE['encoder_aVideoURL'], true);
             } else if (!$isLogged && !empty($_SESSION['login'])) {

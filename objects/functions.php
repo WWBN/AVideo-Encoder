@@ -1,8 +1,10 @@
 <?php
+$disableSSLVerification = !empty($global['disableSSLVerification']);
 stream_context_set_default([
     'ssl' => [
-        'verify_peer' => false,
-        'verify_peer_name' => false,
+        'verify_peer' => !$disableSSLVerification,
+        'verify_peer_name' => !$disableSSLVerification,
+        'allow_self_signed' => $disableSSLVerification,
     ],
 ]);
 
@@ -89,14 +91,15 @@ function getSelfUserAgent($complement = "")
 function url_get_contents($Url, $ctx = "", $timeout = 0)
 {
     global $global;
+    $disableSSLVerification = !empty($global['disableSSLVerification']);
     $agent = getSelfUserAgent();
     if (empty($ctx)) {
         $opts = array(
             'http' => array('header' => "User-Agent: {$agent}\r\n"),
             "ssl" => array(
-                "verify_peer" => false,
-                "verify_peer_name" => false,
-                "allow_self_signed" => true
+                "verify_peer" => !$disableSSLVerification,
+                "verify_peer_name" => !$disableSSLVerification,
+                "allow_self_signed" => $disableSSLVerification
             )
         );
         if (!empty($timeout)) {
@@ -113,6 +116,12 @@ function url_get_contents($Url, $ctx = "", $timeout = 0)
         if (!file_exists($Url)) {
             $Url = utf8_decode($Url);
         }
+    } else {
+        $safeURL = getExternalHttpUrlForShell($Url, 'url_get_contents');
+        if (empty($safeURL)) {
+            return "";
+        }
+        $Url = $safeURL;
     }
 
     if (ini_get('allow_url_fopen')) {
@@ -133,8 +142,8 @@ function url_get_contents($Url, $ctx = "", $timeout = 0)
         curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_URL, $Url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $disableSSLVerification ? 0 : 2);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $disableSSLVerification ? 0 : 1);
         $output = curl_exec($ch);
         curl_close($ch);
         return remove_utf8_bom($output);
@@ -760,10 +769,15 @@ function ip_is_private($ip)
 
 function getExternalHttpUrlForShell($url, $context = 'remote URL')
 {
+    global $global;
     $url = trim((string) $url);
     if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL) || !preg_match('/^https?:\/\//i', $url)) {
         error_log("{$context}: invalid URL rejected");
         return false;
+    }
+
+    if (!empty($global['allowPrivateNetworkURLs'])) {
+        return $url;
     }
 
     $parts = parse_url($url);

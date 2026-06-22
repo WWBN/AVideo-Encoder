@@ -7,6 +7,10 @@ if (empty($_POST['user']) || empty($_POST['pass'])) {
     $object->error = 'User and Password can not be blank';
     die(json_encode($object));
 }
+if (empty(getExternalHttpUrlForShell($_POST['siteURL'], 'objects/login.json.php siteURL'))) {
+    $object->error = 'Invalid streamer site URL';
+    die(json_encode($object));
+}
 if (!Streamer::isURLAllowed($_POST['siteURL'])) {
     $object->error = 'This streamer site is not allowed';
     die(json_encode($object));
