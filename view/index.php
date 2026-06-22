@@ -424,6 +424,13 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     return /^(http(s)?:\/\/)?((w){3}.)?youtu(be|.be)?(\.com)?\/(channel|user).+/gm.test($('#inputVideoURL').val());
                 }
 
+                function escapeHTML(value) {
+                    if (value === null || typeof value === 'undefined') {
+                        return '';
+                    }
+                    return $('<div/>').text(String(value)).html();
+                }
+
                 function setDownloadProgress(id, progress, setText) {
                     var selector = "#downloadProgress" + id;
                     progress = parseInt(progress);
@@ -496,24 +503,25 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     statusLabel.removeClass().addClass('label label-status ' + (statusClasses[status] || 'label-default')).text(statusText);
 
                     // Atualiza título e nome, se quiser:
-                    $(selector).find('.progress-type').html(`<strong>${queueItem.title}</strong>`);
-                    $(selector).find('.progress-completed').html(queueItem.name);
+                    $(selector).find('.progress-type').html(`<strong>${escapeHTML(queueItem.title)}</strong>`);
+                    $(selector).find('.progress-completed').text(queueItem.name || '');
 
                     // Atualiza status_obs
                     const status_obs = queueItem.status_obs?.trim();
+                    const safeStatusObs = escapeHTML(status_obs || '');
                     const obsSelector = $(selector).find('.status-obs-container');
                     if (status_obs) {
                         if (!obsSelector.length) {
                             $(selector).append(
                                 `<div class="panel-body status-obs-container" style="padding: 5px 10px;">
                                     <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                        <i class="fa fa-info-circle"></i> ${status_obs}
+                                        <i class="fa fa-info-circle"></i> ${safeStatusObs}
                                     </small>
                                 </div>`
                             );
                         } else {
                             obsSelector.html(`<small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                <i class="fa fa-info-circle"></i> ${status_obs}
+                                <i class="fa fa-info-circle"></i> ${safeStatusObs}
                               </small>`);
                         }
                     } else {
@@ -532,7 +540,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         } else if (progress > 100) {
                             progress = 100;
                         }
-                        $(selector).find('.progress-completed').html("<strong>" + text + "</strong> <span class=\"badge\">" + progress + '%</span>');
+                        $(selector).find('.progress-completed').html("<strong>" + escapeHTML(text) + "</strong> <span class=\"badge\">" + progress + '%</span>');
                         $(selector).find('.progress-bar').css({
                             'width': progress + '%'
                         });
@@ -674,10 +682,11 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     };
 
                     const status_obs = queueItem.status_obs?.trim();
+                    const safeStatusObs = escapeHTML(status_obs || '');
                     const status_obs_block = status_obs ?
                         `<div class="panel-body" style="padding: 5px 10px;">
                             <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                <i class="fa fa-info-circle"></i> ${status_obs}
+                                <i class="fa fa-info-circle"></i> ${safeStatusObs}
                             </small>
                         </div>` : '';
 
@@ -685,8 +694,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         id: queueItem.id,
                         site: queueItem.streamer_site,
                         priority: queueItem.streamer_priority,
-                        title: queueItem.title,
-                        name: queueItem.name,
+                        title: escapeHTML(queueItem.title),
+                        name: escapeHTML(queueItem.name),
                         statusText: status.toUpperCase(),
                         statusLabelClass: 'label label-status ' + (statusClasses[status] || 'label-default'),
                         status_obs_block: status_obs_block
@@ -916,16 +925,16 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 }
 
                                 // Main status
-                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${row.status}</span><br>`;
+                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${escapeHTML(row.status)}</span><br>`;
 
                                 // ETA
                                 if (row.encoding_status && row.encoding_status.remainTimeHuman) {
-                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${row.encoding_status.remainTimeHuman}</small><br>`;
+                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${escapeHTML(row.encoding_status.remainTimeHuman)}</small><br>`;
                                 }
 
                                 // Status observation or error message
                                 if (row.status_obs) {
-                                    content += `<small style="white-space: normal;"><i class="fa fa-info-circle"></i> ${row.status_obs}</small>`;
+                                    content += `<small style="white-space: normal;"><i class="fa fa-info-circle"></i> ${escapeHTML(row.status_obs)}</small>`;
                                 }
 
                                 return content;
@@ -938,18 +947,20 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary">' + l.hostname + ' <span class="badge"><?php echo __('Priority'); ?> ' + row.priority + '</span></a>';
-                                title += '<br><span class="label label-primary">' + row.format + ' [' + row.id + ']</span>';
+                                var title = '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary">' + escapeHTML(l.hostname) + ' <span class="badge"><?php echo __('Priority'); ?> ' + escapeHTML(row.priority) + '</span></a>';
+                                title += '<br><span class="label label-primary">' + escapeHTML(row.format) + ' [' + escapeHTML(row.id) + ']</span>';
 
                                 for (const index in row.fileInfo) {
                                     if (typeof row.fileInfo[index].text === 'undefined') {
                                         continue;
                                     }
-                                    title += '<br><span class="label label-success fileSize" >' + row.fileInfo[index].text + '</span>';
+                                    title += '<br><span class="label label-success fileSize" >' + escapeHTML(row.fileInfo[index].text) + '</span>';
                                 }
                                 var filename = row.title;
                                 if (filename.startsWith("original_v_")) {
-                                    filename = '<a href="' + row.streamer + 'videos/' + filename + '" target="_blank">' + filename + '</a>';
+                                    filename = '<a href="' + row.streamer + 'videos/' + encodeURIComponent(filename) + '" target="_blank">' + escapeHTML(filename) + '</a>';
+                                } else {
+                                    filename = escapeHTML(filename);
                                 }
                                 title += '<br>' + filename;
 
