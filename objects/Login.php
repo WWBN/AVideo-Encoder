@@ -155,10 +155,15 @@ if (!class_exists('Login')) {
                             // update pass
                             $s->setPass($object->pass);
                             $s->save();
-                            $cookieLife = time() + 3600 * 24 * 2; // 2 day
-                            setcookie("encoder_user", $user, $cookieLife, "/");
-                            setcookie("encoder_pass", $pass, $cookieLife, "/");
-                            setcookie("aVideoURL", $aVideoURL, $cookieLife, "/");
+                            // Only set cookies for browser requests; CLI workers do not need headers.
+                            if (!isCommandLineInterface() && !headers_sent()) {
+                                $cookieLife = time() + 3600 * 24 * 2; // 2 day
+                                setcookie("encoder_user", $user, $cookieLife, "/");
+                                setcookie("encoder_pass", $pass, $cookieLife, "/");
+                                setcookie("aVideoURL", $aVideoURL, $cookieLife, "/");
+                            } else {
+                                error_log("Login::run skip setcookie (cli=" . (isCommandLineInterface() ? 'true' : 'false') . ", headers_sent=" . (headers_sent() ? 'true' : 'false') . ")");
+                            }
                             error_log("Login:: almost done");
                         }
                     } else {
@@ -180,8 +185,10 @@ if (!class_exists('Login')) {
         static function logoff() {
             error_log("logoff:: done session_id = " . session_id());
             unset($_SESSION['login']);
-            setcookie('encoder_user', '', -1, "/");
-            setcookie('encoder_pass', '', -1, "/");
+            if (!isCommandLineInterface() && !headers_sent()) {
+                setcookie('encoder_user', '', -1, "/");
+                setcookie('encoder_pass', '', -1, "/");
+            }
             unset($_COOKIE['encoder_user']);
             unset($_COOKIE['encoder_pass']);
         }
