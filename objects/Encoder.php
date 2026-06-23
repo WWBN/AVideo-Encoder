@@ -1426,6 +1426,7 @@ class Encoder extends ObjectYPT
         global $global, $advancedCustom;
         $maxTries = 4;
         $lockFile = sys_get_temp_dir() . '/encoder_run.' . md5($global['webSiteRootURL']) . '.lock';
+        _error_log("Encoder::run start try={$try} lockFile={$lockFile}");
 
         // Check if the lock file exists
         if (file_exists($lockFile)) {
@@ -1468,9 +1469,11 @@ class Encoder extends ObjectYPT
         $rows = static::areEncoding();
         $rowNext = static::getNext();
         $obj->hasNext = !empty($rowNext);
+        _error_log('Encoder::run state canEncodeNow=' . (self::canEncodeNow() ? 'true' : 'false') . ' hasNext=' . (!empty($rowNext) ? 'true' : 'false') . ' encodingCount=' . count($rows) . ' nextId=' . (!empty($rowNext['id']) ? intval($rowNext['id']) : 0));
         if (self::canEncodeNow()) {
             if (empty($rowNext)) {
                 $obj->msg = "There is no file on queue";
+                _error_log('Encoder::run exit: there is no file on queue');
             } else {
                 $encoder = new Encoder($rowNext['id']);
                 $return_vars = json_decode($encoder->getReturn_vars());
@@ -1486,6 +1489,7 @@ class Encoder extends ObjectYPT
                 if ($objFile->error && !self::canEncodeNow() && !self::canDownloadNow()) {
                     if (!self::canEncodeNow()) {
                         $msg = "Encoder::run: There are something encoding now ";
+                        _error_log($msg);
                     }
                     if (!self::canDownloadNow()) {
                         $msg = "Encoder::run: There is something downloading now " . json_encode($objFile);
@@ -1623,6 +1627,7 @@ class Encoder extends ObjectYPT
             if ($obj->hasNext) {
                 $rowsDownloading = static::areDownloading();
                 $obj->rowsDownloading = !empty($rowsDownloading);
+                _error_log('Encoder::run cannot encode now. rowsDownloading=' . ($obj->rowsDownloading ? 'true' : 'false') . ' nextId=' . intval($rowNext['id']));
                 if (!$obj->rowsDownloading) {
                     $obj->nextId = $rowNext['id'];
                     $objFile = static::downloadFile($rowNext['id']);
@@ -1638,6 +1643,7 @@ class Encoder extends ObjectYPT
             }
             $msg .= (count($rows) == 1) ? " is encoding" : " are encoding";
             $obj->msg = $msg;
+            _error_log('Encoder::run exit: ' . $msg);
         }
         //_error_log("Encoder::run: Lock file deleted $lockFile");
         // Remove the lock file before returning

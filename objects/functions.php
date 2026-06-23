@@ -1197,19 +1197,32 @@ function execAsync($command)
     global $global;
     // If windows, else
     $log = strpos($command, 'run.php') === false;
+    $isRunCommand = strpos($command, 'run.php') !== false;
 
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-        error_log($command);
+        if ($isRunCommand) {
+            error_log('execAsync run.php command: ' . $command);
+        } else {
+            error_log($command);
+        }
         $pid = exec($command, $output, $retval);
-        error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
+        if ($isRunCommand) {
+            error_log('execAsync run.php result: retval=' . $retval . ' output=' . json_encode($output));
+        } else {
+            error_log('execAsync: ' . json_encode($output) . ' ' . $retval);
+        }
     } else {
         $newCmd = "nohup " . $command . " > /dev/null 2>&1 & echo $!;";
         if ($log) {
             error_log('execAsync start: ' . $newCmd);
+        } elseif ($isRunCommand) {
+            error_log('execAsync run.php start: ' . $newCmd);
         }
         $pid = shell_exec($newCmd);
         if ($log) {
             error_log('execAsync end  : ' . $pid);
+        } elseif ($isRunCommand) {
+            error_log('execAsync run.php end: ' . $pid);
         }
     }
     return trim($pid);
@@ -1221,7 +1234,10 @@ function execRun()
     global $global;
     $php = getPHP() . " -f";
     $cmd = "{$php} {$global['systemRootPath']}view/run.php";
-    return execAsync($cmd);
+    error_log('execRun: dispatching command=' . $cmd);
+    $result = execAsync($cmd);
+    error_log('execRun: dispatch result=' . json_encode($result));
+    return $result;
 }
 
 function getPHP()
