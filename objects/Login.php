@@ -290,7 +290,20 @@ if (!class_exists('Login')) {
          */
         static function getAllowedResolutions($streamersId) {
             _error_log("Login::getAllowedResolutions - isLogged: " . json_encode(static::isLogged()));
-            _error_log("Login::getAllowedResolutions - Session login data: " . json_encode($_SESSION['login'] ?? 'no session'));
+            $sessionLogin = $_SESSION['login'] ?? null;
+            if (is_object($sessionLogin)) {
+                $sessionSummary = array(
+                    'isLogged' => !empty($sessionLogin->isLogged),
+                    'streamers_id' => isset($sessionLogin->streamers_id) ? intval($sessionLogin->streamers_id) : 0,
+                    'hasAllowedResolutions' => isset($sessionLogin->allowedResolutions),
+                    'allowedResolutionsCount' => (isset($sessionLogin->allowedResolutions) && is_array($sessionLogin->allowedResolutions)) ? count($sessionLogin->allowedResolutions) : 0,
+                    'canUpload' => !empty($sessionLogin->canUpload),
+                    'isAdmin' => !empty($sessionLogin->isAdmin)
+                );
+            } else {
+                $sessionSummary = 'no session';
+            }
+            _error_log("Login::getAllowedResolutions - Session login summary: " . json_encode($sessionSummary));
 
             // First, check if we have a logged user with valid allowedResolutions
             if (static::isLogged() && !empty($_SESSION['login']->allowedResolutions) && is_array($_SESSION['login']->allowedResolutions)) {
