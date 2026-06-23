@@ -47,25 +47,56 @@ if (is_dir($videosListToLivePath)) {
                         }
 
                         $epgJsonFile = "{$dir}{$file2}";
-                        $json = json_decode(file_get_contents($epgJsonFile));
+                        if (!is_readable($epgJsonFile)) {
+                            error_log("videosListEPG: unreadable EPG json file {$epgJsonFile}");
+                            continue;
+                        }
+
+                        $jsonRaw = file_get_contents($epgJsonFile);
+                        if ($jsonRaw === false || $jsonRaw === '') {
+                            error_log("videosListEPG: empty EPG json file {$epgJsonFile}");
+                            continue;
+                        }
+
+                        $json = json_decode($jsonRaw);
+                        if (!is_object($json)) {
+                            error_log("videosListEPG: invalid JSON in {$epgJsonFile} error=" . json_last_error_msg());
+                            continue;
+                        }
+
+                        if (empty($json->key)) {
+                            error_log("videosListEPG: missing key in {$epgJsonFile}");
+                            continue;
+                        }
+                        if (empty($json->playlists_id)) {
+                            $json->playlists_id = $playlist_id;
+                        }
                         $json->liveDir = "/HLS/live/{$json->key}_{$json->playlists_id}/";
                         $zeroFile = $json->liveDir . "0.ts";
                         if (empty($json->created)) {
-                            $json->created = filectime($zeroFile);
-                            $json->created_date = date("Y-m-d H:i:s", $json->created);
-                            file_put_contents($epgJsonFile, json_encode($json));
+                            if (is_file($zeroFile)) {
+                                $json->created = filectime($zeroFile);
+                                $json->created_date = date("Y-m-d H:i:s", $json->created);
+                                file_put_contents($epgJsonFile, json_encode($json));
+                            } else {
+                                $json->created = 0;
+                                $json->created_date = '';
+                            }
                         } else {
-                            $created = filectime($zeroFile);
+                            $created = is_file($zeroFile) ? filectime($zeroFile) : 0;
                             if (!empty($created) && $created != $json->created) {
                                 $json->created = $created;
                                 $json->created_date = date("Y-m-d H:i:s", $json->created);
                                 file_put_contents($epgJsonFile, json_encode($json));
                             }
                         }
+                        if (empty($json->programme) || !is_array($json->programme)) {
+                            $json->programme = array();
+                        }
                         $currentProgramStart = $json->created;
                         $json_total = count($json->programme);
                         $json->finished = false;
-                        $json->isPIDRunning = isPIDRunning($json->pid);
+                        $json->isPIDRunning = !empty($json->pid) ? isPIDRunning($json->pid) : false;
                         $json_not_finished = 0;
                         foreach ($json->programme as $key => $value) {
                             $json->programme[$key]->current = false;
@@ -90,7 +121,7 @@ if (is_dir($videosListToLivePath)) {
                             } else if ($json->programme[$key]->start < $epg->generated) {
                                 $json->programme[$key]->current = $epg->generated - $json->programme[$key]->start;
                             } else if ($json->programme[$key]->start > $epg->generated) {
-                                $json->programme[$key]->seconds_left_to_start = $json->programme[$key]->start - $epg->generate;
+                                $json->programme[$key]->seconds_left_to_start = $json->programme[$key]->start - $epg->generated;
                             }
                         }
                         $json_total = count($json->programme);
