@@ -29,10 +29,11 @@ if (!class_exists('Login')) {
             $aVideoURL,
             $encodedPass = false
         ) {
-            global $_runLogin;
+            global $_runLogin, $global;
             $aVideoURL = self::modifyUrl($aVideoURL);
 
             if (empty(getExternalHttpUrlForShell($aVideoURL, 'Login::run'))) {
+                error_log("Login::run blocked by URL safety validation. URL=({$aVideoURL}) allowPrivateNetworkURLs=" . (!empty($global['allowPrivateNetworkURLs']) ? 'true' : 'false'));
                 _session_start();
                 $object = new stdClass();
                 $object->streamer = false;
@@ -47,6 +48,7 @@ if (!class_exists('Login')) {
                 $object->categories = array();
                 $object->userGroups = array();
                 $object->PHPSESSID = session_id();
+                $object->error = 'blocked_by_url_safety_validation';
                 $_SESSION['login'] = $object;
                 return;
             }
@@ -185,9 +187,11 @@ if (!class_exists('Login')) {
         }
 
         static function isLogged() {
+            global $global;
             $isLogged = !empty($_SESSION['login']->isLogged);
             if (!$isLogged && !empty($_COOKIE['encoder_user']) && !empty($_COOKIE['encoder_pass']) && !empty($_COOKIE['encoder_aVideoURL'])) {
                 if (!Streamer::isURLAllowed($_COOKIE['encoder_aVideoURL']) || empty(getExternalHttpUrlForShell($_COOKIE['encoder_aVideoURL'], 'Login::isLogged cookie URL'))) {
+                    error_log("Login::isLogged blocked cookie auto-login by URL validation. URL=(" . $_COOKIE['encoder_aVideoURL'] . ") allowPrivateNetworkURLs=" . (!empty($global['allowPrivateNetworkURLs']) ? 'true' : 'false'));
                     return false;
                 }
                 error_log("isLogged: Login::run");
