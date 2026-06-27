@@ -3,11 +3,27 @@ header('Content-Type: application/json');
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 require_once '../objects/Login.php';
+require_once '../objects/Streamer.php';
 
-if (!Login::canUpload()) {
-    http_response_code(403);
-    echo json_encode(['error' => true, 'msg' => 'Permission denied']);
-    exit;
+// Check if this is a cross-domain API request with credentials
+$isAPIRequest = !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && !empty($_REQUEST['siteURL']);
+
+if ($isAPIRequest) {
+    // Use API authentication for cross-domain requests
+    require_once __DIR__ . '/../API/API.php';
+    $object = API::checkCredentials();
+    if (!empty($object->msg) && $object->error) {
+        http_response_code(403);
+        echo json_encode(['error' => true, 'msg' => $object->msg]);
+        exit;
+    }
+} else {
+    // Use SESSION authentication for same-domain requests
+    if (!Login::canUpload()) {
+        http_response_code(403);
+        echo json_encode(['error' => true, 'msg' => 'Permission denied']);
+        exit;
+    }
 }
 
 $config = new Configuration();
