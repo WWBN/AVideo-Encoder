@@ -30,6 +30,12 @@ if (empty($global['configurationVersion']) || $global['configurationVersion'] < 
 if (empty($global['tablesPrefix'])) {
     $global['tablesPrefix'] = '';
 }
+
+// Allow private network URLs by default for encoder-to-streamer communication
+if (!isset($global['allowPrivateNetworkURLs'])) {
+    $global['allowPrivateNetworkURLs'] = true;
+}
+
 header('Set-Cookie: cross-site-cookie=name; SameSite=None; Secure');
 require_once $global['systemRootPath'] . 'objects/security.php';
 

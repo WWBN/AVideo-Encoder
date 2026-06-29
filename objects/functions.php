@@ -787,6 +787,16 @@ function getExternalHttpUrlForShell($url, $context = 'remote URL')
         return false;
     }
 
+    // Check if this hostname is in the whitelist of trusted private network domains
+    $trustedPrivateDomains = !empty($global['trustedPrivateDomains']) ? $global['trustedPrivateDomains'] : array();
+    if (!is_array($trustedPrivateDomains)) {
+        $trustedPrivateDomains = array_map('trim', explode(',', $trustedPrivateDomains));
+    }
+    if (in_array($host, $trustedPrivateDomains)) {
+        error_log("{$context}: hostname allowed by whitelist ({$host})");
+        return $url;
+    }
+
     $ips = array();
     if (filter_var($host, FILTER_VALIDATE_IP)) {
         $ips[] = $host;
