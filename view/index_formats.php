@@ -73,6 +73,29 @@
         background-color: #079ad9;
     }
 
+    .radio-tile-group .input-container .radio-tile-disabled {
+        border-color: #999;
+        opacity: 0.75;
+        position: relative;
+    }
+
+    .radio-tile-group .input-container .radio-tile-disabled i {
+        color: #888;
+    }
+
+    .radio-tile-group .input-container .radio-tile-disabled .radio-tile-label {
+        color: #888;
+    }
+
+    .radio-tile-group .input-container .hls-disabled-help {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        font-size: 1.4em;
+        color: #f0ad4e;
+        cursor: help;
+    }
+
 </style>
 
 <div class="radio-tile-group" id="automaticOptions">
@@ -93,6 +116,22 @@
                     <i class="fas fa-file-video fa-2x"></i>
                 </div>
                 <label for="inputAutoHLS" class="radio-tile-label">HLS</label>
+            </div>
+        </div>
+        <?php
+    } else {
+        $countEncodeOptions++;
+        $hlsDisabledReason = !empty($advancedCustom->encoderHLSDisabledReason) ? $advancedCustom->encoderHLSDisabledReason : __('HLS is currently unavailable.');
+        ?>
+        <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
+            <div class="radio-tile radio-tile-disabled">
+                <div class="icon fly-icon">
+                    <i class="fas fa-file-video fa-2x"></i>
+                </div>
+                <label class="radio-tile-label">HLS</label>
+                <span class="hls-disabled-help" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($hlsDisabledReason, ENT_QUOTES, 'UTF-8'); ?>">
+                    <i class="fas fa-exclamation-circle"></i>
+                </span>
             </div>
         </div>
         <?php

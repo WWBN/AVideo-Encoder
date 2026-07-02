@@ -234,13 +234,35 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 error_log("ERROR on get {$aURL} " . $json_file);
                 $advancedCustom = new stdClass();
             }
-            $result = json_decode($_SESSION['login']->result);
-            if (empty($result->videoHLS)) {
+            $loginResult = null;
+            if (!empty($_SESSION['login']->result)) {
+                $loginResult = json_decode($_SESSION['login']->result);
+            }
+
+            $streamerVideoHLS = null;
+            if (isset($_SESSION['login']->videoHLS)) {
+                $streamerVideoHLS = !empty($_SESSION['login']->videoHLS);
+            } elseif (is_object($loginResult) && isset($loginResult->videoHLS)) {
+                $streamerVideoHLS = !empty($loginResult->videoHLS);
+            }
+
+            if ($streamerVideoHLS === false) {
                 $advancedCustom->doNotShowEncoderHLS = true;
                 $advancedCustom->doNotShowEncoderAutomaticHLS = true;
-            } else if (!isset($advancedCustom->doNotShowEncoderHLS)) {
+            } else if ($streamerVideoHLS === true && !isset($advancedCustom->doNotShowEncoderHLS)) {
                 $advancedCustom->doNotShowEncoderHLS = false;
                 $advancedCustom->doNotShowEncoderAutomaticHLS = false;
+            }
+
+            $advancedCustom->encoderHLSDisabledReason = '';
+            if (!empty($advancedCustom->doNotShowEncoderAutomaticHLS)) {
+                if ($streamerVideoHLS === false) {
+                    $advancedCustom->encoderHLSDisabledReason = __('HLS is disabled on your streamer settings (videoHLS is off).');
+                } elseif ($streamerVideoHLS === null) {
+                    $advancedCustom->encoderHLSDisabledReason = __('Encoder could not confirm HLS permission from your streamer login response.');
+                } else {
+                    $advancedCustom->encoderHLSDisabledReason = __('HLS was disabled by encoder advanced configuration.');
+                }
             }
             fixAdvancedCustom($advancedCustom);
         ?>
