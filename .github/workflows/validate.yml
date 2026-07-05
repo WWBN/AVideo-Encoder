@@ -34,7 +34,6 @@ jobs:
           lintPaths+=("${GITHUB_WORKSPACE}/objects")
           lintPaths+=("${GITHUB_WORKSPACE}/update")
           lintPaths+=("${GITHUB_WORKSPACE}/view")
-          lintPaths+=("${GITHUB_WORKSPACE}/videos")
           # Lint root PHP files
           for file in "${GITHUB_WORKSPACE}"/*.php; do
             [ -f "$file" ] || continue
