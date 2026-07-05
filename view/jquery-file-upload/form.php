@@ -66,7 +66,7 @@ if(!isset($global['videoEditorForcePlaylist'])){
                 </div>
                 <div class="col-sm-6">
                     <input type="checkbox" id="videoEditorToggle">
-                    <label for="videoEditorToggle"><?php echo __('Edit while Upload'); ?></label>
+                    <label for="videoEditorToggle"><?php echo __('Edit while uploading'); ?></label>
                     <script>
                         var videoEditorEnabledByDefault = <?php echo empty($global['videoEditorEnabledByDefault']) ? 'false' : 'true'; ?>;
                         var videoEditorForcePlaylist = <?php echo empty($global['videoEditorForcePlaylist']) ? 'false' : 'true'; ?>;

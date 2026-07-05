@@ -37,6 +37,7 @@ $t['Downloading'] = 'Downloading';
 $t['Drop Here'] = 'Drop Here';
 $t['Drop Your Files Here'] = 'Drop Your Files Here';
 $t['Edit'] = 'Edit';
+$t['Edit while uploading'] = 'Edit while uploading';
 $t['Error'] = 'Error';
 $t['Extract Audio'] = 'Extract Audio';
 $t['Extract WebM Video'] = 'Extract WebM Video';
