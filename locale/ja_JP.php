@@ -37,6 +37,7 @@ $t['Downloading'] = 'ダウンロード中';
 $t['Drop Here'] = 'ここにドロップ';
 $t['Drop Your Files Here'] = 'ここにファイルをドロップ';
 $t['Edit'] = '編集';
+$t['Edit while uploading'] = 'アップロード中に編集';
 $t['Error'] = 'エラー';
 $t['Extract Audio'] = '音声を抽出';
 $t['Extract WebM Video'] = 'WebMビデオを抽出';

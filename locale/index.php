@@ -7,7 +7,6 @@ function listAll($dir)
     if (preg_match('/vendor.*$/', $dir)) {
         return $vars;
     }
-    //echo $dir.'<br>';
     if ($handle = opendir($dir)) {
         while (false !== ($entry = readdir($handle))) {
             if ($entry !== '.' && $entry !== '..') {
@@ -16,14 +15,8 @@ function listAll($dir)
                     $vars_dir = listAll($filename);
                     $vars = array_merge($vars, $vars_dir);
                 } elseif (preg_match("/\.php$/", $entry)) {
-                    //echo $entry.PHP_EOL;
                     $data = file_get_contents($filename);
-                    $regex = '/__\(["\']{1}(.*)["\']{1}\)/U';
-                    preg_match_all(
-                        $regex,
-                        $data,
-                        $matches
-                    );
+                    preg_match_all('/__\(["\']{1}(.*)["\']{1}\)/U', $data, $matches);
                     foreach ($matches[0] as $key => $value) {
                         $vars[$matches[1][$key]] = $matches[1][$key];
                     }
@@ -36,9 +29,7 @@ function listAll($dir)
 }
 
 $vars1 = listAll('../');
-//var_dump($vars1);exit;
 $vars2 = listAll('../view');
-//var_dump($vars2);exit;
 $vars3 = listAll('../objects');
 
 $vars = array_merge($vars1, $vars2, $vars3);
