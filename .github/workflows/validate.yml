@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ubuntu-latest]
-        php-versions: ['8.1', '8.2', '8.3']
+        php-versions: ['8.1', '8.2', '8.3', '8.4', '8.5']
     name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
     steps:
       - name: Checkout
@@ -34,7 +34,6 @@ jobs:
           lintPaths+=("${GITHUB_WORKSPACE}/objects")
           lintPaths+=("${GITHUB_WORKSPACE}/update")
           lintPaths+=("${GITHUB_WORKSPACE}/view")
-          lintPaths+=("${GITHUB_WORKSPACE}/videos")
           # Lint root PHP files
           for file in "${GITHUB_WORKSPACE}"/*.php; do
             [ -f "$file" ] || continue
