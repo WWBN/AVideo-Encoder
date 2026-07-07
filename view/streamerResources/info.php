@@ -25,6 +25,22 @@
             <strong><?php echo __('PHP Version'); ?>:</strong> <?php echo phpversion(); ?>
         </p>
         <p>
+            <span class="fas fa-file-code"></span>
+            <strong><?php echo __('php.ini location'); ?>:</strong>
+            <code><?php echo php_ini_loaded_file() ?: __('(none loaded)'); ?></code>
+            <?php $extraInis = php_ini_scanned_files();
+            if ($extraInis): ?>
+            <br><small class="text-muted"><?php echo __('Also scanning'); ?>: <code><?php echo $extraInis; ?></code></small>
+            <?php endif; ?>
+        </p>
+        <p>
+            <span class="fas fa-upload"></span>
+            <strong><?php echo __('upload_max_filesize'); ?>:</strong> <?php echo ini_get('upload_max_filesize'); ?>
+            &nbsp;|&nbsp;
+            <strong><?php echo __('post_max_size'); ?>:</strong> <?php echo ini_get('post_max_size'); ?>
+            <br><small class="text-muted"><?php echo __('Max File Size uses the smaller of these two values'); ?></small>
+        </p>
+        <p>
             <span class="fas fa-memory"></span>
             <strong><?php echo __('Memory Limit'); ?>:</strong> <?php echo ini_get('memory_limit'); ?>
         </p>
