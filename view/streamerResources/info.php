@@ -28,10 +28,6 @@
             <span class="fas fa-file-code"></span>
             <strong><?php echo __('php.ini location'); ?>:</strong>
             <code><?php echo php_ini_loaded_file() ?: __('(none loaded)'); ?></code>
-            <?php $extraInis = php_ini_scanned_files();
-            if ($extraInis): ?>
-            <br><small class="text-muted"><?php echo __('Also scanning'); ?>: <code><?php echo $extraInis; ?></code></small>
-            <?php endif; ?>
         </p>
         <p>
             <span class="fas fa-upload"></span>
