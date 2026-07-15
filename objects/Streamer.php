@@ -139,7 +139,13 @@ if (!class_exists('Streamer')) {
             if (!isset($this->priority)) {
                 $this->priority = 6;
             }
-            return parent::save();
+            $id = parent::save();
+            // Ensure every streamer site is registered on search.avideo.com.
+            // verify() uses a 1 hour cache, so repeated saves won't spam the HTTP endpoint.
+            if (!empty($this->getSiteURL())) {
+                $this->verify();
+            }
+            return $id;
         }
 
         function verify()
