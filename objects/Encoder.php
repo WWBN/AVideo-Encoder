@@ -2111,6 +2111,25 @@ class Encoder extends ObjectYPT
         $target = trim($aVideoURL . "aVideoEncoderChunk.json");
         $obj->target = $target;
 
+        // Site-issued, time-limited token that authorises writing chunks back to the
+        // streamer. Sent as an HTTP header so it never lands in access logs / query strings.
+        // Only jobs dispatched by the site's queue() carry this token.
+        $uploadToken = '';
+        if (is_object($return_vars) && !empty($return_vars->encoderChunkToken)) {
+            $uploadToken = $return_vars->encoderChunkToken;
+        } elseif (!empty($encoder)) {
+            $storedReturnVars = json_decode($encoder->getReturn_vars());
+            if (is_object($storedReturnVars) && !empty($storedReturnVars->encoderChunkToken)) {
+                $uploadToken = $storedReturnVars->encoderChunkToken;
+            }
+        }
+
+        // Universal fallback for jobs that carry no token (e.g. direct encoder upload or
+        // link import): the streamer credentials the encoder already uses for sendToStreamer.
+        // The receiver validates these the same way aVideoEncoder.json.php does.
+        $streamerUser = $s->getUser();
+        $streamerPass = $s->getPass();
+
         // Split the file into 500 MB PUT requests so each one stays well under
         // Apache's LimitRequestBody (typically 1 GB). Using HTTP Transfer-Encoding:
         // chunked is NOT enough — that is still a single request body; Apache counts
@@ -2150,6 +2169,22 @@ class Encoder extends ObjectYPT
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
             curl_setopt($ch, CURLOPT_TIMEOUT, 14400);
+            curl_setopt($ch, CURLOPT_USERAGENT, getSelfUserAgent());
+            // Prefer the no-DB token; otherwise present streamer credentials for the fallback.
+            $chunkHeaders = [];
+            if (!empty($uploadToken)) {
+                $chunkHeaders[] = 'X-Encoder-Upload-Token: ' . $uploadToken;
+            } else {
+                if (!empty($streamerUser)) {
+                    $chunkHeaders[] = 'X-Encoder-User: ' . $streamerUser;
+                }
+                if (!empty($streamerPass)) {
+                    $chunkHeaders[] = 'X-Encoder-Pass: ' . $streamerPass;
+                }
+            }
+            if (!empty($chunkHeaders)) {
+                curl_setopt($ch, CURLOPT_HTTPHEADER, $chunkHeaders);
+            }
             curl_setopt($ch, CURLOPT_READFUNCTION, function ($ch, $fd, $length) use ($stream, &$bytesSentInChunk, $chunkBytes) {
                 $remaining = $chunkBytes - $bytesSentInChunk;
                 if ($remaining <= 0) {

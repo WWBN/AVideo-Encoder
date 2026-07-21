@@ -68,7 +68,10 @@ if (empty($e->getId())) {
     }
     $obj = new stdClass();
     $obj->videos_id = @$_POST['videos_id'];
-    // notify streamer if need
+    // Carry the site-issued chunk-upload token so it round-trips back on chunk PUTs.
+    if (!empty($_POST['encoderChunkToken'])) {
+        $obj->encoderChunkToken = $_POST['encoderChunkToken'];
+    }
     if (empty($obj->videos_id)) {
         $f = new Format($e->getFormats_id());
         $format = $f->getExtension();
