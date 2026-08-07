@@ -832,40 +832,19 @@ function getExternalHttpUrlForShell($url, $context = 'remote URL')
 }
 
 /**
- * webservice to use the streamer to encode the password
+ * Locally reproduce the streamer's password transform.
+ * Computed here instead of calling objects/encryptPass.json.php remotely: that
+ * endpoint has no pre-shared secret to offer for a streamer the encoder has
+ * never talked to before, so any remote token scheme is forgeable. A single
+ * encoder can therefore serve any number of different streamers with no
+ * network round trip and no shared secret to manage.
  * @param String $password
- * @param String $streamerURL
+ * @param String $streamerURL unused, kept for call-site compatibility
  * @return String
  */
 function encryptPassword($password, $streamerURL)
 {
-    global $global;
-
-    // Compatibility strategy:
-    // 1) If a private shared token is configured, try it first.
-    // 2) Always keep legacy fallback keyed by streamerURL to avoid breaking
-    //    existing multi-streamer deployments.
-    $tokenCandidates = [];
-    $nowWindow = (string) floor(time() / 300);
-
-    if (!empty($global['encryptPassEncoderToken'])) {
-        $tokenCandidates[] = hash_hmac('sha256', $nowWindow, (string) $global['encryptPassEncoderToken']);
-    }
-
-    // Legacy token fallback expected by current streamer installations.
-    $tokenCandidates[] = hash_hmac('sha256', $nowWindow, (string) $streamerURL);
-    $tokenCandidates = array_values(array_unique($tokenCandidates));
-
-    foreach ($tokenCandidates as $token) {
-        $url = "{$streamerURL}objects/encryptPass.json.php?pass=" . urlencode($password) . "&token=" . urlencode($token);
-        $streamerEncrypt = json_decode(url_get_contents($url));
-        if (!empty($streamerEncrypt) && !empty($streamerEncrypt->encryptedPassword)) {
-            return $streamerEncrypt->encryptedPassword;
-        }
-    }
-
-    error_log("ERROR on encryptPassword " . $streamerURL . "objects/encryptPass.json.php");
-    return '';
+    return md5(hash('whirlpool', sha1($password)));
 }
 
 function zipDirectory($destinationFile)
