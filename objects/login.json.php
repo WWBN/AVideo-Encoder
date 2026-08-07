@@ -20,13 +20,18 @@ if (!Streamer::isURLAllowed($_POST['siteURL'])) {
     die(json_encode($object));
 }
 error_log('login.json: Login::run');
-Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL'], $_POST['encodedPass']);
+$loginResult = Login::run($_POST['user'], $_POST['pass'], $_POST['siteURL'], $_POST['encodedPass']);
+if ($loginResult === false) {
+    error_log('login.json: Login::run returned false (site not verified/banned)');
+    $object->error = 'Your site is banned';
+    die(json_encode($object));
+}
 if (!empty($_SESSION['login'])) {
     error_log('login.json: session login created isLogged=' . (!empty($_SESSION['login']->isLogged) ? 'true' : 'false') . ' canUpload=' . (!empty($_SESSION['login']->canUpload) ? 'true' : 'false') . ' streamer=' . (!empty($_SESSION['login']->streamer) ? 'true' : 'false') . ' error=' . (!empty($_SESSION['login']->error) ? $_SESSION['login']->error : 'none'));
     $json = json_encode($_SESSION['login']);
 } else {
     error_log('login.json: session login object missing after Login::run');
-    $object->error = 'Your site is banned';
+    $object->error = 'Unable to verify/login to streamer site';
     die(json_encode($object));
 }
 

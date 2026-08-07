@@ -25,11 +25,15 @@ class API
             die(json_encode($object));
         }
         error_log('login.json: Login::run');
-        Login::run($object->login->user, $_REQUEST['pass'], $object->login->siteURL, @$_REQUEST['encodedPass']);
+        $loginResult = Login::run($object->login->user, $_REQUEST['pass'], $object->login->siteURL, @$_REQUEST['encodedPass']);
+        if ($loginResult === false) {
+            $object->msg = 'Your site is banned';
+            die(json_encode($object));
+        }
         if (!empty($_SESSION['login'])) {
             $object->login->streamers_id = intval($_SESSION['login']->streamers_id);
         } else {
-            $object->msg = 'Your site is banned';
+            $object->msg = 'Unable to verify/login to streamer site';
             die(json_encode($object));
         }
         return $object;
