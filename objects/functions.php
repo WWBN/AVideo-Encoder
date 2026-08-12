@@ -1152,7 +1152,13 @@ function isSameDomain($url1, $url2)
     if (empty($url1) || empty($url2)) {
         return false;
     }
-    return (get_domain($url1) === get_domain($url2));
+    $d1 = get_domain($url1);
+    $d2 = get_domain($url2);
+    // fail closed: an unparsed host must never compare equal to another unparsed host
+    if (empty($d1) || empty($d2)) {
+        return false;
+    }
+    return $d1 === $d2;
 }
 
 function get_domain($url)
@@ -1162,15 +1168,10 @@ function get_domain($url)
     if (empty($domain)) {
         return false;
     }
-    if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
-        return rtrim($regs['domain'], '/');
-    } else {
-        $isIp = (bool) ip2long($pieces['host']);
-        if ($isIp) {
-            return $pieces['host'];
-        }
-    }
-    return false;
+    // Exact host match; the previous regex collapsed sibling subdomains to
+    // the same value and rejected long gTLDs, both of which let watermark.php's
+    // domain allow-list be bypassed.
+    return strtolower($domain);
 }
 
 function isPIDRunning($pid)

@@ -143,8 +143,17 @@ if (!class_exists('Login')) {
                             $s = new Streamer($object->streamers_id);
                             $resultV = $s->verify();
                             if (!empty($resultV) && !$resultV->verified) {
-                                error_log("Error on Login not verified");
-                                return false;
+                                $verificationMessage = '';
+                                if (!empty($resultV->msg)) {
+                                    $verificationMessage = is_array($resultV->msg) ? implode(' ', $resultV->msg) : (string) $resultV->msg;
+                                }
+                                $siteUnavailable = !empty($resultV->isPrivate)
+                                    || preg_match('/does not respond|not accessible|unreachable|timed out|timeout|could not connect|connection failed/i', $verificationMessage);
+                                if (!$siteUnavailable) {
+                                    error_log("Error on Login not verified");
+                                    return false;
+                                }
+                                error_log("Verification unavailable; allowing login for {$aVideoURL}: {$verificationMessage}");
                             }
 
                             $object->isStreamerAdmin = $object->isAdmin;
