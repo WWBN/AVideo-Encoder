@@ -957,9 +957,19 @@ class Encoder extends ObjectYPT
         $global['queue_id'] = $queue_id;
         $ctx = stream_context_create($arrContextOptions);
         /////whoops! apache has to be taught to use symlinks so this won't work
-        /////trying copy instead
         _error_log("getVideoFile start($videoURL, $queue_id, $downloadedFile, $destinationFile)");
-        _rename($downloadedFile, $destinationFile, $ctx);
+        $isBulkLocalFile = is_file($downloadedFile) && !preg_match('/^https?:\/\//i', $videoURL);
+        if ($isBulkLocalFile) {
+            // Bulk encoding must work on a copy. Moving the file here makes the
+            // later temporary-file cleanup delete the user's original video.
+            $transferred = copy($downloadedFile, $destinationFile, $ctx);
+        } else {
+            $transferred = _rename($downloadedFile, $destinationFile);
+        }
+        if (!$transferred) {
+            _error_log("getVideoFile error transferring [$downloadedFile] to [$destinationFile]");
+            return false;
+        }
         _error_log("getVideoFile done " . humanFileSize(filesize($destinationFile)));
         //copied from stream_contenxt_set_params
         // the file is already 100% downloaded by now
