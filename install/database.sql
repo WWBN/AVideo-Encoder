@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `filename` VARCHAR(400) NOT NULL,
   `status` VARCHAR(45) NULL,
   `status_obs` VARCHAR(255) NULL,
-  `return_vars` VARCHAR(255) NULL,
+  `return_vars` TEXT NULL DEFAULT NULL,
   `worker_pid` INT NULL,
   `worker_ppid` INT NULL,
   `priority` INT(1) NULL,

@@ -205,7 +205,14 @@ abstract class ObjectYPT implements ObjectInterface
          */
 
         //error_log($sql);
-        $insert_row = $global['mysqli']->query($sql);
+        try {
+            // PHP 8.1+ mysqli defaults to throwing mysqli_sql_exception instead of returning false,
+            // so SQL errors (e.g. "Data too long for column") must be caught here or they fatal the whole request.
+            $insert_row = $global['mysqli']->query($sql);
+        } catch (\mysqli_sql_exception $e) {
+            error_log($sql . ' Error : (' . $e->getCode() . ') ' . $e->getMessage());
+            return false;
+        }
 
         if ($insert_row) {
             if (empty($this->id)) {
