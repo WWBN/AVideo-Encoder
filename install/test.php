@@ -9,7 +9,6 @@ if (!isCommandLineInterface()) {
 
 $_REQUEST['user'] = 'admin';
 $_REQUEST['pass'] = '123';
-//$_POST['inputAutoHLS'] = true;
 $_REQUEST['notifyURL'] = str_replace("Encoder/", "", $global['webSiteRootURL']);
 $_REQUEST['notifyURL'] = str_ireplace(array('rtmp://'), array(''), $_REQUEST['notifyURL']);
 $_REQUEST['webSiteRootURL'] = $_REQUEST['notifyURL'];
@@ -32,6 +31,18 @@ if (empty($streamers_id)) {
 }
 
 echo "Logged in. Streamer ID: {$streamers_id}" . PHP_EOL;
+
+// Use HLS only if the streamer login response reports videoHLS as available, otherwise fall back to MP4
+$streamerVideoHLS = isset($_SESSION['login']->videoHLS) ? !empty($_SESSION['login']->videoHLS) : false;
+if ($streamerVideoHLS) {
+    $_REQUEST['inputAutoHLS'] = true;
+    unset($_REQUEST['inputAutoMP4']);
+    echo "Streamer supports HLS, using HLS format" . PHP_EOL;
+} else {
+    $_REQUEST['inputAutoMP4'] = true;
+    unset($_REQUEST['inputAutoHLS']);
+    echo "Streamer does not support HLS, using MP4 format" . PHP_EOL;
+}
 
 $filesURL = array(
     /*
@@ -59,11 +70,16 @@ foreach ($filesURL as $key => $value) {
     $index = $key + 1;
     $total = count($filesURL);
     echo "[{$index}/{$total}] Processing: {$value}" . PHP_EOL;
-    $result = addVideo($value, $streamers_id);
-    if (!empty($result->error)) {
-        echo "[{$index}/{$total}] ERROR: " . (isset($result->text) ? $result->text : json_encode($result)) . PHP_EOL;
-    } else {
-        echo "[{$index}/{$total}] Queued: " . (isset($result->text) ? $result->text : 'OK') . " (queue_id: " . (isset($result->queue_id) ? $result->queue_id : 'N/A') . ")" . PHP_EOL;
+    try {
+        $result = addVideo($value, $streamers_id);
+        if (!empty($result->error)) {
+            echo "[{$index}/{$total}] ERROR: " . (isset($result->text) ? $result->text : json_encode($result)) . PHP_EOL;
+        } else {
+            echo "[{$index}/{$total}] Queued: " . (isset($result->text) ? $result->text : 'OK') . " (queue_id: " . (isset($result->queue_id) ? $result->queue_id : 'N/A') . ")" . PHP_EOL;
+        }
+    } catch (\Throwable $e) {
+        // never let one failing video stop the remaining ones
+        echo "[{$index}/{$total}] EXCEPTION: " . $e->getMessage() . PHP_EOL;
     }
 }
 
