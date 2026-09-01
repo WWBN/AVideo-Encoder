@@ -3369,6 +3369,24 @@ class Encoder extends ObjectYPT
     }
 
     /**
+     * --js-runtimes was only added in a relatively recent yt-dlp release, and
+     * some installs (older version, distro package, standalone binary) don't
+     * support it and hard-fail with "no such option" for every download.
+     * Check --help output once per request instead of assuming it's there.
+     */
+    public static function ytdlSupportsJsRuntimesFlag($ytdlBin)
+    {
+        static $cache = [];
+        if (isset($cache[$ytdlBin])) {
+            return $cache[$ytdlBin];
+        }
+        $help = shell_exec(escapeshellarg($ytdlBin) . " --help 2>&1");
+        $supported = !empty($help) && strpos($help, '--js-runtimes') !== false;
+        $cache[$ytdlBin] = $supported;
+        return $supported;
+    }
+
+    /**
      * Read the yt-dlp output file and extract error messages for clearer logging
      * @param string $progressFile Path to the progress/output file
      * @return string The extracted error message or a summary of the output
@@ -3714,7 +3732,7 @@ class Encoder extends ObjectYPT
 
             // Explicitly set JS runtimes with full paths so yt-dlp finds them even if www-data has a limited PATH
             $jsRuntimeCheck = self::checkJSRuntimeAvailable();
-            if (!empty($jsRuntimeCheck['available'])) {
+            if (!empty($jsRuntimeCheck['available']) && self::ytdlSupportsJsRuntimesFlag(trim($ytdl))) {
                 $jsRuntimes = [];
                 if (!empty($jsRuntimeCheck['deno']['accessible']) && !empty($jsRuntimeCheck['deno']['path'])) {
                     $jsRuntimes[] = 'deno:' . $jsRuntimeCheck['deno']['path'];
@@ -3726,6 +3744,8 @@ class Encoder extends ObjectYPT
                     $ytdlExtraOptions .= ' --js-runtimes ' . implode(',', $jsRuntimes);
                     _error_log("getYouTubeDLCommand: JS runtimes detected: " . implode(',', $jsRuntimes));
                 }
+            } elseif (!empty($jsRuntimeCheck['available'])) {
+                _error_log("getYouTubeDLCommand: JS runtime available but yt-dlp does not support --js-runtimes, skipping");
             } else {
                 _error_log("getYouTubeDLCommand: WARNING - No JS runtime available! " . ($jsRuntimeCheck['error'] ?? 'unknown error'));
             }
