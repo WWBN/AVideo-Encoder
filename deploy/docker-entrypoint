@@ -3,6 +3,13 @@
 echo "Starting AVideo Encoder..."
 CONFIG_FILE=/etc/apache2/sites-enabled/000-default.conf
 
+# yt-dlp's site support breaks constantly as sites change; since this image has
+# no other update path, refresh it (with its curl_cffi impersonation dep) on
+# every container start. Best-effort: never fail the container start on this.
+echo "Updating yt-dlp..."
+pip3 install -U --quiet --break-system-packages yt-dlp || true
+pip3 install -U --quiet --break-system-packages curl_cffi || true
+
 echo "post_max_size = ${PHP_POST_MAX_SIZE}" >> /usr/local/etc/php/php.ini
 echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}" >> /usr/local/etc/php/php.ini
 echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME}" >> /usr/local/etc/php/php.ini
@@ -16,7 +23,7 @@ if [ "_${CREATE_TLS_CERTIFICATE}_" == "_yes_" ]; then
   mkdir -p `dirname ${TLS_CERTIFICATE_FILE}`
   mkdir -p `dirname ${TLS_CERTIFICATE_KEY}`
   subjectAltName="IP:127.0.0.1,DNS:${SERVER_NAME}"
-  
+
   CONFIG=""
   CONFIG="${CONFIG}[dn]\n"
   CONFIG="${CONFIG}C=NN\n"
@@ -32,7 +39,7 @@ if [ "_${CREATE_TLS_CERTIFICATE}_" == "_yes_" ]; then
   CONFIG="${CONFIG}subjectAltName=${subjectAltName}\n"
   CONFIG="${CONFIG}extendedKeyUsage=serverAuth\n"
   CONFIG="${CONFIG}\n"
-  
+
   openssl req -x509 \
     -out ${TLS_CERTIFICATE_FILE} -keyout ${TLS_CERTIFICATE_KEY} \
     -newkey rsa:4096 \
@@ -42,7 +49,7 @@ if [ "_${CREATE_TLS_CERTIFICATE}_" == "_yes_" ]; then
     -subj '/C=NN/L=Earth/O=avideo/OU=DEV/CN=localhost' \
     -extensions EXT -config <( \
       printf "${CONFIG}")
-  
+
   echo "New Certificate config..."
   openssl x509 -in ${TLS_CERTIFICATE_FILE} -noout -text || true
 fi

@@ -3215,7 +3215,8 @@ class Encoder extends ObjectYPT
             if (empty($addOauthFromProvider) && isYouTubeUrl($link) && Encoder::streamerHasOauth('youtube', $streamers_id)) {
                 return self::getTitleFromLink($link, $streamers_id, 'youtube');
             }
-            $response['output'] = $output;
+            $friendlyError = self::getFriendlyYtdlpError($output);
+            $response['output'] = $friendlyError !== null ? array($friendlyError) : $output;
         } else {
             _error_log("getTitleFromLink: Get Title: $cmd \n" . print_r($output, true));
             $response['output'] = end($output);
@@ -3351,6 +3352,23 @@ class Encoder extends ObjectYPT
     }
 
     /**
+     * Detects yt-dlp failures caused by the optional curl_cffi dependency
+     * being missing (needed for browser-impersonation anti-bot bypass, e.g.
+     * Dailymotion), and returns an actionable message instead of the raw
+     * technical yt-dlp output. Returns null if the text doesn't match.
+     */
+    public static function getFriendlyYtdlpError($outputText)
+    {
+        if (is_array($outputText)) {
+            $outputText = implode("\n", $outputText);
+        }
+        if (preg_match('/attempting impersonation, but none of these impersonate targets are available/i', $outputText)) {
+            return "This site requires browser impersonation to bypass anti-bot protection, but the required 'curl_cffi' python package is not installed on the server. Install it with: pip3 install -U --break-system-packages curl_cffi (then retry).";
+        }
+        return null;
+    }
+
+    /**
      * Read the yt-dlp output file and extract error messages for clearer logging
      * @param string $progressFile Path to the progress/output file
      * @return string The extracted error message or a summary of the output
@@ -3364,6 +3382,11 @@ class Encoder extends ObjectYPT
         $content = @file_get_contents($progressFile);
         if (empty($content)) {
             return "Progress file is empty or unreadable";
+        }
+
+        $friendlyError = self::getFriendlyYtdlpError($content);
+        if ($friendlyError !== null) {
+            return $friendlyError;
         }
 
         // Look for common yt-dlp error patterns

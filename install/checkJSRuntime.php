@@ -452,7 +452,10 @@ function installYtdlp() {
     // Try pip first (recommended method)
     if (commandExists('pip3')) {
         printMsg("Installing yt-dlp via pip3...", COLOR_YELLOW);
-        $result = execCommand("pip3 install --upgrade yt-dlp", "Installing yt-dlp with pip3");
+        $result = execCommand("pip3 install --upgrade --break-system-packages yt-dlp", "Installing yt-dlp with pip3");
+        // curl_cffi enables yt-dlp's browser impersonation, required by some sites
+        // (e.g. Dailymotion) to bypass anti-bot 403 errors. Best-effort, not fatal.
+        execCommand("pip3 install --upgrade --break-system-packages curl_cffi", "Installing curl_cffi (impersonation support)");
         if ($result && commandExists('yt-dlp')) {
             printMsg("✓ yt-dlp installed successfully via pip3", COLOR_GREEN);
             return true;
@@ -489,7 +492,10 @@ function updateYtdlp() {
     // Try pip upgrade
     if (commandExists('pip3')) {
         printMsg("Trying pip3 upgrade...", COLOR_YELLOW);
-        execCommand("pip3 install --upgrade yt-dlp", "Upgrading yt-dlp with pip3");
+        execCommand("pip3 install --upgrade --break-system-packages yt-dlp", "Upgrading yt-dlp with pip3");
+        // curl_cffi enables yt-dlp's browser impersonation, required by some sites
+        // (e.g. Dailymotion) to bypass anti-bot 403 errors. Best-effort, not fatal.
+        execCommand("pip3 install --upgrade --break-system-packages curl_cffi", "Upgrading curl_cffi (impersonation support)");
     }
 
     $version = getVersion('yt-dlp');
