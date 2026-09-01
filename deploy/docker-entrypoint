@@ -7,8 +7,9 @@ CONFIG_FILE=/etc/apache2/sites-enabled/000-default.conf
 # no other update path, refresh it (with its curl_cffi impersonation dep) on
 # every container start. Best-effort: never fail the container start on this.
 echo "Updating yt-dlp..."
-pip3 install -U --quiet --break-system-packages yt-dlp || true
-pip3 install -U --quiet --break-system-packages curl_cffi || true
+PIP_BREAK_FLAG=$(pip3 install --help 2>&1 | grep -q -- '--break-system-packages' && echo '--break-system-packages' || echo '')
+pip3 install -U --quiet $PIP_BREAK_FLAG yt-dlp || true
+pip3 install -U --quiet $PIP_BREAK_FLAG curl_cffi || true
 
 echo "post_max_size = ${PHP_POST_MAX_SIZE}" >> /usr/local/etc/php/php.ini
 echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}" >> /usr/local/etc/php/php.ini

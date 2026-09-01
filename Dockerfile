@@ -81,8 +81,9 @@ RUN apt-get install -y --no-install-recommends \
       /var/tmp/* \
       /root/.cache && \
     a2enmod rewrite expires headers ssl && \
-    pip3 install -U --break-system-packages yt-dlp && \
-    (pip3 install -U --break-system-packages curl_cffi || true) && \
+    PIP_BREAK_FLAG=$(pip3 install --help 2>&1 | grep -q -- '--break-system-packages' && echo '--break-system-packages' || echo '') && \
+    pip3 install -U $PIP_BREAK_FLAG yt-dlp && \
+    (pip3 install -U $PIP_BREAK_FLAG curl_cffi || true) && \
     rm -rf /var/www/html/*
 
 COPY install /var/www/html/install
