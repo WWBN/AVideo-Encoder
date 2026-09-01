@@ -72,6 +72,7 @@ class HLSProcessor
 
         self::createMP3AndPM4IfNeed($pathFileName, $destinationFile);
 
+        $audioGroupAvailable = false;
         // Generate separate audio-only HLS streams for each audio track
         foreach ($audioTracks as $key => $track) {
             $language = isset($track->language) ? $track->language : "lang" . ($track->index + 1); // Assign language name, customize as needed
@@ -106,8 +107,14 @@ class HLSProcessor
                 // Add audio track entry to the master playlist
                 $default = ($track->index == 0) ? "YES" : "NO"; // Set first audio track as default
                 $masterPlaylist .= "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio_group\",NAME=\"{$track->title}\",LANGUAGE=\"{$language}\",DEFAULT={$default},AUTOSELECT=YES,URI=\"audio_tracks/{$langDir}/audio.m3u8\"" . PHP_EOL;
+                $audioGroupAvailable = true;
             }
         }
+
+        // AUDIO="audio_group" must only be referenced if an #EXT-X-MEDIA group was actually
+        // emitted above (e.g. source has no audio track at all) - otherwise it's a dangling
+        // reference and players may fail to find/play any audio.
+        $audioAttr = !empty($audioGroupAvailable) ? ",AUDIO=\"audio_group\"" : '';
 
         $ffmpegCommand = '';
         $resolutionsFound = 0;
@@ -124,7 +131,7 @@ class HLSProcessor
 
                 // Add resolution playlist entry to the master playlist
                 $width = self::getScaledWidth($pathFileName, $value);
-                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$value},AUDIO=\"audio_group\"" . PHP_EOL;
+                $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$value}{$audioAttr}" . PHP_EOL;
 
                 $masterPlaylist .= "res{$value}/index.m3u8" . PHP_EOL;
 
@@ -152,7 +159,7 @@ class HLSProcessor
 
             // Add resolution playlist entry to the master playlist
             $width = self::getScaledWidth($pathFileName, $fallbackResolution);
-            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$fallbackResolution},AUDIO=\"audio_group\"" . PHP_EOL;
+            $masterPlaylist .= "#EXT-X-STREAM-INF:BANDWIDTH=" . ($rate * 1000) . ",RESOLUTION={$width}x{$fallbackResolution}{$audioAttr}" . PHP_EOL;
 
             $masterPlaylist .= "res{$fallbackResolution}/index.m3u8" . PHP_EOL;
 

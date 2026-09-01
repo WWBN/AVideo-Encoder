@@ -3624,9 +3624,12 @@ class Encoder extends ObjectYPT
         $strategies = [];
 
         // Strategy 1: Default - best quality MP4
+        // Fallback chain matters: some sites (e.g. Dailymotion) have no bestaudio[ext=m4a]
+        // format, so the old "/mp4" fallback silently picked a video-only mp4 (exit code 0,
+        // no audio). "bestvideo+bestaudio/best" (no ext filter) is added before giving up.
         $strategies[] = [
             'name' => 'Default (best MP4)',
-            'cmd' => "{$baseCmd} --no-check-certificate --force-ipv4 --no-playlist -k -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4' {$videoURL}"
+            'cmd' => "{$baseCmd} --no-check-certificate --force-ipv4 --no-playlist -k --merge-output-format mp4 -o {$tmpfname}.mp4 -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best' {$videoURL}"
         ];
 
         // Strategy 2: Try with web client (default, most compatible)
