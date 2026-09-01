@@ -4,12 +4,14 @@
  *
  * This script checks if Deno and Node.js are installed and accessible
  * by the web server user (www-data). If not, it automatically installs
- * and configures them for Ubuntu/Debian systems.
+ * and configures them. Also checks/installs curl_cffi (yt-dlp browser
+ * impersonation support). Works across different Ubuntu/Debian versions
+ * (detects pip3's PEP 668 support and adapts, installs pip3 if missing).
  *
  * Usage: php checkJSRuntime.php
  *
  * @author AVideo Encoder
- * @version 2.0
+ * @version 2.1
  */
 
 if (php_sapi_name() !== 'cli') {
@@ -141,6 +143,88 @@ function getFileOwner($path) {
  */
 function isRoot() {
     return trim(shell_exec('whoami')) === 'root';
+}
+
+/**
+ * Reads /etc/os-release for diagnostics. Package manager behavior (esp. pip's
+ * PEP 668 enforcement) varies across Ubuntu/Debian versions, so this is logged
+ * up front to help troubleshoot install differences between hosts.
+ */
+function getOSInfo() {
+    $info = ['id' => 'unknown', 'version_id' => '', 'pretty_name' => 'unknown'];
+    if (!file_exists('/etc/os-release')) {
+        return $info;
+    }
+    $lines = @parse_ini_file('/etc/os-release', false, INI_SCANNER_RAW) ?: [];
+    $info['id'] = $lines['ID'] ?? 'unknown';
+    $info['version_id'] = $lines['VERSION_ID'] ?? '';
+    $info['pretty_name'] = $lines['PRETTY_NAME'] ?? $info['id'];
+    return $info;
+}
+
+/**
+ * Some minimal Debian/Ubuntu images don't ship pip3 at all; install it via apt
+ * so the rest of this script can rely on pip3 across distro versions.
+ */
+function ensurePip3Installed() {
+    if (commandExists('pip3') || !isRoot() || !commandExists('apt-get')) {
+        return;
+    }
+    printMsg("pip3 not found, installing python3-pip...", COLOR_YELLOW);
+    execCommand("apt-get update", "Updating package lists");
+    execCommand("apt-get install -y python3-pip", "Installing python3-pip");
+}
+
+/**
+ * Older pip3 (pre-23.0, typically Debian 11 / Ubuntu 20.04-22.04) doesn't
+ * recognize --break-system-packages at all and fails with "no such option" if
+ * it's passed unconditionally. Newer pip3 (Debian 12+ / Ubuntu 23.04+) enforces
+ * PEP 668 and requires it. Detect support instead of assuming either way.
+ */
+function pipBreakSystemPackagesFlag() {
+    static $flag = null;
+    if ($flag === null) {
+        $help = shell_exec("pip3 install --help 2>&1");
+        $flag = (strpos($help ?? '', '--break-system-packages') !== false) ? '--break-system-packages' : '';
+    }
+    return $flag;
+}
+
+/**
+ * Check curl_cffi installation (enables yt-dlp's browser TLS impersonation,
+ * required by some sites, e.g. Dailymotion, to bypass anti-bot 403 responses)
+ */
+function checkCurlCffi() {
+    $status = ['installed' => false, 'version' => ''];
+    $result = execCommandSilent('python3 -c "import curl_cffi; print(curl_cffi.__version__)"');
+    if ($result['success']) {
+        $status['installed'] = true;
+        $status['version'] = trim($result['output']);
+    }
+    return $status;
+}
+
+/**
+ * Install/upgrade curl_cffi. Prefers yt-dlp's own "curl-cffi" extra so the
+ * installed version stays compatible with the installed yt-dlp release; falls
+ * back to a direct install if that didn't pull it in (older pip, offline mirror).
+ */
+function ensureCurlCffi() {
+    if (checkCurlCffi()['installed']) {
+        return true;
+    }
+    if (!commandExists('pip3')) {
+        return false;
+    }
+
+    $flag = pipBreakSystemPackagesFlag();
+    execCommand("pip3 install --upgrade $flag \"yt-dlp[default,curl-cffi]\"", "Ensuring curl_cffi via yt-dlp's curl-cffi extra");
+    if (checkCurlCffi()['installed']) {
+        return true;
+    }
+
+    execCommand("pip3 install --upgrade $flag curl_cffi", "Installing curl_cffi directly");
+    return checkCurlCffi()['installed'];
 }
 
 /**
@@ -449,13 +533,15 @@ function installYtdlp() {
         return false;
     }
 
+    ensurePip3Installed();
+
     // Try pip first (recommended method)
     if (commandExists('pip3')) {
         printMsg("Installing yt-dlp via pip3...", COLOR_YELLOW);
-        $result = execCommand("pip3 install --upgrade --break-system-packages yt-dlp", "Installing yt-dlp with pip3");
-        // curl_cffi enables yt-dlp's browser impersonation, required by some sites
-        // (e.g. Dailymotion) to bypass anti-bot 403 errors. Best-effort, not fatal.
-        execCommand("pip3 install --upgrade --break-system-packages curl_cffi", "Installing curl_cffi (impersonation support)");
+        $flag = pipBreakSystemPackagesFlag();
+        // The "curl-cffi" extra pulls in a curl_cffi version known-compatible with
+        // this yt-dlp release, needed for browser impersonation (e.g. Dailymotion).
+        $result = execCommand("pip3 install --upgrade $flag \"yt-dlp[default,curl-cffi]\"", "Installing yt-dlp with curl_cffi support via pip3");
         if ($result && commandExists('yt-dlp')) {
             printMsg("✓ yt-dlp installed successfully via pip3", COLOR_GREEN);
             return true;
@@ -492,10 +578,8 @@ function updateYtdlp() {
     // Try pip upgrade
     if (commandExists('pip3')) {
         printMsg("Trying pip3 upgrade...", COLOR_YELLOW);
-        execCommand("pip3 install --upgrade --break-system-packages yt-dlp", "Upgrading yt-dlp with pip3");
-        // curl_cffi enables yt-dlp's browser impersonation, required by some sites
-        // (e.g. Dailymotion) to bypass anti-bot 403 errors. Best-effort, not fatal.
-        execCommand("pip3 install --upgrade --break-system-packages curl_cffi", "Upgrading curl_cffi (impersonation support)");
+        $flag = pipBreakSystemPackagesFlag();
+        execCommand("pip3 install --upgrade $flag \"yt-dlp[default,curl-cffi]\"", "Upgrading yt-dlp with curl_cffi support via pip3");
     }
 
     $version = getVersion('yt-dlp');
@@ -504,20 +588,48 @@ function updateYtdlp() {
 }
 
 /**
+ * yt-dlp reads /etc/yt-dlp.conf on EVERY invocation (even bare "yt-dlp --version"),
+ * so an unsupported flag written there breaks the binary entirely, regardless of
+ * what CLI args the caller passes. Always verify support before persisting a flag.
+ */
+function ytdlpSupportsJsRuntimesFlag() {
+    $output = shell_exec("yt-dlp --help 2>&1");
+    return strpos($output ?? '', '--js-runtimes') !== false;
+}
+
+/**
  * Configure yt-dlp to use Node.js if Deno is not available
  */
 function configureYtdlpRuntime($denoStatus, $nodeStatus) {
     $configFile = "/etc/yt-dlp.conf";
+    $supportsJsRuntimes = ytdlpSupportsJsRuntimesFlag();
 
-    // Fix any existing config that uses the wrong runtime name 'nodejs' (should be 'node')
     if (file_exists($configFile)) {
         $currentConfig = file_get_contents($configFile);
+
+        if (!$supportsJsRuntimes) {
+            // Installed yt-dlp doesn't understand this flag: strip any --js-runtimes
+            // line so the config stops breaking every yt-dlp call on this host.
+            if (strpos($currentConfig, '--js-runtimes') !== false) {
+                printHeader("Fixing yt-dlp Runtime Configuration");
+                $fixedConfig = preg_replace('/^--js-runtimes.*\R?/m', '', $currentConfig);
+                file_put_contents($configFile, $fixedConfig);
+                printMsg("✗ Installed yt-dlp doesn't support --js-runtimes; removed it from $configFile", COLOR_YELLOW);
+            }
+            return;
+        }
+
+        // Fix any existing config that uses the wrong runtime name 'nodejs' (should be 'node')
         if (strpos($currentConfig, '--js-runtimes nodejs') !== false) {
             printHeader("Fixing yt-dlp Runtime Configuration");
             $currentConfig = str_replace('--js-runtimes nodejs', '--js-runtimes node', $currentConfig);
             file_put_contents($configFile, $currentConfig);
             printMsg("✓ Fixed invalid runtime name 'nodejs' to 'node' in $configFile", COLOR_GREEN);
         }
+    }
+
+    if (!$supportsJsRuntimes) {
+        return;
     }
 
     if ($nodeStatus['accessible'] && !$denoStatus['accessible']) {
@@ -570,11 +682,18 @@ function displayStatus($name, $status, $isAccessibilityCheck = true) {
 /**
  * Summary and final status
  */
-function printSummary($denoStatus, $nodeStatus, $ytdlpStatus) {
+function printSummary($denoStatus, $nodeStatus, $ytdlpStatus, $curlCffiStatus) {
     printHeader("Final Status");
 
     // yt-dlp status
     displayStatus("yt-dlp", $ytdlpStatus, false);
+
+    // curl_cffi status
+    if ($curlCffiStatus['installed']) {
+        printMsg("✓ curl_cffi: " . $curlCffiStatus['version'] . " (browser impersonation support)", COLOR_GREEN);
+    } else {
+        printMsg("⚠ curl_cffi: Not installed (impersonation-dependent sites, e.g. Dailymotion, may fail)", COLOR_YELLOW);
+    }
 
     // Deno status
     displayStatus("Deno", $denoStatus, true);
@@ -620,6 +739,9 @@ printMsg("╚══════════════════════�
 $currentUser = trim(shell_exec('whoami'));
 printMsg(PHP_EOL . "Running as user: $currentUser", COLOR_RESET);
 
+$osInfo = getOSInfo();
+printMsg("Detected OS: " . $osInfo['pretty_name'], COLOR_RESET);
+
 if (!isRoot()) {
     printMsg("⚠ Warning: Running without root privileges - installations may fail", COLOR_YELLOW);
     printMsg("  Recommend running as: sudo php " . basename(__FILE__), COLOR_YELLOW);
@@ -642,6 +764,23 @@ if (!$ytdlpStatus['installed']) {
     printMsg(PHP_EOL . "Checking for yt-dlp updates...", COLOR_YELLOW);
     updateYtdlp();
     $ytdlpStatus = checkYtdlp();
+}
+
+// =============================================================================
+// Step 1b: Check and install curl_cffi (browser impersonation support)
+// =============================================================================
+printHeader("Step 1b: Checking curl_cffi (browser impersonation support)");
+
+$curlCffiStatus = checkCurlCffi();
+if ($curlCffiStatus['installed']) {
+    printMsg("✓ curl_cffi: " . $curlCffiStatus['version'], COLOR_GREEN);
+} else {
+    printMsg("✗ curl_cffi: Not installed", COLOR_RED);
+    if (isRoot()) {
+        printMsg(PHP_EOL . "curl_cffi is not installed. Installing now...", COLOR_YELLOW);
+        ensureCurlCffi();
+        $curlCffiStatus = checkCurlCffi();
+    }
 }
 
 // =============================================================================
@@ -693,7 +832,7 @@ configureYtdlpRuntime($denoStatus, $nodeStatus);
 // =============================================================================
 // Final Summary
 // =============================================================================
-$allGood = printSummary($denoStatus, $nodeStatus, $ytdlpStatus);
+$allGood = printSummary($denoStatus, $nodeStatus, $ytdlpStatus, $curlCffiStatus);
 
 // Exit with appropriate code
 exit($allGood ? 0 : 1);
