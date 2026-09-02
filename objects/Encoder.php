@@ -1821,7 +1821,14 @@ class Encoder extends ObjectYPT
                     }
                     $fileExistsNow = file_exists($file);
                     _error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) ($file) exists=" . ($fileExistsNow ? 'yes' : 'NO - FILE DISAPPEARED'));
-                    $return->sends[] = self::sendFileChunk($file, $return_vars, $format, $this, $resolution);
+                    $r = self::sendFileChunk($file, $return_vars, $format, $this, $resolution);
+                    $return->sends[] = $r;
+                    // Without this, a failed transfer (e.g. cURL timeout on a large zip) was silently
+                    // ignored here and the job below was still marked DONE and deleted.
+                    if (!empty($r->error)) {
+                        $return->error = true;
+                        $return->msg = $r->msg ?? $r->response ?? 'sendFileChunk failed';
+                    }
                 }
             } else {
                 if (in_array($order_id, $global['hasHDOrder'])) {
@@ -1879,17 +1886,29 @@ class Encoder extends ObjectYPT
             $mp3AutoFile = self::getTmpFileName($this->id, 'mp3', 'autoConverted');
             if (file_exists($mp3AutoFile)) {
                 _error_log("Encoder::send() sending auto-converted MP3");
-                $return->sends[] = static::sendFileChunk($mp3AutoFile, $return_vars, 'mp3', $this);
+                $rMp3 = static::sendFileChunk($mp3AutoFile, $return_vars, 'mp3', $this);
+                $return->sends[] = $rMp3;
+                if (!empty($rMp3->error)) {
+                    $return->error = true;
+                    $return->msg = $rMp3->msg ?? $rMp3->response ?? 'sendFileChunk failed for auto-converted MP3';
+                }
             }
         }
 
-        $this->setStatus(Encoder::STATUS_DONE);
-        // check if autodelete is enabled
-        $config = new Configuration();
-        if (!empty($config->getAutodelete())) {
-            $this->delete();
+        if (empty($return->error)) {
+            $this->setStatus(Encoder::STATUS_DONE);
+            // check if autodelete is enabled
+            $config = new Configuration();
+            if (!empty($config->getAutodelete())) {
+                $this->delete();
+            } else {
+                //_error_log("Encoder::send: Autodelete Not active");
+            }
         } else {
-            //_error_log("Encoder::send: Autodelete Not active");
+            // Do NOT delete local tmp files here: at least one file failed to reach the streamer
+            // (e.g. cURL timeout on a large zip). Keep them so run.php's caller can retry/report
+            // the error instead of silently losing an already fully-encoded video.
+            _error_log("Encoder::send: at least one transfer failed, keeping local files for retry: " . json_encode($return->msg));
         }
         $this->save();
         return $return;
