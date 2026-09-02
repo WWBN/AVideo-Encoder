@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `encoder_queue` (
   `streamers_id` INT NOT NULL,
   `override_status` VARCHAR(45) NULL,
   `formats_id` INT NOT NULL,
+  `retry_count` INT NOT NULL DEFAULT 0,
   `created` DATETIME NULL,
   `modified` DATETIME NULL,
   PRIMARY KEY (`id`),

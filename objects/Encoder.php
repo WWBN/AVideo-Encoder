@@ -40,6 +40,12 @@ class Encoder extends ObjectYPT
 
     const AUDIO_EXTENSIONS = ['mp3', 'aac', 'm4a', 'ogg', 'opus', 'flac', 'wav', 'wma'];
 
+    // Max number of automatic status=error -> status=queue requeues (see requeueTransientErrors()).
+    // retry_count is only ever incremented inside requeueTransientErrors() (not wherever
+    // STATUS_ERROR is set), so this cap holds regardless of which code path failed the job.
+    // After this many requeues a job is left in error for manual review.
+    const MAX_AUTO_RETRIES = 5;
+
     protected $id;
     protected $fileURI;
     protected $filename;
@@ -57,6 +63,7 @@ class Encoder extends ObjectYPT
     protected $downloadedFileName;
     protected $streamers_id;
     protected $override_status;
+    protected $retry_count;
 
     public static function getSearchFieldsNames()
     {
@@ -306,6 +313,16 @@ class Encoder extends ObjectYPT
         return intval($this->priority);
     }
 
+    public function getRetry_count()
+    {
+        return intval($this->retry_count);
+    }
+
+    public function setRetry_count($retry_count)
+    {
+        $this->retry_count = intval($retry_count);
+    }
+
     public function getCreated()
     {
         return $this->created;
@@ -360,7 +377,7 @@ class Encoder extends ObjectYPT
         }
     }
 
-    public function setStatus_obs($status_obs)
+    public function setStatus_obs($status_obs, $setStreamerLog = true)
     {
         if (empty($status_obs)) {
             return false;
@@ -369,7 +386,7 @@ class Encoder extends ObjectYPT
         $old_status_obs = $this->status_obs;
         $this->status_obs = substr($status_obs, 0, 200);
 
-        if (!empty($this->id) && $old_status_obs !== $this->status_obs) {
+        if ($setStreamerLog && !empty($this->id) && $old_status_obs !== $this->status_obs) {
             self::setStreamerLog($this->id, $this->status_obs, Encoder::LOG_TYPE_StatusObs);
         }
     }
@@ -1173,7 +1190,12 @@ class Encoder extends ObjectYPT
         return true;
     }
 
-    private static function setStatusError($queue_id, $msg, $notifyIsDone = false)
+    // Callable from other classes (e.g. Format::exec()) so every code path that fails a job
+    // goes through the same isUploadLimitMsg() guard and status_obs bookkeeping.
+    // $notifyStreamer=false skips setStatus()/setStatus_obs()'s streamer-log side effect —
+    // required when called FROM setStreamerLog()'s own failure handling, otherwise a log-send
+    // timeout would recurse: setStreamerLog -> setStatusError -> setStatus -> setStreamerLog.
+    public static function setStatusError($queue_id, $msg, $notifyIsDone = false, $notifyStreamer = true)
     {
         global $global;
         $q = new Encoder($queue_id);
@@ -1182,8 +1204,10 @@ class Encoder extends ObjectYPT
             return false;
         }
 
-        $q->setStatus(Encoder::STATUS_ERROR);
-        $q->setStatus_obs($msg);
+        $q->setStatus(Encoder::STATUS_ERROR, $notifyStreamer);
+        $q->setStatus_obs($msg, $notifyStreamer);
+        // retry_count is NOT bumped here: see requeueTransientErrors(), the single place that
+        // increments it, so MAX_AUTO_RETRIES caps requeues no matter how this job got here.
         $saved = $q->save();
 
         if (!empty($notifyIsDone)) {
@@ -1191,6 +1215,86 @@ class Encoder extends ObjectYPT
             execRun();
         }
         return $saved;
+    }
+
+    // Only these known-transient causes are eligible for auto-retry: network hiccups talking
+    // to the streamer (timeout, DNS failure, connection refused/reset) or a 408/429/5xx HTTP
+    // response. Everything else — bad credentials/config, ffmpeg errors, missing/corrupt source,
+    // policy limits, or a message that explicitly says it should not be retried — is permanent.
+    private static function isRetryableErrorMsg($msg)
+    {
+        if (empty($msg)) {
+            return false; // no evidence this was transient, do not guess
+        }
+        if (stripos($msg, 'not retrying') !== false) {
+            return false; // explicit permanent decision from the code that produced it
+        }
+        $retryablePatterns = [
+            'timed out',
+            'timeout',
+            'could not resolve host',
+            "couldn't resolve host",
+            'name or service not known',
+            'connection refused',
+            'connection reset',
+            'failed to connect',
+            "couldn't connect to server",
+            'http 408',
+            'http 429',
+            'http 502',
+            'http 503',
+            'http 504',
+        ];
+        foreach ($retryablePatterns as $pattern) {
+            if (stripos($msg, $pattern) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Automatically requeues jobs stuck in STATUS_ERROR that look like they failed for a
+     * transient reason (e.g. a cURL timeout sending the encoded file back to the streamer),
+     * up to MAX_AUTO_RETRIES attempts, with a linear backoff so we do not hammer a
+     * temporarily-unreachable streamer. Jobs whose error message matches a known permanent
+     * cause (see isRetryableErrorMsg()) or that already exhausted MAX_AUTO_RETRIES are left
+     * alone for manual review in the admin Encoder queue.
+     */
+    public static function requeueTransientErrors()
+    {
+        $rows = static::getAll(false, true); // errorOnly
+        if (!is_array($rows)) {
+            return 0;
+        }
+        $requeued = 0;
+        foreach ($rows as $row) {
+            $retryCount = intval($row['retry_count']);
+            if ($retryCount >= self::MAX_AUTO_RETRIES) {
+                continue;
+            }
+            if (!self::isRetryableErrorMsg($row['status_obs'])) {
+                continue;
+            }
+            $modifiedTs = strtotime($row['modified']);
+            if (empty($modifiedTs)) {
+                continue;
+            }
+            $backoffMinutes = min(120, 5 * max(1, $retryCount));
+            if ((time() - $modifiedTs) < ($backoffMinutes * 60)) {
+                continue; // not due yet
+            }
+            $encoder = new Encoder($row['id']);
+            $attempt = $retryCount + 1;
+            _error_log("Encoder::requeueTransientErrors: auto-retrying id={$row['id']} attempt={$attempt}/" . self::MAX_AUTO_RETRIES . " after {$backoffMinutes}min backoff, previous error: {$row['status_obs']}");
+            $encoder->setStatus(Encoder::STATUS_QUEUE);
+            $encoder->setStatus_obs("Auto-retry attempt {$attempt}/" . self::MAX_AUTO_RETRIES . " after: " . $row['status_obs']);
+            // Bump the counter here, and only here, so it reflects requeues actually performed.
+            $encoder->setRetry_count($attempt);
+            $encoder->save();
+            $requeued++;
+        }
+        return $requeued;
     }
 
     public function exec($cmd, &$output = array(), &$return_val = 0)
@@ -1250,7 +1354,8 @@ class Encoder extends ObjectYPT
     {
         $worker_pid = $this->getWorker_pid();
         $worker_ppid = $this->getWorker_ppid();
-        self::setStatusError($this->getId(), "deleted from queue");
+        // Forward $notifyStreamer so a silent delete doesn't still write a streamer-log entry.
+        self::setStatusError($this->getId(), "deleted from queue", false, $notifyStreamer);
         if (!empty($global['killWorkerOnDelete'])) {
             if (is_numeric($worker_pid) && $worker_pid > 0) {
                 _error_log("deleteQueue kill {$worker_pid} line=" . __LINE__);
@@ -1474,6 +1579,9 @@ class Encoder extends ObjectYPT
         }
 
         $try++;
+        // Auto-recover jobs that landed in STATUS_ERROR for a transient reason (e.g. a
+        // failed transfer back to the streamer) before looking for the next job to run.
+        self::requeueTransientErrors();
         $obj = new stdClass();
         $obj->error = true;
         $rows = static::areEncoding();
@@ -2077,9 +2185,7 @@ class Encoder extends ObjectYPT
             $u->save();
         } elseif ($obj->error) {
             if(!empty($obj->response) && !empty($obj->response->msg) && !empty($encoder)){
-                $encoder->setStatus(Encoder::STATUS_ERROR);
-                $encoder->setStatus_obs($obj->response->msg);
-                $savedId = $encoder->save();
+                $savedId = self::setStatusError($encoder->getId(), $obj->response->msg);
                 _error_log("AVideo-Streamer sendFile error: ". json_encode($obj->response->msg) . ' savedId=' . $savedId . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
             }else{
                 _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)). ' '. json_encode($obj) );
@@ -2093,7 +2199,11 @@ class Encoder extends ObjectYPT
          return stripos($text, 'upload limit reached') !== false;
      }
 
-    public static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0)
+    // Max chunk-upload attempts. Each retry now resumes from the failed chunk (not the
+    // whole file, see $fileId/$startChunk below), so a more generous retry budget is cheap.
+    const MAX_CHUNK_SEND_RETRIES = 6;
+
+    public static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = "", $try = 0, $fileId = null, $startChunk = 0)
     {
 
         $obj = new stdClass();
@@ -2168,10 +2278,14 @@ class Encoder extends ObjectYPT
         // assembled path so sendFile() can register it normally.
         $chunkSize   = 500 * 1024 * 1024; // 500 MB per request
         $totalChunks = (int) ceil($obj->filesize / max($chunkSize, 1));
-        $fileId      = bin2hex(random_bytes(8)); // unique per upload attempt (16 hex chars)
+        // Keep the same fileId across retries so chunks already accepted by the receiver
+        // (aVideoEncoderChunk.json.php, keyed by file_id) are not thrown away and re-sent.
+        if (empty($fileId)) {
+            $fileId = bin2hex(random_bytes(8)); // unique per upload session (16 hex chars)
+        }
         $lastResponse = null;
 
-        _error_log("Encoder::sendFileChunk file={$file} size=" . humanFileSize($obj->filesize) . " chunks={$totalChunks} chunkSize=" . humanFileSize($chunkSize) . " fileId={$fileId}");
+        _error_log("Encoder::sendFileChunk file={$file} size=" . humanFileSize($obj->filesize) . " chunks={$totalChunks} chunkSize=" . humanFileSize($chunkSize) . " fileId={$fileId} startChunk={$startChunk}");
 
         // Capture duration now (file exists), before the chunk loop that may take 30+ minutes.
         // sendFile(false, ...) would compute EE:EE:EE because $file=false; passing it explicitly avoids that.
@@ -2183,8 +2297,12 @@ class Encoder extends ObjectYPT
             _error_log($obj->response);
             return $obj;
         }
+        if ($startChunk > 0) {
+            // Resuming a previous partial upload: skip straight to the failed chunk's offset.
+            fseek($stream, $startChunk * $chunkSize);
+        }
 
-        for ($i = 0; $i < $totalChunks; $i++) {
+        for ($i = $startChunk; $i < $totalChunks; $i++) {
             $chunkBytes       = (int) min($chunkSize, $obj->filesize - ($i * $chunkSize));
             $chunkUrl         = $target . '?file_id=' . urlencode($fileId) . '&chunk=' . $i . '&total=' . $totalChunks;
             $bytesSentInChunk = 0;
@@ -2249,12 +2367,27 @@ class Encoder extends ObjectYPT
                 $chunkResp = json_decode($r);
             }
 
-            if ($errno || empty($chunkResp->file)) {
+            // Validate the response before trusting this chunk landed correctly: HTTP must be
+            // 2xx, the receiver must echo back the chunk index we sent, and — for the final
+            // chunk only — it must report complete=true with an assembled size matching the
+            // original local file (catches silent truncation/corruption during assembly).
+            $isLastChunk = ($i === $totalChunks - 1);
+            $chunkOk = ($http_code >= 200 && $http_code < 300)
+                && !empty($chunkResp->file)
+                && isset($chunkResp->chunk) && (int) $chunkResp->chunk === $i
+                && (!$isLastChunk || (
+                    !empty($chunkResp->complete)
+                    && isset($chunkResp->filesize) && (int) $chunkResp->filesize === (int) $obj->filesize
+                ));
+
+            if ($errno || !$chunkOk) {
                 fclose($stream);
-                _error_log("sendFileChunk: chunk {$i}/{$totalChunks} failed errno={$errno} {$error_message} resp={$r}");
-                if ($try <= 3) {
-                    sleep($try);
-                    return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try);
+                _error_log("sendFileChunk: chunk {$i}/{$totalChunks} failed errno={$errno} {$error_message} http_code={$http_code} resp={$r}");
+                if ($try <= self::MAX_CHUNK_SEND_RETRIES) {
+                    $backoff = min(30, pow(2, $try)); // 2,4,8,16,30,30 s
+                    _error_log("sendFileChunk: retrying chunk {$i}/{$totalChunks} in {$backoff}s (attempt {$try}/" . self::MAX_CHUNK_SEND_RETRIES . "), resuming from chunk {$i} (fileId={$fileId})");
+                    sleep($backoff);
+                    return self::sendFileChunk($file, $return_vars, $format, $encoder, $resolution, $try, $fileId, $i);
                 }
                 $obj->msg = "cURL error ({$errno}): {$error_message} {$file} ({$target}) LINE " . __LINE__;
                 _error_log(json_encode($obj));
@@ -3820,14 +3953,13 @@ class Encoder extends ObjectYPT
             'type' => $type,
             'videos_id' => $return_vars->videos_id,
         );
+        $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         if (!empty($response->doNotRetry)) {
             _error_log("sendToStreamer timeout. Not retrying.");
-            $q = new Encoder($encoder_queue_id);
-            $q->setStatus(Encoder::STATUS_ERROR);
-            $q->setStatus_obs("sendToStreamer timeout. Not retrying.");
-            $q->save();
-        } else {
-            $response = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
+            // notifyStreamer=false: we are ALREADY inside the streamer-log path here, so routing
+            // this failure back through setStatus()/setStatus_obs()'s streamer-log side effect
+            // would recurse (setStreamerLog -> setStatusError -> setStatus -> setStreamerLog).
+            self::setStatusError($encoder_queue_id, "sendToStreamer timeout. Not retrying.", false, false);
         }
         return $response;
     }

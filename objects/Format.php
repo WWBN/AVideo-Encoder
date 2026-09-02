@@ -1109,9 +1109,7 @@ if (!class_exists('Format')) {
                         } else {
                             $msg = json_encode($output);
                             _error_log("AVideo-Encoder Format::exec " . $msg . ' ' . json_encode(debug_backtrace()));
-                            $encoder->setStatus(Encoder::STATUS_ERROR);
-                            $encoder->setStatus_obs($msg);
-                            $encoder->save();
+                            Encoder::setStatusError($encoder->getId(), $msg);
                         }
                     }
                 } else {
