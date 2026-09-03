@@ -153,6 +153,20 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
 }
 
+.queue-item {
+    border-left: 4px solid #ccc;
+}
+
+.queue-item.queue-item-status-queue { border-left-color: #337ab7; }
+.queue-item.queue-item-status-encoding { border-left-color: #5bc0de; }
+.queue-item.queue-item-status-downloading { border-left-color: #f0ad4e; }
+.queue-item.queue-item-status-downloaded { border-left-color: #f7b731; }
+.queue-item.queue-item-status-transferring { border-left-color: #8e44ad; }
+.queue-item.queue-item-status-packing { border-left-color: #e67e22; }
+.queue-item.queue-item-status-fixing { border-left-color: #16a085; }
+.queue-item.queue-item-status-done { border-left-color: #5cb85c; }
+.queue-item.queue-item-status-error { border-left-color: #d9534f; }
+
 .queue-item-heading {
     display: flex;
     align-items: center;
@@ -179,6 +193,43 @@
     font-size: 3em;
     margin-bottom: 12px;
     opacity: .4;
+}
+
+/* Queue Log (bootgrid) table cells were rendering everything on one
+   cramped line via <br>; stack them with real spacing instead. */
+#grid, #gridStreamer {
+    background-color: #fff;
+}
+
+#grid td, #gridStreamer td {
+    vertical-align: middle;
+    padding: 12px 10px;
+}
+
+#grid thead th, #gridStreamer thead th {
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .04em;
+    color: #777;
+    background-color: #f7f7f9;
+    white-space: nowrap;
+}
+
+.log-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.log-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.log-stack small {
+    color: #777;
 }
 
 #config .checkboxes label {

@@ -528,6 +528,11 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     const statusLabel = $(selector).find('.label-status');
                     statusLabel.removeClass().addClass('label label-status ' + (statusClasses[status] || 'label-default')).text(statusText);
 
+                    // Atualiza a cor de destaque (borda) do card conforme o status
+                    $(selector).removeClass(Object.keys(statusClasses).map(function(s) {
+                        return 'queue-item-status-' + s;
+                    }).join(' ')).addClass('queue-item-status-' + status);
+
                     // Atualiza título e nome, se quiser:
                     $(selector).find('.progress-type').html(`<strong>${escapeHTML(queueItem.title)}</strong>`);
                     $(selector).find('.progress-completed').text(queueItem.name || '');
@@ -934,10 +939,13 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     edit = '<button type="button" class="btn btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
                                 }
 
-                                return '<div class="btn-group">' + edit + sendFileQueue + reQueue + deleteQueue + '</div>';
+                                return '<div class="btn-group btn-group-sm">' + edit + sendFileQueue + reQueue + deleteQueue + '</div>';
                             },
                             "dates": function(column, row) {
-                                return "Created: " + row.created + "<br>Modified: " + row.modified;
+                                return '<div class="log-stack">' +
+                                    '<small><i class="fa fa-calendar-plus-o"></i> <?php echo __('Created'); ?>: ' + escapeHTML(row.created) + '</small>' +
+                                    '<small><i class="fa fa-refresh"></i> <?php echo __('Modified'); ?>: ' + escapeHTML(row.modified) + '</small>' +
+                                    '</div>';
                             },
                             "status": function(column, row) {
                                 let content = '';
@@ -955,11 +963,11 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 }
 
                                 // Main status
-                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${escapeHTML(row.status)}</span><br>`;
+                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${escapeHTML(row.status)}</span>`;
 
                                 // ETA
                                 if (row.encoding_status && row.encoding_status.remainTimeHuman) {
-                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${escapeHTML(row.encoding_status.remainTimeHuman)}</small><br>`;
+                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${escapeHTML(row.encoding_status.remainTimeHuman)}</small>`;
                                 }
 
                                 // Status observation or error message
@@ -967,7 +975,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     content += `<small style="white-space: normal;"><i class="fa fa-info-circle"></i> ${escapeHTML(row.status_obs)}</small>`;
                                 }
 
-                                return content;
+                                return '<div class="log-stack">' + content + '</div>';
                             },
 
                             "title": function(column, row) {
@@ -977,25 +985,27 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 if (typeof json.videos_id !== 'undefined') {
                                     videos_id = json.videos_id;
                                 }
-                                var title = '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary">' + escapeHTML(l.hostname) + ' <span class="badge"><?php echo __('Priority'); ?> ' + escapeHTML(row.priority) + '</span></a>';
-                                title += '<br><span class="label label-primary">' + escapeHTML(row.format) + ' [' + escapeHTML(row.id) + ']</span>';
 
+                                var badges = '<span class="label label-primary">' + escapeHTML(row.format) + ' #' + escapeHTML(row.id) + '</span>';
                                 for (const index in row.fileInfo) {
                                     if (typeof row.fileInfo[index].text === 'undefined') {
                                         continue;
                                     }
-                                    title += '<br><span class="label label-success fileSize" >' + escapeHTML(row.fileInfo[index].text) + '</span>';
+                                    badges += '<span class="label label-success fileSize">' + escapeHTML(row.fileInfo[index].text) + '</span>';
                                 }
+
                                 var filename = row.title;
                                 if (filename.startsWith("original_v_")) {
                                     filename = '<a href="' + row.streamer + 'videos/' + encodeURIComponent(filename) + '" target="_blank">' + escapeHTML(filename) + '</a>';
                                 } else {
                                     filename = escapeHTML(filename);
                                 }
-                                title += '<br>' + filename;
 
-
-                                return title;
+                                return '<div class="log-stack">' +
+                                    '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary btn-xs">' + escapeHTML(l.hostname) + ' <span class="badge"><?php echo __('Priority'); ?> ' + escapeHTML(row.priority) + '</span></a>' +
+                                    '<div class="log-badges">' + badges + '</div>' +
+                                    '<span class="text-muted single-line-ellipsis" style="max-width: 280px; display: inline-block;">' + filename + '</span>' +
+                                    '</div>';
                             }
                         }
                     }).on("loaded.rs.jquery.bootgrid", function() {
