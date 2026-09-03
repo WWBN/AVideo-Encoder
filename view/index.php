@@ -267,7 +267,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
             fixAdvancedCustom($advancedCustom);
         ?>
 
-            <div class="col-md-4" id="rightContainer">
+            <div class="col-md-6" id="rightContainer">
                 <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">
                         <ul class="nav nav-tabs">
@@ -309,7 +309,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 </div>
             </div>
             <!-- The main CSS file -->
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <div id="noNavbarPlaceholder"></div>
                 <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">

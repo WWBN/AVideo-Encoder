@@ -80,7 +80,7 @@
 
                 <div id="bulk" class="tab-pane fade">
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle pull-left" style="font-size: 2em; padding: 0 10px;" aria-hidden="true"></i> <?php echo __('Bulk add your server local files on queue.'); ?>
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> <?php echo __('Bulk add your server local files on queue.'); ?>
                     </div>
 
                     <div class="form-group">
