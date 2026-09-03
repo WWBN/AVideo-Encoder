@@ -361,6 +361,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     <div class="panel-body">
                         <div class="tab-content">
                             <div id="encoding" class="tab-pane fade in active">
+                                <div id="queueSummary" class="queue-summary" style="display: none;"></div>
                                 <div id="queueEmptyState" class="queue-empty-state">
                                     <i class="fas fa-inbox" aria-hidden="true"></i>
                                     <?php echo __('No videos in the sharing queue'); ?>
@@ -391,6 +392,10 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             if (Login::isAdmin()) {
                             ?>
                                 <div id="streamers" class="tab-pane fade">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <?php echo __('Sites that have logged into this encoder. Lower priority numbers are processed first; Admin streamers can manage other streamers here.'); ?>
+                                    </div>
                                     <table id="gridStreamer" class="table table-condensed table-hover table-striped">
                                         <thead>
                                             <tr>
@@ -455,6 +460,40 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         return '';
                     }
                     return $('<div/>').text(String(value)).html();
+                }
+
+                var queueSummaryLabels = {
+                    queue: "<?php echo __('Queued'); ?>",
+                    downloading: "<?php echo __('Downloading'); ?>",
+                    downloaded: "<?php echo __('Downloaded'); ?>",
+                    encoding: "<?php echo __('Encoding'); ?>",
+                    transferring: "<?php echo __('Transferring'); ?>",
+                    packing: "<?php echo __('Packing'); ?>",
+                    fixing: "<?php echo __('Fixing'); ?>",
+                    done: "<?php echo __('Done'); ?>",
+                    error: "<?php echo __('Error'); ?>"
+                };
+
+                function updateQueueSummary(queueList) {
+                    var counts = {};
+                    (queueList || []).forEach(function(item) {
+                        var status = (item.status || '').toLowerCase();
+                        counts[status] = (counts[status] || 0) + 1;
+                    });
+
+                    var html = '';
+                    Object.keys(queueSummaryLabels).forEach(function(status) {
+                        if (!counts[status]) {
+                            return;
+                        }
+                        html += '<span class="label label-status-' + status + '">' + queueSummaryLabels[status] + ': ' + counts[status] + '</span> ';
+                    });
+
+                    if (html) {
+                        $('#queueSummary').html(html).show();
+                    } else {
+                        $('#queueSummary').hide();
+                    }
                 }
 
                 function setDownloadProgress(id, progress, setText) {
@@ -598,6 +637,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             //withCredentials: true
                         },
                         success: function(response) {
+                            updateQueueSummary(response.queue_list);
                             if (response.queue_list.length) {
                                 for (i = 0; i < response.queue_list.length; i++) {
                                     const item = response.queue_list[i];

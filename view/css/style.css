@@ -195,6 +195,17 @@
     opacity: .4;
 }
 
+.queue-summary {
+    margin-bottom: 15px;
+}
+
+.queue-summary .label {
+    font-size: 90%;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
 /* Queue Log (bootgrid) table cells were rendering everything on one
    cramped line via <br>; stack them with real spacing instead. */
 #grid, #gridStreamer {
