@@ -361,6 +361,10 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     <div class="panel-body">
                         <div class="tab-content">
                             <div id="encoding" class="tab-pane fade in active">
+                                <div id="queueEmptyState" class="queue-empty-state">
+                                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                                    <?php echo __('No videos in the sharing queue'); ?>
+                                </div>
                             </div>
                             <div id="log" class="tab-pane fade">
                                 <table id="grid" class="table table-condensed table-hover table-striped">
@@ -725,6 +729,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                     const item = arrayToTemplate(itemsArray, createQueueTemplate);
 
+                    $('#queueEmptyState').hide();
                     if (typeof queueItemAfter === 'undefined' || !$("#encodeProgress" + queueItemAfter.id).length) {
                         $("#encoding").append(item);
                     } else {
@@ -738,6 +743,9 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     checkProgressRemoveTimeout[id] = setTimeout(function() {
                         $("#encodeProgress" + id).fadeOut("slow", function() {
                             $(this).remove();
+                            if (!$('#encoding').find('.queue-item').length) {
+                                $('#queueEmptyState').show();
+                            }
                         });
                         $("#downloadProgress" + id).slideUp("fast", function() {
                             $(this).remove();
