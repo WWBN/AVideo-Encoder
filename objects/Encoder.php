@@ -63,7 +63,8 @@ class Encoder extends ObjectYPT
     protected $downloadedFileName;
     protected $streamers_id;
     protected $override_status;
-    protected $retry_count;
+    // default 0 covers any save() call that skips the isset() normalization below (e.g. a future refactor)
+    protected $retry_count = 0;
 
     public static function getSearchFieldsNames()
     {
@@ -176,6 +177,10 @@ class Encoder extends ObjectYPT
         }
         if (empty($this->filename)) {
             $this->filename = '';
+        }
+        if (!isset($this->retry_count)) {
+            // v8.2 added retry_count NOT NULL DEFAULT 0, but an explicit NULL bypasses the column default (Error 1048)
+            $this->retry_count = 0;
         }
 
         if (function_exists('mb_detect_encoding') && !mb_detect_encoding($this->title, 'UTF-8', true)) {
