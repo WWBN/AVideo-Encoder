@@ -42,8 +42,8 @@ if (empty($_SESSION['login']->userGroups) || !empty($global['hideUserGroups'])) 
             <?php
             foreach ($_SESSION['login']->userGroups as $key => $value) {
             ?>
-                <div class="col-xs-6 <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
-                    <label class="single-line-ellipsis">
+                <div class="col-xs-12 col-sm-6 <?php echo getCSSAnimationClassAndStyle('animate__flipInX', 'usergroups'); ?>">
+                    <label class="single-line-ellipsis" title="<?php echo htmlspecialchars($value->group_name, ENT_QUOTES, 'UTF-8'); ?>">
                         <input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="<?php echo $value->id; ?>" />
                         <i class="fas fa-lock"></i> <?php echo $value->group_name; ?>
                     </label>
@@ -67,7 +67,7 @@ if (empty($_SESSION['login']->userGroups) || !empty($global['hideUserGroups'])) 
                     if (typeof response.rows[item] != 'object') {
                         continue;
                     }
-                    $('#userGroupsList .row').append('<div class="col-xs-6"><label class="single-line-ellipsis"><input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="' + response.rows[item].id + '"> <i class="fas fa-lock"></i> ' + response.rows[item].group_name + '</label></div>');
+                    $('#userGroupsList .row').append('<div class="col-xs-12 col-sm-6"><label class="single-line-ellipsis" title="' + response.rows[item].group_name + '"><input type="checkbox" class="usergroups_id" name="usergroups_id[]" value="' + response.rows[item].id + '"> <i class="fas fa-lock"></i> ' + response.rows[item].group_name + '</label></div>');
                 }
                 modal.hidePleaseWait();
             }

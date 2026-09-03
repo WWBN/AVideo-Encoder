@@ -267,7 +267,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
             fixAdvancedCustom($advancedCustom);
         ?>
 
-            <div class="col-md-6" id="rightContainer">
+            <div class="col-md-4" id="rightContainer">
                 <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">
                         <ul class="nav nav-tabs">
@@ -309,7 +309,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 </div>
             </div>
             <!-- The main CSS file -->
-            <div class="col-md-6">
+            <div class="col-md-8">
                 <div id="noNavbarPlaceholder"></div>
                 <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">
@@ -1325,7 +1325,6 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                         message = message.join(', '); // join all array elements into a string
                                     }
                                     avideoAlert(response.title, message, response.type);
-                                    avideoAlert(response.title, response.text, response.type);
                                 }
                                 console.log(response);
                                 modal.hidePleaseWait();
