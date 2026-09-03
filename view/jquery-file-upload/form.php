@@ -40,7 +40,7 @@ if(!isset($global['videoEditorForcePlaylist'])){
         <div class="col-lg-12">
             <!-- The fileinput-button span is used to style the file input field as button -->
             <span class="btn btn-success fileinput-button col-sm-12">
-                <i class="glyphicon glyphicon-plus"></i>
+                <i class="fas fa-plus"></i>
                 <span><?php echo __('Add files...'); ?></span>
                 <input type="file" name="files[]" multiple />
             </span>
@@ -61,7 +61,7 @@ if(!isset($global['videoEditorForcePlaylist'])){
             </div>
             <div class="row">
                 <div class="col-sm-6">
-                    <input type="checkbox" class="toggle" name="selectAll" />
+                    <input type="checkbox" class="toggle" id="selectAll" name="selectAll" />
                     <label for="selectAll"> <?php echo __('Select All'); ?> </label>
                 </div>
                 <div class="col-sm-6">
@@ -129,13 +129,13 @@ if(!isset($global['videoEditorForcePlaylist'])){
     <br>
     {% if (!i && !o.options.autoUpload) { %}
     <button class="btn btn-primary start" disabled>
-    <i class="glyphicon glyphicon-upload"></i>
+    <i class="fas fa-upload"></i>
     <span><?php echo __('Start'); ?></span>
     </button>
     {% } %}
     {% if (!i) { %}
     <button class="btn btn-warning cancel">
-    <i class="glyphicon glyphicon-ban-circle"></i>
+    <i class="fas fa-ban"></i>
     <span><?php echo __('Cancel'); ?></span>
     </button>
     {% } %}
@@ -174,13 +174,13 @@ if(!isset($global['videoEditorForcePlaylist'])){
     <td>
     {% if (file.deleteUrl) { %}
     <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}&PHPSESSID={%=PHPSESSID%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-    <i class="glyphicon glyphicon-trash"></i>
+    <i class="fas fa-trash"></i>
     <span><?php echo __('Delete'); ?></span>
     </button>
     <input type="checkbox" name="delete" value="1" class="toggle">
     {% } else { %}
     <button class="btn btn-warning cancel">
-    <i class="glyphicon glyphicon-ban-circle"></i>
+    <i class="fas fa-ban"></i>
     <span><?php echo __('Cancel'); ?></span>
     </button>
     {% } %}

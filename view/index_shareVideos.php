@@ -24,7 +24,7 @@
             }
             if (Login::canBulkEncode()) {
                 ?>
-                <li><a data-toggle="tab" href="#bulk"><center><span class="glyphicon glyphicon-duplicate"></span><br><?php echo __('Bulk Encode'); ?></center></a></li>
+                <li><a data-toggle="tab" href="#bulk"><center><i class="fas fa-layer-group" aria-hidden="true"></i><br><?php echo __('Bulk Encode'); ?></center></a></li>
             <?php } ?>
         </ul>
         <div class="tab-content" style="padding: 10px 0;">
@@ -39,7 +39,7 @@
                 ?>
                 <div id="download" class="tab-pane fade">
                     <div class="alert alert-info">
-                        <span class="glyphicon glyphicon-info-sign"></span> <?php echo __('Share videos from YouTube and a few'); ?> <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank"><?php echo __('more sites'); ?></a>.
+                        <i class="fas fa-info-circle" aria-hidden="true"></i> <?php echo __('Share videos from YouTube and a few'); ?> <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank"><?php echo __('more sites'); ?></a>.
                     </div>
                     <form id="downloadForm" onsubmit="">
                         <div class="form-group">
@@ -80,7 +80,7 @@
 
                 <div id="bulk" class="tab-pane fade">
                     <div class="alert alert-info">
-                        <span class="glyphicon glyphicon-info-sign pull-left" style="font-size: 2em; padding: 0 10px;"></span> <?php echo __('Bulk add your server local files on queue.'); ?>
+                        <i class="fas fa-info-circle pull-left" style="font-size: 2em; padding: 0 10px;" aria-hidden="true"></i> <?php echo __('Bulk add your server local files on queue.'); ?>
                     </div>
 
                     <div class="form-group">
@@ -88,7 +88,7 @@
                             <input type="text" id="path"  class="form-control" placeholder="<?php echo __('Local Path of videos i.e. /media/videos'); ?>" />
                             <span class="input-group-btn">
                                 <button class="btn btn-primary" id="pathBtn">
-                                    <span class="glyphicon glyphicon-list"></span> <?php echo __('List Files'); ?>
+                                    <i class="fas fa-list" aria-hidden="true"></i> <?php echo __('List Files'); ?>
                                 </button>
                             </span>
                             <span class="input-group-btn">
