@@ -604,7 +604,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     var selector = "#encodingProgress" + id;
                     if (!isNaN(progress)) {
                         progress = parseInt(progress);
-                        $(selector).slideDown();
+                        $(selector).slideDown().removeClass('stage-pending');
                         if (progress < 0) {
                             progress = 0;
                         } else if (progress > 100) {
@@ -616,17 +616,33 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         });
                         if (progress < 100) {
                             $(selector).addClass('active');
-                            $(selector).find('.progress-bar').removeClass('progress-bar-success');
+                            $(selector).find('.progress-bar').removeClass('progress-bar-success progress-bar-info');
                             $(selector).find('.progress-bar').addClass('progress-bar-primary');
 
                         } else {
                             $(selector).removeClass('active');
-                            $(selector).find('.progress-bar').removeClass('progress-bar-primary');
+                            $(selector).find('.progress-bar').removeClass('progress-bar-primary progress-bar-info');
                             $(selector).find('.progress-bar').addClass('progress-bar-success');
 
                         }
                         setDownloadProgress(id, 100, false);
                     }
+                }
+
+                // While a job is "encoding" but ffmpeg hasn't started writing its progress file yet
+                // (thumbnail/GIF/WEBP generation, per-track audio extraction, MP3/MP4 auto-convert),
+                // fill the bar so its striped animation is visible instead of a stuck-looking 0%.
+                // The status_obs box (see updateQueueItemVisual) shows exactly which stage this is.
+                function setEncodingStagePending(id, text) {
+                    var selector = "#encodingProgress" + id;
+                    $(selector).slideDown().addClass('active stage-pending');
+                    $(selector).find('.progress-bar')
+                        .removeClass('progress-bar-success progress-bar-primary')
+                        .addClass('progress-bar-info')
+                        .css({
+                            'width': '100%'
+                        });
+                    $(selector).find('.progress-completed').html("<strong>" + escapeHTML(text) + "</strong> <span class=\"badge\">" + escapeHTML("<?php echo __('Preparing'); ?>") + "</span>");
                 }
 
                 // Chips shown under the progress bars while a job is actively downloading
@@ -734,6 +750,10 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     if (encodingStat && encodingStat.progress) {
                                         setEncodingProgress(encodingId, encodingStat.progress, response.encoding[i].name || '');
                                         updateEncodingMeta(encodingId, encodingStat);
+                                    } else {
+                                        // Pre-processing stage (thumbnails/audio tracks/etc.): no numeric
+                                        // % yet, see the status_obs box below the bar for what's happening.
+                                        setEncodingStagePending(encodingId, response.encoding[i].name || '');
                                     }
                                 }
                             }

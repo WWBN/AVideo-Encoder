@@ -1109,7 +1109,7 @@ class Encoder extends ObjectYPT
     public static function getAllQueue()
     {
         global $global;
-        $sql = "SELECT f.*, e.* FROM  " . static::getTableName() . " e "
+        $sql = "SELECT SQL_NO_CACHE f.*, e.* FROM  " . static::getTableName() . " e "
             . " LEFT JOIN {$global['tablesPrefix']}formats f ON f.id = formats_id WHERE "
             . "(status = '" . Encoder::STATUS_ENCODING . "' OR  "
             . "status = '" . Encoder::STATUS_DOWNLOADING . "' OR "
@@ -1653,12 +1653,11 @@ class Encoder extends ObjectYPT
                     $encoder->save();
                     self::run(0);
                     $response = self::sendImages($objFile->pathFileName, $return_vars, $encoder);
-                    if (!empty($response->doNotRetry)) {
-                        $obj->msg = "sendToStreamer timeout. Not retrying";
-                        _error_log("Encoder::run: Encoder Run: " . json_encode($obj));
-                        self::setStatusError($encoder->getId(), $obj->msg);
-                        unlink($lockFile); // Remove the lock file before returning
-                        return false;
+                    if (!empty($response->error)) {
+                        // Thumbnails/GIF/WEBP previews are supplementary, not required to deliver
+                        // the encoded video — log and keep going instead of aborting the whole job
+                        // over a slow/failed image upload (this used to wait up to 2h then error out).
+                        _error_log("Encoder::run: sendImages failed, continuing without preview images: " . json_encode(@$response->msg));
                     }
                     $code = new Format($encoder->getFormats_id());
                     $resp = $code->run($objFile->pathFileName, $encoder->getId());
@@ -2538,6 +2537,8 @@ class Encoder extends ObjectYPT
             }
         }
         if (!empty($file)) {
+            $encoder->setStatus_obs("Generating thumbnail and preview images (JPG/GIF/WEBP)...");
+            $encoder->save();
             $seconds = intval(static::parseDurationToSeconds($duration) / 2);
             if (empty($postFields['image'])) {
                 $destinationImage = static::getImage($file, $seconds);
@@ -2562,6 +2563,8 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
+        $encoder->setStatus_obs("Uploading preview images to the site...");
+        $encoder->save();
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;
@@ -2732,9 +2735,14 @@ class Encoder extends ObjectYPT
             } catch (\Throwable $th) {
                 _error_log("sendToStreamer($target,  " . json_encode($postFields));
             }
+            // Only large media transfers (final video/HLS zip, chunked upload, downloadURL
+            // fetch, raw video) need the multi-hour ceiling; small calls (thumbnail/gif/webp
+            // previews, plain metadata) must fail fast instead of blocking the whole encode
+            // pipeline for up to 2 hours on a network/server hiccup.
+            $isLargeMediaTransfer = isset($postFields['video']) || isset($postFields['rawVideo']) || !empty($postFields['downloadURL']) || !empty($postFields['chunkFile']);
             // 2 hours: enough for the streamer to download a 20 GB file from the encoder
             // even on a slower link (~25 Mbps needs ~1.8 h).  Raise if needed.
-            $timeout = 7200;
+            $timeout = $isLargeMediaTransfer ? 7200 : 180;
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);

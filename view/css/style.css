@@ -256,6 +256,19 @@ body {
     margin: 0;
 }
 
+/* Pre-processing stage (thumbnails/audio track extraction/etc.): the bar is
+   forced to 100% so the striped animation above is visible, and the "Preparing"
+   badge pulses so it still reads as live activity, not a frozen label. Opacity-
+   only, so it stays correct under both light and dark themes. */
+@keyframes enc-stage-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .5; }
+}
+
+.encodingProgress.stage-pending .progress-completed .badge {
+    animation: enc-stage-pulse 1.4s ease-in-out infinite;
+}
+
 .queue-item {
     margin-bottom: 12px;
     box-shadow: var(--enc-shadow);

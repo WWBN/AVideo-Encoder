@@ -3,23 +3,41 @@
 class HLSProcessor
 {
 
-    static function createMP3AndPM4IfNeed($pathFileName, $destinationFile)
+    // Persists a short human-readable stage so the queue UI's status_obs box can
+    // show what's happening during the long pre-processing steps that run before
+    // the main ffmpeg command starts writing to the real progress file.
+    private static function setStage($encoder, $msg)
+    {
+        if (empty($encoder)) {
+            return;
+        }
+        _error_log("HLSProcessor: stage: {$msg}");
+        $encoder->setStatus_obs($msg);
+        $encoder->save();
+    }
+
+    static function createMP3AndPM4IfNeed($pathFileName, $destinationFile, $encoder = null)
     {
         global $global;
 
         $advancedCustom = getAdvancedCustomizedObjectData();
+        $encoder_queue_id = !empty($encoder) ? $encoder->getId() : 0;
         //_error_log('createMP3AndPM4IfNeed '.json_encode($advancedCustom));
         if ($advancedCustom->autoConvertToMp4) {
+            self::setStage($encoder, "Auto-converting to MP4...");
             try {
-                MP4Processor::createMP4($pathFileName, $destinationFile . 'index.mp4');
+                // Passing the queue id routes ffmpeg's own progress lines into the same
+                // file the UI already polls for %, so this step isn't just a static label.
+                MP4Processor::createMP4($pathFileName, $destinationFile . 'index.mp4', $encoder_queue_id);
             } catch (Exception $e) {
                 _error_log("Error creating MP4: " . $e->getMessage());
             }
         }
         if ($advancedCustom->autoConvertVideosToMP3) {
             // Usage example
+            self::setStage($encoder, "Auto-converting to MP3...");
             try {
-                MP3Processor::createMP3($pathFileName, $destinationFile . 'index.mp3');
+                MP3Processor::createMP3($pathFileName, $destinationFile . 'index.mp3', $encoder_queue_id);
             } catch (Exception $e) {
                 _error_log("Error creating MP3: " . $e->getMessage());
             }
@@ -30,6 +48,7 @@ class HLSProcessor
     {
         $encoder = new Encoder($encoder_queue_id);
         $streamersId = $encoder->getStreamers_id();
+        self::setStage($encoder, "Analyzing source video (resolution, audio tracks)...");
         // Detect video resolution and audio tracks
         $resolution = self::getResolution($pathFileName);
         $audioTracks = self::getAudioTracks($pathFileName); // Detect audio tracks
@@ -70,9 +89,10 @@ class HLSProcessor
         $masterPlaylist = "#EXTM3U" . PHP_EOL;
         $masterPlaylist .= "#EXT-X-VERSION:3" . PHP_EOL;
 
-        self::createMP3AndPM4IfNeed($pathFileName, $destinationFile);
+        self::createMP3AndPM4IfNeed($pathFileName, $destinationFile, $encoder);
 
         $audioGroupAvailable = false;
+        $totalAudioTracks = count($audioTracks);
         // Generate separate audio-only HLS streams for each audio track
         foreach ($audioTracks as $key => $track) {
             $language = isset($track->language) ? $track->language : "lang" . ($track->index + 1); // Assign language name, customize as needed
@@ -83,6 +103,8 @@ class HLSProcessor
 
             $audioFile = "{$destinationFile}audio_tracks/{$langDir}/audio.m3u8";
             $audioTsPattern = "{$destinationFile}audio_tracks/{$langDir}/audio_%03d.ts"; // Pattern for audio .ts segments
+
+            self::setStage($encoder, "Extracting audio track " . ($key + 1) . "/{$totalAudioTracks} ({$language})...");
 
             // Correctly map the audio track and add VOD parameters
             $audioCommand = get_ffmpeg() . " -y -i {$pathFileName} "
@@ -175,6 +197,8 @@ class HLSProcessor
         // Write the master playlist to the destination file
         file_put_contents($destinationFile . "index.m3u8", $masterPlaylist);
         _error_log("HLSProcessor: createHLSWithAudioTracks Master playlist written to: {$destinationFile}index.m3u8");
+
+        self::setStage($encoder, "Starting video encoding (HLS, {$resolutionsFound} resolution(s))...");
 
         return array($destinationFile, $ffmpegCommand);
     }
