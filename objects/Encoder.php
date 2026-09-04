@@ -934,6 +934,8 @@ class Encoder extends ObjectYPT
         $obj = new stdClass();
         $obj->filename = "";
         $obj->progress = 0;
+        $obj->speed = '';
+        $obj->eta = '';
         $obj->queue_id = $queue_id;
         $file = "{$global['systemRootPath']}videos/{$queue_id}_tmpFile_downloadProgress.txt";
         if (!file_exists($file) || filesize($file) > 5000000) {
@@ -958,6 +960,14 @@ class Encoder extends ObjectYPT
                 if ($obj->progress == 100) {
                     break;
                 }
+            }
+            // download speed + ETA (e.g. "[download]  42.1% of 50.00MiB at 2.50MiB/s ETA 00:12")
+            // so the queue card can show live feedback while the file is still downloading.
+            preg_match_all('/\[download\]\s+[0-9.]+%\s+of\s+.*?\s+at\s+(\S+)\s+ETA\s+(\S+)/i', $text, $dlMatches, PREG_SET_ORDER);
+            if (!empty($dlMatches)) {
+                $last = end($dlMatches);
+                $obj->speed = $last[1];
+                $obj->eta = $last[2];
             }
         }
         return $obj;
@@ -2838,6 +2848,30 @@ class Encoder extends ObjectYPT
         $obj->progress = 0;
         $obj->from = '';
         $obj->to = '';
+        $obj->speed = '';
+        $obj->fps = '';
+        $obj->bitrate = '';
+        $obj->size = '';
+
+        // Real-time encoding stats straight from ffmpeg's own progress output, so the
+        // UI can show more than just a bare percentage while a job is encoding.
+        preg_match_all('/fps=\s*([\d.]+)/i', $content, $fpsMatches);
+        if (!empty($fpsMatches[1])) {
+            $obj->fps = trim(end($fpsMatches[1]));
+        }
+        preg_match_all('/bitrate=\s*(\S+)/i', $content, $bitrateMatches);
+        if (!empty($bitrateMatches[1])) {
+            $obj->bitrate = trim(end($bitrateMatches[1]));
+        }
+        preg_match_all('/speed=\s*(\S+)/i', $content, $speedMatches);
+        if (!empty($speedMatches[1])) {
+            $obj->speed = trim(end($speedMatches[1]));
+        }
+        preg_match_all('/size=\s*(\S+)/i', $content, $sizeMatches);
+        if (!empty($sizeMatches[1])) {
+            $obj->size = trim(end($sizeMatches[1]));
+        }
+
         //var_dump($content);exit;
         preg_match("/Duration: (.*?), start:/", $content, $matches);
         if (!empty($matches[1])) {
@@ -2883,7 +2917,14 @@ class Encoder extends ObjectYPT
             $obj->duration = $duration;
             $obj->currentTime = $time;
             $obj->remainTime = ($obj->duration - $time);
-            $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime);
+            // speed (e.g. "1.05x") turns remaining video-content seconds into a real
+            // wall-clock ETA; falls back to the raw value if speed is unknown/"N/A".
+            $speedFactor = floatval($obj->speed);
+            if ($speedFactor > 0) {
+                $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime / $speedFactor);
+            } else {
+                $obj->remainTimeHuman = secondsToVideoTime($obj->remainTime);
+            }
             $obj->progress = $progress;
         }
 

@@ -1,9 +1,122 @@
+/* ============================================================
+   Modern visual refresh — shape, motion and spacing only.
+   Colors/backgrounds for shared Bootstrap classes (navbar, panel,
+   buttons, forms, tabs) are intentionally NOT set here: the parent
+   site can load a different Bootswatch theme per install (view/css/
+   custom/*.css, includes dark ones like darkly/cyborg/slate/
+   superhero) which fully re-themes those same selectors after this
+   file loads. Keep this file opinion-free about light vs dark —
+   radius/shadow/transition/transform only, never background/color.
+   ============================================================ */
+:root {
+    --enc-radius: 10px;
+    --enc-radius-sm: 6px;
+    --enc-shadow: 0 2px 10px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+    --enc-shadow-hover: 0 10px 26px rgba(0, 0, 0, .16);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.panel {
+    border-radius: var(--enc-radius) !important;
+    box-shadow: var(--enc-shadow) !important;
+}
+
+.panel > .panel-heading:first-child {
+    border-top-left-radius: var(--enc-radius);
+    border-top-right-radius: var(--enc-radius);
+}
+
+.panel > .panel-body:last-child,
+.panel > .panel-footer:last-child {
+    border-bottom-left-radius: var(--enc-radius);
+    border-bottom-right-radius: var(--enc-radius);
+}
+
+/* Flat underline tabs instead of Bootstrap's boxed "paper tab" look.
+   currentColor reuses whatever text color the active theme already
+   gives the tab, so the underline never fights a theme's palette. */
+.nav-tabs > li > a {
+    border: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    margin-right: 4px;
+    transition: border-color .15s ease;
+}
+
+.nav-tabs > li > a:hover,
+.nav-tabs > li > a:focus {
+    background: transparent !important;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+    background: transparent !important;
+    border-bottom-color: currentColor !important;
+    font-weight: 600;
+}
+
+.btn {
+    border-radius: var(--enc-radius-sm);
+    transition: transform .1s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.form-control {
+    border-radius: var(--enc-radius-sm);
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.label {
+    border-radius: 20px;
+    padding: .3em .75em .35em;
+    font-weight: 600;
+    letter-spacing: .01em;
+}
+
+/* Custom scrollbar for the scrollable log/streamer grids (WebKit-only —
+   browsers without support just keep their native scrollbar, no breakage). */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(127, 127, 127, .5);
+    border-radius: 20px;
+}
+
 .progress {
     position: relative;
     height: 26px;
     overflow: hidden;
-    background-color: #eceeef;
+    background-color: rgba(127, 127, 127, .18);
+    border-radius: var(--enc-radius-sm);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+}
+
+/* The template applies "progress-striped active" to the outer .progress
+   container (Bootstrap 2 naming); Bootstrap 3 only animates .progress-bar-
+   striped on the inner fill, so this combo never actually animated before. */
+@keyframes enc-progress-stripes {
+    from {
+        background-position: 40px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+.progress.progress-striped.active .progress-bar {
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-size: 40px 40px;
+    animation: enc-progress-stripes 1s linear infinite;
 }
 
 .text-Outline-black {
@@ -145,12 +258,13 @@
 
 .queue-item {
     margin-bottom: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
-    transition: box-shadow .2s ease;
+    box-shadow: var(--enc-shadow);
+    transition: box-shadow .2s ease, transform .2s ease;
 }
 
 .queue-item:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .15);
+    box-shadow: var(--enc-shadow-hover);
+    transform: translateY(-2px);
 }
 
 .queue-item {
@@ -179,12 +293,12 @@
 }
 
 .status-obs-container {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid rgba(127, 127, 127, .25);
 }
 
 .queue-empty-state {
     text-align: center;
-    color: #999;
+    opacity: .55;
     padding: 60px 20px;
 }
 
@@ -192,7 +306,6 @@
     display: block;
     font-size: 3em;
     margin-bottom: 12px;
-    opacity: .4;
 }
 
 .queue-summary {
@@ -209,7 +322,7 @@
 /* Queue Log (bootgrid) table cells were rendering everything on one
    cramped line via <br>; stack them with real spacing instead. */
 #grid, #gridStreamer {
-    background-color: #fff;
+    background-color: transparent;
 }
 
 #grid td, #gridStreamer td {
@@ -221,8 +334,7 @@
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: .04em;
-    color: #777;
-    background-color: #f7f7f9;
+    background-color: rgba(127, 127, 127, .08);
     white-space: nowrap;
 }
 
@@ -240,7 +352,7 @@
 }
 
 .log-stack small {
-    color: #777;
+    opacity: .7;
 }
 
 #config .checkboxes label {
@@ -330,4 +442,41 @@ body {
 
 .label-status-fixing {
     background-color: #16a085;
+}
+
+/* Live encoding/download stats (fps, bitrate, speed, size, ETA) shown under the
+   progress bars — additive info panel, hidden until it actually has data. */
+.queue-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 16px;
+    padding: 6px 12px;
+    border-top: 1px solid rgba(127, 127, 127, .2);
+    background-color: rgba(127, 127, 127, .05);
+    font-size: 12px;
+}
+
+.queue-item-meta .meta-chip {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.queue-item-meta .meta-chip i {
+    width: 14px;
+    text-align: center;
+    opacity: .55;
+}
+
+.queue-item-meta .meta-value {
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .queue-item-meta {
+        font-size: 11px;
+        gap: 4px 10px;
+    }
 }

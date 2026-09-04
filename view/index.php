@@ -629,7 +629,57 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     }
                 }
 
-                var checkProgressTimeout = 3000; //4 secongs
+                // Chips shown under the progress bars while a job is actively downloading
+                // or encoding (see parseProgress()/getYoutubeDlProgress() on the PHP side).
+                var metaChipConfig = [{
+                        cls: 'eta',
+                        prop: 'remainTimeHuman',
+                        label: "<?php echo __('Time remaining'); ?>"
+                    },
+                    {
+                        cls: 'speed',
+                        prop: 'speed',
+                        label: "<?php echo __('Speed'); ?>"
+                    },
+                    {
+                        cls: 'fps',
+                        prop: 'fps',
+                        label: 'FPS',
+                        suffix: ' fps'
+                    },
+                    {
+                        cls: 'bitrate',
+                        prop: 'bitrate',
+                        label: "<?php echo __('Bitrate'); ?>"
+                    },
+                    {
+                        cls: 'size',
+                        prop: 'size',
+                        label: "<?php echo __('Size'); ?>"
+                    }
+                ];
+
+                function updateEncodingMeta(id, stat) {
+                    var container = $('#queueItemMeta' + id);
+                    if (!container.length) {
+                        return;
+                    }
+                    var hasData = false;
+                    metaChipConfig.forEach(function(cfg) {
+                        var chip = container.find('.meta-' + cfg.cls);
+                        var value = stat ? stat[cfg.prop] : '';
+                        if (value) {
+                            chip.attr('title', cfg.label).find('.meta-value').text(value + (cfg.suffix || ''));
+                            chip.show();
+                            hasData = true;
+                        } else {
+                            chip.hide();
+                        }
+                    });
+                    container.toggle(hasData);
+                }
+
+                var checkProgressTimeout = 2000; //2 seconds while something is actively downloading/encoding
                 function checkProgress() {
                     $.ajax({
                         url: 'status?<?php echo getPHPSessionIDURL(); ?>',
@@ -648,71 +698,65 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     }
                                 }
                             }
+
+                            // Actively downloading (yt-dlp/import): live % + speed/ETA chips.
+                            if (response.downloading && response.downloading.length > 0) {
+                                for (i = 0; i < response.downloading.length; i++) {
+                                    var downloadingId = response.downloading[i].id;
+                                    var downloadStat = response.download_status[i];
+                                    if (downloadStat) {
+                                        setDownloadProgress(downloadingId, downloadStat.progress, true);
+                                        updateEncodingMeta(downloadingId, {
+                                            remainTimeHuman: downloadStat.eta,
+                                            speed: downloadStat.speed
+                                        });
+                                    }
+                                }
+                            }
+
+                            // Fully downloaded, waiting on the encode queue: force the bar to 100%
+                            // (more reliable than a possibly-stale/cleared download progress file).
                             if (response.downloaded.length > 0) {
                                 for (i = 0; i < response.downloaded.length; i++) {
-                                    var id = response.downloaded[i].id;
-                                    setDownloadProgress(id, 100, true);
+                                    setDownloadProgress(response.downloaded[i].id, 100, true);
                                 }
                             }
+
+                            // Actively encoding: percentage, format name and live ffmpeg stats.
+                            var newEncodingNowIds = [];
                             if (response.encoding.length > 0) {
-                                var newEncodingNowIds = new Array();
                                 for (i = 0; i < response.encoding.length; i++) {
-                                    var id = response.encoding[i].id;
-                                    newEncodingNowIds.push(id);
+                                    newEncodingNowIds.push(response.encoding[i].id);
                                 }
-
-                                for (i = 0; i < encodingNowIds.length; i++) {
-                                    var id = encodingNowIds[i];
-                                    // if start encode next before get 100%
-                                    if (newEncodingNowIds.indexOf(id) == -1) {
-                                        removeQueueItem(id);
+                                for (i = 0; i < response.encoding.length; i++) {
+                                    var encodingId = response.encoding[i].id;
+                                    var encodingStat = response.encoding_status[i];
+                                    if (encodingStat && encodingStat.progress) {
+                                        setEncodingProgress(encodingId, encodingStat.progress, response.encoding[i].name || '');
+                                        updateEncodingMeta(encodingId, encodingStat);
                                     }
                                 }
-                                encodingNowIds = newEncodingNowIds;
-
-                                for (i = 0; i < encodingNowIds.length; i++) {
-                                    var id = encodingNowIds[i];
-                                    var setText = true;
-                                    var text = '';
-                                    try {
-                                        if (response.encoding_status[i].progress) {
-                                            setText = false;
-                                            setEncodingProgress(id, response.encoding_status[i].progress, text);
-                                        }
-                                        text = response.encoding[i].name + " [<?php echo __('Downloading'); ?> ...]";
-                                    } catch (error) {
-
-                                    }
-                                    try {
-                                        if (response.download_status[i] && response.encoding_status[i].progress) {
-                                            text = response.encoding[i].name + " [" + response.encoding_status[i].from + " to " + response.encoding_status[i].to + "] " + response.encoding_status[i].remainTimeHuman;
-                                        }
-
-                                        if (response.download_status[i]) {
-                                            setDownloadProgress(id, response.download_status[i].progress, setText);
-                                        }
-                                    } catch (error) {}
-
-                                }
-
-                                setTimeout(function() {
-                                    checkProgress();
-                                }, checkProgressTimeout);
-                            } else {
-                                while ((id = encodingNowIds.pop()) != null) {
-                                    removeQueueItem(id);
-                                }
-                                setTimeout(function() {
-                                    checkProgress();
-                                }, checkProgressTimeout * 2);
                             }
+
+                            // Any id that fell out of the encoding set (moved on to packing/fixing/
+                            // transferring/done/error, or errored out before finishing) gets its card removed.
+                            for (i = 0; i < encodingNowIds.length; i++) {
+                                if (newEncodingNowIds.indexOf(encodingNowIds[i]) == -1) {
+                                    removeQueueItem(encodingNowIds[i]);
+                                }
+                            }
+                            encodingNowIds = newEncodingNowIds;
+
                             if (response.transferring.length > 0) {
                                 for (i = 0; i < response.transferring.length; i++) {
-                                    var id = response.transferring[i].id;
-                                    removeQueueItem(id);
+                                    removeQueueItem(response.transferring[i].id);
                                 }
                             }
 
+                            var isActive = response.encoding.length > 0 || (response.downloading && response.downloading.length > 0);
+                            setTimeout(function() {
+                                checkProgress();
+                            }, isActive ? checkProgressTimeout : checkProgressTimeout * 2);
                         }
                     });
                 }
