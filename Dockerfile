@@ -1,4 +1,4 @@
-FROM php:7-apache
+FROM php:8.2-apache
 
 LABEL maintainer="TRW <trw@acoby.de>" \
       org.label-schema.schema-version="1.0" \
@@ -34,8 +34,7 @@ ENV PHP_UPLOAD_MAX_FILESIZE=100M
 ENV PHP_MAX_EXECUTION_TIME=7200
 ENV PHP_MEMORY_LIMIT=512M
 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       git \
       zip \
       mariadb-client \
@@ -58,7 +57,7 @@ RUN apt-get install -y --no-install-recommends \
       libonig-dev \
       wget \
       libmagickwand-dev && \
-    docker-php-ext-configure gd --with-freetype=/usr/include --with-jpeg=/usr/include && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) \
       bcmath \
       bz2 \
