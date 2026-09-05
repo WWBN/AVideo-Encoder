@@ -74,6 +74,23 @@ body {
     transition: border-color .15s ease, box-shadow .15s ease;
 }
 
+.well {
+    border-radius: var(--enc-radius) !important;
+    box-shadow: var(--enc-shadow);
+}
+
+/* Icon-over-text sub-tabs (Upload panel: From File / Import Video / Bulk Encode) —
+   bigger icon, more breathing room, reuses the flat-underline active state above. */
+.nav-tabs-icons > li > a {
+    padding: 10px 18px;
+}
+
+.nav-tabs-icons > li > a i {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 4px;
+}
+
 .label {
     border-radius: 20px;
     padding: .3em .75em .35em;
@@ -169,10 +186,36 @@ body {
     white-space: nowrap;
 }
 
+.progress-completed .badge {
+    background-color: rgba(0, 0, 0, .55);
+    color: #fff;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 85%;
+    text-shadow: none;
+}
+
 .progress-bar {
     -webkit-transition: width .6s ease;
     -o-transition: width .6s ease;
     transition: width .6s ease;
+}
+
+/* Glossy highlight over the fill so the bar reads as a polished control rather
+   than a flat rectangle, regardless of which color the active theme gives it. */
+.encodingProgress .progress-bar,
+.downloadProgress .progress-bar {
+    position: relative;
+}
+
+.encodingProgress .progress-bar::after,
+.downloadProgress .progress-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, .35), rgba(255, 255, 255, 0) 45%, rgba(0, 0, 0, .08));
+    pointer-events: none;
 }
 
 .progress-bar-primary {
@@ -301,12 +344,78 @@ body {
     row-gap: 6px;
 }
 
+.queue-item-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: rgba(127, 127, 127, .12);
+    font-size: 12px;
+    margin-right: 8px;
+    flex: 0 0 auto;
+}
+
+/* Generic circular icon badge, reused outside the queue cards too (config panel
+   headings, the sign-in form legend) for a consistent icon treatment sitewide. */
+.icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background-color: rgba(127, 127, 127, .12);
+    font-size: 12px;
+    margin-right: 4px;
+    flex: 0 0 auto;
+}
+
+.queue-item-site {
+    font-weight: 600;
+    font-size: 13px;
+    max-width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.queue-item-site:hover,
+.queue-item-site:focus {
+    text-decoration: underline;
+}
+
+.queue-item-heading-spacer {
+    flex: 1 1 auto;
+}
+
 .queue-item-heading .label {
     margin-left: 8px;
 }
 
-.status-obs-container {
-    border-top: 1px solid rgba(127, 127, 127, .25);
+.queue-item-body {
+    padding: 14px 16px;
+}
+
+.queue-item-stage {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: var(--enc-radius-sm);
+    background-color: rgba(127, 127, 127, .08);
+}
+
+.queue-item-stage-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .queue-empty-state {
@@ -465,7 +574,10 @@ body {
     align-items: center;
     gap: 4px 16px;
     padding: 6px 12px;
+    margin: 10px -16px -14px;
     border-top: 1px solid rgba(127, 127, 127, .2);
+    border-bottom-left-radius: var(--enc-radius);
+    border-bottom-right-radius: var(--enc-radius);
     background-color: rgba(127, 127, 127, .05);
     font-size: 12px;
 }

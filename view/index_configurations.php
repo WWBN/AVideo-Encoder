@@ -6,7 +6,7 @@ if (Login::isAdmin()) {
         ?>
         <div id="config" class="tab-pane fade">
             <div class="panel panel-default">
-                <div class="panel-heading"><i class="fas fa-sliders-h"></i> <?php echo __('Encoding Formats'); ?></div>
+                <div class="panel-heading"><span class="icon-badge"><i class="fas fa-sliders-h" aria-hidden="true"></i></span> <?php echo __('Encoding Formats'); ?></div>
                 <div class="panel-body">
                     <p class="text-muted small"><?php echo __('Advanced ffmpeg command lines used for each output format. Only change these if you know what you are doing.'); ?></p>
                     <?php
@@ -30,7 +30,7 @@ if (Login::isAdmin()) {
             </div>
 
             <div class="panel panel-default">
-                <div class="panel-heading"><i class="fas fa-tv"></i> <?php echo __('Resolutions'); ?></div>
+                <div class="panel-heading"><span class="icon-badge"><i class="fas fa-tv" aria-hidden="true"></i></span> <?php echo __('Resolutions'); ?></div>
                 <div class="panel-body">
                     <p class="text-muted small"><?php echo __('Choose which resolutions this encoder will generate for uploaded videos.'); ?></p>
                     <div id="resolutions" class="checkboxes">
@@ -83,7 +83,7 @@ if (Login::isAdmin()) {
             </div>
 
             <div class="panel panel-default">
-                <div class="panel-heading"><i class="fas fa-shield-alt"></i> <?php echo __('Access & Queue Defaults'); ?></div>
+                <div class="panel-heading"><span class="icon-badge"><i class="fas fa-shield-alt" aria-hidden="true"></i></span> <?php echo __('Access & Queue Defaults'); ?></div>
                 <div class="panel-body">
                     <div class="form-group">
                         <label for="allowedStreamers"><?php echo __('Allowed Streamers Sites (One per line. Leave blank for public)'); ?></label>

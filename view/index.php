@@ -125,7 +125,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 <div class="col-xs-10 col-md-8 ">
                     <form class="form-compact well form-horizontal" id="loginForm">
                         <fieldset>
-                            <legend><?php echo __('Please sign in'); ?></legend>
+                            <legend><span class="icon-badge"><i class="fas fa-sign-in" aria-hidden="true"></i></span> <?php echo __('Please sign in'); ?></legend>
                             <div class="form-group">
                                 <label class="col-md-4 control-label"><?php echo __('Streamer Site'); ?></label>
                                 <div class="col-md-8 inputGroupContainer">
@@ -474,6 +474,43 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     error: "<?php echo __('Error'); ?>"
                 };
 
+                // Shared per-status maps used by both createQueueItem() and updateQueueItemVisual().
+                var queueStatusClasses = {
+                    encoding: 'label-status-encoding',
+                    downloading: 'label-status-downloading',
+                    downloaded: 'label-status-downloaded',
+                    queue: 'label-status-queue',
+                    error: 'label-status-error',
+                    done: 'label-status-done',
+                    transferring: 'label-status-transferring',
+                    packing: 'label-status-packing',
+                    fixing: 'label-status-fixing'
+                };
+
+                var queueObsClass = {
+                    error: 'text-danger',
+                    encoding: 'text-info',
+                    downloading: 'text-warning',
+                    downloaded: 'text-success',
+                    done: 'text-success',
+                    queue: 'text-muted',
+                    transferring: 'text-primary',
+                    packing: 'text-primary',
+                    fixing: 'text-primary'
+                };
+
+                var queueObsIcon = {
+                    error: 'fas fa-exclamation-triangle',
+                    encoding: 'fas fa-circle-notch fa-spin',
+                    downloading: 'fas fa-circle-notch fa-spin',
+                    downloaded: 'fas fa-check-circle',
+                    done: 'fas fa-check-circle',
+                    queue: 'fas fa-hourglass-half',
+                    transferring: 'fas fa-circle-notch fa-spin',
+                    packing: 'fas fa-circle-notch fa-spin',
+                    fixing: 'fas fa-circle-notch fa-spin'
+                };
+
                 function updateQueueSummary(queueList) {
                     var counts = {};
                     (queueList || []).forEach(function(item) {
@@ -539,36 +576,12 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     const status = queueItem.status.toLowerCase();
                     const statusText = status.toUpperCase();
 
-                    const statusClasses = {
-                        encoding: 'label-status-encoding',
-                        downloading: 'label-status-downloading',
-                        downloaded: 'label-status-downloaded',
-                        queue: 'label-status-queue',
-                        error: 'label-status-error',
-                        done: 'label-status-done',
-                        transferring: 'label-status-transferring',
-                        packing: 'label-status-packing',
-                        fixing: 'label-status-fixing'
-                    };
-
-                    const obsClass = {
-                        error: 'text-danger',
-                        encoding: 'text-info',
-                        downloading: 'text-warning',
-                        downloaded: 'text-success',
-                        done: 'text-success',
-                        queue: 'text-muted',
-                        transferring: 'text-primary',
-                        packing: 'text-primary',
-                        fixing: 'text-primary'
-                    };
-
                     // Atualiza status label
                     const statusLabel = $(selector).find('.label-status');
-                    statusLabel.removeClass().addClass('label label-status ' + (statusClasses[status] || 'label-default')).text(statusText);
+                    statusLabel.removeClass().addClass('label label-status ' + (queueStatusClasses[status] || 'label-default')).text(statusText);
 
                     // Atualiza a cor de destaque (borda) do card conforme o status
-                    $(selector).removeClass(Object.keys(statusClasses).map(function(s) {
+                    $(selector).removeClass(Object.keys(queueStatusClasses).map(function(s) {
                         return 'queue-item-status-' + s;
                     }).join(' ')).addClass('queue-item-status-' + status);
 
@@ -576,26 +589,18 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     $(selector).find('.progress-type').html(`<strong>${escapeHTML(queueItem.title)}</strong>`);
                     $(selector).find('.progress-completed').text(queueItem.name || '');
 
-                    // Atualiza status_obs
+                    // Atualiza a etapa atual (status_obs)
                     const status_obs = queueItem.status_obs?.trim();
-                    const safeStatusObs = escapeHTML(status_obs || '');
-                    const obsSelector = $(selector).find('.status-obs-container');
+                    const stage = $(selector).find('.queue-item-stage');
                     if (status_obs) {
-                        if (!obsSelector.length) {
-                            $(selector).append(
-                                `<div class="panel-body status-obs-container" style="padding: 5px 10px;">
-                                    <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                        <i class="fa fa-info-circle"></i> ${safeStatusObs}
-                                    </small>
-                                </div>`
-                            );
-                        } else {
-                            obsSelector.html(`<small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                <i class="fa fa-info-circle"></i> ${safeStatusObs}
-                              </small>`);
-                        }
+                        stage.removeClass(Object.keys(queueObsClass).map(function(s) {
+                            return queueObsClass[s];
+                        }).join(' ')).addClass(queueObsClass[status] || 'text-muted');
+                        stage.find('.queue-item-stage-icon').attr('class', 'queue-item-stage-icon ' + (queueObsIcon[status] || 'fas fa-info-circle'));
+                        stage.find('.queue-item-stage-text').text(status_obs);
+                        stage.show();
                     } else {
-                        obsSelector.remove(); // Remove se não tiver mais texto
+                        stage.hide();
                     }
                 }
 
@@ -792,39 +797,6 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                     const status = queueItem.status.toLowerCase();
 
-                    const statusClasses = {
-                        encoding: 'label-status-encoding',
-                        downloading: 'label-status-downloading',
-                        downloaded: 'label-status-downloaded',
-                        queue: 'label-status-queue',
-                        error: 'label-status-error',
-                        done: 'label-status-done',
-                        transferring: 'label-status-transferring',
-                        packing: 'label-status-packing',
-                        fixing: 'label-status-fixing'
-                    };
-
-                    const obsClass = {
-                        error: 'text-danger',
-                        encoding: 'text-info',
-                        downloading: 'text-warning',
-                        downloaded: 'text-success',
-                        done: 'text-success',
-                        queue: 'text-muted',
-                        transferring: 'text-primary',
-                        packing: 'text-primary',
-                        fixing: 'text-primary'
-                    };
-
-                    const status_obs = queueItem.status_obs?.trim();
-                    const safeStatusObs = escapeHTML(status_obs || '');
-                    const status_obs_block = status_obs ?
-                        `<div class="panel-body" style="padding: 5px 10px;">
-                            <small class="${obsClass[status] || 'text-muted'}" style="white-space: normal;">
-                                <i class="fa fa-info-circle"></i> ${safeStatusObs}
-                            </small>
-                        </div>` : '';
-
                     const itemsArray = {
                         id: queueItem.id,
                         site: queueItem.streamer_site,
@@ -832,8 +804,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         title: escapeHTML(queueItem.title),
                         name: escapeHTML(queueItem.name),
                         statusText: status.toUpperCase(),
-                        statusLabelClass: 'label label-status ' + (statusClasses[status] || 'label-default'),
-                        status_obs_block: status_obs_block
+                        statusLabelClass: 'label label-status ' + (queueStatusClasses[status] || 'label-default')
                     };
 
                     const item = arrayToTemplate(itemsArray, createQueueTemplate);
@@ -1053,21 +1024,12 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             },
                             "status": function(column, row) {
                                 let content = '';
+                                const statusKey = (row.status || '').toLowerCase();
 
-                                // Define label class for status
-                                let labelClass = 'label-warning';
-                                if (row.status === "error") {
-                                    labelClass = 'label-danger';
-                                } else if (row.status === "done") {
-                                    labelClass = 'label-success';
-                                } else if (row.status === "queue") {
-                                    labelClass = 'label-primary';
-                                } else if (row.status === "encoding") {
-                                    labelClass = 'label-info';
-                                }
-
-                                // Main status
-                                content += `<span class="label ${labelClass} text-uppercase"><i class="fa fa-cogs"></i> ${escapeHTML(row.status)}</span>`;
+                                // Reuse the exact same status colors/icons as the Sharing Queue cards.
+                                const labelClass = queueStatusClasses[statusKey] || 'label-default';
+                                const iconClass = queueObsIcon[statusKey] || 'fas fa-info-circle';
+                                content += `<span class="label ${labelClass} text-uppercase"><i class="${iconClass}" aria-hidden="true"></i> ${escapeHTML(row.status)}</span>`;
 
                                 // ETA
                                 if (row.encoding_status && row.encoding_status.remainTimeHuman) {
@@ -1076,7 +1038,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                                 // Status observation or error message
                                 if (row.status_obs) {
-                                    content += `<small style="white-space: normal;"><i class="fa fa-info-circle"></i> ${escapeHTML(row.status_obs)}</small>`;
+                                    const obsColor = queueObsClass[statusKey] || 'text-muted';
+                                    content += `<small class="${obsColor}" style="white-space: normal;"><i class="fa fa-info-circle"></i> ${escapeHTML(row.status_obs)}</small>`;
                                 }
 
                                 return '<div class="log-stack">' + content + '</div>';

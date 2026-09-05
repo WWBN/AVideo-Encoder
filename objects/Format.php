@@ -1054,8 +1054,7 @@ if (!class_exists('Format')) {
             // Covers every branch below (HLSProcessor, preProcessDynamicHLS, preProcessHLS,
             // MP4/WebM) so status_obs always moves past "Uploading preview images..." here,
             // even on paths that have no further stage messages of their own.
-            $encoder->setStatus_obs("Preparing video encoding...");
-            $encoder->save();
+            Encoder::nextStage($encoder, "Preparing video encoding...");
             _error_log("AVideo-Encoder Format::exec [$format_id, $pathFileName, $destinationFile, $encoder_queue_id] code=({$fc})");
             if ($format_id == 29 || $format_id == 30) { // it is HLS
                 if (empty($fc) || $format_id == 30) {

@@ -396,6 +396,53 @@ class Encoder extends ObjectYPT
         }
     }
 
+    // In-process stage counter (valid for a single Encoder::run() job only, this
+    // pipeline never forks) so the UI can show "Step X/Y" instead of an opaque label.
+    private static $stageTotal = 0;
+    private static $stageCurrent = 0;
+
+    public static function initStages($total)
+    {
+        self::$stageTotal = max(0, intval($total));
+        self::$stageCurrent = 0;
+    }
+
+    public static function nextStage($encoder, $msg)
+    {
+        if (empty($encoder)) {
+            return;
+        }
+        self::$stageCurrent++;
+        if (self::$stageTotal > 0) {
+            $msg = "Step " . self::$stageCurrent . "/" . self::$stageTotal . ": {$msg}";
+        }
+        $encoder->setStatus_obs($msg);
+        $encoder->save();
+    }
+
+    // Best-effort count of the pre-processing steps THIS job will actually go through,
+    // so nextStage() can show a meaningful total instead of just a running counter.
+    private static function estimateTotalStages($encoder, $pathFileName)
+    {
+        global $global;
+        // Always present: generate preview images, upload them, prepare the encode command.
+        $total = 3;
+        $formatId = $encoder->getFormats_id();
+        if (($formatId == 29 || $formatId == 30) && empty($global['disableHLSAudioMultitrack'])) {
+            // HLSProcessor pipeline adds: analyze source + start encode, plus optional steps.
+            $total += 2;
+            $advancedCustom = getAdvancedCustomizedObjectData();
+            if (!empty($advancedCustom->autoConvertToMp4)) {
+                $total++;
+            }
+            if (!empty($advancedCustom->autoConvertVideosToMP3)) {
+                $total++;
+            }
+            $total += HLSProcessor::countAudioTracks($pathFileName);
+        }
+        return $total;
+    }
+
     public function setReturn_vars($return_vars)
     {
         $this->return_vars = $return_vars;
@@ -1652,6 +1699,7 @@ class Encoder extends ObjectYPT
                     $encoder->setStatus(Encoder::STATUS_ENCODING);
                     $encoder->save();
                     self::run(0);
+                    self::initStages(self::estimateTotalStages($encoder, $objFile->pathFileName));
                     $response = self::sendImages($objFile->pathFileName, $return_vars, $encoder);
                     if (!empty($response->error)) {
                         // Thumbnails/GIF/WEBP previews are supplementary, not required to deliver
@@ -2537,8 +2585,7 @@ class Encoder extends ObjectYPT
             }
         }
         if (!empty($file)) {
-            $encoder->setStatus_obs("Generating thumbnail and preview images (JPG/GIF/WEBP)...");
-            $encoder->save();
+            self::nextStage($encoder, "Generating thumbnail and preview images (JPG/GIF/WEBP)...");
             $seconds = intval(static::parseDurationToSeconds($duration) / 2);
             if (empty($postFields['image'])) {
                 $destinationImage = static::getImage($file, $seconds);
@@ -2563,8 +2610,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        $encoder->setStatus_obs("Uploading preview images to the site...");
-        $encoder->save();
+        self::nextStage($encoder, "Uploading preview images to the site...");
         self::setStreamerLog($encoder->getId(), __FUNCTION__, Encoder::LOG_TYPE_INFO);
         $obj = self::sendToStreamer($target, $postFields, $return_vars, $encoder);
         $obj->file = $file;

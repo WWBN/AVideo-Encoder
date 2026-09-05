@@ -8,7 +8,7 @@
         ?>
     </div>
     <div class="panel-body <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
-        <ul class="nav nav-tabs">
+        <ul class="nav nav-tabs nav-tabs-icons">
             <li class="active">
                 <a data-toggle="tab" href="#upload">
                     <center>

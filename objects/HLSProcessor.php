@@ -12,8 +12,7 @@ class HLSProcessor
             return;
         }
         _error_log("HLSProcessor: stage: {$msg}");
-        $encoder->setStatus_obs($msg);
-        $encoder->save();
+        Encoder::nextStage($encoder, $msg);
     }
 
     static function createMP3AndPM4IfNeed($pathFileName, $destinationFile, $encoder = null)
@@ -46,6 +45,7 @@ class HLSProcessor
 
     public static function createHLSWithAudioTracks($pathFileName, $destinationFile, $encoder_queue_id)
     {
+        global $global;
         $encoder = new Encoder($encoder_queue_id);
         $streamersId = $encoder->getStreamers_id();
         self::setStage($encoder, "Analyzing source video (resolution, audio tracks)...");
@@ -114,11 +114,11 @@ class HLSProcessor
                 . " -hls_playlist_type vod -hls_segment_type mpegts "
                 . " -hls_segment_filename \"{$audioTsPattern}\" {$audioFile}";
 
-
-
             $audioCommand = removeUserAgentIfNotURL($audioCommand);
+            // Same progress file the queue UI already polls for %.
+            $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
             _error_log("HLSProcessor: createHLSWithAudioTracks Executing audio FFmpeg command: {$audioCommand}");
-            exec($audioCommand, $output, $result_code); // Execute FFmpeg command
+            exec("{$audioCommand} 1> \"{$progressFile}\" 2>&1", $output, $result_code); // Execute FFmpeg command
 
             if (!file_exists($audioFile)) {
                 _error_log("HLSProcessor: createHLSWithAudioTracks audioFile error: {$audioCommand} " . json_encode(array($output)));
@@ -231,6 +231,13 @@ class HLSProcessor
     {
         $command = get_ffprobe() . " -v error -select_streams v:0 -show_entries stream=height -of csv=p=0 {$pathFileName}";
         return (int) shell_exec($command);
+    }
+
+    // Public so Encoder::estimateTotalStages() can size the "Step X/Y" counter
+    // before this class's own pre-processing pipeline actually starts.
+    public static function countAudioTracks($pathFileName)
+    {
+        return count(self::getAudioTracks($pathFileName));
     }
 
     // Function to detect audio tracks and their metadata

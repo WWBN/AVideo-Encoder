@@ -1,30 +1,38 @@
-<div id="encodeProgress{id}" class="animate__animated animate__flipInX panel panel-default queue-item">
+<div id="encodeProgress{id}" class="animate__animated animate__fadeInUp panel panel-default queue-item">
     <div class="panel-heading queue-item-heading">
-        <a href="{site}" class="btn btn-xs btn-default" target="_blank">{site}</a>
-        <span class="label label-priority">Priority {priority}</span>
+        <span class="queue-item-icon"><i class="fas fa-film" aria-hidden="true"></i></span>
+        <a href="{site}" class="queue-item-site" target="_blank">{site}</a>
+        <span class="queue-item-heading-spacer"></span>
+        <span class="label label-priority"><i class="fas fa-flag" aria-hidden="true"></i> {priority}</span>
         <span class="label {statusLabelClass}">{statusText}</span>
     </div>
-    <div class="progress-group">
-        <div class="progress progress-striped active encodingProgress" id="encodingProgress{id}">
-            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                aria-valuemax="100" style="width: 0%;">
-                <span class="sr-only">0% Complete</span>
+    <div class="panel-body queue-item-body">
+        <div class="queue-item-stage" id="queueItemStage{id}" style="display: none;">
+            <i class="queue-item-stage-icon fas fa-info-circle" aria-hidden="true"></i>
+            <span class="queue-item-stage-text"></span>
+        </div>
+        <div class="progress-group">
+            <div class="progress progress-striped active encodingProgress" id="encodingProgress{id}">
+                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100" style="width: 0%;">
+                    <span class="sr-only">0% Complete</span>
+                </div>
+                <div class="progress-overlay">
+                    <span class="progress-type"><strong>{title}</strong></span>
+                    <span class="progress-completed">{name}</span>
+                </div>
             </div>
-            <div class="progress-overlay">
-                <span class="progress-type"><strong>{title}</strong></span>
-                <span class="progress-completed">{name}</span>
+            <div class="progress progress-striped active downloadProgress" id="downloadProgress{id}">
+                <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100" style="width: 0%;"></div>
             </div>
         </div>
-        <div class="progress progress-striped active downloadProgress" id="downloadProgress{id}">
-            <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="0" aria-valuemin="0"
-                aria-valuemax="100" style="width: 0%;"></div>
+        <div class="queue-item-meta" id="queueItemMeta{id}" style="display: none;">
+            <span class="meta-chip meta-eta" style="display: none;"><i class="fa fa-clock-o" aria-hidden="true"></i> <span class="meta-value"></span></span>
+            <span class="meta-chip meta-speed" style="display: none;"><i class="fas fa-bolt" aria-hidden="true"></i> <span class="meta-value"></span></span>
+            <span class="meta-chip meta-fps" style="display: none;"><i class="fas fa-film" aria-hidden="true"></i> <span class="meta-value"></span></span>
+            <span class="meta-chip meta-bitrate" style="display: none;"><i class="fas fa-signal" aria-hidden="true"></i> <span class="meta-value"></span></span>
+            <span class="meta-chip meta-size" style="display: none;"><i class="fas fa-hdd" aria-hidden="true"></i> <span class="meta-value"></span></span>
         </div>
-    </div>
-    <div class="queue-item-meta" id="queueItemMeta{id}" style="display: none;">
-        <span class="meta-chip meta-eta" style="display: none;"><i class="fa fa-clock-o" aria-hidden="true"></i> <span class="meta-value"></span></span>
-        <span class="meta-chip meta-speed" style="display: none;"><i class="fas fa-bolt" aria-hidden="true"></i> <span class="meta-value"></span></span>
-        <span class="meta-chip meta-fps" style="display: none;"><i class="fas fa-film" aria-hidden="true"></i> <span class="meta-value"></span></span>
-        <span class="meta-chip meta-bitrate" style="display: none;"><i class="fas fa-signal" aria-hidden="true"></i> <span class="meta-value"></span></span>
-        <span class="meta-chip meta-size" style="display: none;"><i class="fas fa-hdd" aria-hidden="true"></i> <span class="meta-value"></span></span>
     </div>
 </div>
