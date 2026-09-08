@@ -1,103 +1,3 @@
-<style>
-
-    .radio-tile-group {
-        display: -webkit-box;
-        display: flex;
-        flex-wrap: wrap;
-        -webkit-box-pack: center;
-        justify-content: center;
-    }
-    .radio-tile-group .input-container {
-        position: relative;
-        height: 7rem;
-        width: 7rem;
-        margin: 0.5rem;
-    }
-    .radio-tile-group .input-container .radio-button {
-        opacity: 0;
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        cursor: pointer;
-    }
-    .radio-tile-group .input-container .radio-tile {
-        display: -webkit-box;
-        display: flex;
-        -webkit-box-orient: vertical;
-        -webkit-box-direction: normal;
-        flex-direction: column;
-        -webkit-box-align: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        border: 2px solid #079ad9;
-        border-radius: 5px;
-        padding: 1rem;
-        -webkit-transition: -webkit-transform 300ms ease;
-        transition: -webkit-transform 300ms ease;
-        transition: transform 300ms ease;
-        transition: transform 300ms ease, -webkit-transform 300ms ease;
-    }
-    .radio-tile-group .input-container i{
-        color: #079ad9;
-    }
-    .radio-tile-group .input-container .radio-tile-label {
-        text-align: center;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #079ad9;
-        font-size: 0.8em;
-    }
-    .radio-tile-group .input-container .radio-button + .radio-tile {
-        transition: 0.3s;
-    }
-    .radio-tile-group .input-container .radio-button:checked + .radio-tile {
-        background-color: #079ad9;
-        border: 2px solid #079ad9;
-        color: white;
-        -webkit-transform: scale(1.1, 1.1);
-        transform: scale(1.1, 1.1);
-    }
-    .radio-tile-group .input-container .radio-button:checked + .radio-tile i {
-        color: white;
-        background-color: #079ad9;
-    }
-    .radio-tile-group .input-container .radio-button:checked + .radio-tile .radio-tile-label {
-        color: white;
-        background-color: #079ad9;
-    }
-
-    .radio-tile-group .input-container .radio-tile-disabled {
-        border-color: #999;
-        opacity: 0.75;
-        position: relative;
-    }
-
-    .radio-tile-group .input-container .radio-tile-disabled i {
-        color: #888;
-    }
-
-    .radio-tile-group .input-container .radio-tile-disabled .radio-tile-label {
-        color: #888;
-    }
-
-    .radio-tile-group .input-container .hls-disabled-help {
-        position: absolute;
-        top: 6px;
-        right: 8px;
-        font-size: 1.4em;
-        color: #f0ad4e;
-        cursor: help;
-    }
-
-</style>
-
 <div class="radio-tile-group" id="automaticOptions">
     <?php
     $checked = "checked";
@@ -113,7 +13,7 @@
                    <?php echo ($_COOKIE['format'] === 'inputAutoHLS') ? 'checked' : ''; ?>>
             <div class="radio-tile">
                 <div class="icon fly-icon">
-                    <i class="fas fa-file-video fa-2x"></i>
+                    <i class="fas fa-stream" aria-hidden="true"></i>
                 </div>
                 <label for="inputAutoHLS" class="radio-tile-label">HLS</label>
             </div>
@@ -126,7 +26,7 @@
         <div class="input-container <?php echo getCSSAnimationClassAndStyle('animate__flipInY', 'format', 0.2); ?>">
             <div class="radio-tile radio-tile-disabled">
                 <div class="icon fly-icon">
-                    <i class="fas fa-file-video fa-2x"></i>
+                    <i class="fas fa-stream" aria-hidden="true"></i>
                 </div>
                 <label class="radio-tile-label">HLS</label>
                 <span class="hls-disabled-help" data-toggle="tooltip" data-placement="top" title="<?php echo htmlspecialchars($hlsDisabledReason, ENT_QUOTES, 'UTF-8'); ?>">
@@ -147,7 +47,7 @@
                    <?php echo ($_COOKIE['format'] === 'inputAutoMP4') ? 'checked' : ''; ?>>
             <div class="radio-tile">
                 <div class="icon fly-icon">
-                    <i class="fas fa-file-video fa-2x"></i>
+                    <i class="fas fa-file-video" aria-hidden="true"></i>
                 </div>
                 <label for="inputAutoMP4" class="radio-tile-label">MP4</label>
             </div>
@@ -162,7 +62,7 @@
                    <?php echo ($_COOKIE['format'] === 'inputAutoWebm') ? 'checked' : ''; ?>>
             <div class="radio-tile">
                 <div class="icon fly-icon">
-                    <i class="fas fa-file-video fa-2x"></i>
+                    <i class="fas fa-film" aria-hidden="true"></i>
                 </div>
                 <label for="inputAutoWebm" class="radio-tile-label">WEBM</label>
             </div>
@@ -177,9 +77,9 @@
                    <?php echo ($_COOKIE['format'] === 'inputAutoAudio') ? 'checked' : ''; ?>>
             <div class="radio-tile">
                 <div class="icon fly-icon">
-                    <i class="fas fa-file-audio fa-2x"></i>
+                    <i class="fas fa-music" aria-hidden="true"></i>
                 </div>
-                <label for="inputAutoHLS" class="radio-tile-label">Audio</label>
+                <label for="inputAutoAudio" class="radio-tile-label">Audio</label>
             </div>
         </div>
         <?php

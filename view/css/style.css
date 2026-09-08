@@ -39,6 +39,9 @@ body {
    currentColor reuses whatever text color the active theme already
    gives the tab, so the underline never fights a theme's palette. */
 .nav-tabs > li > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     border: none !important;
     background: transparent !important;
     border-radius: 0 !important;
@@ -79,16 +82,144 @@ body {
     box-shadow: var(--enc-shadow);
 }
 
-/* Icon-over-text sub-tabs (Upload panel: From File / Import Video / Bulk Encode) —
-   bigger icon, more breathing room, reuses the flat-underline active state above. */
+/* Compact upload-source tabs: equal widths keep every option on one row. */
+.nav-tabs-icons {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+.nav-tabs-icons > li {
+    float: none;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 .nav-tabs-icons > li > a {
-    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    min-height: 52px;
+    height: 100%;
+    margin-right: 0;
+    padding: 8px 9px;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
 }
 
 .nav-tabs-icons > li > a i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 18px;
+    width: 18px;
+    margin: 0;
+    font-size: 16px;
+}
+
+.nav-tabs-icons .encoder-tab-label {
     display: block;
-    font-size: 20px;
-    margin-bottom: 4px;
+    min-width: 0;
+}
+
+.radio-tile-group {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+}
+
+.radio-tile-group .input-container {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 80px;
+    height: 68px;
+    margin: 0;
+}
+
+.radio-tile-group .input-container .radio-button {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.radio-tile-group .input-container .radio-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    height: 100%;
+    padding: 6px;
+    border: 1px solid #079ad9;
+    border-radius: 8px;
+    transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+}
+
+.radio-tile-group .input-container i {
+    color: #079ad9;
+    font-size: 1.4em;
+}
+
+.radio-tile-group .input-container .radio-tile-label {
+    margin: 0;
+    color: #079ad9;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: .04em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.radio-tile-group .input-container .radio-button:focus + .radio-tile {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.radio-tile-group .input-container .radio-button:checked + .radio-tile {
+    color: #fff;
+    background-color: #079ad9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .14);
+    transform: translateY(-1px);
+}
+
+.radio-tile-group .input-container .radio-button:checked + .radio-tile i,
+.radio-tile-group .input-container .radio-button:checked + .radio-tile .radio-tile-label {
+    color: inherit;
+}
+
+.radio-tile-group .input-container .radio-tile-disabled {
+    position: relative;
+    border-color: #999;
+    opacity: .65;
+}
+
+.radio-tile-group .input-container .radio-tile-disabled i,
+.radio-tile-group .input-container .radio-tile-disabled .radio-tile-label {
+    color: #888;
+}
+
+.radio-tile-group .input-container .hls-disabled-help {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    color: #f0ad4e;
+    cursor: help;
+    font-size: 1em;
 }
 
 .label {
@@ -502,13 +633,115 @@ body {
     padding-top: 50px;
 }
 
-.availableResolutionsLabels {
+.upload-action-group {
+    display: flex;
+    width: 100%;
+}
+
+.fileupload-buttonbar .fileinput-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.upload-action-group .upload-action {
+    display: inline-flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 42px;
+    padding: 8px;
+}
+
+.upload-action-group .upload-action i {
+    width: 16px;
     text-align: center;
-    overflow: auto;
+}
+
+.upload-preferences {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.upload-preference {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 46px;
+    margin: 0 0 5px;
+    padding: 8px 9px;
+    border: 1px solid rgba(127, 127, 127, .28);
+    border-radius: var(--enc-radius-sm);
+    background-color: rgba(127, 127, 127, .06);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.upload-preference input[type="checkbox"] {
+    display: inline-block;
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.upload-preference-icon {
+    flex: 0 0 16px;
+    width: 16px;
+    text-align: center;
+    opacity: .7;
+}
+
+.upload-preference-text {
+    min-width: 0;
+}
+
+.available-resolutions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 7px 10px;
+    min-height: 32px;
+}
+
+.available-resolutions-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    opacity: .75;
+}
+
+.availableResolutionsLabels {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: visible;
+    line-height: 1;
 }
 
 .availableResolutionsLabels .label {
-    margin: 1px 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1;
+    vertical-align: middle;
 }
 .navbar-right li{
     margin-right: 10px;
@@ -599,7 +832,47 @@ body {
     font-weight: 600;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
+    .nav-tabs-icons > li > a {
+        gap: 5px;
+        min-height: 50px;
+        padding: 7px 5px;
+        font-size: 12px;
+    }
+
+    .nav-tabs-icons > li > a i {
+        flex-basis: 15px;
+        width: 15px;
+        font-size: 14px;
+    }
+
+    .upload-preference {
+        gap: 6px;
+        padding: 7px;
+        font-size: 12px;
+    }
+
+    #mainTabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 8px;
+    }
+
+    #mainTabs > li {
+        float: none;
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        margin: 0;
+    }
+
+    #mainTabs > li > a {
+        width: 100%;
+        min-height: 40px;
+        margin: 0;
+        padding: 8px 9px;
+        white-space: normal;
+    }
+
     .queue-item-meta {
         font-size: 11px;
         gap: 4px 10px;

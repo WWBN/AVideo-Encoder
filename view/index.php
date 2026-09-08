@@ -320,14 +320,14 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                                                                                                                                 } else {
                                                                                                                                                     ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                                                                                                                                                                                                                                             } ?>>
-                                <a data-toggle="tab" href="#encoding" class="nav-link"><span class="glyphicon glyphicon-tasks"></span> <?php echo __('Sharing Queue'); ?></a>
+                                <a data-toggle="tab" href="#encoding" class="nav-link"><i class="fas fa-list-ul" aria-hidden="true"></i> <span><?php echo __('Sharing Queue'); ?></span></a>
                             </li>
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                <a data-toggle="tab" href="#log" class="nav-link"><span class="glyphicon glyphicon-cog"></span> <?php echo __('Queue Log'); ?></a>
+                                <a data-toggle="tab" href="#log" class="nav-link"><i class="fas fa-history" aria-hidden="true"></i> <span><?php echo __('Queue Log'); ?></span></a>
                             </li>
 
                             <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                <a data-toggle="tab" href="#signin" class="nav-link"><i class="fa-solid fa-right-to-bracket"></i> <?php echo __('Sign In'); ?></a>
+                                <a data-toggle="tab" href="#signin" class="nav-link"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span><?php echo __('Sign In'); ?></span></a>
                             </li>
 
                             <?php
@@ -335,7 +335,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 if (empty($global['disableConfigurations'])) {
                             ?>
                                     <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                        <a data-toggle="tab" href="#config" class="nav-link"><span class="glyphicon glyphicon-cog"></span> <?php echo __('Configurations'); ?></a>
+                                        <a data-toggle="tab" href="#config" class="nav-link"><i class="fas fa-sliders-h" aria-hidden="true"></i> <span><?php echo __('Configurations'); ?></span></a>
                                     </li>
                                     <li <?php
                                         if (!empty($_POST['updateFile'])) {
@@ -343,7 +343,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                                                                                                                                         } else {
                                                                                                                                                             ?> class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>" <?php
                                                                                                                                                                                                                                                                     } ?>>
-                                        <a data-toggle="tab" href="#update" class="nav-link"><span class="fas fa-wrench"></span> <?php echo __('Update'); ?> <?php if (!empty($updateFiles)) { ?>
+                                        <a data-toggle="tab" href="#update" class="nav-link"><i class="fas fa-wrench" aria-hidden="true"></i> <span><?php echo __('Update'); ?></span> <?php if (!empty($updateFiles)) { ?>
                                                 <label class="label label-danger"><?php echo count($updateFiles); ?></label><?php } ?>
                                         </a>
                                     </li>
@@ -351,7 +351,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 }
                                 ?>
                                 <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                    <a data-toggle="tab" href="#streamers" class="nav-link"><span class="glyphicon glyphicon-user"></span> <?php echo __('Streamers'); ?></a>
+                                    <a data-toggle="tab" href="#streamers" class="nav-link"><i class="fas fa-server" aria-hidden="true"></i> <span><?php echo __('Streamers'); ?></span></a>
                                 </li>
                             <?php
                             }

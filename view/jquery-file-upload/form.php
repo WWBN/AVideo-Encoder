@@ -40,34 +40,36 @@ if(!isset($global['videoEditorForcePlaylist'])){
         <div class="col-lg-12">
             <!-- The fileinput-button span is used to style the file input field as button -->
             <span class="btn btn-success fileinput-button col-sm-12">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-plus" aria-hidden="true"></i>
                 <span><?php echo __('Add files...'); ?></span>
                 <input type="file" name="files[]" multiple />
             </span>
-            <div class="btn-group btn-group-justified" style="display: flex;">
-                <button type="submit" class="btn btn-primary start">
-                    <i class="fa-solid fa-upload"></i>
-                    <br>
-                    <?php echo __('Upload'); ?>
+            <div class="btn-group btn-group-justified upload-action-group">
+                <button type="submit" class="btn btn-primary start upload-action">
+                    <i class="fas fa-upload" aria-hidden="true"></i>
+                    <span><?php echo __('Upload'); ?></span>
                 </button>
-                <button type="reset" class="btn btn-warning cancel">
-                    <i class="fa-solid fa-ban"></i>
-                    <br><?php echo __('Cancel'); ?>
+                <button type="reset" class="btn btn-warning cancel upload-action">
+                    <i class="fas fa-ban" aria-hidden="true"></i>
+                    <span><?php echo __('Cancel'); ?></span>
                 </button>
-                <button type="button" class="btn btn-danger delete">
-                    <i class="fa-solid fa-trash"></i>
-                    <br><?php echo __('Delete'); ?>
+                <button type="button" class="btn btn-danger delete upload-action">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    <span><?php echo __('Delete'); ?></span>
                 </button>
             </div>
-            <div class="row">
-                <div class="col-sm-6">
+            <div class="upload-preferences">
+                <label class="upload-preference" for="selectAll">
                     <input type="checkbox" class="toggle" id="selectAll" name="selectAll" />
-                    <label for="selectAll"> <?php echo __('Select All'); ?> </label>
-                </div>
-                <div class="col-sm-6">
+                    <span class="upload-preference-icon" aria-hidden="true"><i class="fas fa-list-ul"></i></span>
+                    <span class="upload-preference-text"><?php echo __('Select All'); ?></span>
+                </label>
+                <label class="upload-preference" for="videoEditorToggle">
                     <input type="checkbox" id="videoEditorToggle">
-                    <label for="videoEditorToggle"><?php echo __('Edit while uploading'); ?></label>
-                    <script>
+                    <span class="upload-preference-icon" aria-hidden="true"><i class="fas fa-pencil-alt"></i></span>
+                    <span class="upload-preference-text"><?php echo __('Edit while uploading'); ?></span>
+                </label>
+                <script>
                         var videoEditorEnabledByDefault = <?php echo empty($global['videoEditorEnabledByDefault']) ? 'false' : 'true'; ?>;
                         var videoEditorForcePlaylist = <?php echo empty($global['videoEditorForcePlaylist']) ? 'false' : 'true'; ?>;
                         var playlists_id = <?php echo intval(@$_REQUEST['playlists_id']); ?>;
@@ -99,9 +101,7 @@ if(!isset($global['videoEditorForcePlaylist'])){
                                 }); // Cookie expires in 365 days
                             });
                         });
-                    </script>
-
-                </div>
+                </script>
             </div>
             <!-- The global file processing state -->
             <span class="fileupload-process"></span>

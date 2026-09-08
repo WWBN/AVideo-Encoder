@@ -1,5 +1,5 @@
 
-<div class="panel panel-default">
+<div class="panel panel-default encoder-upload-panel">
     <div class="panel-heading">
         <?php
         if (!empty($advancedCustom->showOnlyEncoderAutomaticResolutions)) {
@@ -8,23 +8,32 @@
         ?>
     </div>
     <div class="panel-body <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
-        <ul class="nav nav-tabs nav-tabs-icons">
-            <li class="active">
-                <a data-toggle="tab" href="#upload">
-                    <center>
-                        <i class="fas fa-file" aria-hidden="true"></i><br><?php echo __('From File'); ?>
-                    </center>
+        <ul class="nav nav-tabs nav-tabs-icons" role="tablist">
+            <li class="active" role="presentation">
+                <a data-toggle="tab" href="#upload" role="tab" aria-controls="upload">
+                    <i class="fas fa-file-upload" aria-hidden="true"></i>
+                    <span class="encoder-tab-label"><?php echo __('From File'); ?></span>
                 </a>
             </li>
             <?php
             if (empty($global['disableImportVideo'])) {
                 ?>
-                <li><a data-toggle="tab" href="#download"><center><i class="fas fa-globe" aria-hidden="true"></i><br><?php echo __('Import Video'); ?></center></a></li>
+                <li role="presentation">
+                    <a data-toggle="tab" href="#download" role="tab" aria-controls="download">
+                        <i class="fas fa-cloud-download-alt" aria-hidden="true"></i>
+                        <span class="encoder-tab-label"><?php echo __('Import Video'); ?></span>
+                    </a>
+                </li>
                 <?php
             }
             if (Login::canBulkEncode()) {
                 ?>
-                <li><a data-toggle="tab" href="#bulk"><center><i class="fas fa-layer-group" aria-hidden="true"></i><br><?php echo __('Bulk Encode'); ?></center></a></li>
+                <li role="presentation">
+                    <a data-toggle="tab" href="#bulk" role="tab" aria-controls="bulk">
+                        <i class="fas fa-layer-group" aria-hidden="true"></i>
+                        <span class="encoder-tab-label"><?php echo __('Bulk Encode'); ?></span>
+                    </a>
+                </li>
             <?php } ?>
         </ul>
         <div class="tab-content" style="padding: 10px 0;">
@@ -129,24 +138,29 @@
         </div>
     </div>
     <div class="panel-footer">
-        <div class="availableResolutionsLabels">
-            <?php
-            // Show resolutions that will actually be encoded for this user
-            $resolutionsInfo = Format::getAvailableResolutionsInfoForUser(Login::getStreamerId());
+        <div class="available-resolutions">
+            <div class="available-resolutions-title">
+                <i class="fas fa-tv" aria-hidden="true"></i>
+                <span><?php echo __('Resolutions'); ?></span>
+            </div>
+            <div class="availableResolutionsLabels">
+                <?php
+                // Show resolutions that will actually be encoded for this user
+                $resolutionsInfo = Format::getAvailableResolutionsInfoForUser(Login::getStreamerId());
 
-            if (!empty($resolutionsInfo)) {
-                foreach ($resolutionsInfo as $value) {
-                    if (empty($value['resolutionChecked'])) {
-                        continue;
+                if (!empty($resolutionsInfo)) {
+                    foreach ($resolutionsInfo as $value) {
+                        if (empty($value['resolutionChecked'])) {
+                            continue;
+                        }
+                        echo $value['label'];
                     }
-                    echo $value['label'] . ' ';
+                } else {
+                    echo '<small class="text-warning">' . __('No resolutions available for encoding') . '</small>';
                 }
-            } else {
-                echo '<small class="text-warning">' . __('No resolutions available for encoding') . '</small>';
-            }
-            ?>
+                ?>
+            </div>
         </div>
-        <div class="clearfix"></div>
         <?php
         if (!empty($_REQUEST['callback'])) {
             $json = json_decode($_REQUEST['callback']);
