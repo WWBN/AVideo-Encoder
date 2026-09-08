@@ -878,22 +878,29 @@ if (!class_exists('Format')) {
             }
 
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
-                $sendResolution = $height;
-                if (empty($countResolutions)) {
-                    // no configured resolution fit without upscaling; the site only accepts a fixed
-                    // set of resolution values, so map the raw height (e.g. 352) to the closest one
-                    // it recognizes to avoid "This resolution is not possible" errors.
-                    $sendResolution = self::getClosestAvailableResolution($height);
-                    _error_log("Encoder:Format:: getDynamicCommandFromFormat no configured resolution fit height {$height}, mapping to closest valid resolution {$sendResolution}");
+                // the site only accepts a fixed enum of resolution values (240/360/480/540/720/
+                // 1080/1440/2160) - an arbitrary raw height (e.g. 352) is rejected with
+                // "This resolution is not possible", so always tag/send a value from that enum.
+                $sendResolution = in_array($height, self::getAvailableResolutions(), true)
+                    ? $height
+                    : self::getClosestAvailableResolution($height);
+                if ($sendResolution != $height) {
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat mapping height {$height} to closest valid resolution {$sendResolution}");
                 }
-                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $sendResolution);
-                if (empty($destinationFile)) {
-                    _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
-                    return '';
+                if (!empty($countResolutions) && $sendResolution == $lastHeight) {
+                    // would just re-tag/overwrite the file already generated above for this same
+                    // resolution bucket - nothing new to add, skip the extra file entirely.
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat skipping original-resolution file, {$sendResolution} was already generated");
+                } else {
+                    $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $sendResolution);
+                    if (empty($destinationFile)) {
+                        _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
+                        return '';
+                    }
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat line=" . __LINE__);
+                    $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
+                    eval("\$command .= \" $code\";");
                 }
-                _error_log("Encoder:Format:: getDynamicCommandFromFormat line=" . __LINE__);
-                $code = ' -codec:v libx264 -movflags faststart -y {$destinationFile} ';
-                eval("\$command .= \" $code\";");
             }
 
             $command = removeUserAgentIfNotURL($command);

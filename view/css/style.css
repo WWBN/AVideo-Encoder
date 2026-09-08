@@ -743,6 +743,21 @@ body {
     line-height: 1;
     vertical-align: middle;
 }
+
+.availableResolutionsLabels > .label {
+    justify-content: center;
+    height: 24px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.availableResolutionsLabels > .label > .label {
+    height: 16px;
+    min-height: 0;
+    padding: 0 5px;
+    font-size: 9px;
+    line-height: 1;
+}
 .navbar-right li{
     margin-right: 10px;
 }
