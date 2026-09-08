@@ -567,6 +567,22 @@ if (!class_exists('Format')) {
             return self::getAvailableConfigurations()["resolutions"];
         }
 
+        // maps an arbitrary source height (e.g. 352) to the closest resolution value the main site accepts
+        public static function getClosestAvailableResolution($height)
+        {
+            $availableResolutions = self::getAvailableResolutions();
+            $closest = $availableResolutions[0];
+            $minDiff = PHP_INT_MAX;
+            foreach ($availableResolutions as $resolution) {
+                $diff = abs($resolution - $height);
+                if ($diff < $minDiff) {
+                    $minDiff = $diff;
+                    $closest = $resolution;
+                }
+            }
+            return $closest;
+        }
+
         public static function getAvailableResolutionsInfo()
         {
             global $config;
@@ -862,7 +878,15 @@ if (!class_exists('Format')) {
             }
 
             if (($advancedCustom->saveOriginalVideoResolution && $lastHeight < $height) || empty($countResolutions)) {
-                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $height);
+                $sendResolution = $height;
+                if (empty($countResolutions)) {
+                    // no configured resolution fit without upscaling; the site only accepts a fixed
+                    // set of resolution values, so map the raw height (e.g. 352) to the closest one
+                    // it recognizes to avoid "This resolution is not possible" errors.
+                    $sendResolution = self::getClosestAvailableResolution($height);
+                    _error_log("Encoder:Format:: getDynamicCommandFromFormat no configured resolution fit height {$height}, mapping to closest valid resolution {$sendResolution}");
+                }
+                $destinationFile = Encoder::getTmpFileName($encoder_queue_id, $f->getExtension(), $sendResolution);
                 if (empty($destinationFile)) {
                     _error_log("Encoder:Format:: getDynamicCommandFromFormat destination file is empty 2");
                     return '';
