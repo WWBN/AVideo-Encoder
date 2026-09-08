@@ -19,6 +19,7 @@ if(!API::canChangeQueue($_REQUEST['queue_id'])){
 $object->queue_id = intval($_REQUEST['queue_id']);
 $encoder = new Encoder($object->queue_id);
 
+Encoder::deleteEncodedOutputFiles($object->queue_id);
 $encoder->setStatus(Encoder::STATUS_QUEUE);
 
 $object->error = !$encoder->save();

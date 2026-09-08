@@ -1894,6 +1894,24 @@ class Encoder extends ObjectYPT
         return $file;
     }
 
+    // Called before re-queuing a job so a retry always re-encodes from scratch instead of
+    // re-sending whatever per-resolution output files (good or stale/invalid) are still on
+    // disk from the previous attempt. Does NOT touch the already-downloaded source file
+    // ({id}_tmpFile.*) so a retry doesn't have to re-download it.
+    public static function deleteEncodedOutputFiles($encoder_queue_id)
+    {
+        $files = self::getTmpFiles($encoder_queue_id);
+        foreach ($files as $file) {
+            _error_log("Encoder::deleteEncodedOutputFiles($encoder_queue_id): removing $file");
+            if (is_dir($file)) {
+                rrmdir($file);
+            } else {
+                @unlink($file);
+            }
+        }
+        return count($files);
+    }
+
     public static function getTmpFiles($encoder_queue_id)
     {
         global $global;
@@ -1987,6 +2005,14 @@ class Encoder extends ObjectYPT
                         $resolution = '';
                     }
                     if ($resolution == 'converted.mp4palette') {
+                        continue;
+                    }
+                    // A tmp file created by an older/buggy code path (e.g. tagged with the raw
+                    // source height instead of a valid bucket) will never be accepted by the site
+                    // and would otherwise fail this job forever on every retry - discard it instead.
+                    if (is_numeric($resolution) && !in_array((int) $resolution, Format::getAvailableResolutions(), true)) {
+                        _error_log("Encoder::send() multiResolutionOrder sendAll resolution($resolution) is not a valid site resolution, deleting stale file ($file) and skipping");
+                        @unlink($file);
                         continue;
                     }
                     $fileExistsNow = file_exists($file);
