@@ -633,7 +633,8 @@ body {
     padding-top: 50px;
 }
 
-.upload-action-group {
+/* Streamer themes load after this file and also define Bootstrap button groups. */
+.btn-group.upload-action-group {
     display: flex;
     width: 100%;
 }
@@ -646,15 +647,19 @@ body {
     width: 100%;
 }
 
-.upload-action-group .upload-action {
+.btn-group.upload-action-group > .upload-action {
     display: inline-flex;
     flex: 1 1 0;
+    float: none;
+    width: auto;
     align-items: center;
     justify-content: center;
     gap: 6px;
     min-width: 0;
     min-height: 42px;
     padding: 8px;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .upload-action-group .upload-action i {
