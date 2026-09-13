@@ -35,8 +35,10 @@
     <noscript>
         <link rel="stylesheet" href="<?php echo $global['webSiteRootURL']; ?>view/jquery-file-upload/css/jquery.fileupload-ui-noscript.css" />
     </noscript>
-    <link href="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo $global['webSiteRootURL']; ?>view/bootgrid/jquery.bootgrid.min.js" type="text/javascript"></script>
+    <link href="<?php echo $safeStreamerURL; ?>view/css/DataTables/datatables.min.css" rel="stylesheet" type="text/css" />
+    <script src="<?php echo $safeStreamerURL; ?>view/css/DataTables/datatables.min.js" type="text/javascript"></script>
+    <script src="<?php echo $safeStreamerURL; ?>view/js/avideoDataTable.js?cache=<?php echo filemtime(__FILE__); ?>" type="text/javascript"></script>
+    <script src="<?php echo $global['webSiteRootURL']; ?>view/js/encoderDataTable.js?cache=<?php echo filemtime(__DIR__ . '/js/encoderDataTable.js'); ?>" type="text/javascript"></script>
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/js/main.js'); ?>" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . 'view/css/style.css'); ?>" rel="stylesheet" type="text/css" />

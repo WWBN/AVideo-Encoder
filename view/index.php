@@ -989,12 +989,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         }
                     });
 
-                    var grid = $("#grid").bootgrid({
-                        ajax: true,
+                    var grid = encoderDataTable("#grid", {
                         url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
-                        xhrFields: {
-                            //withCredentials: true
-                        },
                         formatters: {
                             "commands": function(column, row) {
                                 var reQueue = '';
@@ -1075,12 +1071,11 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     '</div>';
                             }
                         }
-                    }).on("loaded.rs.jquery.bootgrid", function() {
+                    }).on("draw.dt", function() {
                         /* Executes after data is loaded and rendered */
-                        grid.find(".command-reQueue").on("click", function(e) {
+                        grid.find(".command-reQueue").off("click.encoderTable").on("click.encoderTable", function(e) {
                             modal.showPleaseWait();
-                            var row_index = $(this).closest('tr').index();
-                            var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                            var row = $("#grid").DataTable().row($(this).closest("tr")).data();
                             console.log(row);
                             $.ajax({
                                 url: 'queue?<?php echo getPHPSessionIDURL(); ?>',
@@ -1093,16 +1088,15 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 },
                                 type: 'post',
                                 success: function(response) {
-                                    $("#grid").bootgrid("reload");
+                                    $("#grid").DataTable().ajax.reload(null, false);
                                     modal.hidePleaseWait();
                                 }
                             });
                         });
 
-                        grid.find(".command-deleteQueue").on("click", function(e) {
+                        grid.find(".command-deleteQueue").off("click.encoderTable").on("click.encoderTable", function(e) {
                             modal.showPleaseWait();
-                            var row_index = $(this).closest('tr').index();
-                            var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                            var row = $("#grid").DataTable().row($(this).closest("tr")).data();
                             console.log(row);
                             $.ajax({
                                 url: 'deleteQueue?<?php echo getPHPSessionIDURL(); ?>',
@@ -1114,7 +1108,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 },
                                 type: 'post',
                                 success: function(response) {
-                                    $("#grid").bootgrid("reload");
+                                    $("#grid").DataTable().ajax.reload(null, false);
                                     modal.hidePleaseWait();
                                     if (response.error) {
                                         avideoAlertError(response.msg);
@@ -1122,10 +1116,9 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 }
                             });
                         });
-                        grid.find(".command-sendFileQueue").on("click", function(e) {
+                        grid.find(".command-sendFileQueue").off("click.encoderTable").on("click.encoderTable", function(e) {
                             modal.showPleaseWait();
-                            var row_index = $(this).closest('tr').index();
-                            var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                            var row = $("#grid").DataTable().row($(this).closest("tr")).data();
                             console.log(row);
                             $.ajax({
                                 url: 'send.json?<?php echo getPHPSessionIDURL(); ?>',
@@ -1137,14 +1130,13 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 },
                                 type: 'post',
                                 success: function(response) {
-                                    $("#grid").bootgrid("reload");
+                                    $("#grid").DataTable().ajax.reload(null, false);
                                     modal.hidePleaseWait();
                                 }
                             });
                         });
-                        grid.find(".command-editFile").on("click", function(e) {
-                            var row_index = $(this).closest('tr').index();
-                            var row = $("#grid").bootgrid("getCurrentRows")[row_index];
+                        grid.find(".command-editFile").off("click.encoderTable").on("click.encoderTable", function(e) {
+                            var row = $("#grid").DataTable().row($(this).closest("tr")).data();
                             var return_vars = JSON.parse(row.return_vars);
                             avideoModalIframe('<?php echo $streamerURL; ?>view/managerVideosLight.php?avideoIframe=1&videos_id=' + return_vars.videos_id);
                         });
@@ -1153,12 +1145,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
 
 
-                    var gridStreamer = $("#gridStreamer").bootgrid({
-                        ajax: true,
+                    var gridStreamer = encoderDataTable("#gridStreamer", {
                         url: "streamers.json?<?php echo getPHPSessionIDURL(); ?>",
-                        xhrFields: {
-                            //withCredentials: true
-                        },
                         formatters: {
                             "priority": function(column, row) {
                                 var tag = "<select class='priority form-control' rowId='" + row.id + "'>";
@@ -1185,11 +1173,10 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 return deleteBtn;
                             }
                         }
-                    }).on("loaded.rs.jquery.bootgrid", function() {
-                        gridStreamer.find(".command-delete").on("click", function(e) {
+                    }).on("draw.dt", function() {
+                        gridStreamer.find(".command-delete").off("click.encoderTable").on("click.encoderTable", function(e) {
                             modal.showPleaseWait();
-                            var row_index = $(this).closest('tr').index();
-                            var row = $("#gridStreamer").bootgrid("getCurrentRows")[row_index];
+                            var row = $("#gridStreamer").DataTable().row($(this).closest("tr")).data();
                             console.log(row);
                             $.ajax({
                                 url: 'removeStreamer?<?php echo getPHPSessionIDURL(); ?>',
@@ -1201,13 +1188,13 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 },
                                 type: 'post',
                                 success: function(response) {
-                                    $("#gridStreamer").bootgrid("reload");
+                                    $("#gridStreamer").DataTable().ajax.reload(null, false);
                                     modal.hidePleaseWait();
                                 }
                             });
                         });
 
-                        gridStreamer.find(".priority").on("change", function(e) {
+                        gridStreamer.find(".priority").off("change.encoderTable").on("change.encoderTable", function(e) {
                             modal.showPleaseWait();
                             $.ajax({
                                 url: 'priority?<?php echo getPHPSessionIDURL(); ?>',
@@ -1225,7 +1212,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             });
                         });
 
-                        gridStreamer.find(".isAdmin").on("change", function(e) {
+                        gridStreamer.find(".isAdmin").off("change.encoderTable").on("change.encoderTable", function(e) {
                             modal.showPleaseWait();
                             $.ajax({
                                 url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
