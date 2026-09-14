@@ -12,15 +12,24 @@ $db_pass = getenv('DB_MYSQL_PASSWORD');
 
 while (!$connected) {
     echo "Checking database connection....";
-    $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
-    if ($mysqli !== false && $mysqli->connect_error === null) {
+    $connect_errno = 0;
+    $connect_error = '';
+    try {
+        $mysqli = @new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
+        $connect_errno = $mysqli->connect_errno;
+        $connect_error = $mysqli->connect_error;
+    } catch (mysqli_sql_exception $e) {
+        $connect_errno = $e->getCode();
+        $connect_error = $e->getMessage();
+    }
+    if (empty($connect_errno)) {
         echo "OK\n";
         $connected = true;
     } else {
         $counter ++;
         echo 'Failed (attempt ' . $counter . ")\n";
         if ($counter * $sleep > $timeout) {
-            echo 'Giving up... (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error;
+            echo 'Giving up... (' . $connect_errno . ') ' . $connect_error;
             exit(1);
         }
 

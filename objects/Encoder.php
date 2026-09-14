@@ -803,7 +803,7 @@ class Encoder extends ObjectYPT
                         $obj->error = false;
                     } else {
                         _error_log("downloadFile:getYoutubeDl ERROR queue_id = {$queue_id}");
-                        $obj->error = false;
+                        $obj->error = true;
                     }
                 } else {
                     $obj->pathFileName =  "{$global['systemRootPath']}videos/pytube/{$downloadWithPytubeFilename}/video.mp4";
@@ -1414,6 +1414,7 @@ class Encoder extends ObjectYPT
 
     public function deleteQueue($notifyStreamer = false)
     {
+        global $global;
         $worker_pid = $this->getWorker_pid();
         $worker_ppid = $this->getWorker_ppid();
         // Forward $notifyStreamer so a silent delete doesn't still write a streamer-log entry.
@@ -2088,6 +2089,15 @@ class Encoder extends ObjectYPT
                     $return->error = true;
                     $return->msg = $rMp3->msg ?? $rMp3->response ?? 'sendFileChunk failed for auto-converted MP3';
                 }
+            }
+        }
+
+        // Every resolution must arrive before the job can be completed or deleted.
+        foreach ($return->sends as $send) {
+            if (!empty($send->error)) {
+                $return->error = true;
+                $return->msg = $send->msg ?? $send->response ?? 'sendFileChunk failed';
+                break;
             }
         }
 

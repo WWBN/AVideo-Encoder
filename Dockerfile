@@ -86,6 +86,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/www/html/*
 
 COPY install /var/www/html/install
+COPY locale /var/www/html/locale
+COPY API /var/www/html/API
 COPY model /var/www/html/model
 COPY nbproject /var/www/html/nbproject
 COPY objects /var/www/html/objects
@@ -112,4 +114,5 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
-HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --fail https://localhost/ || exit 1
+# This loopback-only probe must also work with the generated self-signed certificate.
+HEALTHCHECK --interval=60s --timeout=55s --start-period=1s CMD curl --insecure --noproxy '*' --fail --max-time 50 https://localhost/ || exit 1
