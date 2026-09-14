@@ -1,523 +1,118 @@
 <?php
-require_once '../objects/functions.php';
+ini_set('display_errors', '0');
+require_once __DIR__ . '/installer.php';
+$configured = installerConfigured();
+if (!$configured) { installerSession(); }
+header('Cache-Control: no-store');
+header('X-Frame-Options: DENY');
+function h($value) { return htmlspecialchars($value, ENT_QUOTES, 'UTF-8'); }
+$configured = installerConfigured();
+$checks = $configured ? [] : installerChecks();
+$ready = !in_array(false, array_column($checks, 'ok'), true);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Install AVideo</title>
-        <link rel="icon" href="../view/img/favicon.png">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous"></script>
-    </head>
-
-    <body>
-        <?php
-        if (file_exists('../videos/configuration.php')) {
-            require_once '../videos/configuration.php';
-            ?>
-            <div class="container">
-                <h3 class="alert alert-success">
-                    <span class="glyphicon glyphicon-ok-circle"></span>
-                    Your system is installed, remove the <code><?php echo $global['systemRootPath']; ?>install</code> directory to continue
-                    <hr>
-                    <a href="<?php echo $global['webSiteRootURL']; ?>" class="btn btn-success btn-lg center-block">Go to the main page</a>
-                </h3>
-            </div>
-            <?php
-        } else {
-            ?>
-            <div class="container">
-                <img src="../view/img/logo.png" alt="Logo" class="img img-responsive center-block"/>
-                <div class="row">
-                    <div class="col-md-6 ">
-
-                        <?php
-                        if (isApache()) {
-                            ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong><?php echo $_SERVER['SERVER_SOFTWARE']; ?> is Present</strong>
-                            </div>
-                            <?php
-                        } else {
-                            ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your server is <?php echo $_SERVER['SERVER_SOFTWARE']; ?>, you must install Apache</strong>
-                            </div>
-                            <?php
-                        }
-            ?>
-
-
-                        <?php
-            if (isPHP("5.6")) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>PHP <?php echo PHP_VERSION; ?> is Present</strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your PHP version is <?php echo PHP_VERSION; ?>, you must install PHP 5.6.x or greater</strong>
-                            </div>
-                            <?php
-            }
-            ?>
-
-                        <?php
-            if ($exifTool = isExifToo()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Exiftool [<?php echo $exifTool; ?>] is Present</strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Since AVideo 2.1 we use exiftool to determine if an video is landscape or portrait</strong>
-                                <details>
-                                    In order to install exiftool type the following command in the terminal:<br>
-                                    <pre><code>sudo apt install libimage-exiftool-perl</code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-                        <?php
-            if ($ffmpeg = isFFMPEG()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>FFMPEG <?php echo $ffmpeg; ?> is Present</strong>
-                                <strong>Make sure your FFMPEG is 3.x or greater</strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>FFmpeg is not enabled, make sure your FFMPEG is 3.x or greater</strong>
-                                <details>
-                                    FFmpeg has been removed from Ubuntu 14.04 and was replaced by Libav. This decision has been reversed so that FFmpeg is available now in Ubuntu 15.04 again, but there is still no official package for 14.04. In this tutorial, I will show you how to install FFmpeg from mc3man ppa. Add the mc3man ppa:
-                                    <br>
-                                    If you are not using Ubuntu 14.x go to step 2
-                                    <h2>Step 1</h2>
-                                    <pre><code>sudo add-apt-repository ppa:mc3man/trusty-media</code></pre>
-                                    <br>
-                                    And confirm the following message by pressing &lt;enter&gt;:
-                                    <br>
-                                    <code>
-                                        Also note that with apt-get a sudo apt-get dist-upgrade is needed for initial setup & with some package upgrades
-                                        More info: https://launchpad.net/~mc3man/+archive/ubuntu/trusty-media
-                                        Press [ENTER] to continue or ctrl-c to cancel adding it
-                                    </code>
-                                    <br>
-                                    Update the package list.
-                                    <br>
-                                    <pre><code>
-                                                        sudo apt-get update
-                                                        sudo apt-get dist-upgrade
-                                                                                            </code></pre>
-                                    <br>
-                                    Now FFmpeg is available to be installed with apt:
-                                    <br>
-                                    <h2>Step 2</h2>
-                                    <pre><code>sudo apt-get install ffmpeg</code></pre>
-
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-
-                        <?php
-            if ($youtube_dl = isYoutubeDL()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>youtube-dl <?php echo $youtube_dl; ?> is Present</strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>youtube-dl is not enabled</strong>
-                                <details>
-                                    <br>
-                                    Update the package list.
-                                    <br>
-                                    <pre><code>
-                                                        sudo apt-get update
-                                                        sudo apt-get dist-upgrade
-                                    </code></pre>
-                                    <br>
-                                    Install pip:
-                                    <br>
-                                    <code>
-                                        sudo apt-get install python-pip
-                                    </code>
-                                    <br>
-                                    Use pip to install youtube-dl:
-                                    <br>
-                                    <pre><code>sudo pip install youtube-dl</code></pre>
-                                    <br>
-                                    Make sure you have the latest version:
-                                    <br>
-                                    <pre><code>sudo pip install --upgrade youtube-dl</code></pre>
-                                    <br>
-                                    Add this line in you crontab to make sure you will always have the latest youtube-dl:
-                                    <br>
-                                    <pre><code>0 1 * * * sudo pip install --upgrade youtube-dl</code></pre>
-
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-
-                        <?php
-            if (checkVideosDir()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Your videos directory is writable</strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your videos directory must be writable</strong>
-                                <details>
-                                    <?php
-                        $dir = getPathToApplication() . "videos";
-                if (!file_exists($dir)) {
-                    ?>
-                                        The video directory does not exist, AVideo had no permission to create it, you must create it manually!
-                                        <br>
-                                        <pre><code>sudo mkdir <?php echo $dir; ?></code></pre>
-                                        <?php
-                }
-                ?>
-                                    <br>
-                                    Then you can set the permissions (www-data means apache user).
-                                    <br>
-                                    <pre><code>sudo chown www-data:www-data <?php echo $dir; ?> && sudo chmod 755 <?php echo $dir; ?> </code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            $pathToPHPini = php_ini_loaded_file();
-            if (empty($pathToPHPini)) {
-                $pathToPHPini = "/etc/php/7.0/cli/php.ini";
-            }
-            ?>
-
-
-                        <?php
-            if (check_max_execution_time()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Your max_execution_time is <?php echo ini_get('max_execution_time'); ?></strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your max_execution_time is <?php echo ini_get('max_execution_time'); ?>, it must be at least 7200</strong>
-
-                                <details>
-                                    Edit the <code>php.ini</code> file
-                                    <br>
-                                    <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-                        <?php
-            if (check_post_max_size()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?></strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your post_max_size is <?php echo ini_get('post_max_size'); ?>, it must be at least 1000M</strong>
-
-                                <details>
-                                    Edit the <code>php.ini</code> file
-                                    <br>
-                                    <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-                        <?php
-            if (check_upload_max_filesize()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?></strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your upload_max_filesize is <?php echo ini_get('upload_max_filesize'); ?>, it must be at least 1000M</strong>
-
-                                <details>
-                                    Edit the <code>php.ini</code> file
-                                    <br>
-                                    <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-
-                        <?php
-            if (check_memory_limit()) {
-                ?>
-                            <div class="alert alert-success">
-                                <span class="glyphicon glyphicon-check"></span>
-                                <strong>Your memory_limit is <?php echo ini_get('memory_limit'); ?></strong>
-                            </div>
-                            <?php
-            } else {
-                ?>
-                            <div class="alert alert-danger">
-                                <span class="glyphicon glyphicon-unchecked"></span>
-                                <strong>Your memory_limit is <?php echo ini_get('memory_limit'); ?>, it must be at least 512M</strong>
-
-                                <details>
-                                    Edit the <code>php.ini</code> file
-                                    <br>
-                                    <pre><code>sudo nano <?php echo $pathToPHPini; ?></code></pre>
-                                </details>
-                            </div>
-                            <?php
-            }
-            ?>
-                    </div>
-                    <div class="col-md-6 ">
-                        <form id="configurationForm">
-                            <div class="form-group col-md-6 ">
-                                <label for="webSiteRootURL">Your Site URL</label>
-                                <input type="url" class="form-control" id="webSiteRootURL" placeholder="Enter your URL (http://yoursite.com)" value="<?php echo getURLToApplication(); ?>" required="required">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="systemRootPath">System Path to Application</label>
-                                <input type="text" class="form-control" id="systemRootPath" placeholder="System Path to Application (/var/www/[application_path])" value="<?php echo getPathToApplication(); ?>" required="required">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="databaseHost">Database Host</label>
-                                <input type="text" class="form-control" id="databaseHost" placeholder="Enter Database Host" value="localhost" required="required">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="databaseUser">Database User</label>
-                                <input type="text" class="form-control" id="databaseUser" placeholder="Enter Database User" value="root" required="required">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="databasePass">Database Password</label>
-                                <input type="password" class="form-control" id="databasePass" placeholder="Enter Database Password">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="databaseName">Database Name</label>
-                                <input type="text" class="form-control" id="databaseName" placeholder="Enter Database Name" value="aVideo_Encoder" required="required">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="databaseName">Optional Tables Prefix</label>
-                                <input type="text" class="form-control" id="tablesPrefix" placeholder="Enter Tables Prefix" value="">
-                            </div>
-                            <div class="form-group col-md-6 ">
-                                <label for="createTables">Create database and tables?</label>
-
-                                <select id="createTables"  class="form-control">
-                                    <option value="2">Create database and tables</option>
-                                    <option value="1">Create only tables (Do not create database)</option>
-                                    <option value="0">Do not create any, I will import the script manually</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="allowedStreamers">
-                                    Allowed AVideo Streamers Sites (One per line. Leave blank for public)
-                                    <button class="btn btn-primary" data-toggle="popover"  type="button"
-                                       title="What is this?"
-                                       data-content="Only the listed sites will be allowed to use this encoder installation">
-                                        <i class="glyphicon glyphicon-question-sign"></i>
-                                    </button>
-                                </label>
-                                <textarea class="form-control" id="allowedStreamers" placeholder="Leave Blank for Public" value=""></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="defaultPriority">Default Priority
-                                    <button class="btn btn-primary" data-toggle="popover" type="button"
-                                       title="What is this?"
-                                       data-content="When a user send an media, what will be the priority?">
-                                        <i class="glyphicon glyphicon-question-sign"></i>
-                                    </button>
-                                </label>
-                                <select class="" id="defaultPriority">
-                                    <?php
-                        for ($index = 1; $index <= 10; $index++) {
-                            echo '<option value="' . $index . '">' . $index . '</option>';
-                        }
-            ?>
-                                </select>
-                            </div>
-
-
-                            <div class="alert alert-info" id="streamer" >
-
-                                <div class="form-group">
-                                    <label for="siteURL">AVideo Streamer Site URL
-                                    <button class="btn btn-primary" data-toggle="popover"  type="button"
-                                       title="What is this?"
-                                       data-content="If you do not have AVideo Streamer Site yet, download it https://github.com/DanielnetoDotCom/AVideo">
-                                        <i class="glyphicon glyphicon-question-sign"></i>
-                                    </button>
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-globe"></i></span>
-                                        <input  id="siteURL" placeholder="http://www.your-tube-site.com" class="form-control"  type="url" value="" required >
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="inputUser">AVideo Streamer Site admin User</label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-                                        <input  id="inputUser" placeholder="User" class="form-control"  type="text" value="admin" required >
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="siteURL">AVideo Streamer Site admin Password</label>
-                                    <div class="input-group">
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-                                        <input  id="inputPassword" placeholder="Password" class="form-control"  type="password" value="" >
-                                    </div>
-                                </div>
-                                <div class="alert alert-warning">
-                                    If you do not have AVideo Streamer Site yet, download it <a href="https://github.com/DanielnetoDotCom/AVideo" target="_blank">here</a>. Then, please, go back here and finish this installation.
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Install now</button>
-                        </form>
-                    </div>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Setup • AVideo Encoder</title>
+    <link rel="icon" href="assets/favicon.png">
+    <link rel="stylesheet" href="installer.css">
+    <script src="installer.js" defer></script>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <a class="brand" href="https://avideo.com/" aria-label="AVideo"><img src="assets/logo.png" alt="AVideo" width="250" height="70"></a>
+        <div class="product">VIDEO ENCODER</div>
+        <div class="sidebar-heading">Your Encoder.<br>Ready to<br><span>connect.</span></div>
+        <p class="sidebar-copy">Prepare videos for streaming and serve multiple AVideo sites.</p>
+        <?php if (!$configured): ?>
+        <nav aria-label="Setup steps">
+            <a href="#database"><span>01</span><div>Database<small>Connection and storage</small></div></a>
+            <a href="#network"><span>02</span><div>Your Encoder<small>Public address</small></div></a>
+            <a href="#streamer"><span>03</span><div>AVideo site<small>Administrator access</small></div></a>
+        </nav>
+        <?php endif; ?>
+        <div class="sidebar-footer"><span class="signal" aria-hidden="true"></span> GUIDED SETUP<small>MySQL / MariaDB · Windows / Linux</small></div>
+    </aside>
+    <main>
+        <header class="topbar"><span>Initial setup</span><span class="pill">AVideo Encoder</span></header>
+        <div class="content">
+        <?php if ($configured): ?>
+            <section class="complete card">
+                <span class="complete-icon" aria-hidden="true">✓</span>
+                <div class="eyebrow">SETUP COMPLETE</div>
+                <h1>Installation complete.</h1>
+                <p>Setup is locked. Your application is ready to open.</p>
+                <a class="button primary" href="../">Open application</a>
+            </section>
+        <?php else: ?>
+            <div class="eyebrow">GET STARTED</div>
+            <h1>Set up your video Encoder.</h1>
+            <p class="intro">Enter your details below. We will create the database, install the tables,<br class="desktop"> and generate your configuration file.</p>
+            <section class="environment" aria-label="Server requirements">
+                <div class="environment-title"><span class="status-dot <?= $ready ? '' : 'bad' ?>"></span><strong><?= $ready ? 'Environment ready' : 'Action required' ?></strong><span>Server check</span></div>
+                <div class="checks">
+                    <?php foreach ($checks as $check): ?>
+                    <div class="check <?= $check['ok'] ? '' : 'failed' ?>" title="<?= h($check['detail']) ?>"><span aria-hidden="true"><?= $check['ok'] ? '✓' : '!' ?></span><?= h($check['label']) ?></div>
+                    <?php endforeach; ?>
                 </div>
-
-            </div>
-        <?php } ?>
-        <script src="../view/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-        <script src="../view/js/seetalert/sweetalert.min.js" type="text/javascript"></script>
-        <script src="../view/js/main.js" type="text/javascript"></script>
-
-        <script>
-            $(function () {
-                $('#siteURL').keyup(function () {
-                    $('#allowedStreamers').val($(this).val());
-                });
-                $('[data-toggle="popover"]').popover();
-                $('#configurationForm').submit(function (evt) {
-                    evt.preventDefault();
-
-                    modal.showPleaseWait();
-                    var webSiteRootURL = $('#webSiteRootURL').val();
-                    var systemRootPath = $('#systemRootPath').val();
-                    var databaseHost = $('#databaseHost').val();
-                    var databaseUser = $('#databaseUser').val();
-                    var databasePass = $('#databasePass').val();
-                    var databaseName = $('#databaseName').val();
-                    var createTables = $('#createTables').val();
-                    var allowedStreamers = $('#allowedStreamers').val();
-                    var defaultPriority = $('#defaultPriority').val();
-                    var tablesPrefix = $('#tablesPrefix').val();
-
-                    var siteURL = $('#siteURL').val();
-                    var inputUser = $('#inputUser').val();
-                    var inputPassword = $('#inputPassword').val();
-
-                    $.ajax({
-                        url: siteURL + '/login',
-                        data: {"user": inputUser, "pass": inputPassword, "siteURL": siteURL},
-                        type: 'post',
-                        success: function (response) {
-                            if (!response.isAdmin) {
-                                modal.hidePleaseWait();
-                                swal("Sorry!", "Your Streamer site, user or password is wrong!", "error");
-                                $('#streamer').removeClass('alert-success');
-                                $('#streamer').removeClass('alert-info');
-                                $('#streamer').addClass('alert-danger');
-                            } else {
-                                $('#streamer').removeClass('alert-info');
-                                $('#streamer').removeClass('alert-danger');
-                                $('#streamer').addClass('alert-success');
-                                console.log(webSiteRootURL + 'install/checkConfiguration.php');
-                                $.ajax({
-                                    url: webSiteRootURL + 'install/checkConfiguration.php',
-                                    data: {
-                                        webSiteRootURL: webSiteRootURL,
-                                        systemRootPath: systemRootPath,
-                                        databaseHost: databaseHost,
-                                        databaseUser: databaseUser,
-                                        databasePass: databasePass,
-                                        databaseName: databaseName,
-                                        createTables: createTables,
-                                        siteURL: siteURL,
-                                        inputUser: inputUser,
-                                        inputPassword: inputPassword,
-                                        allowedStreamers: allowedStreamers,
-                                        defaultPriority: defaultPriority,
-                                        tablesPrefix: tablesPrefix
-                                    },
-                                    type: 'post',
-                                    success: function (response) {
-                                        modal.hidePleaseWait();
-                                        if (response.error) {
-                                            swal("Sorry!", response.error, "error");
-                                        } else {
-                                            swal("Congratulations!", response.error, "success");
-                                            window.location.reload(false);
-                                        }
-                                    },
-                                    error: function (xhr, ajaxOptions, thrownError) {
-                                        modal.hidePleaseWait();
-                                        if (xhr.status == 404) {
-                                            swal("Sorry!", "Your Site URL is wrong!", "error");
-                                        } else {
-                                            swal("Sorry!", "Unknown error!", "error");
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                    });
-                });
-            });
-        </script>
-    </body>
+                <?php if (!$ready): ?>
+                    <details open class="requirement-help"><summary>How to resolve missing requirements</summary>
+                        <?php foreach ($checks as $check): if ($check['ok']) { continue; } $help = installerRequirementHelp($check); ?>
+                        <h3><?= h($check['label']) ?></h3><p><?= h($help['text']) ?></p>
+                        <?php if (!empty($help['command'])): ?><pre><code><?= h($help['command']) ?></code></pre><?php endif; ?>
+                        <?php endforeach; ?><p>Then reload this page.</p>
+                    </details>
+                <?php endif; ?>
+            </section>
+            <?php include __DIR__ . '/ubuntu-help.php'; ?>
+            <form id="configurationForm" data-ready="<?= $ready ? '1' : '0' ?>">
+                <input type="hidden" name="install_csrf_token" value="<?= h($_SESSION['install_csrf_token']) ?>">
+                <section class="card" id="database">
+                    <div class="section-heading"><span class="number">01</span><div><h2>Database</h2><p>Where your Encoder stores its data.</p></div><span class="tag">MySQL / MariaDB</span></div>
+                    <div class="fields">
+                        <div class="field wide"><label for="databaseHost">Database host</label><input id="databaseHost" name="databaseHost" value="localhost" required maxlength="253" autocomplete="off" spellcheck="false"><small>Use localhost if the database runs on this server.</small></div>
+                        <div class="field narrow"><label for="databasePort">Port</label><input id="databasePort" name="databasePort" type="number" value="3306" min="1" max="65535" required></div>
+                        <div class="field"><label for="databaseUser">Username</label><input id="databaseUser" name="databaseUser" value="root" required maxlength="80" autocomplete="off" spellcheck="false"></div>
+                        <div class="field"><label for="databasePass">Database password <span class="optional">if applicable</span></label><div class="password-field"><input id="databasePass" name="databasePass" type="password" autocomplete="new-password"><button type="button" class="reveal" data-target="databasePass" aria-label="Show database password" aria-pressed="false">Show</button></div></div>
+                        <div class="field full"><label for="databaseName">Database name</label><input id="databaseName" name="databaseName" value="avideo_encoder" pattern="[A-Za-z0-9_\-]{1,64}" maxlength="64" required spellcheck="false"><small>We will create this database if it does not exist. Existing Encoder tables must contain no application data.</small></div>
+                    </div>
+                    <div class="field full"><label for="tablesPrefix">Table prefix</label><input id="tablesPrefix" name="tablesPrefix" pattern="[A-Za-z0-9_]{0,25}" maxlength="25" placeholder="Optional, for example encoder_"><small>Use a unique prefix to share a database with other applications.</small></div>
+                    <div class="field full database-mode"><label for="createTables">Database setup</label><select id="createTables" name="createTables"><option value="2">Create database and tables</option><option value="1">Create tables in an existing database</option><option value="0">Use a schema imported manually</option></select><small>The selected Encoder tables must contain no application data.</small></div>
+                    <div class="card-footer"><span>Testing the connection does not change any data.</span><button type="button" class="button secondary" id="testConnection">Test connection <span aria-hidden="true">↗</span></button></div>
+                    <div id="connectionResult" class="inline-result" role="status" hidden></div>
+                </section>
+                <section class="card" id="network">
+                    <div class="section-heading"><span class="number">02</span><div><h2>Your Encoder</h2><p>Set the public address of this Encoder.</p></div></div>
+                    <div class="fields">
+                        <div class="field full"><label for="webSiteRootURL">Encoder URL</label><input id="webSiteRootURL" name="webSiteRootURL" type="url" value="<?= h(installerURL()) ?>" required maxlength="254" spellcheck="false"><small>The public address used to access this installation.</small></div>
+                    </div>
+                    <details class="path-details"><summary>Automatically detected directory</summary><code><?= h(installerRoot()) ?></code><p>Setup writes the configuration to this Encoder videos directory.</p></details>
+                </section>
+                <section class="card" id="streamer">
+                    <div class="section-heading"><span class="number">03</span><div><h2>AVideo site</h2><p>Connect this Encoder to your first video site.</p></div></div>
+                    <div class="fields">
+                        <div class="field full"><label for="siteURL">Your AVideo site URL</label><input id="siteURL" name="siteURL" type="url" placeholder="https://videos.example.com/" required maxlength="254" spellcheck="false"></div>
+                        <div class="field"><label for="inputUser">Administrator username</label><input id="inputUser" name="inputUser" value="admin" required maxlength="45" autocomplete="username" spellcheck="false"></div>
+                        <div class="field"><label for="inputPassword">Administrator password</label><div class="password-field"><input id="inputPassword" name="inputPassword" type="password" required autocomplete="current-password"><button type="button" class="reveal" data-target="inputPassword" aria-label="Show administrator password" aria-pressed="false">Show</button></div></div>
+                    </div>
+                    <div class="info"><span aria-hidden="true">i</span><p>We will verify these credentials with your AVideo site before installing. Need a video site? <a href="https://github.com/WWBN/AVideo" target="_blank" rel="noopener noreferrer">Explore AVideo ↗</a></p></div>
+                </section>
+                <section class="card"><h2>Encoding settings</h2><div class="fields">
+                    <div class="field full"><label for="allowedStreamers">Allowed Streamers</label><textarea id="allowedStreamers" name="allowedStreamers" rows="3" placeholder="https://videos.example.com/"></textarea><small>Leave blank to allow all Streamers. Use a separate line for each allowed URL.</small></div>
+                    <div class="field"><label for="defaultPriority">Default priority</label><input id="defaultPriority" name="defaultPriority" type="number" value="1" min="1" max="10" required><small>1 is the highest priority; 10 is the lowest.</small></div>
+                </div></section>
+                <section id="result" class="card result" tabindex="-1" aria-live="polite" hidden></section>
+                <div class="submit-row"><p><strong>Everything in one step.</strong><br>Database, tables, and configuration.php.</p><button class="button primary" id="installButton" type="submit" <?= $ready ? '' : 'disabled' ?>>Install Encoder <span aria-hidden="true">→</span></button></div>
+                <p class="install-note">If anything goes wrong, instructions and commands to run on your server will appear here.</p>
+            </form>
+            <noscript><p class="info">Enable JavaScript in your browser to test the connection and run setup.</p></noscript>
+        <?php endif; ?>
+        <footer class="page-footer"><span>AVideo Encoder</span><span>Infrastructure for your videos.</span></footer>
+        </div>
+    </main>
+</div>
+</body>
 </html>
