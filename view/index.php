@@ -326,10 +326,6 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 <a data-toggle="tab" href="#log" class="nav-link"><i class="fas fa-history" aria-hidden="true"></i> <span><?php echo __('Queue Log'); ?></span></a>
                             </li>
 
-                            <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
-                                <a data-toggle="tab" href="#signin" class="nav-link"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span><?php echo __('Sign In'); ?></span></a>
-                            </li>
-
                             <?php
                             if (Login::isAdmin()) {
                                 if (empty($global['disableConfigurations'])) {
@@ -368,22 +364,20 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 </div>
                             </div>
                             <div id="log" class="tab-pane fade">
-                                <table id="grid" class="table table-condensed table-hover table-striped">
+                                <div class="log-heading">
+                                    <p class="text-muted"><?php echo __('Review video processing, status details and available actions.'); ?></p>
+                                </div>
+                                <table id="grid" class="table table-hover log-table">
+                                    <caption class="sr-only"><?php echo __('Queue Log'); ?></caption>
                                     <thead>
                                         <tr>
                                             <th data-column-id="title" data-formatter="title"><?php echo __('Title'); ?></th>
                                             <th data-column-id="status" data-formatter="status"><?php echo __('Status'); ?></th>
                                             <th data-column-id="created" data-formatter="dates" data-order="desc"><?php echo __('Dates'); ?></th>
-                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false" data-width="200px"></th>
+                                            <th data-column-id="commands" data-formatter="commands" data-sortable="false"><?php echo __('Actions'); ?></th>
                                         </tr>
                                     </thead>
                                 </table>
-                            </div>
-                            <div id="signin" class="tab-pane fade">
-                                <?php
-                                //include './index_signin.php';
-                                include './index_signin_deprecated.php';
-                                ?>
                             </div>
                             <?php
                             include './index_configurations.php';
@@ -460,6 +454,18 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         return '';
                     }
                     return $('<div/>').text(String(value)).html();
+                }
+
+                function parseQueueReturnVars(value) {
+                    if (value && typeof value === 'object') {
+                        return value;
+                    }
+                    try {
+                        return JSON.parse(value || '{}') || {};
+                    } catch (error) {
+                        // A legacy row without video metadata must still be readable/actionable.
+                        return {};
+                    }
                 }
 
                 var queueSummaryLabels = {
@@ -991,84 +997,109 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                     var grid = encoderDataTable("#grid", {
                         url: "queue.json?<?php echo getPHPSessionIDURL(); ?>",
+                        options: {
+                            autoWidth: false,
+                            avideoControls: {refresh: false, columns: false},
+                            drawCallback: function() {
+                                var table = this.api();
+                                if (table.search()) {
+                                    $(table.table().body()).find('.dataTables_empty').text(<?php echo json_encode(__('No matching videos found')); ?>);
+                                }
+                            },
+                            dom: '<"log-toolbar"<"log-toolbar-actions"B><"log-toolbar-length"l><"log-toolbar-search"f>>rt<"log-footer"ip>',
+                            buttons: [
+                                {text: '<i class="fas fa-sync" aria-hidden="true"></i> ' + <?php echo json_encode(__('Refresh')); ?>, action: function(e, dt) { dt.ajax.reload(null, false); }},
+                                {extend: 'colvis', text: <?php echo json_encode(__('Columns')); ?>}
+                            ],
+                            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, <?php echo json_encode(__('All')); ?>]],
+                            language: <?php echo json_encode([
+                                'search' => __('Search'),
+                                'searchPlaceholder' => __('Search for a video'),
+                                'lengthMenu' => __('Show _MENU_ entries'),
+                                'info' => __('Showing _START_ to _END_ of _TOTAL_ entries'),
+                                'infoEmpty' => __('No entries to display'),
+                                'infoFiltered' => '',
+                                'emptyTable' => __('No videos in the queue log'),
+                                'zeroRecords' => __('No matching videos found'),
+                                'paginate' => ['previous' => __('Previous'), 'next' => __('Next')],
+                                'aria' => ['sortAscending' => __('Sort ascending'), 'sortDescending' => __('Sort descending')]
+                            ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>
+                        },
                         formatters: {
                             "commands": function(column, row) {
-                                var reQueue = '';
-                                var deleteQueue = '';
-                                var sendFileQueue = '';
-                                var edit = '';
-                                var return_vars = JSON.parse(row.return_vars);
-
-                                if (row.status != 'queue' && row.status != 'encoding') {
-                                    reQueue = '<button type="button" class="btn btn-default command-reQueue" data-toggle="tooltip" title="<?php echo __('Re-Queue'); ?>"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>'
-                                }
-                                deleteQueue = '<button type="button" class="btn btn-danger command-deleteQueue" data-toggle="tooltip" title="<?php echo __('Delete Queue'); ?>"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>'
-                                if (row.status === 'done' || row.status === 'transferring') {
-                                    sendFileQueue = '<button type="button" class="btn btn-default command-sendFileQueue" data-toggle="tooltip" title="<?php echo __('Send Notify'); ?>"><span class="glyphicon glyphicon-send" aria-hidden="true"></span></button>'
-                                }
-                                if (return_vars.videos_id) {
-                                    edit = '<button type="button" class="btn btn-default command-editFile" data-toggle="tooltip" title="<?php echo __('Edit'); ?>"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>'
-                                }
-
-                                return '<div class="btn-group btn-group-sm">' + edit + sendFileQueue + reQueue + deleteQueue + '</div>';
+                                var returnVars = parseQueueReturnVars(row.return_vars);
+                                var actions = $('<div class="log-actions"/>');
+                                var buttons = [
+                                    [returnVars.videos_id, 'editFile', 'glyphicon-edit', <?php echo json_encode(__('Edit')); ?>, 'btn-default'],
+                                    [row.status === 'done' || row.status === 'transferring', 'sendFileQueue', 'glyphicon-send', <?php echo json_encode(__('Send Notify')); ?>, 'btn-default'],
+                                    [row.status !== 'queue' && row.status !== 'encoding', 'reQueue', 'glyphicon-refresh', <?php echo json_encode(__('Re-Queue')); ?>, 'btn-default'],
+                                    [true, 'deleteQueue', 'glyphicon-trash', <?php echo json_encode(__('Delete Queue')); ?>, 'btn-danger']
+                                ];
+                                buttons.forEach(function(button) {
+                                    if (!button[0]) { return; }
+                                    $('<button type="button"/>').addClass('btn btn-sm command-' + button[1] + ' ' + button[4])
+                                        .append($('<span aria-hidden="true"/>').addClass('glyphicon ' + button[2]))
+                                        .append($('<span/>').text(button[3])).appendTo(actions);
+                                });
+                                return actions.prop('outerHTML');
                             },
                             "dates": function(column, row) {
-                                return '<div class="log-stack">' +
-                                    '<small><i class="fa fa-calendar-plus-o"></i> <?php echo __('Created'); ?>: ' + escapeHTML(row.created) + '</small>' +
-                                    '<small><i class="fa fa-refresh"></i> <?php echo __('Modified'); ?>: ' + escapeHTML(row.modified) + '</small>' +
-                                    '</div>';
+                                var dates = $('<dl class="log-dates"/>');
+                                [[<?php echo json_encode(__('Created')); ?>, row.created], [<?php echo json_encode(__('Modified')); ?>, row.modified]].forEach(function(item) {
+                                    var parts = String(item[1] || '').split(' ');
+                                    dates.append($('<dt/>').text(item[0]));
+                                    dates.append($('<dd/>').append($('<span/>').text(parts[0] || '\u2014'))
+                                        .append($('<small class="text-muted"/>').text(parts.slice(1).join(' '))));
+                                });
+                                return dates.prop('outerHTML');
                             },
                             "status": function(column, row) {
-                                let content = '';
-                                const statusKey = (row.status || '').toLowerCase();
-
-                                // Reuse the exact same status colors/icons as the Sharing Queue cards.
-                                const labelClass = queueStatusClasses[statusKey] || 'label-default';
-                                const iconClass = queueObsIcon[statusKey] || 'fas fa-info-circle';
-                                content += `<span class="label ${labelClass} text-uppercase"><i class="${iconClass}" aria-hidden="true"></i> ${escapeHTML(row.status)}</span>`;
-
-                                // ETA
-                                if (row.encoding_status && row.encoding_status.remainTimeHuman) {
-                                    content += `<small><i class="fa fa-clock-o"></i> ETA: ${escapeHTML(row.encoding_status.remainTimeHuman)}</small>`;
+                                var statusKey = (row.status || '').toLowerCase();
+                                var labelClass = queueStatusClasses[statusKey] || 'label-default';
+                                var iconClass = queueObsIcon[statusKey] || 'fas fa-info-circle';
+                                var content = '<span class="label log-status ' + labelClass + '"><i class="' + iconClass + '" aria-hidden="true"></i> ' + escapeHTML(queueSummaryLabels[statusKey] || row.status) + '</span>';
+                                if (row.encoding_status && row.encoding_status.remainTimeHuman && statusKey === 'encoding') {
+                                    content += '<small class="log-eta"><i class="fas fa-clock" aria-hidden="true"></i> ' + <?php echo json_encode(__('Remaining time')); ?> + ': <strong>' + escapeHTML(row.encoding_status.remainTimeHuman) + '</strong></small>';
                                 }
-
-                                // Status observation or error message
                                 if (row.status_obs) {
-                                    const obsColor = queueObsClass[statusKey] || 'text-muted';
-                                    content += `<small class="${obsColor}" style="white-space: normal;"><i class="fa fa-info-circle"></i> ${escapeHTML(row.status_obs)}</small>`;
+                                    if (row.status_obs.length > 120 || /[\r\n]/.test(row.status_obs)) {
+                                        content += '<details class="log-details"><summary>' + <?php echo json_encode(__('Details')); ?> + '</summary><div class="log-observation">' + escapeHTML(row.status_obs) + '</div></details>';
+                                    } else {
+                                        content += '<small class="log-stage">' + escapeHTML(row.status_obs) + '</small>';
+                                    }
                                 }
-
                                 return '<div class="log-stack">' + content + '</div>';
                             },
-
                             "title": function(column, row) {
-                                var l = getLocation(row.streamer);
-                                videos_id = 0;
-                                var json = JSON.parse(row.return_vars)
-                                if (typeof json.videos_id !== 'undefined') {
-                                    videos_id = json.videos_id;
+                                var returnVars = parseQueueReturnVars(row.return_vars);
+                                var location = getLocation(row.streamer);
+                                var title = $('<div class="log-stack"/>');
+                                var filename = String(row.title || '\u2014');
+                                var titleNode = $('<strong class="log-title"/>').text(filename);
+                                if (filename.startsWith('original_v_')) {
+                                    titleNode = $('<a class="log-title" target="_blank" rel="noopener"/>')
+                                        .attr('href', row.streamer + 'videos/' + encodeURIComponent(filename)).text(filename);
+                                } else if (returnVars.videos_id) {
+                                    titleNode = $('<a class="log-title" target="_blank" rel="noopener"/>')
+                                        .attr('href', row.streamer + 'video/' + encodeURIComponent(returnVars.videos_id)).text(filename);
                                 }
-
-                                var badges = '<span class="label label-primary">' + escapeHTML(row.format) + ' #' + escapeHTML(row.id) + '</span>';
-                                for (const index in row.fileInfo) {
-                                    if (typeof row.fileInfo[index].text === 'undefined') {
-                                        continue;
+                                title.append(titleNode);
+                                var metadata = $('<div class="log-metadata text-muted"/>')
+                                    .append($('<span/>').text('#' + row.id))
+                                    .append($('<span/>').text(location.hostname))
+                                    .append($('<span/>').text(<?php echo json_encode(__('Priority')); ?> + ' ' + row.priority));
+                                title.append(metadata);
+                                var badges = $('<div class="log-badges"/>');
+                                if (row.format) {
+                                    badges.append($('<span class="log-chip"/>').text(row.format));
+                                }
+                                Object.keys(row.fileInfo || {}).forEach(function(key) {
+                                    var info = row.fileInfo[key];
+                                    if (info && info.text) {
+                                        badges.append($('<span class="log-chip"/>').text(info.text));
                                     }
-                                    badges += '<span class="label label-success fileSize">' + escapeHTML(row.fileInfo[index].text) + '</span>';
-                                }
-
-                                var filename = row.title;
-                                if (filename.startsWith("original_v_")) {
-                                    filename = '<a href="' + row.streamer + 'videos/' + encodeURIComponent(filename) + '" target="_blank">' + escapeHTML(filename) + '</a>';
-                                } else {
-                                    filename = escapeHTML(filename);
-                                }
-
-                                return '<div class="log-stack">' +
-                                    '<a href="' + row.streamer + 'video/' + videos_id + '" target="_blank" class="btn btn-primary btn-xs">' + escapeHTML(l.hostname) + ' <span class="badge"><?php echo __('Priority'); ?> ' + escapeHTML(row.priority) + '</span></a>' +
-                                    '<div class="log-badges">' + badges + '</div>' +
-                                    '<span class="text-muted single-line-ellipsis" style="max-width: 280px; display: inline-block;">' + filename + '</span>' +
-                                    '</div>';
+                                });
+                                return title.append(badges).prop('outerHTML');
                             }
                         }
                     }).on("draw.dt", function() {
@@ -1137,7 +1168,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                         });
                         grid.find(".command-editFile").off("click.encoderTable").on("click.encoderTable", function(e) {
                             var row = $("#grid").DataTable().row($(this).closest("tr")).data();
-                            var return_vars = JSON.parse(row.return_vars);
+                            var return_vars = parseQueueReturnVars(row.return_vars);
                             avideoModalIframe('<?php echo $streamerURL; ?>view/managerVideosLight.php?avideoIframe=1&videos_id=' + return_vars.videos_id);
                         });
                         $('[data-toggle="popover"]').popover();

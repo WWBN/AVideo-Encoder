@@ -29,8 +29,8 @@ function encoderDataTable(selector, config) {
         }
         columns.push(column);
     });
-    avideoDataTable(selector, {
-        avideoControls: true,
+    avideoDataTable(selector, $.extend({}, config.options, {
+        avideoControls: config.options && config.options.avideoControls !== undefined ? config.options.avideoControls : true,
         serverSide: true,
         order: order,
         columns: columns,
@@ -59,6 +59,6 @@ function encoderDataTable(selector, config) {
                 }
             });
         }
-    });
+    }));
     return table;
 }

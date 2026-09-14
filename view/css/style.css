@@ -604,8 +604,71 @@ body {
     gap: 4px;
 }
 
-.log-stack small {
-    opacity: .7;
+.log-heading { margin-bottom: 20px; }
+.log-heading h2 { margin: 0 0 6px; font-size: 20px; font-weight: 600; }
+.log-heading p { margin: 0; }
+
+.log-toolbar, .log-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 18px;
+    margin: 16px 0;
+}
+.log-toolbar-actions { flex: 0 0 auto; }
+.log-toolbar-search { margin-left: auto; }
+.log-toolbar .dt-buttons,
+.log-toolbar .dataTables_length,
+.log-toolbar .dataTables_filter,
+.log-footer .dataTables_info,
+.log-footer .dataTables_paginate { float: none; padding: 0; margin: 0; text-align: left; }
+.log-toolbar label { display: flex; align-items: center; gap: 8px; margin: 0; }
+.log-toolbar .dataTables_filter input { margin: 0; max-width: 100%; }
+.log-toolbar .dt-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.log-footer .pagination { margin: 0; }
+
+#grid.log-table { table-layout: fixed; width: 100%; }
+#grid.log-table thead th { padding: 12px 24px 12px 12px; }
+#grid.log-table th:nth-child(1) { width: 40%; }
+#grid.log-table th:nth-child(2) { width: 24%; }
+#grid.log-table th:nth-child(3) { width: 17%; }
+#grid.log-table th:nth-child(4) { width: 19%; }
+#grid.log-table td { padding: 20px 12px; vertical-align: top; text-align: left; white-space: normal; }
+.log-table .log-stack { gap: 10px; min-width: 0; }
+.log-title { font-size: 14px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.log-metadata { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; overflow-wrap: anywhere; }
+.log-chip { display: inline-block; padding: 4px 8px; border: 1px solid rgba(127,127,127,.25); border-radius: var(--enc-radius-sm); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+.log-status { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; white-space: normal; line-height: 1.4; }
+.log-eta { line-height: 1.6; }
+.log-eta strong { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.log-details { width: 100%; font-size: 12px; }
+.log-details summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.log-details summary::before { content: '\203A'; display: inline-block; margin-right: 6px; }
+.log-details[open] summary::before { transform: rotate(90deg); }
+.log-details summary::marker { content: ''; }
+.log-details summary::-webkit-details-marker { display: none; }
+.log-stage { line-height: 1.6; overflow-wrap: anywhere; }
+.log-details summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.log-observation { margin-top: 6px; padding: 10px; border-left: 2px solid currentColor; background: rgba(127,127,127,.07); white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; max-height: 16em; overflow-y: auto; }
+.log-dates { margin: 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.log-dates dt { font-weight: 500; margin-bottom: 3px; }
+.log-dates dd { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; }
+.log-dates dd:last-child { margin-bottom: 0; }
+.log-dates dd span, .log-dates dd small { white-space: nowrap; }
+.log-actions { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+.log-actions .btn { display: inline-flex; align-items: center; justify-content: flex-start; gap: 8px; margin: 0; white-space: normal; text-align: left; }
+.log-actions .glyphicon { flex: 0 0 14px; }
+
+@media (max-width: 1199px) {
+    #grid.log-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+    #grid.log-table, #grid.log-table tbody { display: block; width: 100%; }
+    #grid.log-table tr { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; padding: 20px 0; border-top: 1px solid rgba(127,127,127,.25); }
+    #grid.log-table td { display: block; padding: 0; border: 0; min-width: 0; }
+    #grid.log-table td:first-child, #grid.log-table td:last-child { grid-column: 1 / -1; }
+    .log-actions { flex-direction: row; flex-wrap: wrap; }
+    .log-toolbar-search { margin-left: 0; flex: 1 1 100%; }
+    .log-toolbar .dataTables_filter input { flex: 1; width: 100%; min-width: 0; }
 }
 
 #config .checkboxes label {
