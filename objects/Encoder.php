@@ -416,8 +416,12 @@ class Encoder extends ObjectYPT
         if (self::$stageTotal > 0) {
             $msg = "Step " . self::$stageCurrent . "/" . self::$stageTotal . ": {$msg}";
         }
-        $encoder->setStatus_obs($msg);
-        $encoder->save();
+        // The streamer notification can reload and save this queue row. Persist the
+        // new stage first so that callback cannot write the previous stage back.
+        $encoder->setStatus_obs($msg, false);
+        if ($encoder->save()) {
+            self::setStreamerLog($encoder->getId(), $encoder->getStatus_obs(), self::LOG_TYPE_StatusObs);
+        }
     }
 
     // Best-effort count of the pre-processing steps THIS job will actually go through,
@@ -1362,6 +1366,12 @@ class Encoder extends ObjectYPT
     public function exec($cmd, &$output = array(), &$return_val = 0)
     {
         if (function_exists("pcntl_fork")) {
+            // HLS preparation updates the same row through another Encoder instance.
+            // Refresh before worker bookkeeping saves the entire object back to DB.
+            if (!$this->load($this->getId())) {
+                $return_val = 1;
+                return;
+            }
             if (($status = $this->getStatus()) != "encoding") {
                 _error_log("id(" . $this->getId() . ") status(" . $status . ") abort");
                 $return_val = 1;
@@ -1385,8 +1395,12 @@ class Encoder extends ObjectYPT
                     if (pcntl_wifsignaled($status)) {
                         _error_log("id=(" . $this->getId() . "), process " . $pid . " got signal " . pcntl_wtermsig($status));
                     }
-                    $this->setWorker_pid(null);
-                    $this->save();
+                    // Preserve updates made while the child ran; a removed queue row
+                    // must not be recreated by the worker's completion save.
+                    if ($this->load($this->getId())) {
+                        $this->setWorker_pid(null);
+                        $this->save();
+                    }
                     break;
                 case 0:
                     $argv = array("-c", $cmd);
