@@ -266,8 +266,9 @@ function installerSeed($mysqli, array $data) {
 }
 function installerValidateStreamer(array $data) {
     $curl = curl_init($data['siteURL'] . 'login');
+    // Let the Streamer verify the password with its own salt; raw hashes are not login tokens.
     curl_setopt_array($curl, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => http_build_query([
-        'user' => $data['inputUser'], 'pass' => md5(hash('whirlpool', sha1($data['inputPassword']))), 'encodedPass' => 'true']),
+        'user' => $data['inputUser'], 'pass' => $data['inputPassword'], 'encodedPass' => 'false']),
         CURLOPT_USERAGENT => 'AVideoEncoder Installer',
         CURLOPT_RETURNTRANSFER => true, CURLOPT_CONNECTTIMEOUT => 10, CURLOPT_TIMEOUT => 25,
         CURLOPT_PROTOCOLS => CURLPROTO_HTTP | CURLPROTO_HTTPS, CURLOPT_FOLLOWLOCATION => false]);
