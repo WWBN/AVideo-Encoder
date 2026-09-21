@@ -29,7 +29,24 @@ $webSiteRootURL = $siteURL . "Encoder/";
 $databaseUser = empty($argv[2]) ? $databaseUser : $argv[2];
 $databasePass = $argv[3] ?? $databasePass;
 $systemAdminPass = $argv[4] ?? (getenv('STREAMER_PASSWORD') ?: '');
-if ($systemAdminPass === '') { fwrite(STDERR, "Set STREAMER_PASSWORD or provide the Streamer administrator password as argument 4.\n"); exit(1); }
+if ($systemAdminPass === '') {
+    require_once __DIR__ . '/installer.php';
+    if (!extension_loaded('curl')) { fwrite(STDERR, "Enable the PHP curl extension to verify the Streamer password.\n"); exit(1); }
+    $systemAdminPass = '123';
+    for ($attempt = 0; $attempt < 2; ++$attempt) {
+        try {
+            installerValidateStreamer(['siteURL' => $siteURL, 'inputUser' => 'admin', 'inputPassword' => $systemAdminPass]);
+            break;
+        } catch (InstallerFailure $e) {
+            fwrite(STDERR, $e->getMessage() . "\n");
+            if ($attempt === 1) { exit(1); }
+            fwrite(STDERR, "Enter the Streamer administrator password (leave empty to cancel): ");
+            $passwordLine = fgets(STDIN);
+            $systemAdminPass = $passwordLine === false ? '' : rtrim($passwordLine, "\r\n");
+            if ($systemAdminPass === '') { fwrite(STDERR, "Installation cancelled.\n"); exit(1); }
+        }
+    }
+}
 $databaseName = empty($argv[5]) ? $databaseName : $argv[5];
 $webSiteRootURL = empty($argv[6]) ? $webSiteRootURL : $argv[6];
 $databaseHost = empty($argv[7]) ? $databaseHost : $argv[7];
