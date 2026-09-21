@@ -261,7 +261,7 @@ function installerSeed($mysqli, array $data) {
     $hash = md5(hash('whirlpool', sha1($data['inputPassword'])));
     $stmt = $mysqli->prepare('INSERT INTO `' . installerTable('streamers') . '` (siteURL,user,pass,priority,created,modified,isAdmin) VALUES (?,?,?,1,NOW(),NOW(),1)');
     $stmt->bind_param('sss', $data['siteURL'], $data['inputUser'], $hash); $stmt->execute(); $stmt->close();
-    $stmt = $mysqli->prepare("INSERT INTO `" . installerTable('configurations_encoder') . "` (id,allowedStreamersURL,defaultPriority,version,created,modified) VALUES (1,?,?,'8.1',NOW(),NOW())");
+    $stmt = $mysqli->prepare("INSERT INTO `" . installerTable('configurations_encoder') . "` (id,allowedStreamersURL,defaultPriority,version,created,modified) VALUES (1,?,?,'8.2',NOW(),NOW())");
     $stmt->bind_param('si', $data['allowedStreamers'], $data['defaultPriority']); $stmt->execute(); $stmt->close();
 }
 function installerValidateStreamer(array $data) {

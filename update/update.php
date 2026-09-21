@@ -50,22 +50,36 @@
                         if(!empty($global['tablesPrefix'])){
                             $templine = addPrefixIntoQuery($templine, $global['tablesPrefix']);
                         }
-                        if (!$global['mysqli']->query($templine)) {
-                            $obj->error = ('Error performing query \'<strong>' . $templine . '\': ' . $global['mysqli']->error . '<br /><br />');
-                            echo json_encode($obj);
-                            //exit;
+                        try {
+                            if (!$global['mysqli']->query($templine)) {
+                                throw new mysqli_sql_exception($global['mysqli']->error, $global['mysqli']->errno);
+                            }
+                        } catch (mysqli_sql_exception $e) {
+                            // Early fresh installs already had retry_count but were recorded as 8.1.
+                            $retryCountQuery = 'ALTER TABLE `' . ($global['tablesPrefix'] ?? '') . 'encoder_queue` ADD COLUMN `retry_count` INT NOT NULL DEFAULT 0;';
+                            if ($e->getCode() !== 1060 || $_POST['updateFile'] !== 'updateDb.v8.2.sql' || trim($templine) !== $retryCountQuery) {
+                                _error_log('Encoder database update failed: ' . $e->getMessage());
+                                $obj->error = __('Update failed. Check the server error log and try again.');
+                                break;
+                            }
                         }
                         $templine = '';
                     }
                 }
 
                 ?>
+                <?php if (!empty($obj->error)) { ?>
+                <div class="alert alert-danger">
+                    <?php echo htmlspecialchars($obj->error, ENT_QUOTES, 'UTF-8'); ?>
+                </div>
+                <?php } else { ?>
                 <div class="alert alert-success">
                     <?php
                     printf(__('Your update from file %s is done, click continue'), $_POST['updateFile']);
                     ?><hr>
                     <a class="btn btn-success" href="?done=1"> <span class="glyphicon glyphicon-ok"></span> <?php echo __('Continue'); ?> </a>
                 </div>
+                <?php } ?>
                 <?php
             }
             ?></div>
