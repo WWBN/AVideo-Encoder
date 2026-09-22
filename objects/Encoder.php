@@ -1955,6 +1955,44 @@ class Encoder extends ObjectYPT
         return $info;
     }
 
+    public function recheckOutputFiles()
+    {
+        $result = ['error' => true, 'msg' => 'No encoded output files were found.', 'files' => []];
+        if (!in_array($this->getStatus(), [self::STATUS_ERROR, self::STATUS_DONE], true)) {
+            $result['msg'] = 'Wait until this job has stopped before checking its output.';
+            return $result;
+        }
+
+        $extensions = array_merge(self::AUDIO_EXTENSIONS, ['mp4', 'webm', 'm4a', 'm3u8', 'zip']);
+        foreach (array_unique(self::getTmpFiles($this->getId())) as $file) {
+            $name = basename($file);
+            if (is_dir($file)) {
+                // The ZIP check below already resolves to this HLS playlist.
+                if (is_file($file . '.zip')) {
+                    continue;
+                }
+                $file .= '/index.m3u8';
+                $name .= '/index.m3u8';
+            }
+            if (!in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), $extensions, true)) {
+                continue;
+            }
+            $duration = is_file($file) && filesize($file) > 0 ? self::getDurationFromFile($file) : 'EE:EE:EE';
+            $result['files'][] = [
+                'name' => $name,
+                'duration' => $duration === 'EE:EE:EE' ? null : $duration,
+                'error' => $duration === 'EE:EE:EE'
+            ];
+        }
+        if (!empty($result['files'])) {
+            $result['error'] = in_array(true, array_column($result['files'], 'error'), true);
+            $result['msg'] = $result['error']
+                ? 'Could not read the duration of one or more files. They may be missing or corrupted.'
+                : 'Output files passed the duration check. No re-encoding was performed.';
+        }
+        return $result;
+    }
+
     public function verify()
     {
         $streamers_id = $this->getStreamers_id();

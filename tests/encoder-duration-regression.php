@@ -5,7 +5,22 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-class ObjectYPT {}
+class ObjectYPT
+{
+    public static $rows = [];
+
+    public function __construct($id)
+    {
+        foreach (self::$rows[$id] ?? [] as $key => $value) {
+            $this->$key = $value;
+        }
+    }
+
+    public function save()
+    {
+        throw new RuntimeException('A duration recheck must not save the job.');
+    }
+}
 class Login {}
 class Streamer {}
 
@@ -57,6 +72,39 @@ try {
         'encrypted HLS master playlist with a .key file');
     expectDuration(Encoder::getDurationFromFile($hls . '.zip') === '0:00:02',
         'HLS ZIP duration resolves to its extracted playlist');
+
+    // Exercise the job action against only temporary output files.
+    $global['systemRootPath'] = $testDir . '/';
+    mkdir($testDir . '/videos');
+    ObjectYPT::$rows[71] = ['id' => 71, 'streamers_id' => 1, 'status' => 'error'];
+    $base = Encoder::getTmpFileName(71, 'mp4', '480');
+    copy($source, $base);
+    file_put_contents($base . '.jpg', 'preview, not an encoded video');
+    $badOutput = Encoder::getTmpFileName(71, 'mp4', '720');
+    file_put_contents($badOutput, 'not a video');
+    $encoder = new Encoder(71);
+    $result = $encoder->recheckOutputFiles();
+    expectDuration($result['error'] && count($result['files']) === 2,
+        'one broken resolution fails the recheck and previews are ignored');
+    expectDuration($encoder->getStatus() === 'error' && hash_file('sha256', $base) === hash_file('sha256', $source),
+        'recheck preserves the queue status and encoded media');
+    unlink($badOutput);
+    $result = $encoder->recheckOutputFiles();
+    expectDuration(!$result['error'] && count($result['files']) === 1, 'valid output passes the job recheck');
+    unlink($base);
+    $result = $encoder->recheckOutputFiles();
+    expectDuration($result['error'] && empty($result['files']), 'missing encoded output does not pass');
+    foreach (['encoding', 'downloading', 'downloaded', 'queue', 'packing', 'fixing', 'transferring'] as $status) {
+        ObjectYPT::$rows[71]['status'] = $status;
+        $result = (new Encoder(71))->recheckOutputFiles();
+        expectDuration($result['error'] && empty($result['files']), 'active job is not checked: ' . $status);
+    }
+    ObjectYPT::$rows[71]['status'] = 'done';
+    $jobHls = substr(Encoder::getTmpFileName(71, 'zip'), 0, -4);
+    rename($hls, $jobHls);
+    $hls = $jobHls;
+    $result = (new Encoder(71))->recheckOutputFiles();
+    expectDuration(!$result['error'] && count($result['files']) === 1, 'completed HLS output passes the job recheck');
 
     // A real broken HLS output must still be rejected after a successful probe.
     unlink($hls . '/enc_fixture.key');
