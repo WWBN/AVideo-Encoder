@@ -48,6 +48,7 @@ class ResumeFixture extends Encoder
     public static $confirmationFails = false;
     public static $confirmed = false;
     public static $deleted = false;
+    public static $transfers = 0;
     protected function dispatchOutputResume()
     {
         self::$dispatches++;
@@ -55,6 +56,7 @@ class ResumeFixture extends Encoder
     }
     public static function sendFileChunk($file, $return_vars, $format, $encoder = null, $resolution = '', $try = 0, $fileId = null, $startChunk = 0)
     {
+        self::$transfers++;
         checkResume(is_file($file), 'transfer receives an existing encoded file');
         checkResume($encoder->getStatus() === 'transferring', 'transfer status is persisted');
         if ($format === 'zip') {
@@ -90,7 +92,7 @@ function resumeRow($id, $format = 29)
 {
     ObjectYPT::$rows[$id] = ['id' => $id, 'streamers_id' => 1, 'formats_id' => $format,
         'title' => 'resume fixture', 'status' => 'error', 'status_obs' => 'Corrupted output',
-        'return_vars' => '{}', 'worker_pid' => 0, 'worker_ppid' => 0, 'retry_count' => 0];
+        'return_vars' => json_encode(['videos_id' => $id + 100]), 'worker_pid' => 0, 'worker_ppid' => 0, 'retry_count' => 0];
     ResumeFixture::$confirmed = ResumeFixture::$deleted = false;
     return new ResumeFixture($id);
 }
@@ -138,7 +140,26 @@ try {
         checkResume(is_file($zipFile) && !ResumeFixture::$deleted && hash_file('sha256', $zipFile) === $hash, $failure . ' preserves encoded output');
         checkResume($encoder->getWorker_ppid() === 0, 'failed transfer clears worker PID');
         ResumeFixture::${$failure} = false;
+        $transfers = ResumeFixture::$transfers;
+        ResumeFixture::$confirmed = false;
+        $encoder = new ResumeFixture(71);
+        $encoder->startOutputResume();
+        checkResume($encoder->resumeOutputTransfer(), $failure . ' retry completes');
+        checkResume(ResumeFixture::$transfers === $transfers + ($failure === 'transferFails' ? 1 : 0),
+            $failure === 'transferFails' ? 'failed upload is transferred again' : 'confirmation retry does not resend or repack the received output');
     }
+    $vars = json_decode($encoder->getReturn_vars());
+    checkResume(isset($vars->output_transfer), 'successful upload receipt is persisted');
+    $vars->videos_id++;
+    $encoder->setReturn_vars(json_encode($vars));
+    $encoder->save();
+    ResumeFixture::$deleted = false;
+    $transfers = ResumeFixture::$transfers;
+    $encoder->startOutputResume();
+    checkResume($encoder->resumeOutputTransfer() && ResumeFixture::$transfers > $transfers,
+        'a different destination video cannot reuse an old upload receipt');
+    $encoder->setStatus(Encoder::STATUS_QUEUE, false);
+    checkResume(!isset(json_decode($encoder->getReturn_vars())->output_transfer), 'reencode invalidates the old upload receipt');
     file_put_contents($zipFile, 'broken archive');
     $encoder = resumeRow(71);
     $encoder->startOutputResume();

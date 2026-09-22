@@ -363,6 +363,14 @@ class Encoder extends ObjectYPT
             self::setStreamerLog($this->id, "Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
         }
         $this->status = $status;
+        // A new encode must not reuse the receipt for an older output.
+        if (in_array($status, [self::STATUS_QUEUE, self::STATUS_DOWNLOADING, self::STATUS_ENCODING], true)) {
+            $vars = json_decode($this->getReturn_vars());
+            if (is_object($vars) && isset($vars->output_transfer)) {
+                unset($vars->output_transfer);
+                $this->setReturn_vars(json_encode($vars));
+            }
+        }
         //_error_log('Encoder::setStatus: '.json_encode(debug_backtrace()));
         switch ($status) {
             case Encoder::STATUS_DONE:
@@ -2017,6 +2025,15 @@ class Encoder extends ObjectYPT
         return fopen(sys_get_temp_dir() . '/encoder_resume.' . md5($global['systemRootPath']) . '.' . intval($this->getId()) . '.lock', 'c');
     }
 
+    private function hasTransferredOutput()
+    {
+        $vars = json_decode($this->getReturn_vars());
+        return !empty($vars->videos_id) && isset($vars->output_transfer->videos_id, $vars->output_transfer->streamers_id, $vars->output_transfer->formats_id)
+            && (int) $vars->output_transfer->videos_id === (int) $vars->videos_id
+            && (int) $vars->output_transfer->streamers_id === (int) $this->getStreamers_id()
+            && (int) $vars->output_transfer->formats_id === (int) $this->getFormats_id();
+    }
+
     protected function dispatchOutputResume()
     {
         global $global;
@@ -2049,7 +2066,7 @@ class Encoder extends ObjectYPT
                     return ['error' => true, 'msg' => 'The HLS playlist is missing or corrupted.', 'files' => $result['files']];
                 }
             }
-            $this->setStatus($hls ? self::STATUS_PACKING : self::STATUS_TRANSFERRING, false);
+            $this->setStatus($hls && !$this->hasTransferredOutput() ? self::STATUS_PACKING : self::STATUS_TRANSFERRING, false);
             $this->setStatus_obs('Output verified. Preparing transfer without re-encoding...', false);
             // A failed manual transfer must not enter the automatic re-encoding queue.
             $this->setRetry_count(self::MAX_AUTO_RETRIES);
@@ -2098,7 +2115,8 @@ class Encoder extends ObjectYPT
                 || !in_array($this->getStatus(), [self::STATUS_PACKING, self::STATUS_TRANSFERRING], true)) {
                 return false;
             }
-            if (in_array((int) $this->getFormats_id(), [29, 30], true)) {
+            $alreadyTransferred = $this->hasTransferredOutput();
+            if (!$alreadyTransferred && in_array((int) $this->getFormats_id(), [29, 30], true)) {
                 $zipFile = self::getTmpFileName($this->getId(), 'zip');
                 $zip = new ZipArchive();
                 $zipReady = is_file($zipFile) && $zip->open($zipFile, ZipArchive::CHECKCONS) === true;
@@ -2116,12 +2134,22 @@ class Encoder extends ObjectYPT
                 }
             }
             $this->setStatus(self::STATUS_TRANSFERRING, false);
-            $this->setStatus_obs('Transferring verified output without re-encoding...', false);
+            $this->setStatus_obs($alreadyTransferred ? 'Files already received. Waiting for the site to finish storage and confirm completion...' : 'Transferring verified output without re-encoding...', false);
             $this->save();
             $failureMessage = 'Transfer failed. Output files were kept; use Recheck to retry.';
-            $response = $this->send(false);
-            if (!empty($response->error)) {
-                throw new RuntimeException('Transfer failed. Output files were kept; use Recheck to retry.');
+            if (!$alreadyTransferred) {
+                $response = $this->send(false);
+                if (!empty($response->error)) {
+                    throw new RuntimeException('Transfer failed. Output files were kept; use Recheck to retry.');
+                }
+                $vars = json_decode($this->getReturn_vars());
+                if (!empty($vars->videos_id)) {
+                    $vars->output_transfer = (object) ['videos_id' => (int) $vars->videos_id,
+                        'streamers_id' => (int) $this->getStreamers_id(), 'formats_id' => (int) $this->getFormats_id()];
+                    $this->setReturn_vars(json_encode($vars));
+                }
+                $this->setStatus_obs('Files already received. Waiting for the site to finish storage and confirm completion...', false);
+                $this->save();
             }
             $failureMessage = 'The site did not confirm completion. Output files were kept; use Recheck to retry.';
             $confirmation = $this->notifyVideoIsDone();
@@ -3017,7 +3045,9 @@ class Encoder extends ObjectYPT
             $isLargeMediaTransfer = isset($postFields['video']) || isset($postFields['rawVideo']) || !empty($postFields['downloadURL']) || !empty($postFields['chunkFile']);
             // 2 hours: enough for the streamer to download a 20 GB file from the encoder
             // even on a slower link (~25 Mbps needs ~1.8 h).  Raise if needed.
-            $timeout = $isLargeMediaTransfer ? 7200 : 180;
+            // Completion hooks can synchronously move the entire video to remote storage.
+            $isCompletion = basename(parse_url($target, PHP_URL_PATH)) === 'aVideoEncoderNotifyIsDone.json.php';
+            $timeout = ($isLargeMediaTransfer || $isCompletion) ? 7200 : 180;
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
