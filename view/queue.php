@@ -92,6 +92,11 @@ if (empty($e->getId())) {
     $id = $e->save();
     error_log("queue: save done [$id]");
 } else {
+    if (in_array($e->getStatus(), [Encoder::STATUS_PACKING, Encoder::STATUS_TRANSFERRING], true)) {
+        http_response_code(409);
+        echo json_encode(['error' => true, 'msg' => 'Wait until the transfer has stopped before re-encoding.']);
+        exit;
+    }
     Encoder::deleteEncodedOutputFiles($e->getId());
     $e->setStatus(Encoder::STATUS_QUEUE);
     $id = $e->save();

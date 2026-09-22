@@ -155,3 +155,6 @@ $t['Wait until this job has stopped before checking its output.'] = 'Aguarde o p
 $t['Could not read the duration of one or more files. They may be missing or corrupted.'] = 'Não foi possível ler a duração de um ou mais arquivos. Eles podem estar ausentes ou corrompidos.';
 $t['Output files passed the duration check. No re-encoding was performed.'] = 'Os arquivos passaram na verificação de duração. Nenhuma recodificação foi realizada.';
 $t['Could not read duration'] = 'Não foi possível ler a duração';
+$t['This output transfer is already running.'] = 'A transferência deste vídeo já está em andamento.';
+$t['The HLS playlist is missing or corrupted.'] = 'A lista de reprodução HLS está ausente ou corrompida.';
+$t['Output verified. Packing and transfer will continue without re-encoding.'] = 'Arquivos verificados. O empacotamento e a transferência continuarão sem recodificar.';

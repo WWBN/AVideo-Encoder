@@ -1032,7 +1032,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 var buttons = [
                                     [returnVars.videos_id, 'editFile', 'glyphicon-edit', <?php echo json_encode(__('Edit')); ?>, 'btn-default'],
                                     [row.status === 'done' || row.status === 'transferring', 'sendFileQueue', 'glyphicon-send', <?php echo json_encode(__('Send Notify')); ?>, 'btn-default'],
-                                    [row.status !== 'queue' && row.status !== 'encoding', 'reQueue', 'glyphicon-refresh', <?php echo json_encode(__('Re-Queue')); ?>, 'btn-default'],
+                                    [['queue', 'encoding', 'packing', 'transferring'].indexOf(row.status) === -1, 'reQueue', 'glyphicon-refresh', <?php echo json_encode(__('Re-Queue')); ?>, 'btn-default'],
                                     [row.status === 'error' || row.status === 'done', 'recheckOutput', 'glyphicon-check', <?php echo json_encode(__('Recheck')); ?>, 'btn-default'],
                                     [true, 'deleteQueue', 'glyphicon-trash', <?php echo json_encode(__('Delete Queue')); ?>, 'btn-danger']
                                 ];
@@ -1121,6 +1121,12 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 type: 'post',
                                 success: function(response) {
                                     $("#grid").DataTable().ajax.reload(null, false);
+                                },
+                                error: function(xhr) {
+                                    avideoAlertError(xhr.responseJSON && xhr.responseJSON.msg
+                                        ? xhr.responseJSON.msg : <?php echo json_encode(__('An error occurred')); ?>);
+                                },
+                                complete: function() {
                                     modal.hidePleaseWait();
                                 }
                             });
@@ -1143,6 +1149,19 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                         ? <?php echo json_encode(__('Could not read duration')); ?> : file.duration);
                                 });
                                 avideoAlert(<?php echo json_encode(__('Recheck')); ?>, message, response.error ? 'error' : 'success');
+                                if (response.started) {
+                                    var refreshTransfer = function() {
+                                        $('#grid').DataTable().ajax.reload(function(data) {
+                                            var active = (data.rows || []).some(function(item) {
+                                                return String(item.id) === String(row.id) && ['packing', 'transferring'].indexOf(item.status) !== -1;
+                                            });
+                                            if (active) {
+                                                setTimeout(refreshTransfer, 3000);
+                                            }
+                                        }, false);
+                                    };
+                                    refreshTransfer();
+                                }
                             }).fail(function(xhr) {
                                 avideoAlertError(xhr.responseJSON && xhr.responseJSON.msg
                                     ? xhr.responseJSON.msg : <?php echo json_encode(__('An error occurred')); ?>);

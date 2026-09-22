@@ -1847,7 +1847,7 @@ class Encoder extends ObjectYPT
     }
 
 
-    private function notifyVideoIsDone($fail = 0)
+    protected function notifyVideoIsDone($fail = 0)
     {
         global $global;
         $obj = new stdClass();
@@ -2011,7 +2011,148 @@ class Encoder extends ObjectYPT
         return $streamer->verify();
     }
 
-    public function send()
+    private function openOutputResumeLock()
+    {
+        global $global;
+        return fopen(sys_get_temp_dir() . '/encoder_resume.' . md5($global['systemRootPath']) . '.' . intval($this->getId()) . '.lock', 'c');
+    }
+
+    protected function dispatchOutputResume()
+    {
+        global $global;
+        return execAsync(escapeshellarg(getPHP()) . ' -f ' . escapeshellarg($global['systemRootPath'] . 'view/resumeOutput.php') . ' -- ' . intval($this->getId()));
+    }
+
+    public function startOutputResume()
+    {
+        $lock = $this->openOutputResumeLock();
+        if (!$lock) {
+            throw new RuntimeException('Could not lock the output transfer.');
+        }
+        if (!flock($lock, LOCK_EX | LOCK_NB)) {
+            fclose($lock);
+            return ['error' => true, 'msg' => 'This output transfer is already running.', 'files' => []];
+        }
+        $claimed = false;
+        try {
+            if (!$this->load($this->getId())) {
+                throw new RuntimeException('Queue item not found.');
+            }
+            $result = $this->recheckOutputFiles();
+            if ($result['error']) {
+                return $result;
+            }
+            $hls = in_array((int) $this->getFormats_id(), [29, 30], true);
+            if ($hls) {
+                $playlist = substr(self::getTmpFileName($this->getId(), 'zip'), 0, -4) . '/index.m3u8';
+                if (!is_file($playlist) || self::getDurationFromFile($playlist) === 'EE:EE:EE') {
+                    return ['error' => true, 'msg' => 'The HLS playlist is missing or corrupted.', 'files' => $result['files']];
+                }
+            }
+            $this->setStatus($hls ? self::STATUS_PACKING : self::STATUS_TRANSFERRING, false);
+            $this->setStatus_obs('Output verified. Preparing transfer without re-encoding...', false);
+            // A failed manual transfer must not enter the automatic re-encoding queue.
+            $this->setRetry_count(self::MAX_AUTO_RETRIES);
+            $this->setWorker_ppid(0);
+            if (!$this->save()) {
+                throw new RuntimeException('Could not save the output transfer.');
+            }
+            $claimed = true;
+            $pid = $this->dispatchOutputResume();
+            if (!ctype_digit((string) $pid) || intval($pid) < 1) {
+                throw new RuntimeException('Could not start the output transfer.');
+            }
+            $this->setWorker_ppid((int) $pid);
+            if (!$this->save()) {
+                throw new RuntimeException('Could not save the output worker.');
+            }
+            $result['started'] = true;
+            $result['msg'] = 'Output verified. Packing and transfer will continue without re-encoding.';
+            return $result;
+        } catch (Throwable $error) {
+            if ($claimed && $this->load($this->getId())) {
+                $this->setStatus(self::STATUS_ERROR, false);
+                $this->setStatus_obs('Could not start the output transfer. Use Recheck to retry.', false);
+                $this->save();
+            }
+            throw $error;
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    public function resumeOutputTransfer()
+    {
+        $lock = $this->openOutputResumeLock();
+        if (!$lock || !flock($lock, LOCK_EX)) {
+            if ($lock) {
+                fclose($lock);
+            }
+            throw new RuntimeException('Could not lock the output transfer.');
+        }
+        $failureMessage = 'Packing failed. Output files were kept; use Recheck to retry.';
+        try {
+            // Wait for the web request to persist the child PID before proceeding.
+            if (!$this->load($this->getId()) || $this->getWorker_ppid() !== getmypid()
+                || !in_array($this->getStatus(), [self::STATUS_PACKING, self::STATUS_TRANSFERRING], true)) {
+                return false;
+            }
+            if (in_array((int) $this->getFormats_id(), [29, 30], true)) {
+                $zipFile = self::getTmpFileName($this->getId(), 'zip');
+                $zip = new ZipArchive();
+                $zipReady = is_file($zipFile) && $zip->open($zipFile, ZipArchive::CHECKCONS) === true;
+                if ($zipReady) {
+                    $zip->close();
+                } else {
+                    $this->setStatus_obs('Compressing HLS output into a zip package...', false);
+                    $this->save();
+                    zipDirectory(substr($zipFile, 0, -4));
+                    clearstatcache(true, $zipFile);
+                    if (!is_file($zipFile) || $zip->open($zipFile, ZipArchive::CHECKCONS) !== true) {
+                        throw new RuntimeException('Could not create the HLS package.');
+                    }
+                    $zip->close();
+                }
+            }
+            $this->setStatus(self::STATUS_TRANSFERRING, false);
+            $this->setStatus_obs('Transferring verified output without re-encoding...', false);
+            $this->save();
+            $failureMessage = 'Transfer failed. Output files were kept; use Recheck to retry.';
+            $response = $this->send(false);
+            if (!empty($response->error)) {
+                throw new RuntimeException('Transfer failed. Output files were kept; use Recheck to retry.');
+            }
+            $failureMessage = 'The site did not confirm completion. Output files were kept; use Recheck to retry.';
+            $confirmation = $this->notifyVideoIsDone();
+            if (!isset($confirmation->error) || $confirmation->error) {
+                throw new RuntimeException('The site did not confirm completion. Output files were kept; use Recheck to retry.');
+            }
+            if ($this->load($this->getId())) {
+                $this->setStatus(self::STATUS_DONE, false);
+                $this->setStatus_obs('Transfer completed without re-encoding.', false);
+                $this->save();
+                $config = new Configuration();
+                if (!empty($config->getAutodelete())) {
+                    $this->delete();
+                }
+            }
+            return true;
+        } catch (Throwable $error) {
+            _error_log('Output resume failed for encoder ' . $this->getId() . ': ' . $error->getMessage());
+            if ($this->load($this->getId())) {
+                $this->setStatus(self::STATUS_ERROR, false);
+                $this->setStatus_obs($failureMessage, false);
+                $this->save();
+            }
+            return false;
+        } finally {
+            flock($lock, LOCK_UN);
+            fclose($lock);
+        }
+    }
+
+    public function send($finalize = true)
     {
         global $global;
         $formatId = $this->getFormats_id();
@@ -2153,7 +2294,7 @@ class Encoder extends ObjectYPT
             }
         }
 
-        if (empty($return->error)) {
+        if (empty($return->error) && $finalize) {
             $this->setStatus(Encoder::STATUS_DONE);
             // check if autodelete is enabled
             $config = new Configuration();
@@ -2162,7 +2303,7 @@ class Encoder extends ObjectYPT
             } else {
                 //_error_log("Encoder::send: Autodelete Not active");
             }
-        } else {
+        } elseif (!empty($return->error)) {
             // Do NOT delete local tmp files here: at least one file failed to reach the streamer
             // (e.g. cURL timeout on a large zip). Keep them so run.php's caller can retry/report
             // the error instead of silently losing an already fully-encoded video.

@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['error' => true, 'msg' => __('Invalid request')]);
     exit;
 }
-// Only the same-origin AJAX control invokes this read-only check.
+// Require the same-origin AJAX control before resuming a transfer.
 if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') !== 'XMLHttpRequest') {
     http_response_code(403);
     echo json_encode(['error' => true, 'msg' => __('Permission denied')]);
@@ -38,7 +38,7 @@ if (!$encoder->getId() || (!Login::isAdmin() && Login::getStreamerId() !== (int)
 session_write_close();
 
 try {
-    $response = $encoder->recheckOutputFiles();
+    $response = $encoder->startOutputResume();
     $response['msg'] = __($response['msg']);
     echo json_encode($response);
 } catch (Throwable $error) {
