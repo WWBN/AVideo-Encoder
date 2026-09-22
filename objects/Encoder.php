@@ -3084,12 +3084,16 @@ class Encoder extends ObjectYPT
         if (empty($videoFile)) {
             return "EE:EE:EE";
         }
+        $complement = '';
+        if (is_file($videoFile) && strtolower(pathinfo($videoFile, PATHINFO_EXTENSION)) === 'm3u8') {
+            // Keep the standard HLS media extensions and allow local encryption keys.
+            $complement = ' -allowed_extensions 3gp,aac,avi,flac,mkv,m3u8,m4a,m4s,m4v,mpg,mov,mp2,mp3,mp4,mpeg,mpegts,ogg,ogv,oga,ts,vob,wav,key ';
+        }
         $videoFile = escapeshellarg($videoFile);
         /**
          * @var string $cmd
          */
         //$cmd = 'ffprobe -i ' . $file . ' -sexagesimal -show_entries  format=duration -v quiet -of csv="p=0"';
-        $complement = '';
         if (preg_match('/^\'?http/i', $videoFile)) {
             $complement = ' -user_agent "' . getSelfUserAgent("FFProbe") . '" ';
         }
