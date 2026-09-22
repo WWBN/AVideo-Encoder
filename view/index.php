@@ -1152,7 +1152,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 if (response.started) {
                                     var refreshTransfer = function() {
                                         $('#grid').DataTable().ajax.reload(function(data) {
-                                            var active = (data.rows || []).some(function(item) {
+                                            var active = (data.data || []).some(function(item) {
                                                 return String(item.id) === String(row.id) && ['packing', 'transferring'].indexOf(item.status) !== -1;
                                             });
                                             if (active) {
