@@ -1034,6 +1034,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     [row.status === 'done' || row.status === 'transferring', 'sendFileQueue', 'glyphicon-send', <?php echo json_encode(__('Send Notify')); ?>, 'btn-default'],
                                     [['queue', 'encoding', 'packing', 'transferring'].indexOf(row.status) === -1, 'reQueue', 'glyphicon-refresh', <?php echo json_encode(__('Re-Queue')); ?>, 'btn-default'],
                                     [row.status === 'error' || row.status === 'done', 'recheckOutput', 'glyphicon-check', <?php echo json_encode(__('Recheck')); ?>, 'btn-default'],
+                                    [row.status === 'error' || row.status === 'done', 'renewOutputAccess', 'glyphicon-lock', <?php echo json_encode(__('Renew site access')); ?>, 'btn-default'],
                                     [true, 'deleteQueue', 'glyphicon-trash', <?php echo json_encode(__('Delete Queue')); ?>, 'btn-danger']
                                 ];
                                 buttons.forEach(function(button) {
@@ -1132,43 +1133,71 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             });
                         });
 
-                        grid.find(".command-recheckOutput").off("click.encoderTable").on("click.encoderTable", function() {
+                        grid.find(".command-recheckOutput, .command-renewOutputAccess").off("click.encoderTable").on("click.encoderTable", function() {
                             var button = $(this);
                             var row = $("#grid").DataTable().row(button.closest("tr")).data();
-                            button.prop('disabled', true);
-                            modal.showPleaseWait();
-                            $.ajax({
-                                url: 'view/recheck.json.php?<?php echo getPHPSessionIDURL(); ?>',
-                                type: 'POST',
-                                dataType: 'json',
-                                data: {id: row.id}
-                            }).done(function(response) {
-                                var message = response.msg;
-                                (response.files || []).forEach(function(file) {
-                                    message += '\n' + file.name + ': ' + (file.error
-                                        ? <?php echo json_encode(__('Could not read duration')); ?> : file.duration);
-                                });
-                                avideoAlert(<?php echo json_encode(__('Recheck')); ?>, message, response.error ? 'error' : 'success');
-                                if (response.started) {
-                                    var refreshTransfer = function() {
-                                        $('#grid').DataTable().ajax.reload(function(data) {
-                                            var active = (data.data || []).some(function(item) {
-                                                return String(item.id) === String(row.id) && ['packing', 'transferring'].indexOf(item.status) !== -1;
-                                            });
-                                            if (active) {
-                                                setTimeout(refreshTransfer, 3000);
-                                            }
-                                        }, false);
-                                    };
-                                    refreshTransfer();
+                            var recheck = function(password) {
+                                button.prop('disabled', true);
+                                modal.showPleaseWait();
+                                $('#renewStreamerSubmit').prop('disabled', true);
+                                var data = {id: row.id};
+                                if (password !== undefined) {
+                                    data.password = password;
+                                } else if (button.hasClass('command-renewOutputAccess')) {
+                                    data.renew = 1;
                                 }
-                            }).fail(function(xhr) {
-                                avideoAlertError(xhr.responseJSON && xhr.responseJSON.msg
-                                    ? xhr.responseJSON.msg : <?php echo json_encode(__('An error occurred')); ?>);
-                            }).always(function() {
-                                button.prop('disabled', false);
-                                modal.hidePleaseWait();
-                            });
+                                $.ajax({
+                                    url: 'view/recheck.json.php?<?php echo getPHPSessionIDURL(); ?>',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: data
+                                }).done(function(response) {
+                                    if (response.authentication_required) {
+                                        $('#renewStreamerMessage').text(response.msg);
+                                        $('#renewStreamerAccount').text(response.account + ' — ' + response.site);
+                                        $('#renewStreamerUsername').val(response.account);
+                                        $('#renewStreamerPassword').val('');
+                                        $('#renewStreamerForm').off('submit.encoderRenew').on('submit.encoderRenew', function(event) {
+                                            event.preventDefault();
+                                            var secret = $('#renewStreamerPassword').val();
+                                            $('#renewStreamerPassword').val('');
+                                            recheck(secret);
+                                        });
+                                        $('#renewStreamerModal').modal('show');
+                                        return;
+                                    }
+                                    if (!response.error) {
+                                        $('#renewStreamerModal').modal('hide');
+                                    }
+                                    var message = response.msg;
+                                    (response.files || []).forEach(function(file) {
+                                        message += '\n' + file.name + ': ' + (file.error
+                                            ? <?php echo json_encode(__('Could not read duration')); ?> : file.duration);
+                                    });
+                                    avideoAlert(<?php echo json_encode(__('Recheck')); ?>, message, response.error ? 'error' : 'success');
+                                    if (response.started) {
+                                        var refreshTransfer = function() {
+                                            $('#grid').DataTable().ajax.reload(function(data) {
+                                                var active = (data.data || []).some(function(item) {
+                                                    return String(item.id) === String(row.id) && ['packing', 'transferring'].indexOf(item.status) !== -1;
+                                                });
+                                                if (active) {
+                                                    setTimeout(refreshTransfer, 3000);
+                                                }
+                                            }, false);
+                                        };
+                                        refreshTransfer();
+                                    }
+                                }).fail(function(xhr) {
+                                    avideoAlertError(xhr.responseJSON && xhr.responseJSON.msg
+                                        ? xhr.responseJSON.msg : <?php echo json_encode(__('An error occurred')); ?>);
+                                }).always(function() {
+                                    button.prop('disabled', false);
+                                    $('#renewStreamerSubmit').prop('disabled', false);
+                                    modal.hidePleaseWait();
+                                });
+                            };
+                            recheck();
                         });
 
                         grid.find(".command-deleteQueue").off("click.encoderTable").on("click.encoderTable", function(e) {
@@ -1436,6 +1465,42 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
     </div>
 
+    <div class="modal fade" id="renewStreamerModal" tabindex="-1" role="dialog" aria-labelledby="renewStreamerTitle">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="renewStreamerForm">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo htmlspecialchars(__('Close'), ENT_QUOTES, 'UTF-8'); ?>"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="renewStreamerTitle"><?php echo __('Renew site access'); ?></h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="renewStreamerMessage"></p>
+                        <p><strong id="renewStreamerAccount"></strong></p>
+                        <input type="hidden" id="renewStreamerUsername" autocomplete="username">
+                        <div class="form-group">
+                            <label for="renewStreamerPassword"><?php echo __('Password'); ?></label>
+                            <input type="password" class="form-control" id="renewStreamerPassword" autocomplete="current-password" required maxlength="1024">
+                        </div>
+                        <p class="help-block"><?php echo __('Use the password for this account on the video site. Your encoded files will be kept.'); ?></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo __('Cancel'); ?></button>
+                        <button type="submit" class="btn btn-primary" id="renewStreamerSubmit"><?php echo __('Renew and continue'); ?></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            $('#renewStreamerModal').on('hidden.bs.modal', function() {
+                $('#renewStreamerPassword').val('');
+                $('#renewStreamerForm').off('submit.encoderRenew');
+            }).on('shown.bs.modal', function() {
+                $('#renewStreamerPassword').trigger('focus');
+            });
+        });
+    </script>
 </body>
 
 </html>

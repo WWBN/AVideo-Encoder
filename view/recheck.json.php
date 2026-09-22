@@ -38,6 +38,33 @@ if (!$encoder->getId() || (!Login::isAdmin() && Login::getStreamerId() !== (int)
 session_write_close();
 
 try {
+    $password = $_POST['password'] ?? null;
+    unset($_POST['password'], $_REQUEST['password']);
+    if ($password !== null && (!is_string($password) || $password === '' || strlen($password) > 1024)) {
+        http_response_code(400);
+        echo json_encode(['error' => true, 'msg' => __('Invalid request')]);
+        exit;
+    }
+    $check = $encoder->recheckOutputFiles();
+    if ($check['error']) {
+        $check['msg'] = __($check['msg']);
+        echo json_encode($check);
+        exit;
+    }
+    $streamer = new Streamer($encoder->getStreamers_id());
+    if (!empty($_POST['renew']) && $password === null) {
+        $authentication = ['error' => true, 'authentication_required' => true,
+            'account' => $streamer->getUser(), 'site' => $streamer->getSiteURL(),
+            'msg' => 'Enter this account password to renew access and continue the transfer.'];
+    } else {
+        $authentication = $streamer->refreshAuthentication($password);
+    }
+    unset($password);
+    if ($authentication['error']) {
+        $authentication['msg'] = __($authentication['msg']);
+        echo json_encode($authentication);
+        exit;
+    }
     $response = $encoder->startOutputResume();
     $response['msg'] = __($response['msg']);
     echo json_encode($response);

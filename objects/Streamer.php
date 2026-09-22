@@ -134,6 +134,69 @@ if (!class_exists('Streamer')) {
             }
         }
 
+        protected function requestAuthentication($credential, $encoded)
+        {
+            $url = addLastSlash($this->getSiteURL()) . 'objects/login.json.php';
+            if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https'
+                || empty(getExternalHttpUrlForShell($url, 'Streamer::refreshAuthentication'))) {
+                return false;
+            }
+            $curl = curl_init($url);
+            curl_setopt_array($curl, [
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => http_build_query(['user' => $this->getUser(), 'pass' => $credential, 'encodedPass' => $encoded ? 1 : 0]),
+                CURLOPT_USERAGENT => getSelfUserAgent(),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_CONNECTTIMEOUT => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+            ]);
+            $body = curl_exec($curl);
+            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            return $status === 200 ? json_decode($body) : false;
+        }
+
+        public function refreshAuthentication(
+            #[\SensitiveParameter]
+            $password = null
+        ) {
+            $result = ['error' => true, 'msg' => 'Could not verify access to the site. Try again later.'];
+            $user = $this->getUser();
+            $site = $this->getSiteURL();
+            // Authenticate in a separate HTTP request; keep the current encoder session
+            // and its admin/owner identity unchanged. Never send credentials in the URL.
+            $response = $this->requestAuthentication($password === null ? $this->getPass() : $password, $password === null);
+            if (!is_object($response) || !isset($response->isLogged)) {
+                return $result;
+            }
+            if (empty($response->isLogged)) {
+                $result['authentication_required'] = true;
+                $result['account'] = $user;
+                $result['site'] = $site;
+                $result['msg'] = $password === null
+                    ? 'Access to the site has expired or was revoked. Enter this account password to renew it.'
+                    : 'Login was not accepted. Check the password or sign in through the site.';
+                return $result;
+            }
+            if (empty($response->canUpload) || empty($response->user) || strcasecmp($response->user, $user) !== 0 || empty($response->pass)) {
+                $result['msg'] = 'The site did not authorize uploads for this account.';
+                return $result;
+            }
+            // Reload before saving so renewal cannot overwrite concurrent account edits.
+            if (!$this->load($this->getId()) || $this->getUser() !== $user || $this->getSiteURL() !== $site) {
+                return $result;
+            }
+            $this->setPass($response->pass);
+            if (!$this->save()) {
+                return $result;
+            }
+            return ['error' => false, 'msg' => 'Access renewed.'];
+        }
+
         public function save()
         {
             if (!isset($this->priority)) {
