@@ -103,6 +103,12 @@ if (empty($e->getId())) {
 
     $obj = Encoder::getVideosId($id);
 }
+if (empty($id)) {
+    _error_log('queue: could not save the encoding task');
+    http_response_code(500);
+    echo json_encode(['error' => true, 'msg' => 'Could not save the encoding task. Please retry.']);
+    exit;
+}
 // start queue now
 execRun();
 echo json_encode($id);
