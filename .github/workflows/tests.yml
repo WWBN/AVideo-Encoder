@@ -46,6 +46,13 @@ jobs:
           ffmpeg -version
           ffprobe -version
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+
+      - name: Check repository version status UI
+        run: node --test tests/encoder-version-ui.test.cjs
+
       - name: Run every standalone PHP regression (required)
         run: |
           tests=(tests/*-regression.php)

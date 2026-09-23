@@ -103,6 +103,9 @@ COPY deploy/docker-entrypoint /usr/local/bin/docker-entrypoint
 COPY deploy/wait-for-db.php /usr/local/bin/wait-for-db.php
 COPY node_modules /var/www/html/node_modules
 
+ARG ENCODER_BUILD_COMMIT=""
+ENV ENCODER_BUILD_COMMIT=${ENCODER_BUILD_COMMIT}
+
 RUN chown -R www-data /var/www/html && \
     chmod 755 /usr/local/bin/docker-entrypoint && \
     install -d -m 0755 -o www-data -g www-data /var/www/html/videos

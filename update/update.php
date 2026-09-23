@@ -1,5 +1,8 @@
-<div class="container-fluid">
-            <div class="alert alert-success"><?php printf(__('You are running AVideo Encoder version %s!'), $config->getVersion()); ?></div>
+<?php include __DIR__ . '/version-panel.php'; ?>
+<div class="container-fluid encoder-database-updates">
+            <h3><?php echo __('Database updates'); ?></h3>
+            <p class="text-muted"><?php echo __('Database schema'); ?> <strong><?php echo htmlspecialchars($config->getVersion(), ENT_QUOTES, 'UTF-8'); ?></strong>
+                &middot; <?php echo __('This version tracks database migrations, independently of releases and commits.'); ?></p>
             <?php
             if (empty($_POST['updateFile'])) {
                 $updateFiles = getUpdatesFiles();
@@ -8,7 +11,7 @@
                     <div class="alert alert-warning">
                         <form method="post" class="form-compact well form-horizontal">
                             <fieldset>
-                                <legend><?php echo __('Update AVideo System'); ?></legend>
+                                <legend><?php echo __('Update the Encoder database'); ?></legend>
                                 <label for="updateFile" class="sr-only"><?php echo __('Select the update'); ?></label>
                                 <select class="selectpicker" data-width="fit" name="updateFile" id="updateFile" required autofocus>
                                     <?php
@@ -33,7 +36,8 @@
                 } else {
                     ?>
                     <div class="alert alert-success">
-                        <h2><?php echo __('Your system is up to date'); ?></h2>
+                        <strong><i class="fas fa-check-circle" aria-hidden="true"></i> <?php echo __('Database is up to date'); ?></strong>
+                        <p><?php echo __('No pending database migrations in the installed code. See the repository status above for code updates.'); ?></p>
                     </div>
                     <?php
                 }
