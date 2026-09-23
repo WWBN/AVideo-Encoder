@@ -1,6 +1,11 @@
-name: PHPUnit Tests
+name: Encoder regression tests
 
 on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
   push:
     branches: [ "master", "main", "develop" ]
   pull_request:
@@ -12,6 +17,7 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     strategy:
       fail-fast: false
@@ -23,34 +29,27 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: pcre, mbstring, xml, curl, gd, pdo_mysql, zip, intl
-          coverage: xdebug
+          extensions: pcre, mbstring, xml, curl, gd, pdo_mysql, zip, intl, pcntl
+          coverage: none
 
-      - name: Install dependencies (if composer.json exists)
+      - name: Install media tools for real FFmpeg regressions
         run: |
-          if [ -f composer.json ]; then
-            composer validate --strict
-            composer install --prefer-dist --no-progress
-          else
-            echo "No composer.json found, skipping dependency installation."
-          fi
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg zip unzip
+          ffmpeg -version
+          ffprobe -version
 
-      - name: Run PHPUnit (if available)
+      - name: Run every standalone PHP regression (required)
         run: |
-          if [ -f vendor/bin/phpunit ]; then
-            vendor/bin/phpunit --coverage-clover=coverage.xml
-          else
-            echo "PHPUnit not available, skipping tests."
-          fi
-
-      - name: Upload coverage to Codecov
-        if: matrix.php-versions == '8.3' && hashFiles('coverage.xml') != ''
-        uses: codecov/codecov-action@v4
-        with:
-          files: coverage.xml
-          fail_ci_if_error: false
+          tests=(tests/*-regression.php)
+          test -f "${tests[0]}"
+          for test in "${tests[@]}"; do
+            php "$test"
+          done
