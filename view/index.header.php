@@ -42,6 +42,7 @@
 
     <script src="<?php echo $global['webSiteRootURL']; ?>view/js/main.js?<?php echo filectime($global['systemRootPath'] . 'view/js/main.js'); ?>" type="text/javascript"></script>
     <link href="<?php echo $global['webSiteRootURL']; ?>view/css/style.css?<?php echo filectime($global['systemRootPath'] . 'view/css/style.css'); ?>" rel="stylesheet" type="text/css" />
+    <link href="<?php echo $global['webSiteRootURL']; ?>view/css/update.css?<?php echo filemtime(__DIR__ . '/css/update.css'); ?>" rel="stylesheet" type="text/css" />
 
     <link href="<?php echo $safeStreamerURL; ?>view/css/main.css" rel="stylesheet" type="text/css" crossorigin="anonymous" />
     <link href="<?php echo $safeStreamerURL; ?>view/theme.css.php" rel="stylesheet" type="text/css" />

@@ -1,10 +1,11 @@
 <div class="container-fluid">
-            <?php include __DIR__ . '/software.php'; ?>
-            <h3><?php echo __('Database updates'); ?></h3>
-            <div class="alert alert-info"><?php printf(__('Database schema version: %s'), htmlspecialchars($config->getVersion(), ENT_QUOTES, 'UTF-8')); ?></div>
+            <?php
+            $encoderUpdateFiles = getUpdatesFiles();
+            include __DIR__ . '/software.php';
+            ?>
             <?php
             if (empty($_POST['updateFile'])) {
-                $updateFiles = getUpdatesFiles();
+                $updateFiles = $encoderUpdateFiles;
                 if (!empty($updateFiles)) {
                     ?>
                     <div class="alert alert-warning">
@@ -31,12 +32,6 @@
                             //$('#updateFile').selectpicker();
                         });
                     </script>
-                    <?php
-                } else {
-                    ?>
-                    <div class="alert alert-success">
-                        <p><?php echo __('The database is up to date. Software updates are checked separately above.'); ?></p>
-                    </div>
                     <?php
                 }
             } else {
