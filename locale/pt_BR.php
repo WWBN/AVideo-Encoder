@@ -1,5 +1,27 @@
 <?php
 global $t;
+$t['Encoder software'] = 'Software do Encoder';
+$t['Installed version'] = 'Versão instalada';
+$t['Installed commit'] = 'Commit instalado';
+$t['Branch'] = 'Branch';
+$t['Unavailable'] = 'Indisponível';
+$t['Latest stable release'] = 'Última versão estável';
+$t['Development (master)'] = 'Desenvolvimento (master)';
+$t['Could not verify. Try again later.'] = 'Não foi possível verificar. Tente novamente mais tarde.';
+$t['Up to date with this channel.'] = 'Atualizado em relação a este canal.';
+$t['Update available: %s new commits.'] = 'Atualização disponível: %s novos commits.';
+$t['Installed code is newer than this channel.'] = 'O código instalado é mais recente que este canal.';
+$t['Local and available code have diverged. Review the changes before updating.'] = 'O código local e o disponível divergiram. Revise as diferenças antes de atualizar.';
+$t['Checking for updates...'] = 'Verificando atualizações...';
+$t['View changes'] = 'Ver alterações';
+$t['Check for updates'] = 'Verificar atualizações';
+$t['This installation has no readable Git or build metadata. Its update status cannot be determined.'] = 'Esta instalação não tem metadados Git ou de compilação acessíveis. Não é possível determinar se ela precisa ser atualizada.';
+$t['Local tracked files have changes. The comparison below refers to the installed commit; review local changes before updating.'] = 'Há alterações nos arquivos locais versionados. A comparação abaixo usa o commit instalado; revise as alterações locais antes de atualizar.';
+$t['Results are cached for up to 1 hour. GitHub rate limits may delay new checks. Checking does not install updates.'] = 'Os resultados ficam em cache por até 1 hora. Limites do GitHub podem adiar novas consultas. A verificação não instala atualizações.';
+$t['For a Git installation, update the code on the server. For Docker, deploy a newer image. Then apply any pending database updates below.'] = 'Em instalações Git, atualize o código no servidor. No Docker, utilize uma imagem mais recente. Depois, aplique as atualizações pendentes do banco abaixo.';
+$t['Database updates'] = 'Atualizações do banco de dados';
+$t['Database schema version: %s'] = 'Versão da estrutura do banco: %s';
+$t['The database is up to date. Software updates are checked separately above.'] = 'O banco de dados está atualizado. As atualizações do software são verificadas separadamente acima.';
 $t['Active'] = 'Ativo';
 $t['Add files...'] = 'Adicionar arquivos...';
 $t['Add on Queue'] = 'Adicionar na fila';

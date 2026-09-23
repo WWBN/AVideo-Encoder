@@ -1,5 +1,35 @@
 # Automated weekly releases
 
+## Installed software and update status
+
+Encoder administrators can open **Update** to see the installed Git reference/commit,
+the latest stable GitHub release and changes available on `master`. The two channels
+are compared independently; development commits may be newer than the latest release.
+The database schema version and pending SQL migrations are shown separately below.
+This check does not install software or run `git pull`.
+
+GitHub checks run only when the Update tab is opened (or its check button is pressed).
+Public API responses, including failures, are cached for one hour under `videos/`.
+Checks share a lock and a rate-limit deadline across PHP workers and endpoints.
+GitHub's `Retry-After` and exhausted-quota `X-RateLimit-Reset` headers postpone new
+requests until the later deadline; missing headers use a one-hour cooldown. A successful
+response that exhausts the quota also starts the cooldown. The check button cannot bypass
+these limits. If the shared cache cannot be used, the check makes no GitHub requests.
+Network errors, rate limits, missing PHP cURL or missing build metadata produce an
+unknown status, never an up-to-date claim. No GitHub token is required.
+
+Git installations read their own checkout's metadata, including a read-only fallback
+when PHP can read `.git` but cannot run Git. Git archives expand
+`objects/encoder-build.json` through `export-subst`. Official Docker builds embed the
+exact build SHA; manual Docker builds can pass `--build-arg ENCODER_COMMIT=$(git rev-parse HEAD)`.
+Existing images need to be rebuilt/replaced to include this feature and its metadata.
+Copied installations without either Git or build metadata cannot be compared reliably.
+The check compares commits, not file contents; preserve/review any local modifications
+before updating. Git can report tracked modifications when executable and permitted.
+
+Regression check: `php tests/encoder-version-regression.php`.
+GitHub comparison API: https://docs.github.com/en/rest/commits/commits#compare-two-commits
+
 Both `WWBN/AVideo` and `WWBN/AVideo-Encoder` use the same release policy,
 with independent versions. Development continues on `master`.
 

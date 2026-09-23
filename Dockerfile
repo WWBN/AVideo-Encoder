@@ -91,6 +91,8 @@ COPY API /var/www/html/API
 COPY model /var/www/html/model
 COPY nbproject /var/www/html/nbproject
 COPY objects /var/www/html/objects
+ARG ENCODER_COMMIT=""
+RUN php -r '$sha = $argv[1]; if (preg_match("/^[a-f0-9]{40}$/D", $sha)) { file_put_contents("/var/www/html/objects/encoder-build.json", json_encode(["commit" => $sha, "version" => ""])); }' "$ENCODER_COMMIT"
 COPY update /var/www/html/update
 COPY view /var/www/html/view
 COPY .htaccess /var/www/html

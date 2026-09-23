@@ -1,5 +1,7 @@
 <div class="container-fluid">
-            <div class="alert alert-success"><?php printf(__('You are running AVideo Encoder version %s!'), $config->getVersion()); ?></div>
+            <?php include __DIR__ . '/software.php'; ?>
+            <h3><?php echo __('Database updates'); ?></h3>
+            <div class="alert alert-info"><?php printf(__('Database schema version: %s'), htmlspecialchars($config->getVersion(), ENT_QUOTES, 'UTF-8')); ?></div>
             <?php
             if (empty($_POST['updateFile'])) {
                 $updateFiles = getUpdatesFiles();
@@ -33,7 +35,7 @@
                 } else {
                     ?>
                     <div class="alert alert-success">
-                        <h2><?php echo __('Your system is up to date'); ?></h2>
+                        <p><?php echo __('The database is up to date. Software updates are checked separately above.'); ?></p>
                     </div>
                     <?php
                 }
