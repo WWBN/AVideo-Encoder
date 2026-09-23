@@ -49,6 +49,7 @@ class ResumeFixture extends Encoder
     public static $confirmed = false;
     public static $deleted = false;
     public static $transfers = 0;
+    public static $failureCode = '';
     protected function dispatchOutputResume()
     {
         self::$dispatches++;
@@ -66,14 +67,14 @@ class ResumeFixture extends Encoder
             $zip->close();
         }
         return (object) ['error' => self::$transferFails, 'msg' => 'fixture response',
-            'response' => (object) ['video_id' => 0, 'video_id_hash' => '']];
+            'response' => (object) ['video_id' => 0, 'video_id_hash' => '', 'code' => self::$failureCode]];
     }
     protected function notifyVideoIsDone($fail = 0)
     {
         checkResume($this->getStatus() === 'transferring' && !self::$deleted,
             'send(false) defers completion and deletion until confirmation');
         self::$confirmed = true;
-        return (object) ['error' => self::$confirmationFails];
+        return (object) ['error' => self::$confirmationFails, 'code' => self::$failureCode];
     }
     public function delete()
     {
@@ -135,11 +136,16 @@ try {
     foreach (['transferFails', 'confirmationFails'] as $failure) {
         $encoder = resumeRow(71);
         ResumeFixture::${$failure} = true;
+        ResumeFixture::$failureCode = $failure === 'transferFails' ? 'destination_unavailable' : 'completion_in_progress';
         $encoder->startOutputResume();
         checkResume(!$encoder->resumeOutputTransfer() && $encoder->getStatus() === 'error', $failure . ' produces retryable error');
         checkResume(is_file($zipFile) && !ResumeFixture::$deleted && hash_file('sha256', $zipFile) === $hash, $failure . ' preserves encoded output');
         checkResume($encoder->getWorker_ppid() === 0, 'failed transfer clears worker PID');
+        checkResume(strpos($encoder->getStatus_obs(), $failure === 'transferFails' ? 'removed or this account cannot edit' : 'still processing') !== false,
+            'specific cause survives send and resume error handling');
+        checkResume(strpos($encoder->getStatus_obs(), 'Video #171:') !== false, 'status identifies the destination');
         ResumeFixture::${$failure} = false;
+        ResumeFixture::$failureCode = '';
         $transfers = ResumeFixture::$transfers;
         ResumeFixture::$confirmed = false;
         $encoder = new ResumeFixture(71);

@@ -1776,7 +1776,7 @@ class Encoder extends ObjectYPT
                             $msg = "Encoder::run: Send message error = " . $response->msg;
                             _error_log($msg);
                             if (!self::isUploadLimitMsg($encoder->getStatus_obs())) {
-                                self::setStatusError($encoder->getId(), $msg, 1);
+                                self::setStatusError($encoder->getId(), $response->msg, 1);
                             }
                             unlink($lockFile); // Remove the lock file before returning
                             return false;
@@ -2099,6 +2099,87 @@ class Encoder extends ObjectYPT
         }
     }
 
+    // Only recognize controlled diagnostics. Older sites may include credentials in msg;
+    // use their known prefix for classification but never display their response verbatim.
+    public static function getTransferErrorCode($result, $depth = 0)
+    {
+        if (!is_object($result) || $depth > 6) {
+            return '';
+        }
+        $codes = ['destination_unavailable', 'streamer_access_denied', 'completion_in_progress',
+            'completion_failed', 'transfer_timeout', 'transfer_connection_failed', 'transfer_too_large',
+            'streamer_unavailable', 'invalid_streamer_response', 'output_missing', 'output_corrupted'];
+        if (isset($result->code) && in_array($result->code, $codes, true)) {
+            return $result->code;
+        }
+        foreach ($result->sends ?? [] as $send) {
+            if (!empty($send->error) && ($code = self::getTransferErrorCode($send, $depth + 1))) {
+                return $code;
+            }
+        }
+        if (isset($result->response) && ($code = self::getTransferErrorCode($result->response, $depth + 1))) {
+            return $code;
+        }
+        $message = isset($result->msg) && is_string($result->msg) ? $result->msg : '';
+        if (strpos($message, 'Permission denied to edit a video') === 0) {
+            return 'destination_unavailable';
+        }
+        if (strpos($message, 'Permission denied to receive a file') === 0
+            || strpos($message, 'Permission denied to Notify Done') === 0) {
+            return 'streamer_access_denied';
+        }
+        if ($message === 'Corrupted output') {
+            return 'output_corrupted';
+        }
+        if (!empty($result->curl_errno)) {
+            return (int) $result->curl_errno === 28 ? 'transfer_timeout' : 'transfer_connection_failed';
+        }
+        $http = (int) ($result->http_code ?? 0);
+        if ($http === 413) {
+            return 'transfer_too_large';
+        }
+        if ($http === 401 || $http === 403) {
+            return 'streamer_access_denied';
+        }
+        if ($http >= 500) {
+            return 'streamer_unavailable';
+        }
+        if (isset($result->response_raw) && !is_object($result->response ?? null)) {
+            return 'invalid_streamer_response';
+        }
+        return '';
+    }
+
+    public static function isTransferRejected($result)
+    {
+        return in_array(self::getTransferErrorCode($result), ['destination_unavailable', 'streamer_access_denied'], true);
+    }
+
+    public static function getTransferErrorMessage($result, $videos_id = 0, $completion = false)
+    {
+        $messages = [
+            'destination_unavailable' => 'Destination video removed or this account cannot edit it. Check its link and account permissions on the site before Recheck.',
+            'streamer_access_denied' => 'Site refused access. Renew the account access in the encoder and check upload permissions before Recheck.',
+            'completion_in_progress' => 'Site is still processing storage and completion. Wait, then use Recheck to request confirmation again.',
+            'completion_failed' => 'Site received the files but could not finish processing. Check storage and completion logs, then use Recheck.',
+            'transfer_timeout' => $completion
+                ? 'Timed out waiting for completion. Processing may still be running; wait, then use Recheck for confirmation.'
+                : 'Timed out during transfer. Check the connection and site logs, then use Recheck.',
+            'transfer_connection_failed' => 'Could not communicate with the site. Check connection and site availability, then use Recheck.',
+            'transfer_too_large' => 'Request exceeds an upload size limit (HTTP 413). Check site and proxy upload limits before Recheck.',
+            'streamer_unavailable' => 'Site returned a server error (HTTP 5xx). Check site logs and availability, then use Recheck.',
+            'invalid_streamer_response' => 'Site returned an empty or invalid response. Check site and proxy logs, then use Recheck.',
+            'output_missing' => 'An encoded output file is missing. Check encoder files; re-encoding may be necessary.',
+            'output_corrupted' => 'An encoded output file failed validation. Use Recheck; re-encode if validation still fails.'
+        ];
+        $code = self::getTransferErrorCode($result);
+        $message = $messages[$code] ?? ($completion
+            ? 'The site did not confirm completion. Check the site logs, then use Recheck.'
+            : 'Transfer failed without a recognized cause. Check the encoder and site logs, then use Recheck.');
+        // status_obs stores at most 200 bytes; keep the ID, cause and next step visible.
+        return ((int) $videos_id > 0 ? 'Video #' . (int) $videos_id . ': ' : '') . $message . ' Output files were kept.';
+    }
+
     public function resumeOutputTransfer()
     {
         $lock = $this->openOutputResumeLock();
@@ -2140,7 +2221,9 @@ class Encoder extends ObjectYPT
             if (!$alreadyTransferred) {
                 $response = $this->send(false);
                 if (!empty($response->error)) {
-                    throw new RuntimeException('Transfer failed. Output files were kept; use Recheck to retry.');
+                    $vars = json_decode($this->getReturn_vars());
+                    $failureMessage = self::getTransferErrorMessage($response, $vars->videos_id ?? 0);
+                    throw new RuntimeException($failureMessage);
                 }
                 $vars = json_decode($this->getReturn_vars());
                 if (!empty($vars->videos_id)) {
@@ -2154,7 +2237,9 @@ class Encoder extends ObjectYPT
             $failureMessage = 'The site did not confirm completion. Output files were kept; use Recheck to retry.';
             $confirmation = $this->notifyVideoIsDone();
             if (!isset($confirmation->error) || $confirmation->error) {
-                throw new RuntimeException('The site did not confirm completion. Output files were kept; use Recheck to retry.');
+                $vars = json_decode($this->getReturn_vars());
+                $failureMessage = self::getTransferErrorMessage($confirmation, $vars->videos_id ?? 0, true);
+                throw new RuntimeException($failureMessage);
             }
             if ($this->load($this->getId())) {
                 $this->setStatus(self::STATUS_DONE, false);
@@ -2332,6 +2417,8 @@ class Encoder extends ObjectYPT
                 //_error_log("Encoder::send: Autodelete Not active");
             }
         } elseif (!empty($return->error)) {
+            $return->code = self::getTransferErrorCode($return);
+            $return->msg = self::getTransferErrorMessage($return, $return_vars->videos_id ?? 0);
             // Do NOT delete local tmp files here: at least one file failed to reach the streamer
             // (e.g. cURL timeout on a large zip). Keep them so run.php's caller can retry/report
             // the error instead of silently losing an already fully-encoded video.
@@ -2504,7 +2591,7 @@ class Encoder extends ObjectYPT
             $u->save();
         } elseif ($obj->error) {
             if(!empty($obj->response) && !empty($obj->response->msg) && !empty($encoder)){
-                $savedId = self::setStatusError($encoder->getId(), $obj->response->msg);
+                $savedId = self::setStatusError($encoder->getId(), self::getTransferErrorMessage($obj, $return_vars->videos_id ?? 0));
                 _error_log("AVideo-Streamer sendFile error: ". json_encode($obj->response->msg) . ' savedId=' . $savedId . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
             }else{
                 _error_log("AVideo-Streamer sendFile error error: " . json_encode($postFields) . ' <=>' . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)). ' '. json_encode($obj) );
@@ -2531,6 +2618,7 @@ class Encoder extends ObjectYPT
         $obj->filesize = filesize($file);
         if (empty($file) || !file_exists($file)) {
             $msg = "sendFileChunk: file ({$file}) is empty or do not exist";
+            $obj->code = 'output_missing';
             _error_log($msg);
             $obj->response = $msg;
             return $obj;
@@ -2538,6 +2626,7 @@ class Encoder extends ObjectYPT
 
         if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
             $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
+            $obj->code = 'output_corrupted';
             _error_log($msg);
             $obj->response = $msg;
             return $obj;
@@ -2547,9 +2636,16 @@ class Encoder extends ObjectYPT
         // sendFileToDownload can take 180 s to timeout; re-running it on every retry
         // would waste ~3 × 180 s before we even start re-chunking.
         if ($try === 0) {
-            $obj = self::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
+            $obj = static::sendFileToDownload($file, $return_vars, $format, $encoder, $resolution);
             if (empty($obj->error)) {
                 _error_log("Encoder:sendFileChunk no need, we could download");
+                return $obj;
+            }
+            // A different transport cannot fix a rejected destination or account.
+            // Stop before uploading the same large file again in chunks.
+            if (self::isTransferRejected($obj)) {
+                $obj->code = self::getTransferErrorCode($obj);
+                $obj->msg = self::getTransferErrorMessage($obj, $return_vars->videos_id ?? 0);
                 return $obj;
             }
         }
@@ -3064,6 +3160,7 @@ class Encoder extends ObjectYPT
             $obj->total_time = curl_getinfo($curl, CURLINFO_TOTAL_TIME);
             $obj->primary_ip = curl_getinfo($curl, CURLINFO_PRIMARY_IP);
             $curlErrno = curl_errno($curl);
+            $obj->curl_errno = $curlErrno;
             $curlError = curl_error($curl);
             _error_log("sendToStreamer: after curl_exec target={$target} url={$url} errno={$curlErrno} error=" . json_encode($curlError) . " http_code={$obj->http_code} content_type=" . json_encode($obj->content_type) . " total_time={$obj->total_time} raw_length=" . strlen((string) $obj->response_raw));
             if (empty($obj->response_raw)) {
