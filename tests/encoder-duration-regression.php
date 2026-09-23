@@ -61,7 +61,9 @@ try {
 
     $hls = $testDir . '/encrypted';
     mkdir($hls);
-    file_put_contents($hls . '/enc_fixture.key', random_bytes(16));
+    // A zero key makes FFprobe's missing-key fallback deterministic: it can
+    // still decrypt and report a duration, but its read error must be rejected.
+    file_put_contents($hls . '/enc_fixture.key', str_repeat("\0", 16));
     file_put_contents($hls . '/keyinfo', "enc_fixture.key\n{$hls}/enc_fixture.key\n");
     createDurationFixture('-i ' . escapeshellarg($source) . ' -c copy -hls_time 1 -hls_list_size 0 '
         . '-hls_key_info_file ' . escapeshellarg($hls . '/keyinfo') . ' '

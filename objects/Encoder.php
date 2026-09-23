@@ -3404,14 +3404,17 @@ class Encoder extends ObjectYPT
             $complement = ' -user_agent "' . getSelfUserAgent("FFProbe") . '" ';
         }
 
-        eval('$cmd=get_ffprobe()." {$complement} -i {$videoFile} -sexagesimal -show_entries  format=duration -v quiet -of csv=\\"p=0\\"";');
+        // FFprobe can report a duration and exit successfully even when HLS keys
+        // or segments cannot be read. Keep errors in the captured output.
+        eval('$cmd=get_ffprobe()." {$complement} -i {$videoFile} -sexagesimal -show_entries  format=duration -v error -of csv=\\"p=0\\"";');
         exec($cmd . ' 2>&1', $output, $return_val);
         if ($return_val !== 0) {
             _error_log('{"status":"error", "msg":' . json_encode($output) . ' ,"return_val":' . json_encode($return_val) . ', "where":"getDuration", "cmd":"' . $cmd . '"}');
             // fix ffprobe
             $duration = "EE:EE:EE";
         } else {
-            preg_match("/([0-9]+:[0-9]+:[0-9]{2})/", $output[0], $match);
+            // Accept only a duration, with no accompanying FFprobe errors.
+            preg_match('/\A([0-9]+:[0-9]{2}:[0-9]{2})(?:\.[0-9]+)?\z/', trim(implode("\n", $output)), $match);
             if (!empty($match[1])) {
                 $duration = $match[1];
             } else {
