@@ -41,3 +41,25 @@ A unique table prefix allows several Encoders to share a database. Prefixes appl
 The web installer verifies the administrator with the selected Streamer. The initial stored password uses the Streamer encoded-password protocol. Multiple allowed Streamer URLs are supported, one per line; an empty list allows all Streamers. FFmpeg/FFprobe must be executable through the PHP service PATH.
 
 The CLI retains unattended provisioning without contacting the Streamer, which may still be starting. Set `STREAMER_PASSWORD`; there is no default administrator password. `install.php` retains its positional arguments, and `cli.php` reads the deployment environment. Both return a nonzero status on failure.
+
+## Monitor cron
+
+`install/cron.php` runs `objects/EncoderMonitor.php`. It belongs to this Encoder installation, not to a Streamer: one Encoder serves several AVideo sites with one cron. It must run every minute as the web server user, never as root, on the same host or container as the encoding workers, because it checks their process IDs. Set `recoverDeadWorkers` to `false` when that is not possible.
+
+Install it once for the folder where this Encoder lives. As root, the installer writes `/etc/cron.d/avideo-encoder-<hash>`, so several Encoders on one server get separate entries:
+
+```sh
+sudo php /path/to/encoder/install/installCron.php            # detects the web server user
+sudo php /path/to/encoder/install/installCron.php --user=www-data
+php /path/to/encoder/install/installCron.php --print         # only shows the entry
+```
+
+Run as the web server user without `sudo`, it adds the line to that user's crontab instead. The Encoder Docker image runs the installer on every start and starts the cron service. When the Encoder runs inside another container, run the installer inside that container. The admin page shows the exact command for its folder.
+
+Each run requeues transient errors and jobs whose worker process died (up to `Encoder::MAX_AUTO_RETRIES`), and starts the queue when jobs wait while nothing runs. It asks the job's own Streamer to e-mail the video owner when a job processes for more than one hour, waits for more than one day, fails, or stays failed for more than one day. While nothing changes, at most one reminder per day is sent, for up to 7 days. Only the newest job of a video is reported, and the Streamer ignores alerts for videos that no longer wait for the encoder. A Streamer that does not answer is paused for an hour, and each run stops sending after 50 seconds. Errors that the automatic retry will handle are reported only after the retries stop. Encoder administrators (Streamers marked as admin) receive alerts for low disk space, a stalled queue and an error spike, at most every 6 hours.
+
+The admin page warns when the `8.3` database update is pending, when the cron is not installed or has not run for 10 minutes, when its last run failed (including being started as root), and which AVideo sites did not accept alerts in the last 24 hours. A site needs `objects/aVideoEncoderAlert.json.php`, so older AVideo versions are listed there until they are updated. Thresholds can be changed in `videos/configuration.php`, using the keys of `EncoderMonitor::defaults()`:
+
+```php
+$global['encoderMonitor'] = ['processingAlertMinutes' => 120, 'adminAlerts' => false];
+```

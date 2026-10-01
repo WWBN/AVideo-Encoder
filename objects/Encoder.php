@@ -1371,6 +1371,13 @@ class Encoder extends ObjectYPT
         return $requeued;
     }
 
+    // True while requeueTransientErrors() will still retry this error by itself, so callers
+    // such as EncoderMonitor can wait instead of reporting a failure that may recover.
+    public static function isAutoRetryPending($status_obs, $retry_count)
+    {
+        return intval($retry_count) < self::MAX_AUTO_RETRIES && self::isRetryableErrorMsg($status_obs);
+    }
+
     public function exec($cmd, &$output = array(), &$return_val = 0)
     {
         if (function_exists("pcntl_fork")) {
@@ -3039,6 +3046,16 @@ class Encoder extends ObjectYPT
 
     public static function sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)
     {
+        return self::sendToStreamerRequest($target, $postFields, $return_vars, $encoder, null);
+    }
+
+    public static function sendToStreamerWithDeadline($target, $postFields, $return_vars, $encoder, $deadline)
+    {
+        return self::sendToStreamerRequest($target, $postFields, $return_vars, $encoder, $deadline);
+    }
+
+    private static function sendToStreamerRequest($target, $postFields, $return_vars, $encoder, $deadline)
+    {
         //var_dump("sendToStreamer($target, $postFields, $return_vars = false, $encoder = null)" . json_encode(debug_backtrace()));exit;
         $time_start = microtime(true);
         if (!empty($encoder)) {
@@ -3148,6 +3165,19 @@ class Encoder extends ObjectYPT
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 60);
             curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
+
+            if ($deadline !== null) {
+                $remainingMs = intval(floor(($deadline - microtime(true)) * 1000));
+                if ($remainingMs < 1) {
+                    curl_close($curl);
+                    $obj->msg = 'Encoder monitor request deadline reached';
+                    $obj->curl_errno = 28;
+                    $obj->http_code = 0;
+                    return $obj;
+                }
+                curl_setopt($curl, CURLOPT_CONNECTTIMEOUT_MS, min(60000, $remainingMs));
+                curl_setopt($curl, CURLOPT_TIMEOUT_MS, min($timeout * 1000, $remainingMs));
+            }
 
             if (empty($curl)) {
                 $obj->msg = "sendToStreamer cURL is empty ";

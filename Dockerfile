@@ -36,6 +36,7 @@ ENV PHP_MEMORY_LIMIT=512M
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
       git \
+      cron \
       zip \
       mariadb-client \
       default-libmysqlclient-dev \

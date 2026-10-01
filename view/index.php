@@ -311,6 +311,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
             <!-- The main CSS file -->
             <div class="col-md-8">
                 <div id="noNavbarPlaceholder"></div>
+                <?php include $global['systemRootPath'] . 'view/monitorStatus.php'; ?>
                 <div class="panel panel-default">
                     <div class="panel-heading tabbable-line">
                         <ul class="nav nav-tabs" id="mainTabs">

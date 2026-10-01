@@ -113,6 +113,39 @@ CREATE TABLE IF NOT EXISTS `configurations_encoder` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Table `encoder_queue_monitor` (see update/updateDb.v8.3.sql)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `encoder_queue_monitor` (
+  `encoder_queue_id` INT NOT NULL,
+  `state` VARCHAR(20) NOT NULL,
+  `state_since` DATETIME NOT NULL,
+  `alerts_sent` INT NOT NULL DEFAULT 0,
+  `last_alert_type` VARCHAR(32) NULL DEFAULT NULL,
+  `last_alert_at` DATETIME NULL DEFAULT NULL,
+  `last_attempt_at` DATETIME NULL DEFAULT NULL,
+  `last_result` VARCHAR(255) NULL DEFAULT NULL,
+  `dead_since` DATETIME NULL DEFAULT NULL,
+  `modified` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`encoder_queue_id`),
+  FOREIGN KEY (`encoder_queue_id`)
+    REFERENCES `encoder_queue` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `encoder_monitor_state`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `encoder_monitor_state` (
+  `name` VARCHAR(64) NOT NULL,
+  `value` TEXT NULL,
+  `modified` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`name`))
+ENGINE = InnoDB;
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -111,6 +111,12 @@ For example, legacy `29.0` is interpreted as `29.0.0`; the next patch is
 `configurations.version` and SQL migration versions: the release job never
 edits application version fields or migrations.
 
+The Encoder's fresh-install schema version is `INSTALLER_SCHEMA_VERSION`
+(`install/installer.php`; `install/` must stay self-contained, so it is not
+loaded from `objects/`). A new `update/updateDb.vX.Y.sql` must also update
+`install/database.sql` and bump that constant;
+`tests/encoder-monitor-regression.php` fails otherwise.
+
 ## Commit documentation
 
 Write clear English subjects so notes are consistent with the existing

@@ -1,5 +1,7 @@
 <?php
 define('INSTALLER_PRODUCT', 'Encoder');
+// Schema version created by install/database.sql: the newest update/updateDb.v*.sql.
+define('INSTALLER_SCHEMA_VERSION', '8.3');
 // Setup must work without loading the application's database configuration.
 function installerRoot() { return str_replace('\\', '/', dirname(__DIR__)) . '/'; }
 // A root CLI install (common in Docker entrypoints) must not leave configuration.php
@@ -203,7 +205,7 @@ function installerLog($exception, $stage) {
     else { error_log($message); }
 }
 
-function installerSchemaTables() { return ['formats','streamers','encoder_queue','upload_queue','configurations_encoder']; }
+function installerSchemaTables() { return ['formats','streamers','encoder_queue','upload_queue','configurations_encoder','encoder_queue_monitor','encoder_monitor_state']; }
 function installerTable($name) { return ($GLOBALS['installerPrefix'] ?? '') . $name; }
 function installerStatements() {
     $statements = []; $statement = '';
@@ -261,8 +263,9 @@ function installerSeed($mysqli, array $data) {
     $hash = md5(hash('whirlpool', sha1($data['inputPassword'])));
     $stmt = $mysqli->prepare('INSERT INTO `' . installerTable('streamers') . '` (siteURL,user,pass,priority,created,modified,isAdmin) VALUES (?,?,?,1,NOW(),NOW(),1)');
     $stmt->bind_param('sss', $data['siteURL'], $data['inputUser'], $hash); $stmt->execute(); $stmt->close();
-    $stmt = $mysqli->prepare("INSERT INTO `" . installerTable('configurations_encoder') . "` (id,allowedStreamersURL,defaultPriority,version,created,modified) VALUES (1,?,?,'8.2',NOW(),NOW())");
-    $stmt->bind_param('si', $data['allowedStreamers'], $data['defaultPriority']); $stmt->execute(); $stmt->close();
+    $version = INSTALLER_SCHEMA_VERSION;
+    $stmt = $mysqli->prepare("INSERT INTO `" . installerTable('configurations_encoder') . "` (id,allowedStreamersURL,defaultPriority,version,created,modified) VALUES (1,?,?,?,NOW(),NOW())");
+    $stmt->bind_param('sis', $data['allowedStreamers'], $data['defaultPriority'], $version); $stmt->execute(); $stmt->close();
 }
 function installerValidateStreamer(array $data) {
     $curl = curl_init($data['siteURL'] . 'login');

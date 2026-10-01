@@ -1,10 +1,9 @@
 <div class="container-fluid">
             <?php
-            $encoderUpdateFiles = getUpdatesFiles();
-            include __DIR__ . '/software.php';
-            ?>
-            <?php
             if (empty($_POST['updateFile'])) {
+                // Not while applying a migration: the panel would show the pre-update state.
+                $encoderUpdateFiles = getUpdatesFiles();
+                include __DIR__ . '/software.php';
                 $updateFiles = $encoderUpdateFiles;
                 if (!empty($updateFiles)) {
                     ?>
