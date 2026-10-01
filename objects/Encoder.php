@@ -3168,11 +3168,14 @@ class Encoder extends ObjectYPT
 
             if ($deadline !== null) {
                 $remainingMs = intval(floor(($deadline - microtime(true)) * 1000));
-                if ($remainingMs < 1) {
+                // A request this close to the deadline could only time out and make a healthy site
+                // look unreachable. deadlineReached tells the caller that nothing was sent.
+                if ($remainingMs < 100) {
                     curl_close($curl);
                     $obj->msg = 'Encoder monitor request deadline reached';
                     $obj->curl_errno = 28;
                     $obj->http_code = 0;
+                    $obj->deadlineReached = true;
                     return $obj;
                 }
                 curl_setopt($curl, CURLOPT_CONNECTTIMEOUT_MS, min(60000, $remainingMs));

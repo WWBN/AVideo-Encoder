@@ -662,6 +662,14 @@ class EncoderMonitor
         return $superseded;
     }
 
+    /**
+     * The run budget ended before the request started, so nothing reached the Streamer.
+     */
+    public static function wasSkippedByDeadline($response)
+    {
+        return is_object($response) && !empty($response->deadlineReached);
+    }
+
     public static function isConnectionFailure($response)
     {
         return !is_object($response) || !empty($response->curl_errno) || empty($response->http_code);
@@ -756,6 +764,12 @@ class EncoderMonitor
             'retention_days' => $cfg['retentionDays'],
         ];
         $response = Encoder::sendToStreamerWithDeadline(self::STREAMER_ENDPOINT, $fields, $returnVars, $encoder, $deadline);
+        if (self::wasSkippedByDeadline($response)) {
+            // Nothing was sent: not a Streamer failure. The next run sends it.
+            $response = null;
+            $row['last_result'] = 'deferred: run time budget reached';
+            return $row;
+        }
         return self::applySendResult($row, $decision['alert'], $now, $response);
     }
 
@@ -837,6 +851,13 @@ class EncoderMonitor
                 $encoder->setReturn_vars('{}');
                 $attempted = true;
                 $response = Encoder::sendToStreamerWithDeadline(self::STREAMER_ENDPOINT, $fields, new stdClass(), $encoder, $deadline);
+                if (self::wasSkippedByDeadline($response)) {
+                    // Nothing was sent: this site stays due, unthrottled and not paused.
+                    if ($delivered) {
+                        $sent[] = $check;
+                    }
+                    return $sent;
+                }
                 // Per-site throttling lets an interrupted run continue with the other admins.
                 self::setState($streamerStateName, $now);
                 $issues[$streamers_id] = self::classifyStreamerIssue($response);

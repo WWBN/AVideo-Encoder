@@ -118,6 +118,10 @@ try {
 
     $expired = Encoder::sendToStreamerWithDeadline(EncoderMonitor::STREAMER_ENDPOINT, ['type' => 'system'], new stdClass(), $encoder, microtime(true) - 1);
     checkTransport($expired->error && $expired->curl_errno === 28 && $expired->http_code === 0, 'expired deadline does not perform HTTP');
+    checkTransport(EncoderMonitor::wasSkippedByDeadline($expired), 'a skipped request is not reported as a Streamer failure');
+    $almost = Encoder::sendToStreamerWithDeadline(EncoderMonitor::STREAMER_ENDPOINT, ['type' => 'system'], new stdClass(), $encoder, microtime(true) + 0.05);
+    checkTransport(EncoderMonitor::wasSkippedByDeadline($almost), 'no request starts that could only time out (cURL rounds the budget down)');
+    checkTransport(!EncoderMonitor::wasSkippedByDeadline((object) ['curl_errno' => 28, 'http_code' => 0]), 'a real timeout is still a failure');
 
     $db = new MonitorStateFixture();
     $global['mysqli'] = $db;
