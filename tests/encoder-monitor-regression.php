@@ -265,4 +265,15 @@ checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 
 checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 403, 'response' => (object) ['error' => true]]) === 'rejected', 'account refused');
 checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 200, 'response' => (object) ['error' => false, 'skipped' => true]]) === '', 'skipped is still delivered');
 
+// Monitor tab: admin only, and every dynamic value is escaped once
+$refresh = file_get_contents($root . 'view/monitorDashboard.refresh.php');
+checkMonitor(strpos($refresh, 'if (!Login::isAdmin())') !== false && strpos($refresh, 'if (!Login::isAdmin())') < strpos($refresh, "include \$global['systemRootPath'] . 'view/monitorDashboard.php'"),'refresh endpoint checks admin before rendering');
+foreach (['view/monitorDashboard.php', 'view/monitorTab.php'] as $view) {
+    $source = file_get_contents($root . $view);
+    checkMonitor(strpos($source, "if (!Login::isAdmin()) {\n    return;") !== false || strpos($source, "if (!Login::isAdmin()) {\r\n    return;") !== false, $view . ' renders only for admins');
+}
+$dashboard = file_get_contents($root . 'view/monitorDashboard.php');
+checkMonitor(substr_count($dashboard, '__(') === 1 && strpos($dashboard, 'return __($msg, true);') !== false, 'dashboard translates only through $tr, escaped by $esc');
+checkMonitor(!preg_match('/echo\s+\$job\[|echo\s+\$report\[|echo\s+\$summary\[\'(?!alerts|jobs|requeued|workers)/', $dashboard), 'job, report and summary text is never echoed unescaped');
+
 echo "PASS: {$checks} encoder monitor checks\n";

@@ -350,6 +350,22 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
                                     <a data-toggle="tab" href="#streamers" class="nav-link"><i class="fas fa-server" aria-hidden="true"></i> <span><?php echo __('Streamers'); ?></span></a>
                                 </li>
+                                <?php
+                                // Initial dot from view/monitorStatus.php; the Monitor tab updates it after each refresh.
+                                $monitorTabTone = 'muted';
+                                if (isset($monitorReport)) {
+                                    if ($monitorStopped || !empty($monitorReport['lastError'])) {
+                                        $monitorTabTone = 'danger';
+                                    } elseif ($monitorReport['tablesMissing'] || !empty($monitorReport['streamerIssues'])) {
+                                        $monitorTabTone = 'warning';
+                                    } else {
+                                        $monitorTabTone = 'success';
+                                    }
+                                }
+                                ?>
+                                <li class="nav-item <?php echo getCSSAnimationClassAndStyle('animate__bounceInDown', 'tabsRight', 0.1); ?>">
+                                    <a data-toggle="tab" href="#monitor" class="nav-link"><i class="fas fa-heartbeat" aria-hidden="true"></i> <span><?php echo __('Monitor'); ?></span> <i class="monitor-tab-dot text-<?php echo $monitorTabTone; ?>" aria-hidden="true"></i></a>
+                                </li>
                             <?php
                             }
                             ?>
@@ -404,6 +420,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     </table>
                                 </div>
                             <?php
+                                include $global['systemRootPath'] . 'view/monitorTab.php';
                             }
                             ?>
                         </div>

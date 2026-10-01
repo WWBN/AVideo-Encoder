@@ -1,0 +1,303 @@
+/* Monitor tab (view/monitorDashboard.php). Builds on update.css (.version-*); colors come only from
+   the theme and Bootstrap text-* classes through currentColor, so light and dark themes both work. */
+.monitor-dashboard {
+    --monitor-line: color-mix(in srgb, currentColor 12%, transparent);
+    margin-top: 8px;
+}
+
+.monitor-loading {
+    padding: 48px 16px;
+    text-align: center;
+}
+
+.monitor-tab-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    vertical-align: middle;
+}
+
+.monitor-open-link {
+    display: inline-block;
+    margin-left: 6px;
+    white-space: nowrap;
+}
+
+.monitor-error {
+    margin: -8px 0 20px;
+    overflow-wrap: anywhere;
+}
+
+.monitor-error code {
+    white-space: normal;
+}
+
+/* Calm "alive" signal on the status seal when everything is fine. */
+.monitor-pulse .version-status-ring {
+    animation: monitorPulse 2.4s ease-out infinite;
+}
+
+@keyframes monitorPulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 35%, transparent); }
+    70% { box-shadow: 0 0 0 18px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .monitor-pulse .version-status-ring { animation: none; }
+}
+
+.monitor-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid;
+    border-color: inherit;
+}
+
+.monitor-strip > div {
+    min-width: 0;
+    padding: 20px 30px;
+}
+
+.monitor-strip > div + div {
+    border-left: 1px solid;
+    border-color: inherit;
+}
+
+.monitor-strip p {
+    margin: 0;
+}
+
+.monitor-strip-value {
+    margin-top: 6px !important;
+    font-size: 18px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.monitor-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.monitor-kpi {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    padding: 20px 22px;
+    margin: 0;
+    border-radius: var(--version-radius, 22px);
+    box-shadow: none;
+}
+
+.monitor-kpi p {
+    margin: 0;
+}
+
+.monitor-kpi-value {
+    margin: 10px 0 4px !important;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -.04em;
+}
+
+.monitor-kpi-value small {
+    margin-left: 2px;
+    font-size: 45%;
+    font-weight: 600;
+    letter-spacing: 0;
+    opacity: .7;
+}
+
+.monitor-kpi-note {
+    font-size: 12px;
+}
+
+.monitor-kpi .version-pill {
+    margin-top: 10px;
+}
+
+.monitor-progress {
+    width: 100%;
+    height: 6px;
+    margin: 8px 0;
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.monitor-dashboard .version-cards {
+    margin-bottom: 20px;
+}
+
+.monitor-facts {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 24px;
+    margin: 0;
+}
+
+.monitor-facts > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--monitor-line);
+}
+
+.monitor-facts dt {
+    font-weight: 400;
+    opacity: .72;
+}
+
+.monitor-facts dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.monitor-settings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 850px;
+    margin: 16px 0 20px;
+}
+
+.monitor-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 16px 0 0;
+}
+
+.monitor-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.monitor-list li {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--monitor-line);
+    overflow-wrap: anywhere;
+}
+
+.monitor-list li:last-child {
+    border-bottom: 0;
+}
+
+.monitor-jobs {
+    margin-bottom: 20px;
+}
+
+.monitor-empty {
+    padding: 24px 0;
+    text-align: center;
+}
+
+.monitor-empty i {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 28px;
+}
+
+.monitor-table {
+    margin: 0;
+    font-size: 13px;
+}
+
+.monitor-table > thead > tr > th {
+    border-bottom-width: 1px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    opacity: .72;
+}
+
+.monitor-table > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.monitor-table small,
+.monitor-title {
+    display: block;
+}
+
+.monitor-title {
+    max-width: 320px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.monitor-table .version-pill {
+    margin-bottom: 2px;
+}
+
+.monitor-reason {
+    cursor: help;
+}
+
+.monitor-alert-count {
+    margin-right: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.monitor-command {
+    margin: 14px 0;
+}
+
+.monitor-command-line {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.monitor-command-line pre {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.monitor-dashboard .version-explanation pre {
+    font-size: 12px;
+}
+
+/* The Monitor tab sits beside the upload column on desktop. */
+@container (max-width: 860px) {
+    .monitor-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .monitor-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .monitor-strip > div:nth-child(3) { border-left: 0; }
+    .monitor-strip > div:nth-child(n + 3) { border-top: 1px solid; border-color: inherit; }
+}
+
+@container (max-width: 520px) {
+    .monitor-kpis,
+    .monitor-settings { grid-template-columns: 1fr; }
+    .monitor-strip > div { padding: 16px 20px; }
+    .monitor-kpi-value { font-size: 32px; }
+    .monitor-title { max-width: 180px; }
+}
+
+@media (max-width: 767px) {
+    .monitor-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .monitor-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .monitor-strip > div:nth-child(3) { border-left: 0; }
+    .monitor-strip > div:nth-child(n + 3) { border-top: 1px solid; border-color: inherit; }
+    .monitor-settings { grid-template-columns: 1fr; }
+}

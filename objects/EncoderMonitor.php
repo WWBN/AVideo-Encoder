@@ -559,6 +559,79 @@ class EncoderMonitor
     }
 
     /**
+     * Read-only snapshot for the admin Monitor tab: cron health, live queue numbers, disk space and
+     * the jobs the cron watches. Uses the same groups and system checks as run(), so the tab
+     * matches what the alerts report.
+     */
+    public static function getDashboardData($jobLimit = 30)
+    {
+        global $global;
+        $cfg = self::getConfig();
+        $report = self::getStatusReport();
+        $dir = $global['systemRootPath'] . 'videos/';
+        $free = @disk_free_space($dir);
+        $total = @disk_total_space($dir);
+        $stats = ['waiting' => 0, 'processing' => 0, 'errors' => 0, 'oldestWaitingMinutes' => 0, 'errorsLastHour' => 0,
+            'diskFree' => $free === false ? 0 : $free, 'diskTotal' => $total === false ? 0 : $total];
+        $jobs = [];
+        if (!$report['tablesMissing']) {
+            $days = max(1, intval($cfg['retentionDays']));
+            $in = "'" . implode("','", self::getMonitoredStatuses()) . "'";
+            $res = self::query("SELECT q.id, q.title, q.status, q.status_obs, q.streamers_id, q.retry_count,"
+                . " m.alerts_sent, m.last_alert_type, m.last_alert_at, m.last_result, m.dead_since,"
+                . " TIMESTAMPDIFF(MINUTE, COALESCE(m.state_since, q.modified), NOW()) AS minutes"
+                . " FROM " . Encoder::getTableName() . " q"
+                . " LEFT JOIN " . self::monitorTable() . " m ON m.encoder_queue_id = q.id"
+                . " WHERE q.status IN ({$in})"
+                . " AND (q.status <> '" . Encoder::STATUS_ERROR . "' OR q.modified > NOW() - INTERVAL {$days} DAY)");
+            while ($row = $res->fetch_assoc()) {
+                $row['group'] = self::getGroup($row['status']);
+                $row['minutes'] = max(0, intval($row['minutes']));
+                if ($row['group'] === self::GROUP_WAITING) {
+                    $stats['waiting']++;
+                    $stats['oldestWaitingMinutes'] = max($stats['oldestWaitingMinutes'], $row['minutes']);
+                } elseif ($row['group'] === self::GROUP_PROCESSING) {
+                    $stats['processing']++;
+                } else {
+                    $stats['errors']++;
+                    if ($row['minutes'] <= 60) {
+                        $stats['errorsLastHour']++;
+                    }
+                }
+                $jobs[] = $row;
+            }
+            // Active jobs stuck the longest first, then the most recent errors.
+            usort($jobs, function ($a, $b) {
+                $aError = $a['group'] === self::GROUP_ERROR;
+                $bError = $b['group'] === self::GROUP_ERROR;
+                if ($aError !== $bError) {
+                    return $aError ? 1 : -1;
+                }
+                return $aError ? $a['minutes'] - $b['minutes'] : $b['minutes'] - $a['minutes'];
+            });
+        }
+        $checks = self::decideSystemChecks($stats, $cfg);
+        $age = $report['heartbeatAge'];
+        if ($report['tablesMissing']) {
+            $health = 'update';
+        } elseif ($age < 0) {
+            $health = 'not_installed';
+        } elseif ($age >= $cfg['heartbeatStaleMinutes']) {
+            $health = 'stopped';
+        } elseif (!empty($report['lastError'])) {
+            $health = 'failing';
+        } elseif (!empty($checks) || !empty($report['streamerIssues'])) {
+            $health = 'attention';
+        } else {
+            $health = 'healthy';
+        }
+        return [
+            'health' => $health, 'report' => $report, 'config' => $cfg, 'stats' => $stats,
+            'systemChecks' => $checks, 'jobs' => array_slice($jobs, 0, max(1, intval($jobLimit))), 'jobsTotal' => count($jobs),
+        ];
+    }
+
+    /**
      * Jobs that are not the newest job of their video on the same Streamer. The Streamer queues a
      * new job when a video is sent again, and the old failed row stays in the queue.
      *

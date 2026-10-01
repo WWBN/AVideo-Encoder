@@ -26,6 +26,7 @@ $monitorIssueTexts = [
     <div class="alert alert-warning" id="encoderMonitorStatus">
         <strong><i class="fas fa-heartbeat" aria-hidden="true"></i> <?php echo __('Encoder monitor'); ?>:</strong>
         <?php echo __('Run the pending database update in the Update tab to enable stuck and failed video alerts.'); ?>
+        <a href="#monitor" data-monitor-open class="alert-link monitor-open-link"><?php echo __('Open the monitor'); ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
     </div>
 <?php } ?>
 <?php if ($monitorStopped || !empty($monitorReport['lastError'])) { ?>
@@ -47,6 +48,7 @@ $monitorIssueTexts = [
             <pre style="margin: 5px 0; white-space: pre-wrap;"><?php echo htmlspecialchars($monitorInstall, ENT_QUOTES, 'UTF-8'); ?></pre>
             <?php echo __('If it is already installed, check that the cron service is running and that it runs as the web server user, not root.'); ?>
         <?php } ?>
+        <a href="#monitor" data-monitor-open class="alert-link monitor-open-link"><?php echo __('Open the monitor'); ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
     </div>
 <?php } ?>
 <?php if (!empty($monitorReport['streamerIssues'])) { ?>
@@ -65,5 +67,6 @@ $monitorIssueTexts = [
                 <li><strong><?php echo htmlspecialchars($monitorSite, ENT_QUOTES, 'UTF-8'); ?></strong> <?php echo $monitorText; ?></li>
             <?php } ?>
         </ul>
+        <a href="#monitor" data-monitor-open class="alert-link monitor-open-link"><?php echo __('Open the monitor'); ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
     </div>
 <?php } ?>
