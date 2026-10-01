@@ -250,13 +250,12 @@ $file = EncoderCron::buildFile('/srv/encoders/site b/', '/usr/local/bin/php', 'w
 checkMonitor(strpos($file, "\r") === false && substr($file, -1) === "\n", 'cron.d content uses LF and ends with a newline');
 checkMonitor(strpos($file, "* * * * * www-data {$path}'/usr/local/bin/php' '/srv/encoders/site b/install/cron.php' > /dev/null 2>&1\n") !== false, 'runs every minute as the web user from its own folder');
 checkMonitor(strpos(EncoderCron::PATH, '/usr/local/bin') !== false, 'run.php started by cron finds tools in /usr/local/bin');
-$line = EncoderCron::buildUserLine('/home/enc/public_html', '/usr/bin/php8.2');
-checkMonitor($line === "* * * * * {$path}'/usr/bin/php8.2' '/home/enc/public_html/install/cron.php' > /dev/null 2>&1 # " . EncoderCron::getFileName('/home/enc/public_html'), 'user crontab line sets PATH, has no user column and has a marker');
-checkMonitor(strpos(EncoderCron::buildUserLine('/srv/100% encoder', '/usr/bin/php'), '100\\% encoder') !== false, 'percent in user crontab path is escaped for cron');
 checkMonitor(strpos(EncoderCron::buildFile('/srv/100% encoder', '/srv/php%/php', 'www-data'), "'/srv/php\\%/php' '/srv/100\\% encoder/install/cron.php'") !== false, 'cron.d escapes percent in both executable and script paths');
 checkMonitor(strpos(file_get_contents($root . 'deploy/docker-entrypoint'), 'install/installCron.php --user=www-data') !== false, 'Docker image installs the cron through the same generator');
 $installCron = file_get_contents($root . 'install/installCron.php');
 checkMonitor(strpos($installCron, 'configuration.php\';') === false && strpos($installCron, "require_once \$configFile") === false, 'the root installer never loads the Encoder configuration');
+checkMonitor(preg_match('/\b(exec|shell_exec|system|passthru|proc_open|popen)\s*\(/', $installCron) === 0, 'no user crontab fallback: the web server user can never install a cron');
+checkMonitor(strpos($installCron, 'if (!$isRoot) {') !== false && strpos($installCron, 'if (!$isRoot) {') < strpos($installCron, 'file_put_contents('), 'only root writes the cron.d entry');
 $cronScript = file_get_contents($root . 'install/cron.php');
 checkMonitor(strpos($cronScript, 'posix_geteuid') < strpos($cronScript, 'videos/configuration.php\''), 'cron.php refuses root before loading the configuration');
 

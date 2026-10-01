@@ -5,7 +5,6 @@ if (!Login::isAdmin()) {
     return;
 }
 require_once $global['systemRootPath'] . 'objects/EncoderMonitor.php';
-require_once $global['systemRootPath'] . 'objects/EncoderCron.php';
 try {
     $monitorReport = EncoderMonitor::getStatusReport();
 } catch (\Throwable $th) {
@@ -16,16 +15,7 @@ $monitorConfig = EncoderMonitor::getConfig();
 $monitorAge = $monitorReport['heartbeatAge'];
 $monitorStopped = !$monitorReport['tablesMissing'] && ($monitorAge < 0 || $monitorAge >= $monitorConfig['heartbeatStaleMinutes']);
 
-$monitorUser = 'www-data';
-if (function_exists('posix_getpwuid') && function_exists('posix_geteuid')) {
-    $monitorUserInfo = posix_getpwuid(posix_geteuid());
-    if (!empty($monitorUserInfo['name']) && $monitorUserInfo['name'] !== 'root') {
-        $monitorUser = $monitorUserInfo['name'];
-    }
-}
-$monitorPHP = getPHP();
-$monitorInstall = 'sudo ' . $monitorPHP . ' ' . $global['systemRootPath'] . 'install/installCron.php';
-$monitorUserLine = EncoderCron::buildUserLine($global['systemRootPath'], $monitorPHP);
+$monitorInstall = 'sudo ' . getPHP() . ' ' . $global['systemRootPath'] . 'install/installCron.php';
 $monitorIssueTexts = [
     EncoderMonitor::ISSUE_UNREACHABLE => __('did not answer. Its alerts are paused for an hour.'),
     EncoderMonitor::ISSUE_NO_ENDPOINT => __('does not receive encoder alerts yet. Update AVideo on that site.'),
@@ -55,8 +45,6 @@ $monitorIssueTexts = [
             <hr style="margin: 10px 0;">
             <?php echo __('Run this once on the server as root. In Docker, run it inside the encoder container:'); ?>
             <pre style="margin: 5px 0; white-space: pre-wrap;"><?php echo htmlspecialchars($monitorInstall, ENT_QUOTES, 'UTF-8'); ?></pre>
-            <?php printf(__('Or add this line to the crontab of %s:'), htmlspecialchars($monitorUser, ENT_QUOTES, 'UTF-8')); ?>
-            <pre style="margin: 5px 0; white-space: pre-wrap;"><?php echo htmlspecialchars($monitorUserLine, ENT_QUOTES, 'UTF-8'); ?></pre>
             <?php echo __('If it is already installed, check that the cron service is running and that it runs as the web server user, not root.'); ?>
         <?php } ?>
     </div>
