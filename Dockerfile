@@ -1,4 +1,4 @@
-FROM php:8.5-apache
+FROM php:8.2-apache
 
 LABEL maintainer="TRW <trw@acoby.de>" \
       org.label-schema.schema-version="1.0" \
