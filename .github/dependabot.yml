@@ -1,0 +1,35 @@
+version: 2
+updates:
+  # Frontend libraries served by the Encoder UI. Majors (e.g. Bootstrap 3 -> 5) need a UI
+  # migration, so they are not proposed; security fixes still are.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: bootstrap
+        update-types: ["version-update:semver-major"]
+      - dependency-name: jquery
+        update-types: ["version-update:semver-major"]
+
+  # Release automation (CI only).
+  - package-ecosystem: npm
+    directory: /.github/release
+    schedule:
+      interval: weekly
+    groups:
+      release-tooling:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly

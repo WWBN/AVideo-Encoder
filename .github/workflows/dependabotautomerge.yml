@@ -10,7 +10,8 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    # The PR author, not the actor: a maintainer re-running this job must not skip it.
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
 
     steps:
       - name: Fetch Dependabot metadata
@@ -19,7 +20,10 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Auto-merge Dependabot PRs
+      # Majors can break the Encoder UI or tooling, so they wait for a review. --auto merges once
+      # the branch's required checks pass; it needs "Allow auto-merge" enabled in the repository.
+      - name: Auto-merge patch and minor updates
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
