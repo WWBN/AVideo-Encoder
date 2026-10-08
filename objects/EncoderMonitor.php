@@ -65,7 +65,7 @@ class EncoderMonitor
             'adminAlerts' => true,             // e-mail the Encoder admins about system problems
             'recoverDeadWorkers' => true,      // requeue jobs whose worker process died
             'kickQueue' => true,               // start the queue when jobs wait and nothing runs
-            'processingAlertMinutes' => 60,    // first alert for a job still processing (0 = off)
+            'processingAlertMinutes' => 180,    // first alert for a job still processing (0 = off)
             'waitingAlertMinutes' => 1440,     // first alert for a job still waiting (0 = off)
             'errorReminderMinutes' => 1440,    // "still in error" alert
             'reminderIntervalMinutes' => 1440, // repeat while nothing changes (0 = no repeats)
@@ -762,6 +762,7 @@ class EncoderMonitor
             'queue_position' => $row['state'] === self::GROUP_WAITING ? $position : 0,
             'reason' => $row['state'] === self::GROUP_ERROR ? self::getErrorReason($job['status_obs']) : '',
             'retention_days' => $cfg['retentionDays'],
+            'reminder_minutes' => $cfg['reminderIntervalMinutes'],
         ];
         $response = Encoder::sendToStreamerWithDeadline(self::STREAMER_ENDPOINT, $fields, $returnVars, $encoder, $deadline);
         if (self::wasSkippedByDeadline($response)) {
@@ -829,6 +830,7 @@ class EncoderMonitor
                 'errors_last_hour' => $stats['errorsLastHour'],
                 'last_error' => substr(strip_tags($stats['lastError']), 0, 200),
                 'encoder_url' => $global['webSiteRootURL'],
+                'reminder_minutes' => $cfg['systemAlertIntervalMinutes'],
             ];
             $delivered = false;
             $attempted = false;
