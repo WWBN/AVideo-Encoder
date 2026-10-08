@@ -45,12 +45,12 @@ foreach ([Encoder::STATUS_DOWNLOADING, Encoder::STATUS_ENCODING, Encoder::STATUS
 checkMonitor(EncoderMonitor::getGroup(Encoder::STATUS_ERROR) === 'error', 'error group');
 checkMonitor(EncoderMonitor::getGroup(Encoder::STATUS_DONE) === '', 'done is not monitored');
 
-// Processing: first alert after one hour, then one reminder per day
-$d = EncoderMonitor::decideJob(job('encoding', 59), null, $now, $cfg);
-checkMonitor($d['alert'] === '' && $d['monitor']['state'] === 'processing', 'no alert before one hour');
-checkMonitor($d['monitor']['encoder_queue_id'] === 77 && $d['monitor']['state_since'] === at(59), 'new row starts at the status change');
-$d = EncoderMonitor::decideJob(job('encoding', 61), null, $now, $cfg);
-checkMonitor($d['alert'] === 'processing' && $d['minutes'] === 61, 'alert after one hour of processing');
+// Processing: first alert after three hours, then one reminder per day
+$d = EncoderMonitor::decideJob(job('encoding', 179), null, $now, $cfg);
+checkMonitor($d['alert'] === '' && $d['monitor']['state'] === 'processing', 'no alert before three hours');
+checkMonitor($d['monitor']['encoder_queue_id'] === 77 && $d['monitor']['state_since'] === at(179), 'new row starts at the status change');
+$d = EncoderMonitor::decideJob(job('encoding', 181), null, $now, $cfg);
+checkMonitor($d['alert'] === 'processing' && $d['minutes'] === 181, 'alert after three hours of processing');
 $m = monitor(['state' => 'processing', 'state_since' => at(600), 'alerts_sent' => 1, 'last_alert_at' => at(1439), 'last_result' => 'sent']);
 checkMonitor(EncoderMonitor::decideJob(job('transferring', 5), $m, $now, $cfg)['alert'] === '', 'no second alert within a day');
 $m['last_alert_at'] = at(1440);
@@ -97,9 +97,9 @@ checkMonitor(EncoderMonitor::decideJob(job('encoding', 120), $m, $now, $cfg)['al
 $noReminders = $cfg;
 $noReminders['reminderIntervalMinutes'] = 0;
 $m = monitor(['state' => 'waiting', 'state_since' => at(1800), 'alerts_sent' => 1, 'last_alert_type' => 'waiting', 'last_alert_at' => at(120)]);
-checkMonitor(EncoderMonitor::decideJob(job('encoding', 65), $m, $now, $noReminders)['alert'] === 'processing', 'disabling reminders still permits the first alert for a new state');
+checkMonitor(EncoderMonitor::decideJob(job('encoding', 185), $m, $now, $noReminders)['alert'] === 'processing', 'disabling reminders still permits the first alert for a new state');
 $m = monitor(['state' => 'processing', 'state_since' => at(1800), 'alerts_sent' => 1, 'last_alert_type' => 'processing', 'last_alert_at' => at(1500)]);
-checkMonitor(EncoderMonitor::decideJob(job('encoding', 65), $m, $now, $noReminders)['alert'] === '', 'disabling reminders prevents repeat alerts for the same state');
+checkMonitor(EncoderMonitor::decideJob(job('encoding', 185), $m, $now, $noReminders)['alert'] === '', 'disabling reminders prevents repeat alerts for the same state');
 
 $m = monitor(['state' => 'error', 'state_since' => at(30), 'last_attempt_at' => at(10), 'last_result' => 'failed: timeout']);
 checkMonitor(EncoderMonitor::decideJob(job('error', 30), $m, $now, $cfg)['alert'] === '', 'failed delivery backs off');
