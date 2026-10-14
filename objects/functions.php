@@ -740,15 +740,28 @@ function getUpdatesFiles()
 function ip_is_private($ip)
 {
     if (strpos((string) $ip, ':') !== false) {
+        // IPv4-mapped (::ffff:0:0/96), NAT64 (64:ff9b::/96) and 6to4 (2002::/16) addresses reach
+        // the embedded IPv4 address, so check that one too.
+        $packed = @inet_pton($ip);
+        if ($packed !== false && strlen($packed) === 16) {
+            if (strncmp($packed, str_repeat("\0", 10) . "\xff\xff", 12) === 0 || strncmp($packed, "\x00\x64\xff\x9b" . str_repeat("\0", 8), 12) === 0) {
+                return ip_is_private(inet_ntop(substr($packed, 12, 4)));
+            }
+            if (strncmp($packed, "\x20\x02", 2) === 0 && ip_is_private(inet_ntop(substr($packed, 2, 4)))) {
+                return true;
+            }
+        }
         return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 
     $pri_addrs = array(
+        '0.0.0.0|0.255.255.255', // "this network"; connecting to 0.0.0.0 reaches the local host
         '10.0.0.0|10.255.255.255', // single class A network
         '172.16.0.0|172.31.255.255', // 16 contiguous class B network
         '192.168.0.0|192.168.255.255', // 256 contiguous class C network
         '169.254.0.0|169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing
-        '127.0.0.0|127.255.255.255' // localhost
+        '127.0.0.0|127.255.255.255', // localhost
+        '224.0.0.0|255.255.255.255' // multicast, reserved and broadcast
     );
 
     $long_ip = ip2long($ip);
@@ -829,6 +842,33 @@ function getExternalHttpUrlForShell($url, $context = 'remote URL')
     }
 
     return $url;
+}
+
+/**
+ * Strict decoder for the base64Url request parameter. Accepts the standard and the URL-safe
+ * alphabet (a '+' sent unencoded in a query string arrives as a space), with or without padding,
+ * up to $maxLength characters, and only a result made of printable ASCII without spaces, which is
+ * all a URL may contain. Returns false otherwise. The URL must still pass
+ * getExternalHttpUrlForShell().
+ */
+function decodeBase64UrlParameter($value, $maxLength = 8192)
+{
+    if (!is_string($value) || $value === '' || strlen($value) > $maxLength) {
+        return false;
+    }
+    $value = strtr($value, ' -_', '++/');
+    if (!preg_match('/^[A-Za-z0-9+\/]+={0,2}$/', $value)) {
+        return false;
+    }
+    $value = rtrim($value, '=');
+    if (strlen($value) % 4 === 1) {
+        return false;
+    }
+    $decoded = base64_decode(str_pad($value, (int) (ceil(strlen($value) / 4) * 4), '='), true);
+    if ($decoded === false || !preg_match('/^[\x21-\x7E]+$/', $decoded)) {
+        return false;
+    }
+    return $decoded;
 }
 
 /**
@@ -1147,6 +1187,26 @@ function getPHPSessionIDURL()
     return "PHPSESSID={$p}";
 }
 
+/**
+ * Per-session token for the admin settings requests (saveConfig, isAdmin). Sent by view/index.php
+ * as csrfToken; a request from another site cannot read it.
+ */
+function getEncoderAdminCSRFToken()
+{
+    _session_start();
+    if (empty($_SESSION['encoderAdminCSRFToken']) || !is_string($_SESSION['encoderAdminCSRFToken'])) {
+        $_SESSION['encoderAdminCSRFToken'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['encoderAdminCSRFToken'];
+}
+
+function isEncoderAdminCSRFTokenValid()
+{
+    $token = isset($_POST['csrfToken']) && is_string($_POST['csrfToken']) ? $_POST['csrfToken'] : '';
+    return $token !== '' && !empty($_SESSION['encoderAdminCSRFToken']) && is_string($_SESSION['encoderAdminCSRFToken'])
+        && hash_equals($_SESSION['encoderAdminCSRFToken'], $token);
+}
+
 function isSameDomain($url1, $url2)
 {
     if (empty($url1) || empty($url2)) {
@@ -1216,6 +1276,121 @@ function execAsync($command)
         }
     }
     return trim($pid);
+}
+
+function execArgvPrepare(array $argv)
+{
+    $argv = array_values($argv);
+    if (empty($argv)) {
+        return false;
+    }
+    foreach ($argv as $index => $arg) {
+        if (!is_scalar($arg) || strpos((string) $arg, "\0") !== false) {
+            error_log('execArgv: invalid argument rejected');
+            return false;
+        }
+        $argv[$index] = (string) $arg;
+    }
+    return $argv[0] === '' ? false : $argv;
+}
+
+/**
+ * Runs a program from an argument list and waits for it. proc_open() with an array starts the
+ * program directly, so no argument is parsed by a shell. Returns the exit code (-1 when it could
+ * not start); stdout lines go to $output like exec().
+ */
+function execArgv(array $argv, &$output = null)
+{
+    $output = array();
+    $argv = execArgvPrepare($argv);
+    if ($argv === false) {
+        return -1;
+    }
+    $process = proc_open($argv, array(1 => array('pipe', 'w')), $pipes);
+    if (!is_resource($process)) {
+        return -1;
+    }
+    $stdout = rtrim((string) stream_get_contents($pipes[1]));
+    fclose($pipes[1]);
+    if ($stdout !== '') {
+        $output = array_map('rtrim', preg_split('/\r?\n/', $stdout));
+    }
+    return proc_close($process);
+}
+
+/**
+ * Starts a program from an argument list in the background, like execAsync(), and returns its
+ * PID. The fixed /bin/sh script only detaches the process: the arguments reach it as "$@" and
+ * are never parsed as shell code. On Windows it runs synchronously, as execAsync() does there.
+ */
+function execArgvAsync(array $argv)
+{
+    $argv = execArgvPrepare($argv);
+    if ($argv === false) {
+        return '';
+    }
+    if (isWindows()) {
+        execArgv($argv);
+        return '';
+    }
+    $launcher = array_merge(array('/bin/sh', '-c', 'nohup "$@" < /dev/null > /dev/null 2>&1 & echo $!', 'sh'), $argv);
+    $process = proc_open($launcher, array(1 => array('pipe', 'w')), $pipes);
+    if (!is_resource($process)) {
+        return '';
+    }
+    $pid = trim((string) stream_get_contents($pipes[1]));
+    fclose($pipes[1]);
+    proc_close($process);
+    return $pid;
+}
+
+// An argument list as one escaped string, only for log messages.
+function argvToLogString(array $argv)
+{
+    return implode(' ', array_map('escapeshellarg', array_map('strval', $argv)));
+}
+
+/**
+ * get_ffmpeg() as an argument list. $global['ffmpeg'] is trusted server configuration (the
+ * command to run); quoted path segments are preserved without invoking a shell. The user agent is
+ * only added for a URL input, as removeUserAgentIfNotURL() does for command strings.
+ */
+function getFFmpegArgv($inputIsURL = true, $ignoreGPU = false)
+{
+    global $global;
+    if (!empty($global['ffmpeg'])) {
+        $ffmpeg = trim($global['ffmpeg']);
+        if (is_file($ffmpeg)) {
+            $argv = array($ffmpeg);
+        } else {
+            preg_match_all('/(?:[^\s\'"\x00]+|"[^"]*"|\'[^\']*\')+/', $ffmpeg, $tokens);
+            $argv = array_map(function ($token) {
+                return preg_replace_callback('/"([^"]*)"|\'([^\']*)\'/', function ($quoted) {
+                    return $quoted[0][0] === '"' ? $quoted[1] : $quoted[2];
+                }, $token);
+            }, $tokens[0]);
+        }
+    } else {
+        $argv = array('ffmpeg');
+        if (empty($ignoreGPU) && !empty($global['ffmpegGPU'])) {
+            $argv[] = '--enable-nvenc';
+        }
+    }
+    if ($inputIsURL) {
+        $argv[] = '-user_agent';
+        $argv[] = getSelfUserAgent("FFMPEG");
+    }
+    return $argv;
+}
+
+/**
+ * Input options for a remote URL read by FFmpeg: only HTTP(S) and what HLS over HTTP(S) needs,
+ * so a playlist, a segment or a redirect cannot switch to file:, data:, concat:, subfile: or any
+ * other protocol. Hosts reached by redirects or playlist entries are not checked here.
+ */
+function getFFmpegRemoteInputArgv()
+{
+    return array('-protocol_whitelist', 'http,https,tcp,tls,crypto,httpproxy');
 }
 
 

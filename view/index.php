@@ -964,7 +964,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 "allowedStreamers": $("#allowedStreamers").val(),
                                 "defaultPriority": $("#defaultPriority").val(),
                                 "autodelete": $("#autodelete").is(":checked"),
-                                "resolutions": resolutions
+                                "resolutions": resolutions,
+                                "csrfToken": <?php echo json_encode(getEncoderAdminCSRFToken()); ?>
                             },
                             xhrFields: {
                                 //withCredentials: true
@@ -1342,7 +1343,8 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 url: 'isAdmin?<?php echo getPHPSessionIDURL(); ?>',
                                 data: {
                                     "id": $(this).attr('rowId'),
-                                    "isAdmin": $(this).val()
+                                    "isAdmin": $(this).val(),
+                                    "csrfToken": <?php echo json_encode(getEncoderAdminCSRFToken()); ?>
                                 },
                                 xhrFields: {
                                     //withCredentials: true

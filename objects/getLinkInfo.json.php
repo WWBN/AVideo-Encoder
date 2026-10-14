@@ -6,20 +6,21 @@ require_once '../objects/Encoder.php';
 if (empty($_GET['base64Url'])){
     die(json_encode(['error' => true, 'msg' => 'Missing base64Url']));
 }
-$link = base64_decode($_GET['base64Url']);
-$link = getExternalHttpUrlForShell($link, 'getLinkInfo');
+$link = decodeBase64UrlParameter($_GET['base64Url']);
+$link = $link === false ? false : getExternalHttpUrlForShell($link, 'getLinkInfo');
 if ($link === false) {
     die(json_encode(['error' => true, 'msg' => 'Invalid URL']));
 }
 //echo base64_decode($_GET['base64Url']), "<br>";
 //$r = Encoder::sendFile("{$global['systemRootPath']}videos/1_tmpFile.mp4", 1, "mp4");var_dump($r);return;
+$base64Url = base64_encode($link);
 $obj = new stdClass();
-$obj->imageJPGLink = "{$global['webSiteRootURL']}getImage/". $_GET['base64Url']."/jpg";
+$obj->imageJPGLink = "{$global['webSiteRootURL']}getImage/". $base64Url."/jpg";
 //$data = file_get_contents($obj->imageJPGLink);
 //$obj->imageJPG = 'data:image/jpg;base64,' . base64_encode($data);
 
 
-$obj->imageGIFLink = "{$global['webSiteRootURL']}getImage/". $_GET['base64Url']."/gif";
+$obj->imageGIFLink = "{$global['webSiteRootURL']}getImage/". $base64Url."/gif";
 //$data = file_get_contents($obj->imageGIFLink);
 //$obj->imageGIF = 'data:image/gif;base64,' . base64_encode($data);
 

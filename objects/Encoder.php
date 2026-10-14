@@ -4428,7 +4428,7 @@ class Encoder extends ObjectYPT
                 return $ytdl;
             } else {
                 $global['usingOauth'] = 1;
-                $ytdl .= " --add-header \"Authorization: Bearer {$accessToken}\" ";
+                $ytdl .= ' --add-header ' . escapeshellarg("Authorization: Bearer {$accessToken}") . ' ';
             }
         }
         _error_log("getYouTubeDLCommand($addOauthFromProvider, $streamers_id, $forceYoutubeDL)");

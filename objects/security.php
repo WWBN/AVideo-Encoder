@@ -20,13 +20,14 @@ $scanVars = array('GET', 'POST', 'REQUEST');
 foreach ($scanVars as $value) {
     eval('$scanThis = &$_' . $value . ';');
     if (!empty($scanThis['base64Url'])) {
-        $decodedUrl = base64_decode($scanThis['base64Url']);
-        if (!filter_var($decodedUrl, FILTER_VALIDATE_URL)) {
+        $decodedUrl = decodeBase64UrlParameter($scanThis['base64Url']);
+        if ($decodedUrl === false || !filter_var($decodedUrl, FILTER_VALIDATE_URL)) {
             error_log('base64Url attack ' . json_encode($_SERVER));
             exit;
         }
-        // Security: reject URLs containing shell metacharacters
-        if (preg_match('/[`$;|&(){}<>\\\\\\n\\r\\0]/', $decodedUrl)) {
+        // Defense in depth only: the consumers pass the URL as a single argument (argument lists
+        // or escapeshellarg()). '&' is allowed because valid query strings need it.
+        if (preg_match('/[`$;|(){}<>\\\\\\n\\r\\0]/', $decodedUrl)) {
             error_log('base64Url shell injection attempt ' . json_encode($_SERVER));
             exit;
         }

@@ -13,6 +13,12 @@ if (!Login::isAdmin()){
     $obj->msg = "You are not admin";
     die(json_encode($obj));
 }
+// The format codes are FFmpeg command templates: only the admin's own page may change them.
+if (!isEncoderAdminCSRFTokenValid()) {
+    error_log('saveConfig: invalid or missing csrfToken');
+    $obj->msg = "Invalid token, reload the page";
+    die(json_encode($obj));
+}
 
 if (empty($global['disableConfigurations'])) {
     if (!empty($_POST['formats'])) {

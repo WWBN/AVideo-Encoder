@@ -28,20 +28,26 @@ testTime(__LINE__);
 
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 header('Access-Control-Allow-Origin: *');
-$url = base64_decode($_GET['base64Url']);
+// Every FFmpeg command below is an argument list run without a shell (execArgvAsync()), so the
+// URL and the paths are always single arguments, whatever characters they contain.
+$url = decodeBase64UrlParameter(isset($_GET['base64Url']) ? $_GET['base64Url'] : '');
+if ($url === false) {
+    error_log('getImage: invalid base64Url rejected');
+    die();
+}
 $url = getExternalHttpUrlForShell($url, 'getImage');
 if ($url === false) {
     die();
 }
-$urlEscaped = escapeshellarg($url);
+$format = is_string($_GET['format']) ? $_GET['format'] : '';
 
 $destinationFile = md5($url);
 $destination = _sys_get_temp_dir().DIRECTORY_SEPARATOR.$destinationFile;
 $destinationPallet = "{$destination}palette.png";
-$destinationEscaped = escapeshellarg($destination);
-$destinationPalletEscaped = escapeshellarg($destinationPallet);
 $cache_life = '600'; //caching time, in seconds
 $ob_flush = false;
+// FFmpeg, the user agent and the HTTP(S)-only protocol list for the remote input.
+$ffmpegInput = array_merge(getFFmpegArgv(), getFFmpegRemoteInputArgv());
 
 testTime(__LINE__);
 
@@ -49,43 +55,35 @@ if (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
     die(Encoder::getThumbsFromLink($url, Login::getStreamerId()));
-} elseif ($_GET['format'] === 'png') {
+} elseif ($format === 'png') {
     header('Content-Type: image/x-png');
-    $destination .= ".".$_GET['format'];
-    $destinationEscaped = escapeshellarg($destination);
-    $exec = get_ffmpeg()." -i {$urlEscaped} -f image2  "
-    . "-vf ".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." "
-            . "-vframes 1 -y {$destinationEscaped}";
+    $destination .= ".png";
+    $exec = array_merge($ffmpegInput, array('-i', $url, '-f', 'image2', '-vf', getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-vframes', '1', '-y', $destination));
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.png";
-} elseif ($_GET['format'] === 'jpg') {
+} elseif ($format === 'jpg') {
     header('Content-Type: image/jpg');
-    $destination .= ".".$_GET['format'];
-    $destinationEscaped = escapeshellarg($destination);
-    $exec = get_ffmpeg()." -i {$urlEscaped} -f image2  "
-    . "-vf ".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." "
-            . "-vframes 1 -y {$destinationEscaped}";
+    $destination .= ".jpg";
+    $exec = array_merge($ffmpegInput, array('-i', $url, '-f', 'image2', '-vf', getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-vframes', '1', '-y', $destination));
     $destinationTmpFile = "{$global['systemRootPath']}view/img/OnAir.jpg";
-} elseif ($_GET['format'] === 'gif') {
+} elseif ($format === 'gif') {
     // gif image has the double lifetime
     $cache_life*=2;
     header('Content-Type: image/gif');
-    $destination .= ".".$_GET['format'];
-    $destinationEscaped = escapeshellarg($destination);
+    $destination .= ".gif";
     //Generate a palette:
-    $ffmpegPallet =get_ffmpeg()." -y -t 3 -i {$urlEscaped} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos,palettegen {$destinationPalletEscaped}";
-    $ffmpegPallet = removeUserAgentIfNotURL($ffmpegPallet);
-    $exec =get_ffmpeg()." -y -t 3 -i {$urlEscaped} -i {$destinationPalletEscaped} -filter_complex \"fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos[x];[x][1:v]paletteuse\" {$destinationEscaped}";
+    $ffmpegPallet = array_merge($ffmpegInput, array('-y', '-t', '3', '-i', $url, '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180) . ':flags=lanczos,palettegen', $destinationPallet));
+    // The palette is a local second input, so the protocol list above applies only to the URL.
+    $exec = array_merge($ffmpegInput, array('-y', '-t', '3', '-i', $url, '-i', $destinationPallet, '-filter_complex', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180) . ':flags=lanczos[x];[x][1:v]paletteuse', $destination));
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
-} elseif ($_GET['format'] === 'webp') {
+} elseif ($format === 'webp') {
     // gif image has the double lifetime
     $cache_life*=2;
     header('Content-Type: image/webp');
-    $destination .= ".".$_GET['format'];
-    $destinationEscaped = escapeshellarg($destination);
-    $exec =get_ffmpeg()." -y -ss 3 -t 3 -i {$urlEscaped} -vcodec libwebp -lossless 1 -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." -q 60 -preset default -loop 0 -an -vsync 0 {$destinationEscaped}";
+    $destination .= ".webp";
+    $exec = array_merge($ffmpegInput, array('-y', '-ss', '3', '-t', '3', '-i', $url, '-vcodec', 'libwebp', '-lossless', '1', '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-q', '60', '-preset', 'default', '-loop', '0', '-an', '-vsync', '0', $destination));
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 } else {
-    error_log("ERROR Destination get Image {$_GET['format']} not suported");
+    error_log("ERROR Destination get Image " . json_encode($format) . " not suported");
     die();
 }
 
@@ -104,23 +102,21 @@ testTime(__LINE__);
 
 ob_flush();
 
-$exec = removeUserAgentIfNotURL($exec);
 if (!file_exists($destination) || fileOlderThen($destination, $cache_life) || !empty($_GET['renew'])) {
     if (!empty($ffmpegPallet)) {
-        execAsync($ffmpegPallet);
-        error_log("Create Gif Pallet: {$ffmpegPallet}");
+        execArgvAsync($ffmpegPallet);
+        error_log("Create Gif Pallet: " . argvToLogString($ffmpegPallet));
         if (is_readable($destinationPallet)) {
-            execAsync($exec);
-            error_log("Create Gif with Ppallet: {$exec}");
+            execArgvAsync($exec);
+            error_log("Create Gif with Ppallet: " . argvToLogString($exec));
         } else {
-            $cmdGif = get_ffmpeg()."  -y -t 3 -i {$urlEscaped} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180)." {$destinationEscaped}";
-            $cmdGif = removeUserAgentIfNotURL($cmdGif);
-            execAsync($cmdGif);
-            error_log("Create Gif no Pallet: {$cmdGif}");
+            $cmdGif = array_merge($ffmpegInput, array('-y', '-t', '3', '-i', $url, '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180), $destination));
+            execArgvAsync($cmdGif);
+            error_log("Create Gif no Pallet: " . argvToLogString($cmdGif));
         }
     } else {
-        execAsync($exec);
-        error_log("Exec get Image: {$exec} ".__FILE__.' '. json_encode($_SERVER['REMOTE_ADDR']));
+        execArgvAsync($exec);
+        error_log("Exec get Image: " . argvToLogString($exec) . ' ' . __FILE__ . ' ' . json_encode($_SERVER['REMOTE_ADDR']));
     }
 } else {
 

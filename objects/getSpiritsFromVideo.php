@@ -8,8 +8,8 @@ if (empty($_GET['totalClips'])) {
     $_GET['totalClips'] = 100;
 }
 
-$url = base64_decode($_GET['base64Url']);
-$url = getExternalHttpUrlForShell($url, 'getSpiritsFromVideo');
+$url = decodeBase64UrlParameter(isset($_GET['base64Url']) ? $_GET['base64Url'] : '');
+$url = $url === false ? false : getExternalHttpUrlForShell($url, 'getSpiritsFromVideo');
 if ($url === false) {
     die();
 }

@@ -18,11 +18,17 @@ testTime(__LINE__);
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 header('Access-Control-Allow-Origin: *');
-$url = base64_decode($_GET['base64Url']);
+// FFmpeg runs from argument lists without a shell (execArgv()), see getImage.php.
+$url = decodeBase64UrlParameter(isset($_GET['base64Url']) ? $_GET['base64Url'] : '');
+if ($url === false) {
+    error_log('getImageMP4: invalid base64Url rejected');
+    die();
+}
 $url = getExternalHttpUrlForShell($url, 'getImageMP4');
 if ($url === false) {
     die();
 }
+$format = isset($_GET['format']) && is_string($_GET['format']) ? $_GET['format'] : '';
 
 if (!isURLaVODVideo($url)) {
     error_log("ERROR URL is not a VOD {$url}");
@@ -32,9 +38,9 @@ if (!isURLaVODVideo($url)) {
 $destinationFile = md5($url);
 $destination = _sys_get_temp_dir() . DIRECTORY_SEPARATOR . $destinationFile;
 $destinationPallet = "{$destination}palette.png";
-$destinationPalletEscaped = escapeshellarg($destinationPallet);
 $cache_life = '600'; //caching time, in seconds
 $ob_flush = false;
+$ffmpegInput = array_merge(getFFmpegArgv(), getFFmpegRemoteInputArgv());
 
 $type = 'video';
 // get filetype
@@ -43,33 +49,30 @@ if (preg_match('/\.mp3$/i', $parts[0])) {
     $type = 'audio';
 }
 
-$urlEscaped = escapeshellarg($url);
-error_log("getImageMP4 Starts: {$urlEscaped}");
+error_log("getImageMP4 Starts: " . escapeshellarg($url));
 
 if ($type === 'audio') {
     //ffmpeg -i inputfile.mp3 -lavfi showspectrumpic=s=800x400:mode=separate spectrogram.png
-    if ($_GET['format'] === 'jpg') {
+    if ($format === 'jpg') {
         header('Content-Type: image/jpg');
-        $destination .= "." . $_GET['format'];
-    } elseif ($_GET['format'] === 'gif') {
+        $destination .= ".jpg";
+    } elseif ($format === 'gif') {
         header('Content-Type: image/gif');
-        $destination .= "." . $_GET['format'];
-    } elseif ($_GET['format'] === 'webp') {
+        $destination .= ".gif";
+    } elseif ($format === 'webp') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/webp');
-        $destination .= "." . $_GET['format'];
+        $destination .= ".webp";
     } else {
-        error_log("ERROR Destination get Image {$_GET['format']} not suported");
+        error_log("ERROR Destination get Image " . json_encode($format) . " not suported");
         die();
     }
-    $destinationEscaped = escapeshellarg($destination);
     //$cmd = get_ffmpeg() . " -i {$url} -lavfi showspectrumpic=s=800x400:mode=separate {$destination}";
     //$cmd = get_ffmpeg() . " -i {$url} -filter_complex \"compand,showwavespic=s=1280x720\" -y {$destination}";
-    $cmd = get_ffmpeg() . " -i {$urlEscaped} -filter_complex \"compand,showwavespic=s=1280x720:colors=FFFFFF\" {$destinationEscaped}";
-    $cmd = removeUserAgentIfNotURL($cmd);
-    exec($cmd);
-    error_log("Create image from audio: {$cmd}");
+    $cmd = array_merge($ffmpegInput, array('-i', $url, '-filter_complex', 'compand,showwavespic=s=1280x720:colors=FFFFFF', $destination));
+    execArgv($cmd);
+    error_log("Create image from audio: " . argvToLogString($cmd));
 } elseif (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     require_once $global['systemRootPath'] . 'objects/Encoder.php';
     header('Content-Type: image/jpg');
@@ -84,57 +87,46 @@ if ($type === 'audio') {
      *
      */
     $duration = Encoder::parseSecondsToDuration(intval($_GET['time']));
-    error_log("GetImageInTime duration=$duration time={$_GET['time']}");
-    if ($_GET['format'] === 'jpg') {
+    error_log("GetImageInTime duration=$duration time=" . intval($_GET['time']));
+    if ($format === 'jpg') {
         header('Content-Type: image/jpg');
-        $destination .= "." . $_GET['format'];
-        $destinationEscaped = escapeshellarg($destination);
-        $exec = get_ffmpeg() . "  -ss {$duration} -i {$urlEscaped} -f image2  "
-        . "-vf ".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." "
-                . "-vframes 1 -y {$destinationEscaped}";
-    } elseif ($_GET['format'] === 'gif') {
+        $destination .= ".jpg";
+        $exec = array_merge($ffmpegInput, array('-ss', $duration, '-i', $url, '-f', 'image2', '-vf', getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-vframes', '1', '-y', $destination));
+    } elseif ($format === 'gif') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/gif');
-        $destination .= "." . $_GET['format'];
-        $destinationEscaped = escapeshellarg($destination);
+        $destination .= ".gif";
         //Generate a palette:
-        $ffmpegPallet = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$urlEscaped} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos,palettegen {$destinationPalletEscaped}";
-        $exec = get_ffmpeg() . " -y  -ss {$duration} -t 3 -i {$urlEscaped} -i {$destinationPalletEscaped} -filter_complex \"fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180).":flags=lanczos[x];[x][1:v]paletteuse\" {$destinationEscaped}";
-    } elseif ($_GET['format'] === 'webp') {
+        $ffmpegPallet = array_merge($ffmpegInput, array('-y', '-ss', $duration, '-t', '3', '-i', $url, '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180) . ':flags=lanczos,palettegen', $destinationPallet));
+        $exec = array_merge($ffmpegInput, array('-y', '-ss', $duration, '-t', '3', '-i', $url, '-i', $destinationPallet, '-filter_complex', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180) . ':flags=lanczos[x];[x][1:v]paletteuse', $destination));
+    } elseif ($format === 'webp') {
         // gif image has the double lifetime
         $cache_life *= 2;
         header('Content-Type: image/webp');
-        $destination .= "." . $_GET['format'];
-        $destinationEscaped = escapeshellarg($destination);
-        $exec = get_ffmpeg() . " -y -ss {$duration} -t 3 -i {$urlEscaped} -vcodec libwebp -lossless 1 -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(640, 360)." -q 60 -preset default -loop 0 -an -vsync 0 {$destinationEscaped}";
+        $destination .= ".webp";
+        $exec = array_merge($ffmpegInput, array('-y', '-ss', $duration, '-t', '3', '-i', $url, '-vcodec', 'libwebp', '-lossless', '1', '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-q', '60', '-preset', 'default', '-loop', '0', '-an', '-vsync', '0', $destination));
         $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
     } else {
-        error_log("ERROR Destination get Image {$_GET['format']} not suported");
+        error_log("ERROR Destination get Image " . json_encode($format) . " not suported");
         die();
     }
 
-    $exec = removeUserAgentIfNotURL($exec);
     testTime(__LINE__);
     if (!empty($ffmpegPallet)) {
-        $cmd = "{$ffmpegPallet}";
-        $cmd = removeUserAgentIfNotURL($cmd);
-        exec($cmd);
-        error_log("Create Gif Pallet: {$cmd}");
+        execArgv($ffmpegPallet);
+        error_log("Create Gif Pallet: " . argvToLogString($ffmpegPallet));
         if (is_readable($destinationPallet)) {
-            $cmdGif = "{$exec}";
-            exec($cmdGif);
-            error_log("Create Gif with Pallet: {$cmd}");
+            execArgv($exec);
+            error_log("Create Gif with Pallet: " . argvToLogString($exec));
         } else {
-            $cmdGif = get_ffmpeg() . " -ss {$duration} -y -t 3 -i {$urlEscaped} -vf fps=10,".getFFmpegScaleToForceOriginalAspectRatio(320, 180)." {$destinationEscaped}";
-            $cmdGif = removeUserAgentIfNotURL($cmdGif);
-            exec($cmdGif);
-            error_log("Create Gif no Pallet: {$cmdGif}");
+            $cmdGif = array_merge($ffmpegInput, array('-ss', $duration, '-y', '-t', '3', '-i', $url, '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(320, 180), $destination));
+            execArgv($cmdGif);
+            error_log("Create Gif no Pallet: " . argvToLogString($cmdGif));
         }
     } else {
-        $cmd = "{$exec}";
-        exec($cmd);
-        error_log("Exec get Image: {$cmd} ".__FILE__.' '. json_encode($_SERVER['REMOTE_ADDR']));
+        execArgv($exec);
+        error_log("Exec get Image: " . argvToLogString($exec) . ' ' . __FILE__ . ' ' . json_encode($_SERVER['REMOTE_ADDR']));
     }
 }
 

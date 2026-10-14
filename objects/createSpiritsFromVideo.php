@@ -6,13 +6,17 @@ $max_execution_time = 2 * 3600;
 ini_set('max_execution_time', $max_execution_time);
 $pxBetweenTiles = 0;
 
+// Started only by getSpiritsFromVideo.php through the PHP CLI; the tile sizes reach a shell command.
+if (php_sapi_name() !== 'cli') {
+    die();
+}
 $url = $argv[1];
 $step = floatval($argv[2]);
-$tileWidth = $argv[3];
-$tileHeight = $argv[4];
+$tileWidth = intval($argv[3]);
+$tileHeight = intval($argv[4]);
 $imageFileName = $argv[5];
-$numberOfTiles = $argv[6];
-$baseName = $argv[7];
+$numberOfTiles = intval($argv[6]);
+$baseName = preg_replace('/[^a-f0-9]/i', '', $argv[7]);
 $force = intval(@$argv[8]);
 
 if ($step <= 0) {

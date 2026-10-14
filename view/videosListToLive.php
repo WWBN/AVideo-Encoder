@@ -240,7 +240,8 @@ if (!file_exists($warermark)) {
 
 $rtmpURL = "{$_SESSION['login']->streamServerURL}/{$_SESSION['login']->streamKey}_{$json->response->playlists_id}";
 
-$cmd .= " {$ffmpegParametersRTMP} -f flv {$rtmpURL}";
+// The URL, key and playlist id come from the Streamer (one Encoder can serve several), so escape them.
+$cmd .= " {$ffmpegParametersRTMP} -f flv " . escapeshellarg($rtmpURL);
 
 $cmd = removeUserAgentIfNotURL($cmd);
 
@@ -283,12 +284,12 @@ if (file_exists($epgfile)) {
     $jsonEPG = json_decode(file_get_contents($epgfile));
     if (!isWindows() && !empty($jsonEPG->pid)) {
         _log("Old PID found {$jsonEPG->pid}");
-        $cmdPid = "kill -9 {$jsonEPG->pid}";
+        $cmdPid = "kill -9 " . intval($jsonEPG->pid);
         __exec($cmdPid);
 
         $liveDir = "/HLS/live/{$_SESSION['login']->streamKey}_{$json->response->playlists_id}";
         if (is_dir($liveDir)) {
-            __exec("rm -R $liveDir");
+            __exec("rm -R " . escapeshellarg($liveDir));
         }
     }
 }
