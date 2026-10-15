@@ -3678,7 +3678,7 @@ class Encoder extends ObjectYPT
         $destinationFileE = escapeshellarg($destinationFile);
         eval('$ffmpeg =get_ffmpeg()." -y -ss {$duration} -t {$howLong} -i {$pathFileNameE} -vcodec libwebp -lossless 1 '
             . '-vf fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360) . ' '
-            . '-q 60 -preset default -loop 0 -an -vsync 0 {$destinationFileE}";');
+            . '-q 60 -preset default -loop 0 -an {$destinationFileE}";');
         $ffmpeg = removeUserAgentIfNotURL($ffmpeg);
         exec($ffmpeg . " 2>&1", $output, $return_val);
         $time_end = microtime(true);

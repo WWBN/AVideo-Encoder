@@ -80,7 +80,7 @@ if (preg_match('/(youtube.com|youtu.be|vimeo.com|rumble.com)/', $url)) {
     $cache_life*=2;
     header('Content-Type: image/webp');
     $destination .= ".webp";
-    $exec = array_merge($ffmpegInput, array('-y', '-ss', '3', '-t', '3', '-i', $url, '-vcodec', 'libwebp', '-lossless', '1', '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-q', '60', '-preset', 'default', '-loop', '0', '-an', '-vsync', '0', $destination));
+    $exec = array_merge($ffmpegInput, array('-y', '-ss', '3', '-t', '3', '-i', $url, '-vcodec', 'libwebp', '-lossless', '1', '-vf', 'fps=10,' . getFFmpegScaleToForceOriginalAspectRatio(640, 360), '-q', '60', '-preset', 'default', '-loop', '0', '-an', $destination));
     $destinationTmpFile = "{$global['systemRootPath']}view/img/notfound.gif";
 } else {
     error_log("ERROR Destination get Image " . json_encode($format) . " not suported");
