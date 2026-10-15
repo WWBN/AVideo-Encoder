@@ -46,6 +46,7 @@ AVideo is an open source video platform that lets you run your own video site, i
 - Public encoder: <a href="https://encoder.avideo.com/" target="_blank">encoder.avideo.com</a>
 - Encoder network: <a href="http://git-encoder-network.avideo.tube/" target="_blank">AVideo Encoder Network</a>
 - Installation tutorial: <a href="https://tutorials.avideo.com/video/streamer-and-encoder" target="_blank">Streamer and Encoder tutorial</a>
+- Local Encoder (encode on your own computer, no Encoder server): <a href="https://github.com/YPT-ME/Local-Encoder/releases/latest" target="_blank">download the latest version</a> · <a href="https://github.com/YPT-ME/Local-Encoder" target="_blank">source code</a>
 
 ## 🌐 Demo Instances
 
@@ -95,6 +96,8 @@ The public encoder cannot reliably push media back to streamer instances that ar
 - 192.168.0.0/16
 
 In these cases, a private encoder installation is required.
+
+If you do not want to run an encoder server at all, [Local Encoder](https://github.com/YPT-ME/Local-Encoder/releases/latest) (Windows, macOS, Linux) encodes on your own computer and uploads the finished files to your site.
 
 # AVideo Platform Script
 Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
