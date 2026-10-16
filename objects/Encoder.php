@@ -805,6 +805,10 @@ class Encoder extends ObjectYPT
                 if (self::isPythonAndPytubeInstalled() && isYouTubeUrl($videoURL)) {
                     $downloadWithPytubeFilename = 'video_download_' . $queue_id;
                     $response = self::downloadWithPytube($videoURL, $downloadWithPytubeFilename);
+                    if (!$response->error && !file_exists($response->video)) {
+                        _error_log("downloadFile: pytube reported success but {$response->video} does not exist, falling back to yt-dlp");
+                        $response->error = true;
+                    }
                 }
                 if (empty($downloadWithPytubeFilename) || $response->error) {
                     //begin youtube-dl downloading and symlink it to the video temp file

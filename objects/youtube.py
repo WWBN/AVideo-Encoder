@@ -166,18 +166,16 @@ def get_metadata_safe(yt):
     success = attempt_with_proxies(fetch_metadata)
     if not success:
         print("Failed to retrieve metadata with all proxies.")
-        metadata = {
-            "title": "Unknown Title",
-            "description": "No Description",
-            "url": "Unknown URL",
-            "duration_seconds": 0,
-        }
+        return None
     return metadata
 
 def save_metadata(yt, folder):
     """Save metadata with fallback."""
     try:
         metadata = get_metadata_safe(yt)  # Proxy-enabled metadata retrieval
+        if metadata is None:
+            # Do not cache placeholder metadata, so Encoder.php falls back to yt-dlp
+            return False
         metadata["created_date"] = datetime.now().isoformat()  # Track creation time
         os.makedirs(folder, exist_ok=True)
         metadata_file_path = os.path.join(folder, "metadata.json")
@@ -254,11 +252,11 @@ def download_video(yt, folder):
             output_path
         ]
         subprocess.run(merge_command, check=True)
-        
-        print(f"Video merged successfully to '{output_path}'.")
-        # Optionally, remove the separate video and audio files
-        os.remove(video_path)
+
+        # Encoder.php expects the final file at video.mp4
         os.remove(audio_path)
+        os.replace(output_path, video_path)
+        print(f"Video merged successfully to '{video_path}'.")
         return True
     except Exception as e:
         print(f"Error downloading or merging video: {e}")
@@ -328,16 +326,17 @@ def main():
             print("Failed to access YouTube video with all proxies.")
             sys.exit(1)
 
+        success = False
         if action == "metadata":
-            attempt_with_proxies(save_metadata, yt, folder_name)
+            success = attempt_with_proxies(save_metadata, yt, folder_name)
         elif action == "thumbnail":
-            attempt_with_proxies(save_thumbnail, yt, folder_name)
+            success = attempt_with_proxies(save_thumbnail, yt, folder_name)
         elif action == "video":
-            attempt_with_proxies(download_video, yt, folder_name)
+            success = attempt_with_proxies(download_video, yt, folder_name)
         elif action == "all":
-            attempt_with_proxies(save_metadata, yt, folder_name)
-            attempt_with_proxies(save_thumbnail, yt, folder_name)
-            attempt_with_proxies(download_video, yt, folder_name)
+            success = attempt_with_proxies(save_metadata, yt, folder_name)
+            success = attempt_with_proxies(save_thumbnail, yt, folder_name) and success
+            success = attempt_with_proxies(download_video, yt, folder_name) and success
         else:
             print("Invalid action specified. Use 'metadata', 'thumbnail', 'video', or 'all'.")
 
@@ -346,6 +345,10 @@ def main():
         print(f"Error encountered during processing: {e}")
         import traceback
         traceback.print_exc()
+        success = False
+
+    # A non-zero exit code lets Encoder.php fall back to yt-dlp
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()
