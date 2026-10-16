@@ -642,6 +642,10 @@ class Encoder extends ObjectYPT
         if (file_exists($metadataFile)) {
             $content = file_get_contents($metadataFile);
             $json = json_decode($content);
+            // Older youtube.py versions cached a placeholder when pytube failed; fall back to yt-dlp instead
+            if (empty($json->title) || $json->title === 'Unknown Title') {
+                return false;
+            }
             return $json->title;
         }
         return false;
@@ -660,6 +664,9 @@ class Encoder extends ObjectYPT
         if (file_exists($metadataFile)) {
             $content = file_get_contents($metadataFile);
             $json = json_decode($content);
+            if (empty($json->description) || $json->description === 'No Description') {
+                return false;
+            }
             return $json->description;
         }
         return false;
