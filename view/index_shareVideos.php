@@ -8,6 +8,13 @@
         ?>
     </div>
     <div class="panel-body <?php echo getCSSAnimationClassAndStyle('animate__bounceInLeft'); ?>">
+        <?php if (!empty($localEncoderURL)) { ?>
+            <div class="alert alert-info" role="note">
+                <p><strong><?php echo __('Prepare videos on your computer with Local Encoder'); ?></strong></p>
+                <p><?php echo __('Use your own processor or graphics card and download supported video links through your connection. The Web Encoder remains required for AVideo media services.'); ?></p>
+                <a class="btn btn-default" href="<?php echo htmlspecialchars($localEncoderURL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Learn more and download'); ?></a>
+            </div>
+        <?php } ?>
         <ul class="nav nav-tabs nav-tabs-icons" role="tablist">
             <li class="active" role="presentation">
                 <a data-toggle="tab" href="#upload" role="tab" aria-controls="upload">
@@ -50,6 +57,12 @@
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle" aria-hidden="true"></i> <?php echo __('Share videos from YouTube and a few'); ?> <a href="https://rg3.github.io/youtube-dl/supportedsites.html" target="_blank"><?php echo __('more sites'); ?></a>.
                     </div>
+                    <?php if (!empty($localEncoderURL)) { ?>
+                        <div id="localEncoderImportError" class="alert alert-warning hidden" role="alert">
+                            <p><?php echo __('This provider could not be imported here. Try the individual video link in Local Encoder on your computer. Provider restrictions may still apply.'); ?></p>
+                            <a class="btn btn-default" href="<?php echo htmlspecialchars($localEncoderURL, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Learn more and download'); ?></a>
+                        </div>
+                    <?php } ?>
                     <form id="downloadForm" onsubmit="">
                         <div class="form-group">
                             <div class="input-group">

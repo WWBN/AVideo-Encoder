@@ -19,6 +19,7 @@ require_once '../objects/Configuration.php';
 require_once '../objects/Format.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
+require_once '../objects/LocalEncoderPromotion.php';
 require_once '../locale/function.php';
 
 if (!empty($_GET['webSiteRootURL']) && !empty($_GET['user']) && !empty($_GET['pass']) && empty($_GET['justLogin'])) {
@@ -234,6 +235,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 error_log("ERROR on get {$aURL} " . $json_file);
                 $advancedCustom = new stdClass();
             }
+            $localEncoderURL = EncoderLocalEncoderPromotion::getURL($_SESSION['login']->streamer ?? '', $advancedCustom);
             $loginResult = null;
             if (!empty($_SESSION['login']->result)) {
                 $loginResult = json_decode($_SESSION['login']->result);
@@ -430,6 +432,16 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
             <script>
                 var encodingNowIds = new Array();
+                var localEncoderURL = <?php echo json_encode($localEncoderURL, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+                var localEncoderRetryLabel = <?php echo json_encode(__('Try this import on your computer with Local Encoder'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+
+                function localEncoderImportLink(job) {
+                    if (!localEncoderURL || !job.local_encoder_import_failed) {
+                        return '';
+                    }
+                    return $('<a class="btn btn-default btn-sm" target="_blank" rel="noopener noreferrer"/>')
+                        .attr('href', localEncoderURL).text(localEncoderRetryLabel).prop('outerHTML');
+                }
 
                 function checkFiles() {
                     var path = $('#path').val();
@@ -615,6 +627,11 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                     // Atualiza a etapa atual (status_obs)
                     const status_obs = queueItem.status_obs?.trim();
+                    $(selector).find('.local-encoder-import-help').remove();
+                    var localEncoderLink = localEncoderImportLink(queueItem);
+                    if (localEncoderLink) {
+                        $('<p class="local-encoder-import-help"/>').append(localEncoderLink).appendTo($(selector));
+                    }
                     const stage = $(selector).find('.queue-item-stage');
                     if (status_obs) {
                         stage.removeClass(Object.keys(queueObsClass).map(function(s) {
@@ -1089,6 +1106,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                         content += '<small class="log-stage">' + escapeHTML(row.status_obs) + '</small>';
                                     }
                                 }
+                                content += localEncoderImportLink(row);
                                 return '<div class="log-stack">' + content + '</div>';
                             },
                             "title": function(column, row) {
@@ -1360,6 +1378,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 });
 
                 function submitDownloadForm() {
+                    $('#localEncoderImportError').addClass('hidden');
 
                     if (isAChannel()) {
                         <?php
@@ -1459,6 +1478,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                             },
                             type: 'post',
                             success: function(response) {
+                                $('#localEncoderImportError').toggleClass('hidden', !response.error);
                                 if (response.text) {
                                     let message = response.text;
                                     if (Array.isArray(message)) {
@@ -1467,6 +1487,12 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                     avideoAlert(response.title, message, response.type);
                                 }
                                 console.log(response);
+                            },
+                            error: function() {
+                                $('#localEncoderImportError').removeClass('hidden');
+                                avideoAlertError(<?php echo json_encode(__('The video link could not be imported. Please try again.'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>);
+                            },
+                            complete: function() {
                                 modal.hidePleaseWait();
                             }
                         });

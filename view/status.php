@@ -4,6 +4,7 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 require_once '../objects/Login.php';
 require_once '../objects/Streamer.php';
+require_once '../objects/LocalEncoderPromotion.php';
 
 // Check if this is a cross-domain API request with credentials
 $isAPIRequest = !empty($_REQUEST['user']) && !empty($_REQUEST['pass']) && !empty($_REQUEST['siteURL']);
@@ -52,6 +53,10 @@ $obj->downloading = Encoder::areDownloading();
 $obj->transferring = Encoder::areTransferring();
 //$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
+foreach ($obj->queue_list as &$queueItem) {
+    $queueItem['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($queueItem, Login::getStreamerId());
+}
+unset($queueItem);
 $obj->queue_size = count($obj->queue_list);
 
 if (count($obj->encoding) == 0) {

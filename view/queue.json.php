@@ -4,6 +4,7 @@ require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once '../objects/Encoder.php';
 require_once '../objects/Streamer.php';
 require_once '../objects/Login.php';
+require_once '../objects/LocalEncoderPromotion.php';
 header('Content-Type: application/json');
 
 if (!Login::canUpload()) {
@@ -18,6 +19,7 @@ if (!is_array($rows)) {
     $rows = [];
 }
 foreach ($rows as $key => $value) {
+    $rows[$key]['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($rows[$key], Login::getStreamerId());
     $f = new Format($rows[$key]['formats_id']);
     $rows[$key]['format'] = $f->getName();
     $s = new Streamer($rows[$key]['streamers_id']);
