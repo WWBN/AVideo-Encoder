@@ -36,3 +36,5 @@ foreach (['https://user:secret@provider.test/video', 'file:///private/video.mp4'
     checkLocalEncoderPromotion(EncoderLocalEncoderPromotion::getSourceURL(array_merge($failed, ['videoDownloadedLink' => $url]), 7) === '', 'reject credentials, files, script schemes and control characters');
 }
 echo "Local Encoder promotion: {$checks} checks passed\n";
+
+require __DIR__ . '/local-encoder-login-regression.php';

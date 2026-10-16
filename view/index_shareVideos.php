@@ -12,7 +12,7 @@
             <div class="alert alert-info" role="note">
                 <p><strong><?php echo __('Prepare videos on your computer with Local Encoder'); ?></strong></p>
                 <p><?php echo __('Use your own processor or graphics card and download supported video links through your connection. The Web Encoder remains required for AVideo media services.'); ?></p>
-                <a class="btn btn-primary" href="<?php echo htmlspecialchars($localEncoderURL . '#open=1', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Open Local Encoder'); ?></a>
+                <a class="btn btn-primary" href="<?php echo htmlspecialchars($localEncoderLaunchURL . '#open=1', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Open Local Encoder'); ?></a>
                 <a class="btn btn-default" href="<?php echo htmlspecialchars($localEncoderURL . '#local-encoder-downloads', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Learn more and download'); ?></a>
             </div>
         <?php } ?>
@@ -61,7 +61,7 @@
                     <?php if (!empty($localEncoderURL)) { ?>
                         <div id="localEncoderImportError" class="alert alert-warning hidden" role="alert">
                             <p><?php echo __('This provider could not be imported here. Try the individual video link in Local Encoder on your computer. Provider restrictions may still apply.'); ?></p>
-                            <a data-local-encoder-retry class="btn btn-primary" href="<?php echo htmlspecialchars($localEncoderURL . '#open=1', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Open Local Encoder'); ?></a>
+                            <a data-local-encoder-retry class="btn btn-primary" href="<?php echo htmlspecialchars($localEncoderLaunchURL . '#open=1', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Open Local Encoder'); ?></a>
                             <a class="btn btn-default" href="<?php echo htmlspecialchars($localEncoderURL . '#local-encoder-downloads', ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo __('Learn more and download'); ?></a>
                         </div>
                     <?php } ?>

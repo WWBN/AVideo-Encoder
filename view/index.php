@@ -236,6 +236,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 $advancedCustom = new stdClass();
             }
             $localEncoderURL = EncoderLocalEncoderPromotion::getURL($_SESSION['login']->streamer ?? '', $advancedCustom);
+            $localEncoderLaunchURL = EncoderLocalEncoderPromotion::getLaunchURL($global['webSiteRootURL'], $_SESSION['login']->streamer ?? '', $advancedCustom);
             $loginResult = null;
             if (!empty($_SESSION['login']->result)) {
                 $loginResult = json_decode($_SESSION['login']->result);
@@ -432,7 +433,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
             <script>
                 var encodingNowIds = new Array();
-                var localEncoderURL = <?php echo json_encode($localEncoderURL, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+                var localEncoderURL = <?php echo json_encode($localEncoderLaunchURL, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
                 var localEncoderRetryLabel = <?php echo json_encode(__('Try this import on your computer with Local Encoder'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
                 function localEncoderPageLink(source) {
