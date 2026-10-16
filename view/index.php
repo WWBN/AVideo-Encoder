@@ -247,6 +247,10 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 $streamerVideoHLS = !empty($_SESSION['login']->videoHLS);
             } elseif (is_object($loginResult) && isset($loginResult->videoHLS)) {
                 $streamerVideoHLS = !empty($loginResult->videoHLS);
+            } elseif (!empty($_SESSION['login']->isLogged)) {
+                // The streamer login.json only sends videoHLS when the VideoHLS plugin is enabled,
+                // so a logged-in response without it means HLS keys cannot be served
+                $streamerVideoHLS = false;
             }
 
             if ($streamerVideoHLS === false) {

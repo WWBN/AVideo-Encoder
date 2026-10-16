@@ -2,6 +2,10 @@
     <?php
     $checked = "checked";
     $countEncodeOptions = 0;
+    if (!empty($advancedCustom->doNotShowEncoderAutomaticHLS) && ($_COOKIE['format'] ?? '') === 'inputAutoHLS') {
+        // HLS is not available (e.g. streamer without VideoHLS), do not keep a stale HLS selection
+        unset($_COOKIE['format']);
+    }
     if (empty($advancedCustom->doNotShowEncoderAutomaticHLS)) {
         $countEncodeOptions++;
         if (empty($_COOKIE['format'])) {
