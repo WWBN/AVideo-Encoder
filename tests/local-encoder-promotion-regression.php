@@ -30,4 +30,9 @@ foreach ([['status' => 'done'], ['status' => 'encoding'], ['downloadedFileName' 
     checkLocalEncoderPromotion(!EncoderLocalEncoderPromotion::isFailedURLImport(array_merge($failed, $override), 7), 'do not recommend a URL retry for another kind of failure');
 }
 checkLocalEncoderPromotion(!EncoderLocalEncoderPromotion::isFailedURLImport([], 7), 'legacy incomplete queue rows are safe');
+checkLocalEncoderPromotion(EncoderLocalEncoderPromotion::getSourceURL($failed, 7) === $failed['videoDownloadedLink'], 'only the authenticated Streamer receives its failed source URL');
+checkLocalEncoderPromotion(EncoderLocalEncoderPromotion::getSourceURL($failed, 8) === '', 'never hand another Streamer a source URL');
+foreach (['https://user:secret@provider.test/video', 'file:///private/video.mp4', 'javascript:alert(1)', "https://provider.test/a\nb", 'https://provider.test/a\\b'] as $url) {
+    checkLocalEncoderPromotion(EncoderLocalEncoderPromotion::getSourceURL(array_merge($failed, ['videoDownloadedLink' => $url]), 7) === '', 'reject credentials, files, script schemes and control characters');
+}
 echo "Local Encoder promotion: {$checks} checks passed\n";

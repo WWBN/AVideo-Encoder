@@ -435,12 +435,23 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                 var localEncoderURL = <?php echo json_encode($localEncoderURL, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
                 var localEncoderRetryLabel = <?php echo json_encode(__('Try this import on your computer with Local Encoder'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
+                function localEncoderPageLink(source) {
+                    var suffix = '#open=1';
+                    try {
+                        var url = new URL(source);
+                        if (/^https?:$/.test(url.protocol) && !url.username && !url.password) {
+                            suffix += '&url=' + encodeURIComponent(url.href);
+                        }
+                    } catch (error) { /* An empty/invalid source still opens the site guide. */ }
+                    return localEncoderURL ? localEncoderURL + suffix : '';
+                }
+
                 function localEncoderImportLink(job) {
                     if (!localEncoderURL || !job.local_encoder_import_failed) {
                         return '';
                     }
                     return $('<a class="btn btn-default btn-sm" target="_blank" rel="noopener noreferrer"/>')
-                        .attr('href', localEncoderURL).text(localEncoderRetryLabel).prop('outerHTML');
+                        .attr('href', localEncoderPageLink(job.local_encoder_source_url)).text(localEncoderRetryLabel).prop('outerHTML');
                 }
 
                 function checkFiles() {
@@ -1379,6 +1390,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
 
                 function submitDownloadForm() {
                     $('#localEncoderImportError').addClass('hidden');
+                    $('[data-local-encoder-retry]').attr('href', localEncoderPageLink($('#inputVideoURL').val()));
 
                     if (isAChannel()) {
                         <?php

@@ -55,6 +55,7 @@ $obj->transferring = Encoder::areTransferring();
 $obj->queue_list = Encoder::getAllQueue();
 foreach ($obj->queue_list as &$queueItem) {
     $queueItem['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($queueItem, Login::getStreamerId());
+    $queueItem['local_encoder_source_url'] = EncoderLocalEncoderPromotion::getSourceURL($queueItem, Login::getStreamerId());
 }
 unset($queueItem);
 $obj->queue_size = count($obj->queue_list);

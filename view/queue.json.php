@@ -20,6 +20,7 @@ if (!is_array($rows)) {
 }
 foreach ($rows as $key => $value) {
     $rows[$key]['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($rows[$key], Login::getStreamerId());
+    $rows[$key]['local_encoder_source_url'] = EncoderLocalEncoderPromotion::getSourceURL($rows[$key], Login::getStreamerId());
     $f = new Format($rows[$key]['formats_id']);
     $rows[$key]['format'] = $f->getName();
     $s = new Streamer($rows[$key]['streamers_id']);

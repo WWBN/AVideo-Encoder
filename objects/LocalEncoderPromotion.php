@@ -25,4 +25,17 @@ class EncoderLocalEncoderPromotion
             && is_string($url) && filter_var($url, FILTER_VALIDATE_URL)
             && in_array(strtolower(parse_url($url, PHP_URL_SCHEME) ?? ''), array('http', 'https'), true);
     }
+
+    public static function getSourceURL($job, $streamersId)
+    {
+        if (!self::isFailedURLImport($job, $streamersId)) {
+            return '';
+        }
+        $url = $job['videoDownloadedLink'];
+        $parts = parse_url($url);
+        if (isset($parts['user']) || isset($parts['pass']) || preg_match('/[\x00-\x20\\\\]/', $url)) {
+            return '';
+        }
+        return $url;
+    }
 }
