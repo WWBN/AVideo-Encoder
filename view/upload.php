@@ -31,26 +31,27 @@ if (isset($_FILES['upl']) && $_FILES['upl']['error'] == 0) {
     $mainName = preg_replace("/[^A-Za-z0-9]/", "", cleanString($path_parts['filename']));
     $filename = uniqid($mainName . "_YPTuniqid_", true);
 
-    $destinationFile = "{$global['systemRootPath']}videos/original_" . $filename;
-    $destinationFileURI = "{$global['webSiteRootURL']}videos/original_" . $filename;
-    if (!empty($forceRename)) {
-        if (!rename($_FILES['upl']['tmp_name'], $destinationFile)) {
-            $obj->msg = "Error on rename(" . $_FILES['upl']['tmp_name'] . ",  {$destinationFile})";
-            die(json_encode($obj));
-        }
-    } else {
-        if (!move_uploaded_file($_FILES['upl']['tmp_name'], $destinationFile)) {
-            $obj->msg = "Error on move_uploaded_file(" . $_FILES['upl']['tmp_name'] . ",  {$destinationFile})";
-            die(json_encode($obj));
-        }
-    }
-
     $e = new Encoder("");
     if (!Login::canUpload()) {
         $obj->msg = "This user can not upload files";
     } elseif (!($streamers_id = Login::getStreamerId())) {
         $obj->msg = "There is no streamer site";
     } else {
+        // Store the file only after the permission checks above, so a refused upload leaves nothing in videos/
+        $destinationFile = "{$global['systemRootPath']}videos/original_" . $filename;
+        $destinationFileURI = "{$global['webSiteRootURL']}videos/original_" . $filename;
+        if (!empty($forceRename)) {
+            if (!rename($_FILES['upl']['tmp_name'], $destinationFile)) {
+                $obj->msg = "Error on rename(" . $_FILES['upl']['tmp_name'] . ",  {$destinationFile})";
+                die(json_encode($obj));
+            }
+        } else {
+            if (!move_uploaded_file($_FILES['upl']['tmp_name'], $destinationFile)) {
+                $obj->msg = "Error on move_uploaded_file(" . $_FILES['upl']['tmp_name'] . ",  {$destinationFile})";
+                die(json_encode($obj));
+            }
+        }
+
         $e->setStreamers_id($streamers_id);
         $s = new Streamer($streamers_id);
         $e->setTitle($path_parts['filename']);
