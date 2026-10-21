@@ -134,7 +134,10 @@ $localFileDownload_ts = "$localFileDownloadDir/%03d.ts";
 $localFileDownload_index = "$localFileDownloadDir/index.m3u8";
 
 createSymbolicLinks($localFileDownloadDir, $outputPath);
-getIndexM3U8();
+// A cold request must prepare the source before returning its first playlist.
+if (is_file($localFileDownload_index) && filesize($localFileDownload_index) > 0) {
+    getIndexM3U8();
+}
 if (!allTSFilesAreSymlinks($outputPath)) {
     exit;
 }
@@ -154,7 +157,7 @@ if (!isRunning($outputPath)) {
     $localFileDownload_HLS = "  -hls_segment_filename \"{$localFileDownload_ts}\" \"{$localFileDownload_index}\" ";
     //$localFileDownloadDir$localFileName = "video.mp4";
     //$localFilePath = "$dir{$_REQUEST['videos_id']}/{$localFileName}";
-    make_path($localFileDownloadDir);
+    make_path($localFileDownloadDir . '/');
 
     if (canIDownloadVideo($localFileDownloadDir)) {
         $startDownloadTime = microtime(true);
@@ -172,6 +175,8 @@ if (!isRunning($outputPath)) {
         unlink($localFileDownload_lock);
         error_log("Watermark: download video complete in " . (microtime(true) - $startDownloadTime) . " seconds");
         createFirstSegment();
+        createSymbolicLinks($localFileDownloadDir, $outputPath);
+        getIndexM3U8();
     }
 
 
@@ -194,7 +199,7 @@ if (!isRunning($outputPath)) {
         stopAllPids($outputTextPath);
 
 
-        make_path($outputPath);
+        make_path($outputPath . '/');
 
         if ($encrypt) {
             error_log("Watermark: will be encrypted ");
@@ -287,6 +292,8 @@ if (!isRunning($outputPath)) {
     endWaretmark();
 }
 
+getIndexM3U8();
+
 $endTime = microtime(true)-$startTime;
 error_log("Watermark: finish {$outputHLS_index} took: {$endTime} seconds");
 
@@ -295,9 +302,25 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
     if (!empty($getIndexM3U8)) {
         return "";
     }
+    // Wait before writing the response: retrying after setting the sent flag
+    // used to return an empty playlist for newly created viewer caches.
+    $files = array();
+    if (is_dir($outputPath) && (allTSFilesAreSymlinks($outputPath) || isRunning($outputPath))) {
+        $files = getTSFiles($outputPath);
+        $count = 0;
+        while (empty($files)) {
+            if (++$count > 60) {
+                endWaretmark();
+                die("TS file does not respond");
+            }
+            sleep(1);
+            $files = getTSFiles($outputPath);
+        }
+    }
     $getIndexM3U8 = 1;
     //error_log("Watermark: getIndexM3U8 start");
 
+    header('Content-Type: application/vnd.apple.mpegurl');
     header('Content-Transfer-Encoding: binary');
     header('Content-Disposition: attachment; filename="index.m3u8"');
     if (!allTSFilesAreSymlinks($outputPath) && !isRunning($outputPath)) {
@@ -350,22 +373,6 @@ function getIndexM3U8($tries = 0, $getFirstSegments = 0) {
         if (file_exists($encFile)) {
             echo PHP_EOL . "#EXT-X-KEY:METHOD=AES-128,URI=\"{$encFileURL}\",IV=0x00000000000000000000000000000000" . PHP_EOL;
         }
-        $files = getTSFiles($outputPath);
-        if (empty($files) && $tries < 5) {
-            sleep(5);
-            return getIndexM3U8($tries + 1);
-        }
-        $count = 0;
-        while (empty($files)) {
-            $count++;
-            if ($count > 60) {
-                endWaretmark();
-                die("TS file does not respond");
-            }
-            sleep(1);
-            $files = getTSFiles($outputPath);
-        }
-
         echo PHP_EOL . implode(PHP_EOL, $files);
     }
     header("Content-Encoding: none");
@@ -558,7 +565,10 @@ function getTSDuration($ts_file) {
 
 function createSymbolicLinks($fromDir, $toDir) {
     //error_log("createSymbolicLinks($fromDir, $toDir)");
-    make_path($toDir);
+    make_path($toDir . '/');
+    if (!is_dir($fromDir)) {
+        return;
+    }
 
     if ($dh = opendir($fromDir)) {
         while (($file = readdir($dh)) !== false) {
@@ -582,10 +592,12 @@ function allTSFilesAreSymlinks($dir) {
     }
     if ($dh = opendir($dir)) {
         $count = 0;
+        $total = 0;
         while (($file = readdir($dh)) !== false) {
             if ($file == '.' || $file == '..' || !preg_match('/\.ts$/', $file)) {
                 continue;
             }
+            $total++;
             //error_log("allTSFilesAreSymlinks::Checking: {$dir}/{$file}");
             if (!is_link("{$dir}/{$file}")) {
                 $count++;
@@ -596,7 +608,8 @@ function allTSFilesAreSymlinks($dir) {
             }
             //error_log("allTSFilesAreSymlinks::Checking: Is not a lynk ". json_encode(linkinfo("{$dir}/{$file}")));
         }
-        return true;
+        // One real segment is the complete output for a short video.
+        return !($total === 1 && $count === 1);
     }
     return false;
 }
