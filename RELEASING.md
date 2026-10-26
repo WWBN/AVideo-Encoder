@@ -78,6 +78,13 @@ including real FFmpeg/FFprobe media fixtures and process tests with `pcntl`.
 Its lint matrix additionally covers PHP 8.4/8.5. There is no Composer/PHPUnit
 suite in the Encoder at present; missing PHPUnit is not treated as a test pass.
 
+Media dependency setup uses bounded download-only attempts, switches from the
+runner's default Ubuntu mirror list to the official archives on failure, and
+installs the downloaded packages without recommended extras. The retry budget
+fits inside the existing 15-minute setup limit; setup failures still block all
+regressions and publication. Its offline control-flow tests can be run with
+`python3 .github/scripts/test-install-media-tools.py` (no sudo or network).
+
 The release automation's own tests run before planning. Platform-specific
 PHPUnit skips remain visible in PHPUnit output; a Linux job does not test
 Windows-only behavior. These gates do not claim that unrelated publishing
