@@ -29,7 +29,7 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  # The PHP version is the Encoder's runtime: CI tests 8.1-8.3, and 8.5 changed how OPcache is
+  # The PHP version is the Encoder's runtime: CI tests 8.2-8.3, and 8.5 changed how OPcache is
   # built (docker-php-ext-install opcache fails). Move it deliberately, not as an automatic bump.
   - package-ecosystem: docker
     directory: /

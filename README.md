@@ -110,7 +110,7 @@ Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
 
 The repository depends on operating system tools in addition to PHP application code. Based on the current codebase and Docker image, the practical requirements are:
 
-[![Minimum PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net/) - **PHP**: Version 8.1 or higher, matching current CI coverage (PHP 8.1–8.3).
+[![Minimum PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net/) - **PHP**: Version 8.1 or higher. CI runs regression tests on PHP 8.2/8.3 and lint on PHP 8.2–8.5; PHP 8.1 is no longer tested.
 
 [![Minimum MySQL Version](https://img.shields.io/badge/MySQL-5.0%2B-blue)](https://www.mysql.com/) - **MySQL/MariaDB**: Required to store the encoding queue and configuration.
 
@@ -124,7 +124,7 @@ Additional requirements:
 - `exiftool`
 - PHP command execution functions such as `exec` and `shell_exec`
 
-> Note: the current Dockerfile still uses a legacy `php:7-apache` base image even though the repository CI validates PHP 8.1 to 8.3. If you rely on Docker for production, treat the image definition as a compatibility item that should be reviewed separately.
+> The Dockerfile uses `php:8.2-apache`, a PHP branch covered by the regression tests.
 
 # Crucial Advisory: Strictly Avoid Using Control Panels for Installation
 
