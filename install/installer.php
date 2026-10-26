@@ -56,7 +56,7 @@ function installerBinaryAvailable($name) {
 function installerChecks() {
     $videos = installerRoot() . 'videos/';
     $checks = [
-        ['label' => 'PHP 8.1 or later', 'ok' => version_compare(PHP_VERSION, '8.1', '>='), 'detail' => PHP_VERSION],
+        ['label' => 'PHP 8.2 or later', 'ok' => version_compare(PHP_VERSION, '8.2', '>='), 'detail' => PHP_VERSION],
         ['label' => 'Database schema', 'ok' => is_readable(__DIR__ . '/database.sql'), 'detail' => 'install/database.sql'],
         ['label' => 'Configuration write access', 'ok' => is_dir($videos) ? is_writable($videos) : is_writable(installerRoot()), 'detail' => 'videos directory'],
     ];

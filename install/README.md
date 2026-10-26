@@ -1,5 +1,7 @@
 # Guided installation
 
+PHP **8.2 or later** is required for both the web server and CLI. Use matching PHP extension packages; a distribution's default PHP packages may not meet this minimum.
+
 Open `/install/` before configuring the application. Setup checks its requirements, tests the database connection without writing data, and provides English error messages with repair commands. Expand **Ubuntu setup help and troubleshooting commands** for PHP packages, service checks, file permissions, routing, and product-specific dependencies. The examples target Ubuntu 22.04 and 24.04; use extension packages matching the PHP version serving the site.
 
 Run Composer/npm as the application owner. Run CLI installation as the account that will run PHP, so that the generated configuration remains readable by that account. Installers do not change operating-system packages or permissions automatically.

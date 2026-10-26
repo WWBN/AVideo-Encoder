@@ -110,7 +110,7 @@ Go get it <a href="https://github.com/WWBN/AVideo" target="_blank">here</a>
 
 The repository depends on operating system tools in addition to PHP application code. Based on the current codebase and Docker image, the practical requirements are:
 
-[![Minimum PHP Version](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net/) - **PHP**: Version 8.1 or higher. CI runs regression tests on PHP 8.2/8.3 and lint on PHP 8.2–8.5; PHP 8.1 is no longer tested.
+[![Minimum PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)](https://php.net/) - **PHP**: Version 8.2 or higher, as required by the installer. CI runs regression tests on PHP 8.2/8.3 and lint on PHP 8.2–8.5; PHP 8.1 is no longer supported.
 
 [![Minimum MySQL Version](https://img.shields.io/badge/MySQL-5.0%2B-blue)](https://www.mysql.com/) - **MySQL/MariaDB**: Required to store the encoding queue and configuration.
 

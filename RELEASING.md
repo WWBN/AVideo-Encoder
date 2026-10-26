@@ -66,6 +66,8 @@ stable release for production and `master` for users following daily changes.
 5. Recheck the baseline and publish a tag pointing to exactly the tested SHA.
    New commits reaching `master` meanwhile are left for a later release.
 
+Both applications require PHP **8.2 or later**. Upgrade older PHP runtimes before updating the application.
+
 AVideo gates run all configured PHPUnit suites on PHP 8.2/8.3 with a
 disposable MariaDB, standalone PHP regressions, JavaScript integration
 regressions, workflow regressions, and PHP lint. Unit tests are mandatory.
