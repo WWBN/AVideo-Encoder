@@ -36,7 +36,11 @@ $step = $videoLength / $numberOfTiles;
 error_log("getSpritsFromVideo: step=$step videoLength=$videoLength numberOfTiles=$numberOfTiles");
 //var_dump($_REQUEST);exit;
 header("Content-type: image/jpeg");
-if (!file_exists($imageFileName)) {
+$failedFileName = "{$imageFileName}.failed";
+if (!file_exists($imageFileName) && empty($_REQUEST['sync']) && file_exists($failedFileName) && time() - filemtime($failedFileName) < 3600) {
+    // the last try could not read the video: answer nothing (not the placeholder) so the Streamer stops waiting
+    error_log("getSpritsFromVideo: last try failed, wait before trying again {$url}");
+} else if (!file_exists($imageFileName)) {
     // display a dummy image
     if(empty($_REQUEST['sync'])){
         echo url_get_contents($global['systemRootPath'] . "view/img/creatingImages.jpg");
@@ -64,12 +68,18 @@ if (!file_exists($imageFileName)) {
     unlink($imageFileName);
 }
 // delete old sprits files
-$files = glob($global['systemRootPath'] . "videos/sprit_*.jpg");
+$files = array_merge(glob($global['systemRootPath'] . "videos/sprit_*.jpg"), glob($global['systemRootPath'] . "videos/sprit_*.failed"));
 $now = time();
 foreach ($files as $file) {
     if (is_file($file)) {
         if ($now - filemtime($file) >= 86400) { // 1 day
             unlink($file);
         }
+    }
+}
+// frames of runs that never finished (older versions also kept the finished ones)
+foreach (glob($global['systemRootPath'] . "videos/thumbs_*", GLOB_ONLYDIR) as $dir) {
+    if ($now - filemtime($dir) >= 86400) {
+        rrmdir($dir);
     }
 }

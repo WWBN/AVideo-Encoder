@@ -61,6 +61,12 @@ if (!is_dir($dirname)) {
     return false;
 }
 
+// frames left by an older run would be mixed with the new ones
+foreach (glob($dirname . "*.png") as $oldImage) {
+    @unlink($oldImage);
+}
+@unlink("{$imageFileName}.failed");
+
 $width = $tileWidth + $pxBetweenTiles;
 $height = $tileHeight + $pxBetweenTiles;
 $mapWidth = ($tileWidth + $pxBetweenTiles) * 10;
@@ -70,7 +76,7 @@ $urlEscaped = escapeshellarg($url);
 $outPatternEscaped = escapeshellarg("{$dirname}out%03d.png");
 $cmd = get_ffmpeg() . " -i {$urlEscaped} -map 0:v:0 -vf fps=1/{$step},"
         . getFFmpegScaleToForceOriginalAspectRatio($tileWidth, $tileHeight) .
-        " -frames:v 100 "
+        " -frames:v 100 -y "
         . " {$outPatternEscaped}  2>&1 ";
 
 $cmd = removeUserAgentIfNotURL($cmd);
@@ -81,7 +87,10 @@ exec($cmd, $output, $return_var);
 //error_log("CreateSpirits: ". json_encode($return_var));
 $dirSize = dirSize($dirname);
 if ($dirSize<100000){
-    error_log("CreateSpirits: ERROR on dirsize={$dirSize} {$cmd}");
+    error_log("CreateSpirits: ERROR on dirsize={$dirSize} {$cmd} " . json_encode(array_slice($output, -5)));
+    // getSpiritsFromVideo.php answers nothing for a while instead of the "creating images" placeholder
+    file_put_contents("{$imageFileName}.failed", time());
+    rrmdir($dirname);
     return false;
 }
 
@@ -106,18 +115,13 @@ foreach ($srcImagePaths as $index => $srcImagePath) {
 }
 
 /* * SAVE THUMBNAIL IMAGE */
-imagejpeg($mapImage, $imageFileName); //change argument to $mapImage to output the original size image
-
-
-$it = new RecursiveDirectoryIterator($dirname, RecursiveDirectoryIterator::SKIP_DOTS);
-$files = new RecursiveIteratorIterator($it, RecursiveIteratorIterator::CHILD_FIRST);
-foreach ($files as $file) {
-    if ($file->isDir()) {
-        //rmdir($file->getRealPath());
-    } else {
-        //unlink($file->getRealPath());
-    }
+// written to a temporary name first, so getSpiritsFromVideo.php never sends a half written image
+$tmpImageFileName = "{$imageFileName}.tmp";
+if (!imagejpeg($mapImage, $tmpImageFileName) || !rename($tmpImageFileName, $imageFileName)) {
+    error_log("CreateSpirits: ERROR could not save {$imageFileName}");
+    @unlink($tmpImageFileName);
 }
 
+// the directory also tells getSpiritsFromVideo.php that the sprite is being created
 error_log("CreateSpirits:  removing directory {$dirname}");
-//rmdir($dirname);
+rrmdir($dirname);
