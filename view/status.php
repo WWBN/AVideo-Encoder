@@ -27,6 +27,7 @@ if ($isAPIRequest) {
     }
 }
 
+require_once $global['systemRootPath'] . 'locale/function.php';
 $config = new Configuration();
 
 //$r = Encoder::sendFile("{$global['systemRootPath']}videos/1_tmpFile.mp4", 1, "mp4");var_dump($r);return;
@@ -54,6 +55,9 @@ $obj->transferring = Encoder::areTransferring();
 //$obj->transferring = Encoder::isTransferring();
 $obj->queue_list = Encoder::getAllQueue();
 foreach ($obj->queue_list as &$queueItem) {
+    $jobVars = $queueItem['return_vars'];
+    $queueItem['recovery_message'] = !empty($jobVars->recovery->code) && empty($jobVars->recovery->legacy)
+        ? Encoder::getRecoveryMessage($jobVars->recovery->code, $jobVars->videos_id ?? 0) : '';
     $queueItem['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($queueItem, Login::getStreamerId());
     $queueItem['local_encoder_source_url'] = EncoderLocalEncoderPromotion::getSourceURL($queueItem, Login::getStreamerId());
 }

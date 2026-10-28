@@ -642,7 +642,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                     $(selector).find('.progress-completed').text(queueItem.name || '');
 
                     // Atualiza a etapa atual (status_obs)
-                    const status_obs = queueItem.status_obs?.trim();
+                    const status_obs = (queueItem.recovery_message || queueItem.status_obs)?.trim();
                     $(selector).find('.local-encoder-import-help').remove();
                     var localEncoderLink = localEncoderImportLink(queueItem);
                     if (localEncoderLink) {
@@ -1120,7 +1120,7 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 }
                                 if (row.failure_details && statusKey === 'error') {
                                     content += '<details class="log-details"><summary>' + <?php echo json_encode(__('Details')); ?> + '</summary><div class="log-observation">' + escapeHTML(row.failure_details) + '</div></details>';
-                                } else if (row.status_obs) {
+                                } else if (row.status_obs && !row.recovery_message) {
                                     if (row.status_obs.length > 120 || /[\r\n]/.test(row.status_obs)) {
                                         content += '<details class="log-details"><summary>' + <?php echo json_encode(__('Details')); ?> + '</summary><div class="log-observation">' + escapeHTML(row.status_obs) + '</div></details>';
                                     } else {
