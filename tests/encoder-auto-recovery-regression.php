@@ -93,6 +93,16 @@ try {
     expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue', 'missing output automatically requeues an available original');
     $job = jobRecovery(8);
     expectRecovery(!$job->recoverJobAutomatically() && json_decode($job->getReturn_vars())->recovery->code === 'output_missing', 'missing source and output is explicit');
+    $job = jobRecovery(12, 1, ['fileURI' => 'https://one.example/original.mp4',
+        'return_vars' => json_encode(['videos_id' => 112, 'failure' => ['stage' => 'encoding', 'exit_code' => 1, 'message' => 'Connection timed out']])]);
+    $resumes = RecoveryFixture::$resumes;
+    expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue' && RecoveryFixture::$resumes === $resumes,
+        'a transient FFmpeg input failure re-encodes the source without transferring partial output');
+    $job = jobRecovery(13, 1, ['return_vars' => json_encode(['videos_id' => 113,
+        'failure' => ['stage' => 'transfer', 'code' => 'transfer_too_large']])]);
+    expectRecovery(!$job->recoverJobAutomatically() && json_decode($job->getReturn_vars())->recovery->terminal
+        && strpos($job->getStatus_obs(), 'HTTP 413') !== false, 'an upload size limit is explicit and never creates an endless transfer loop');
+    expectRecovery(Encoder::getRecoveryMessage('recovering_output') === '', 'old recovery state does not hide current transfer diagnostics');
     foreach (['status' => 'queue', 'streamers_id' => 99] as $field => $newValue) {
         $job = jobRecovery(9);
         RecoveryFixture::$duringRequest = function ($id) use ($field, $newValue) { ObjectYPT::$rows[$id][$field] = $newValue; };

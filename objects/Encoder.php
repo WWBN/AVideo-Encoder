@@ -1394,6 +1394,12 @@ class Encoder extends ObjectYPT
 
     public static function getRecoveryMessage($code, $videosId = 0)
     {
+        if ($code === 'recovering_output') {
+            return ''; // Show the worker's current error instead of hiding it behind an old retry state.
+        }
+        if ($code === 'transfer_too_large') {
+            return self::getTransferErrorMessage((object) ['code' => $code], $videosId);
+        }
         $messages = [
             'destination_deleted' => __('The destination video was deleted. Automatic recovery is impossible. Encoded files were kept.'),
             'destination_unavailable' => __('The destination is unavailable. Automatic recovery cannot continue with this job account. Files were kept.'),
@@ -1459,11 +1465,11 @@ class Encoder extends ObjectYPT
         return $response;
     }
 
-    public function setFailureDetails($stage, $message, $exitCode = null)
+    public function setFailureDetails($stage, $message, $exitCode = null, $code = '')
     {
         $vars = json_decode($this->getReturn_vars());
         if (!is_object($vars)) { $vars = new stdClass(); }
-        $vars->failure = (object) ['stage' => $stage, 'message' => mb_substr($message, 0, 1600), 'exit_code' => $exitCode];
+        $vars->failure = (object) ['stage' => $stage, 'message' => mb_substr($message, 0, 1600), 'exit_code' => $exitCode, 'code' => $code];
         $this->setReturn_vars(json_encode($vars));
     }
 
@@ -1504,10 +1510,15 @@ class Encoder extends ObjectYPT
             return false;
         }
         $vars = json_decode($this->getReturn_vars());
+        if (($vars->failure->code ?? '') === 'transfer_too_large') {
+            $this->recordRecovery('transfer_too_large', true, self::getRecoveryMessage('transfer_too_large', $vars->videos_id ?? 0));
+            return false;
+        }
         // A nonzero FFmpeg exit may leave a playable but incomplete file. Never transfer it
         // merely because ffprobe can read its duration.
         if (($vars->failure->stage ?? '') === 'encoding' && !empty($vars->failure->exit_code)
-            && !in_array((int) $vars->failure->exit_code, [9, 15, 137, 143], true)) {
+            && !in_array((int) $vars->failure->exit_code, [9, 15, 137, 143], true)
+            && !self::isRetryableErrorMsg($vars->failure->message ?? '')) {
             $this->recordRecovery('conversion_failed', true, self::getRecoveryMessage('conversion_failed', $vars->videos_id ?? 0));
             return false;
         }
@@ -2374,6 +2385,8 @@ class Encoder extends ObjectYPT
             throw new RuntimeException('Could not lock the output transfer.');
         }
         $failureMessage = 'Packing failed. Output files were kept; use Recheck to retry.';
+        $failureStage = 'packing';
+        $failureCode = '';
         try {
             // Wait for the web request to persist the child PID before proceeding.
             if (!$this->load($this->getId()) || $this->getWorker_ppid() !== getmypid()
@@ -2402,11 +2415,13 @@ class Encoder extends ObjectYPT
             $this->setStatus_obs($alreadyTransferred ? 'Files already received. Waiting for the site to finish storage and confirm completion...' : 'Transferring verified output without re-encoding...', false);
             $this->save();
             $failureMessage = 'Transfer failed. Output files were kept; use Recheck to retry.';
+            $failureStage = 'transfer';
             if (!$alreadyTransferred) {
                 $response = $this->send(false);
                 if (!empty($response->error)) {
                     $vars = json_decode($this->getReturn_vars());
                     $failureMessage = self::getTransferErrorMessage($response, $vars->videos_id ?? 0);
+                    $failureCode = self::getTransferErrorCode($response);
                     throw new RuntimeException($failureMessage);
                 }
                 $vars = json_decode($this->getReturn_vars());
@@ -2419,10 +2434,12 @@ class Encoder extends ObjectYPT
                 $this->save();
             }
             $failureMessage = 'The site did not confirm completion. Output files were kept; use Recheck to retry.';
+            $failureStage = 'completion';
             $confirmation = $this->notifyVideoIsDone();
             if (!isset($confirmation->error) || $confirmation->error) {
                 $vars = json_decode($this->getReturn_vars());
                 $failureMessage = self::getTransferErrorMessage($confirmation, $vars->videos_id ?? 0, true);
+                $failureCode = self::getTransferErrorCode($confirmation);
                 throw new RuntimeException($failureMessage);
             }
             if ($this->load($this->getId())) {
@@ -2440,6 +2457,7 @@ class Encoder extends ObjectYPT
             if ($this->load($this->getId())) {
                 $this->setStatus(self::STATUS_ERROR, false);
                 $this->setStatus_obs($failureMessage, false);
+                $this->setFailureDetails($failureStage, $failureMessage, null, $failureCode);
                 $this->save();
             }
             return false;
