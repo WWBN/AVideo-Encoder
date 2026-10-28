@@ -269,6 +269,14 @@ checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 7, 
 checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 404]) === 'no_endpoint', 'older AVideo version');
 checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 403, 'response' => (object) ['error' => true]]) === 'rejected', 'account refused');
 checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 200, 'response' => (object) ['error' => false, 'skipped' => true]]) === '', 'skipped is still delivered');
+checkMonitor(EncoderMonitor::classifyStreamerIssue((object) ['curl_errno' => 0, 'http_code' => 200, 'response' => (object) ['error' => true, 'msg' => 'Email was not sent']]) === 'email_failed', 'SMTP failure is distinct from account refusal');
+$issues = [['streamers_id' => 1, 'issue' => 'rejected'], ['streamers_id' => 2, 'issue' => 'rejected'],
+    ['streamers_id' => 3, 'issue' => 'email_failed']];
+checkMonitor(EncoderMonitor::filterRelevantStreamerIssues($issues, [], [3]) === [$issues[2]], 'removed owner jobs do not leave a site refusal banner, while admin email failures remain');
+$jobs = [['streamers_id' => 1, 'return_vars' => '{}'], ['streamers_id' => 2,
+    'return_vars' => '{"recovery":{"code":"destination_deleted"}}']];
+checkMonitor(EncoderMonitor::filterRelevantStreamerIssues($issues, $jobs, [3]) === [$issues[0], $issues[2]], 'active account failure remains, deleted destination is resolved, and independent admin stays visible');
+checkMonitor(EncoderMonitor::filterRelevantStreamerIssues($issues, [['streamers_id' => 2, 'return_vars' => '{}']], []) === [$issues[1]], 'accounts sharing one site are not treated as the same delivery');
 
 // Monitor tab: admin only, and every dynamic value is escaped once
 $refresh = file_get_contents($root . 'view/monitorDashboard.refresh.php');

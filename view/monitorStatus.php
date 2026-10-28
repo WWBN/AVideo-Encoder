@@ -20,6 +20,7 @@ $monitorIssueTexts = [
     EncoderMonitor::ISSUE_UNREACHABLE => __('did not answer. Its alerts are paused for an hour.'),
     EncoderMonitor::ISSUE_NO_ENDPOINT => __('does not receive encoder alerts yet. Update AVideo on that site.'),
     EncoderMonitor::ISSUE_REJECTED => __('refused the alert. Check the encoder account and its permissions on that site.'),
+    EncoderMonitor::ISSUE_EMAIL_FAILED => __('accepted the alert request but could not send the email. Check the SMTP settings on that site.'),
 ];
 ?>
 <?php if ($monitorReport['tablesMissing']) { ?>
@@ -54,7 +55,7 @@ $monitorIssueTexts = [
 <?php if (!empty($monitorReport['streamerIssues'])) { ?>
     <div class="alert alert-warning">
         <strong><i class="fas fa-envelope" aria-hidden="true"></i> <?php echo __('Encoder alerts'); ?>:</strong>
-        <?php echo __('These AVideo sites did not accept the alerts for their video owners in the last 24 hours.'); ?>
+        <?php echo __('These accounts have unresolved Encoder alert delivery failures from the last 24 hours.'); ?>
         <ul style="margin: 5px 0 0;">
             <?php foreach ($monitorReport['streamerIssues'] as $monitorIssue) {
                 $monitorStreamer = new Streamer($monitorIssue['streamers_id']);
@@ -64,7 +65,9 @@ $monitorIssueTexts = [
                 }
                 $monitorText = isset($monitorIssueTexts[$monitorIssue['issue']]) ? $monitorIssueTexts[$monitorIssue['issue']] : $monitorIssueTexts[EncoderMonitor::ISSUE_REJECTED];
                 ?>
-                <li><strong><?php echo htmlspecialchars($monitorSite, ENT_QUOTES, 'UTF-8'); ?></strong> <?php echo $monitorText; ?></li>
+                <li><strong><?php echo htmlspecialchars($monitorSite, ENT_QUOTES, 'UTF-8'); ?></strong>
+                    (<?php echo __('User'); ?>: <?php echo htmlspecialchars($monitorStreamer->getUser(), ENT_QUOTES, 'UTF-8'); ?>)
+                    <?php echo $monitorText; ?></li>
             <?php } ?>
         </ul>
         <a href="#monitor" data-monitor-open class="alert-link monitor-open-link"><?php echo __('Open the monitor'); ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></a>

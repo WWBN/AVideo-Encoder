@@ -98,6 +98,7 @@ $issueLabels = [
     EncoderMonitor::ISSUE_UNREACHABLE => $tr('Did not answer. Its alerts are paused for an hour.'),
     EncoderMonitor::ISSUE_NO_ENDPOINT => $tr('Does not receive encoder alerts yet. Update AVideo on that site.'),
     EncoderMonitor::ISSUE_REJECTED => $tr('Refused the alert. Check the encoder account and its permissions on that site.'),
+    EncoderMonitor::ISSUE_EMAIL_FAILED => $tr('Accepted the alert request but could not send the email. Check the SMTP settings on that site.'),
 ];
 $systemLabels = [
     EncoderMonitor::SYSTEM_DISK_LOW => $tr('Low disk space'),
@@ -249,16 +250,18 @@ $settings = [
             <div class="version-card-heading">
                 <h3><i class="fas fa-globe" aria-hidden="true"></i> <?php echo $esc($tr('AVideo sites')); ?></h3>
                 <span class="version-pill text-<?php echo empty($report['streamerIssues']) ? 'success' : 'warning'; ?>">
-                    <?php echo $esc(empty($report['streamerIssues']) ? $tr('All accepted alerts') : sprintf($tr('%d with problems'), count($report['streamerIssues']))); ?>
+                    <?php echo $esc(empty($report['streamerIssues']) ? $tr('No pending delivery failures') : sprintf($tr('%d with problems'), count($report['streamerIssues']))); ?>
                 </span>
             </div>
             <?php if (empty($report['streamerIssues'])) { ?>
-                <p class="text-muted"><?php echo $esc($tr('Every site this Encoder notified in the last 24 hours accepted the alerts for its video owners.')); ?></p>
+                <p class="text-muted"><?php echo $esc($tr('No unresolved alert delivery failures for current jobs or Encoder admins.')); ?></p>
             <?php } else { ?>
                 <ul class="monitor-list">
-                    <?php foreach ($report['streamerIssues'] as $issue) { ?>
+                    <?php foreach ($report['streamerIssues'] as $issue) {
+                        $issueStreamer = new Streamer($issue['streamers_id']); ?>
                         <li>
                             <strong><?php echo $esc($streamerHost($issue['streamers_id'])); ?></strong>
+                            <small class="text-muted"><?php echo $esc($tr('User') . ': ' . $issueStreamer->getUser()); ?></small>
                             <span class="text-muted"><?php echo $esc(isset($issueLabels[$issue['issue']]) ? $issueLabels[$issue['issue']] : $issueLabels[EncoderMonitor::ISSUE_REJECTED]); ?></span>
                             <small class="text-muted"><?php echo $esc(sprintf($tr('%s ago'), $duration($issue['age']))); ?></small>
                         </li>

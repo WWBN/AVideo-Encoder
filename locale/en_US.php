@@ -1,6 +1,8 @@
 <?php
 global $t;
 
+$t['Accepted the alert request but could not send the email. Check the SMTP settings on that site.'] = 'Accepted the alert request but could not send the email. Check the SMTP settings on that site.';
+$t['accepted the alert request but could not send the email. Check the SMTP settings on that site.'] = 'accepted the alert request but could not send the email. Check the SMTP settings on that site.';
 $t['Active'] = 'Active';
 $t['Added on queue'] = 'Added on queue';
 $t['Add files...'] = 'Add files...';
@@ -66,6 +68,8 @@ $t['Months'] = 'Months';
 $t['more sites'] = 'more sites';
 $t['Multi Bitrate HLS'] = 'Multi Bitrate HLS';
 $t['No'] = 'No';
+$t['No pending delivery failures'] = 'No pending delivery failures';
+$t['No unresolved alert delivery failures for current jobs or Encoder admins.'] = 'No unresolved alert delivery failures for current jobs or Encoder admins.';
 $t['Now'] = 'Now';
 $t['Output validation failed and automatic re-encoding could not recover this job. Files were kept.'] = 'Output validation failed and automatic re-encoding could not recover this job. Files were kept.';
 $t['Override status'] = 'Override status';
@@ -77,6 +81,8 @@ $t['Processing...'] = 'Processing...';
 $t['Queue Log'] = 'Queue Log';
 $t['Re-Queue'] = 'Re-Queue';
 $t['Recovery will retry automatically after a delay. Files were kept.'] = 'Recovery will retry automatically after a delay. Files were kept.';
+$t['Refused the alert. Check the encoder account and its permissions on that site.'] = 'Refused the alert. Check the encoder account and its permissions on that site.';
+$t['refused the alert. Check the encoder account and its permissions on that site.'] = 'refused the alert. Check the encoder account and its permissions on that site.';
 $t['Release Date'] = 'Release Date';
 $t['Resolutions'] = 'Resolutions';
 $t['Save'] = 'Save';
@@ -103,6 +109,7 @@ $t['The destination video was deleted. Automatic recovery is impossible. Encoded
 $t['The encoded output and original input are missing. This job cannot be recovered automatically.'] = 'The encoded output and original input are missing. This job cannot be recovered automatically.';
 $t['The encode process will be slow'] = 'The encode process will be slow';
 $t['The job account cannot edit this video. Automatic recovery is blocked. Encoded files were kept.'] = 'The job account cannot edit this video. Automatic recovery is blocked. Encoded files were kept.';
+$t['These accounts have unresolved Encoder alert delivery failures from the last 24 hours.'] = 'These accounts have unresolved Encoder alert delivery failures from the last 24 hours.';
 $t['The site is temporarily unavailable. Recovery will retry automatically after a delay. Files were kept.'] = 'The site is temporarily unavailable. Recovery will retry automatically after a delay. Files were kept.';
 $t['The site rejected the saved job authorization. Automatic recovery needs valid site access. Files were kept.'] = 'The site rejected the saved job authorization. Automatic recovery needs valid site access. Files were kept.';
 $t['The video will be replaced with this new file, are you sure you want to proceed?'] = 'The video will be replaced with this new file, are you sure you want to proceed?';

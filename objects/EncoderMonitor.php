@@ -57,6 +57,7 @@ class EncoderMonitor
     const ISSUE_UNREACHABLE = 'unreachable';
     const ISSUE_NO_ENDPOINT = 'no_endpoint';
     const ISSUE_REJECTED = 'rejected';
+    const ISSUE_EMAIL_FAILED = 'email_failed';
     const WORKER_STOPPED_MSG = 'Worker process stopped unexpectedly';
 
     public static function defaults()
@@ -515,6 +516,9 @@ class EncoderMonitor
         if (intval(@$response->http_code) === 404) {
             return self::ISSUE_NO_ENDPOINT;
         }
+        if (($response->response->msg ?? '') === 'Email was not sent') {
+            return self::ISSUE_EMAIL_FAILED;
+        }
         if (!self::isAlertAccepted($response)) {
             return self::ISSUE_REJECTED;
         }
@@ -562,7 +566,27 @@ class EncoderMonitor
                 ];
             }
         }
+        if (!empty($report['streamerIssues'])) {
+            $report['streamerIssues'] = self::filterRelevantStreamerIssues(
+                $report['streamerIssues'], self::getJobs(self::getConfig()), self::getAdminStreamerIds()
+            );
+        }
         return $report;
+    }
+
+    /** Keep system delivery failures and owner failures for jobs that still need alerts. */
+    public static function filterRelevantStreamerIssues(array $issues, array $jobs, array $adminIds)
+    {
+        $relevant = array_fill_keys(array_map('intval', $adminIds), true);
+        foreach ($jobs as $job) {
+            $vars = json_decode((string) ($job['return_vars'] ?? ''));
+            if (($vars->recovery->code ?? '') !== 'destination_deleted') {
+                $relevant[(int) $job['streamers_id']] = true;
+            }
+        }
+        return array_values(array_filter($issues, function ($issue) use ($relevant) {
+            return isset($relevant[(int) $issue['streamers_id']]);
+        }));
     }
 
     /**
