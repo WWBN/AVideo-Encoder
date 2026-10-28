@@ -1115,7 +1115,12 @@ $safeRequestPass = htmlspecialchars((string) @$_REQUEST['pass'], ENT_QUOTES, 'UT
                                 if (row.encoding_status && row.encoding_status.remainTimeHuman && statusKey === 'encoding') {
                                     content += '<small class="log-eta"><i class="fas fa-clock" aria-hidden="true"></i> ' + <?php echo json_encode(__('Remaining time')); ?> + ': <strong>' + escapeHTML(row.encoding_status.remainTimeHuman) + '</strong></small>';
                                 }
-                                if (row.status_obs) {
+                                if (row.recovery_message && statusKey === 'error') {
+                                    content += '<small class="log-stage">' + escapeHTML(row.recovery_message) + '</small>';
+                                }
+                                if (row.failure_details && statusKey === 'error') {
+                                    content += '<details class="log-details"><summary>' + <?php echo json_encode(__('Details')); ?> + '</summary><div class="log-observation">' + escapeHTML(row.failure_details) + '</div></details>';
+                                } else if (row.status_obs) {
                                     if (row.status_obs.length > 120 || /[\r\n]/.test(row.status_obs)) {
                                         content += '<details class="log-details"><summary>' + <?php echo json_encode(__('Details')); ?> + '</summary><div class="log-observation">' + escapeHTML(row.status_obs) + '</div></details>';
                                     } else {

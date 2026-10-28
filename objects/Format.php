@@ -23,6 +23,7 @@ if (!class_exists('Format')) {
         protected $extension;
         protected $extension_from;
         protected $order;
+        private static $lastValidationError = '';
         const ENCODING_SETTINGS = array(
             '240' => array(
                 'minrate'      => 300,  // Reduced from 500
@@ -1132,29 +1133,21 @@ if (!class_exists('Format')) {
                 $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
                 _error_log("AVideo-Encoder Format::exec  Start Encoder [{$code}] {$progressFile} ");
                 $encoder->exec($code . " 1> \"{$progressFile}\"  2>&1", $output, $return_val);
-                if (self::progressFileHasVideosWithErrors($progressFile)) {
-                    _error_log("AVideo-Encoder Format::exec ERROR ($return_val) progressFile={$progressFile}" . PHP_EOL . json_encode($output));
-                    $obj->msg = print_r($output, true);
-                    $encoder = new Encoder($encoder_queue_id);
-                    if (empty($encoder->getId())) {/* dequeued */
-                        _error_log("id=(" . $encoder_queue_id . ") dequeued");
-                    } else {
-                        //if (empty($try) && self::fixFile($pathFileName, $encoder_queue_id)) {
-                        if (empty($try)) {
-                            self::exec($format_id, $pathFileName, $destinationFile, $encoder_queue_id, $try + 1);
-                        } else {
-                            $msg = json_encode($output);
-                            _error_log("AVideo-Encoder Format::exec " . $msg . ' ' . json_encode(debug_backtrace()));
-                            Encoder::setStatusError($encoder->getId(), $msg);
-                        }
-                    }
+                $obj->exit_code = (int) $return_val;
+                $invalidOutput = $return_val === 0 && self::progressFileHasVideosWithErrors($progressFile);
+                if ($return_val !== 0 || $invalidOutput) {
+                    $obj->error_stage = $return_val !== 0 ? 'encoding' : 'validation';
+                    $obj->msg = $return_val !== 0
+                        ? self::getFFmpegFailureMessage($progressFile, $return_val)
+                        : 'Output validation failed: ' . self::$lastValidationError;
+                    _error_log("Format::exec job={$encoder_queue_id} stage={$obj->error_stage} exit={$return_val}: {$obj->msg}");
                 } else {
                     _error_log("AVideo-Encoder Format::exec Success progressFile={$progressFile}");
                     $obj->error = false;
                 }
             }
 
-            if ($format_id == 29 || $format_id == 30) { // it is HLS
+            if (!$obj->error && ($format_id == 29 || $format_id == 30)) { // it is HLS
                 $obj->error = !self::posProcessHLS($destinationFile, $encoder_queue_id);
                 if ($obj->error) {
                     $obj->msg = "Error on pack directory";
@@ -1166,8 +1159,10 @@ if (!class_exists('Format')) {
         public static function progressFileHasVideosWithErrors($progressFilename)
         {
             global $global;
+            self::$lastValidationError = '';
 
-            if (empty($progressFilename)) {
+            if (empty($progressFilename) || !is_file($progressFilename)) {
+                self::$lastValidationError = 'The FFmpeg progress log is missing.';
                 _error_log("progressFileHasVideosWithErrors: file not exists {$progressFilename}");
                 return true;
             }
@@ -1175,18 +1170,20 @@ if (!class_exists('Format')) {
             $content = file_get_contents($progressFilename);
 
             if (empty($content)) {
+                self::$lastValidationError = 'The FFmpeg progress log is empty.';
                 _error_log("progressFileHasVideosWithErrors: content is empty");
                 return true;
             }
 
-            $videos_dir = addcslashes("{$global['systemRootPath']}videos", '/');
-            $pattern = "/output.*to '({$videos_dir}.*)'/i";
+            $videos_dir = preg_quote(str_replace('\\', '/', "{$global['systemRootPath']}videos"), '~');
+            $content = str_replace('\\', '/', $content);
+            $pattern = "~output.*to '({$videos_dir}[^\r\n']*)'~i";
 
             preg_match_all($pattern, $content, $matches);
 
             if (empty($matches[1])) {
-                _error_log("progressFileHasVideosWithErrors: we could not detect files on the progress log, we will ignore errors" . PHP_EOL . $content);
-                return false;
+                self::$lastValidationError = 'FFmpeg did not report an output file.';
+                return true;
             }
             //_error_log("progressFileHasVideosWithErrors: {$pattern} matches= " . json_encode($matches));
             foreach ($matches[1] as $value) {
@@ -1206,7 +1203,9 @@ if (!class_exists('Format')) {
         public static function videoFileHasErrors($filename, $allowed_extensions = true)
         {
             global $global;
+            self::$lastValidationError = '';
             if (!file_exists($filename)) {
+                self::$lastValidationError = basename($filename) . ': output file is missing.';
                 _error_log("videoFileHasErrors: file not exists {$filename}");
                 return true;
             }
@@ -1233,18 +1232,17 @@ if (!class_exists('Format')) {
             $durationOption = '-t 10';  // check the first 10 seconds
 
             if (isWindows()) {
-                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - > \"{$errorLogFile}\" 2>&1 ";
+                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i " . escapeshellarg($filename) . " -vsync 0 -enc_time_base -1 -f null - > " . escapeshellarg($errorLogFile) . " 2>&1 ";
             } else {
-                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i \"{$filename}\" -f null - 2> \"{$errorLogFile}\" ";
+                // Preserve the demuxer time base during the decode test. The null muxer's
+                // default time base can produce duplicate DTS for valid VFR/high-fps MP4s.
+                $command = get_ffmpeg() . " {$complement} {$skipFramesOption} {$durationOption} -v error -i " . escapeshellarg($filename) . " -vsync 0 -enc_time_base -1 -f null - 2> " . escapeshellarg($errorLogFile);
             }
             $command = removeUserAgentIfNotURL($command);
             exec($command, $output, $return_var);
-            if ($return_var !== 0) {
-                _error_log("videoFileHasErrors: could not exec [{$command}] " . json_encode($output) . ' ' . json_encode(debug_backtrace()));
-                return false;
-            }
 
             if (!file_exists($errorLogFile)) {
+                self::$lastValidationError = basename($filename) . ': validation log is missing.';
                 _error_log("videoFileHasErrors: error.log file not exists {$errorLogFile}");
                 return true;
             }
@@ -1252,15 +1250,51 @@ if (!class_exists('Format')) {
             $content = file_get_contents($errorLogFile);
             unlink($errorLogFile);
 
-            if (!empty($content)) {
+            if ($return_var !== 0 || !empty($content)) {
                 if ($allowed_extensions && $isCompatible) {
                     return self::videoFileHasErrors($filename, false);
                 }
+                self::$lastValidationError = basename($filename) . ': ' . self::summarizeFFmpegError($content, $return_var);
                 _error_log("videoFileHasErrors: errors found on video file {$filename} " . PHP_EOL . $content);
                 return true;
             } else {
                 return false;
             }
+        }
+
+        public static function getLastValidationError()
+        {
+            return self::$lastValidationError;
+        }
+
+        public static function getFFmpegFailureMessage($progressFile, $exitCode)
+        {
+            $content = '';
+            if (is_file($progressFile)) {
+                $handle = fopen($progressFile, 'rb');
+                if ($handle) {
+                    fseek($handle, max(0, filesize($progressFile) - 65536));
+                    $content = stream_get_contents($handle);
+                    fclose($handle);
+                }
+            }
+            return 'FFmpeg failed (exit ' . (int) $exitCode . '): ' . self::summarizeFFmpegError($content, $exitCode);
+        }
+
+        public static function summarizeFFmpegError($content, $exitCode)
+        {
+            // Never display input URL credentials, query tokens, or full shell commands.
+            $content = preg_replace('~https?://[^\s<>"\']+~i', '[remote URL]', (string) $content);
+            $lines = preg_split('/[\r\n]+/', $content);
+            $errors = array_values(array_filter($lines, function ($line) {
+                return preg_match('/error|invalid|failed|cannot|unable|not found|no such file|denied|no space|killed|corrupt|moov atom/i', $line)
+                    && !preg_match('/^\s*(configuration:|ffmpeg version|frame=)/', $line);
+            }));
+            $message = trim(implode(' | ', array_slice(array_unique($errors), -4)));
+            if ($message === '') {
+                $message = $exitCode ? 'The process stopped without an error description. Check the job progress log.' : 'The output could not be decoded.';
+            }
+            return mb_substr($message, 0, 1200);
         }
 
 

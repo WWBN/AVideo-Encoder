@@ -136,7 +136,27 @@ if (!class_exists('Streamer')) {
 
         protected function requestAuthentication($credential, $encoded)
         {
-            $url = addLastSlash($this->getSiteURL()) . 'objects/login.json.php';
+            return $this->requestSiteJSON('objects/login.json.php', ['user' => $this->getUser(), 'pass' => $credential, 'encodedPass' => $encoded ? 1 : 0]);
+        }
+
+        public function getJobStatus($videosId, $hash, $withCredentials = false)
+        {
+            if (strtolower((string) parse_url($this->getSiteURL(), PHP_URL_SCHEME)) !== 'https') {
+                return (object) ['error' => true, 'code' => 'status_endpoint_unavailable'];
+            }
+            $fields = ['videos_id' => (int) $videosId, 'video_id_hash' => $hash];
+            if ($withCredentials) {
+                $fields['user'] = $this->getUser();
+                $fields['pass'] = $this->getPass();
+                $fields['encodedPass'] = 1;
+            }
+            return $this->requestSiteJSON('objects/aVideoEncoderStatus.json.php', $fields);
+        }
+
+        protected function requestSiteJSON($endpoint, #[\SensitiveParameter] $fields)
+        {
+            global $global;
+            $url = addLastSlash($this->getSiteURL()) . $endpoint;
             if (strtolower((string) parse_url($url, PHP_URL_SCHEME)) !== 'https'
                 || empty(getExternalHttpUrlForShell($url, 'Streamer::refreshAuthentication'))) {
                 return false;
@@ -144,19 +164,25 @@ if (!class_exists('Streamer')) {
             $curl = curl_init($url);
             curl_setopt_array($curl, [
                 CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => http_build_query(['user' => $this->getUser(), 'pass' => $credential, 'encodedPass' => $encoded ? 1 : 0]),
+                CURLOPT_POSTFIELDS => http_build_query($fields),
                 CURLOPT_USERAGENT => getSelfUserAgent(),
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_CONNECTTIMEOUT => 10,
-                CURLOPT_TIMEOUT => 30,
-                CURLOPT_SSL_VERIFYPEER => true,
-                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_CONNECTTIMEOUT => $endpoint === 'objects/aVideoEncoderStatus.json.php' ? 3 : 10,
+                CURLOPT_TIMEOUT => $endpoint === 'objects/aVideoEncoderStatus.json.php' ? 8 : 30,
+                CURLOPT_SSL_VERIFYPEER => $endpoint === 'objects/aVideoEncoderStatus.json.php' ? empty($global['disableSSLVerification']) : true,
+                CURLOPT_SSL_VERIFYHOST => $endpoint === 'objects/aVideoEncoderStatus.json.php' && !empty($global['disableSSLVerification']) ? 0 : 2,
                 CURLOPT_FOLLOWLOCATION => false,
                 CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
             ]);
             $body = curl_exec($curl);
             $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             curl_close($curl);
+            if ($status === 404) {
+                return (object) ['error' => true, 'code' => 'status_endpoint_unavailable'];
+            }
+            if ($status === 429 || $status >= 500 || $status === 0) {
+                return (object) ['error' => true, 'code' => $status === 429 ? 'authentication_throttled' : 'streamer_unavailable', 'retryable' => true];
+            }
             return $status === 200 ? json_decode($body) : false;
         }
 

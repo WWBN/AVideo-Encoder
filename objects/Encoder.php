@@ -40,10 +40,8 @@ class Encoder extends ObjectYPT
 
     const AUDIO_EXTENSIONS = ['mp3', 'aac', 'm4a', 'ogg', 'opus', 'flac', 'wav', 'wma'];
 
-    // Max number of automatic status=error -> status=queue requeues (see requeueTransientErrors()).
-    // retry_count is only ever incremented inside requeueTransientErrors() (not wherever
-    // STATUS_ERROR is set), so this cap holds regardless of which code path failed the job.
-    // After this many requeues a job is left in error for manual review.
+    // Bounds automatic re-encoding. Verified output transfers use their own persisted
+    // backoff and can recover without repeatedly running FFmpeg.
     const MAX_AUTO_RETRIES = 5;
 
     protected $id;
@@ -299,7 +297,6 @@ class Encoder extends ObjectYPT
 
     public function getReturn_vars()
     {
-        _error_log("getReturn_vars " . $this->return_vars);
         return $this->return_vars;
     }
 
@@ -358,7 +355,7 @@ class Encoder extends ObjectYPT
 
     public function setStatus($status, $setStreamerLog = true)
     {
-        _error_log("Encoder::setStatus($status) " . json_encode(debug_backtrace()));
+        _error_log("Encoder::setStatus($status) " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         if ($setStreamerLog && !empty($this->id) && $status != $this->status) {
             self::setStreamerLog($this->id, "Status changed from {$this->status} to $status", Encoder::LOG_TYPE_StatusChanged);
         }
@@ -395,9 +392,9 @@ class Encoder extends ObjectYPT
         if (empty($status_obs)) {
             return false;
         }
-        _error_log("Encoder::setStatus_obs " . json_encode(debug_backtrace()));
+        _error_log("Encoder::setStatus_obs " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         $old_status_obs = $this->status_obs;
-        $this->status_obs = substr($status_obs, 0, 200);
+        $this->status_obs = mb_strcut((string) $status_obs, 0, 200, 'UTF-8');
 
         if ($setStreamerLog && !empty($this->id) && $old_status_obs !== $this->status_obs) {
             self::setStreamerLog($this->id, $this->status_obs, Encoder::LOG_TYPE_StatusObs);
@@ -1338,14 +1335,7 @@ class Encoder extends ObjectYPT
         return false;
     }
 
-    /**
-     * Automatically requeues jobs stuck in STATUS_ERROR that look like they failed for a
-     * transient reason (e.g. a cURL timeout sending the encoded file back to the streamer),
-     * up to MAX_AUTO_RETRIES attempts, with a linear backoff so we do not hammer a
-     * temporarily-unreachable streamer. Jobs whose error message matches a known permanent
-     * cause (see isRetryableErrorMsg()) or that already exhausted MAX_AUTO_RETRIES are left
-     * alone for manual review in the admin Encoder queue.
-     */
+    /** Preflight failed jobs, resume valid output, or use the legacy bounded retry path. */
     public static function requeueTransientErrors()
     {
         $rows = static::getAll(false, true); // errorOnly
@@ -1353,7 +1343,20 @@ class Encoder extends ObjectYPT
             return 0;
         }
         $requeued = 0;
+        $deadline = microtime(true) + 20;
         foreach ($rows as $row) {
+            if (microtime(true) >= $deadline) {
+                break;
+            }
+            $encoder = new Encoder($row['id']);
+            if ($encoder->recoverJobAutomatically()) {
+                $requeued++;
+                continue;
+            }
+            $vars = json_decode($encoder->getReturn_vars());
+            if (!empty($vars->recovery) && empty($vars->recovery->legacy)) {
+                continue;
+            }
             $retryCount = intval($row['retry_count']);
             if ($retryCount >= self::MAX_AUTO_RETRIES) {
                 continue;
@@ -1380,6 +1383,156 @@ class Encoder extends ObjectYPT
             $requeued++;
         }
         return $requeued;
+    }
+
+    protected function requestJobStatus($withCredentials = false)
+    {
+        $vars = json_decode($this->getReturn_vars());
+        $streamer = new Streamer($this->getStreamers_id());
+        return $streamer->getJobStatus($vars->videos_id ?? 0, $vars->video_id_hash ?? '', $withCredentials);
+    }
+
+    public static function getRecoveryMessage($code, $videosId = 0)
+    {
+        $messages = [
+            'destination_deleted' => __('The destination video was deleted. Automatic recovery is impossible. Encoded files were kept.'),
+            'destination_unavailable' => __('The destination is unavailable. Automatic recovery cannot continue with this job account. Files were kept.'),
+            'destination_access_denied' => __('The job account cannot edit this video. Automatic recovery is blocked. Encoded files were kept.'),
+            'authentication_required' => __('The site rejected the saved job authorization. Automatic recovery needs valid site access. Files were kept.'),
+            'uploads_disabled' => __('Uploads are disabled for the job account. Automatic recovery is blocked. Encoded files were kept.'),
+            'authentication_throttled' => __('Site login is temporarily rate limited. Recovery will retry automatically after a delay. Files were kept.'),
+            'streamer_unavailable' => __('The site is temporarily unavailable. Recovery will retry automatically after a delay. Files were kept.'),
+            'output_missing' => __('The encoded output and original input are missing. This job cannot be recovered automatically.'),
+            'conversion_failed' => __('FFmpeg could not produce valid output. See the conversion diagnostics. Files were kept.'),
+            'output_corrupted' => __('Output validation failed and automatic re-encoding could not recover this job. Files were kept.'),
+        ];
+        return ((int) $videosId > 0 ? __('Video') . ' #' . (int) $videosId . ': ' : '') . ($messages[$code] ?? __('Recovery will retry automatically after a delay. Files were kept.'));
+    }
+
+    public function checkJobDestination()
+    {
+        $vars = json_decode($this->getReturn_vars());
+        $streamersId = $this->getStreamers_id();
+        if (empty($vars->videos_id)) {
+            return (object) ['error' => false, 'code' => 'status_endpoint_unavailable'];
+        }
+        $response = $this->requestJobStatus(false);
+        if (is_object($response) && ($response->code ?? '') === 'authentication_required') {
+            // One fallback with this Streamer's saved credentials, never another site's or
+            // the browser admin's account. A bad credential is not retried in a tight loop.
+            $response = $this->requestJobStatus(true);
+        }
+        $known = ['ready', 'status_endpoint_unavailable', 'destination_deleted', 'destination_unavailable',
+            'destination_access_denied', 'authentication_required', 'uploads_disabled',
+            'authentication_throttled', 'streamer_unavailable'];
+        if (!is_object($response) || !in_array($response->code ?? '', $known, true)) {
+            $response = (object) ['error' => true, 'code' => 'streamer_unavailable'];
+        }
+        if ($response->code === 'ready' && (empty($response->video_id_hash)
+            || !is_string($response->video_id_hash) || strlen($response->video_id_hash) > 4096)) {
+            $response = (object) ['error' => true, 'code' => 'streamer_unavailable'];
+        }
+        if ($response->code === 'status_endpoint_unavailable') {
+            return (object) ['error' => false, 'code' => $response->code];
+        }
+        if ($response->code === 'ready' && empty($response->error)) {
+            if (!$this->load($this->getId()) || $this->getStreamers_id() != $streamersId
+                || (int) (json_decode($this->getReturn_vars())->videos_id ?? 0) !== (int) $vars->videos_id) {
+                return (object) ['error' => true, 'code' => 'job_changed', 'retryable' => true,
+                    'msg' => 'The job changed while checking its destination. Retry after the current operation.'];
+            }
+            $vars = json_decode($this->getReturn_vars());
+            foreach (['video_id_hash', 'encoderChunkToken'] as $key) {
+                if (!empty($response->$key) && is_string($response->$key) && strlen($response->$key) <= 8192) {
+                    $vars->$key = $response->$key;
+                }
+            }
+            $vars->job_access_checked_at = time();
+            if (isset($vars->recovery)) { $vars->recovery->terminal = false; }
+            $this->setReturn_vars(json_encode($vars));
+            $this->save();
+            return $response;
+        }
+        $response->error = true;
+        $response->retryable = in_array($response->code, ['authentication_throttled', 'streamer_unavailable'], true);
+        $response->msg = self::getRecoveryMessage($response->code, $vars->videos_id);
+        return $response;
+    }
+
+    public function setFailureDetails($stage, $message, $exitCode = null)
+    {
+        $vars = json_decode($this->getReturn_vars());
+        if (!is_object($vars)) { $vars = new stdClass(); }
+        $vars->failure = (object) ['stage' => $stage, 'message' => mb_substr($message, 0, 1600), 'exit_code' => $exitCode];
+        $this->setReturn_vars(json_encode($vars));
+    }
+
+    private function recordRecovery($code, $terminal, $message, $legacy = false)
+    {
+        $vars = json_decode($this->getReturn_vars());
+        if (!is_object($vars)) { $vars = new stdClass(); }
+        $attempt = (int) ($vars->recovery->attempts ?? 0) + 1;
+        $vars->recovery = (object) ['code' => $code, 'terminal' => $terminal, 'legacy' => $legacy,
+            'attempts' => $attempt, 'next_attempt_at' => time() + min(7200, 300 * (2 ** min(5, $attempt - 1))),
+            'message' => $message];
+        $this->setReturn_vars(json_encode($vars));
+        if (!$legacy) { $this->setStatus_obs($message, false); }
+        $this->save();
+    }
+
+    public function recoverJobAutomatically()
+    {
+        if ($this->getStatus() !== self::STATUS_ERROR) { return false; }
+        $vars = json_decode($this->getReturn_vars());
+        if (!empty($vars->recovery->terminal) || (int) ($vars->recovery->next_attempt_at ?? 0) > time()) {
+            return false;
+        }
+        $streamersId = $this->getStreamers_id();
+        $destinationId = (int) ($vars->videos_id ?? 0);
+        $destination = $this->checkJobDestination();
+        if (!$this->load($this->getId()) || $this->getStatus() !== self::STATUS_ERROR
+            || $this->getStreamers_id() != $streamersId
+            || (int) (json_decode($this->getReturn_vars())->videos_id ?? 0) !== $destinationId) {
+            return false;
+        }
+        if ($destination->code === 'status_endpoint_unavailable') {
+            $this->recordRecovery($destination->code, false, '', true);
+            return false; // Keep older, independently deployed Streamers working.
+        }
+        if (!empty($destination->error)) {
+            $this->recordRecovery($destination->code, !$destination->retryable, $destination->msg);
+            return false;
+        }
+        $vars = json_decode($this->getReturn_vars());
+        // A nonzero FFmpeg exit may leave a playable but incomplete file. Never transfer it
+        // merely because ffprobe can read its duration.
+        if (($vars->failure->stage ?? '') === 'encoding' && !empty($vars->failure->exit_code)
+            && !in_array((int) $vars->failure->exit_code, [9, 15, 137, 143], true)) {
+            $this->recordRecovery('conversion_failed', true, self::getRecoveryMessage('conversion_failed', $vars->videos_id ?? 0));
+            return false;
+        }
+        $this->recordRecovery('recovering_output', false, 'Checking encoded output for automatic recovery...');
+        try {
+            $killedConversion = ($vars->failure->stage ?? '') === 'encoding' && !empty($vars->failure->exit_code);
+            $result = $killedConversion ? ['error' => true, 'files' => []] : $this->startOutputResume();
+            if (!empty($result['started'])) { return true; }
+            // No usable output: a bounded retry can encode the retained source again.
+            $input = $this->getDownloadedFileName();
+            $source = $this->getFileURI();
+            $hasInput = ($input && is_file($input)) || (is_string($source) && preg_match('~^https?://~i', $source));
+            if ($hasInput && $this->getRetry_count() < self::MAX_AUTO_RETRIES) {
+                $this->setRetry_count($this->getRetry_count() + 1);
+                $this->setStatus(self::STATUS_QUEUE, false);
+                $this->setStatus_obs('No valid encoded output. Re-encoding the retained source automatically.', false);
+                $this->save();
+                return true;
+            }
+            $code = $hasInput || !empty($result['files']) ? 'output_corrupted' : 'output_missing';
+            $this->recordRecovery($code, true, self::getRecoveryMessage($code, $vars->videos_id ?? 0));
+        } catch (Throwable $error) {
+            _error_log('Automatic recovery failed for job ' . $this->getId() . ' (' . get_class($error) . ')');
+        }
+        return false;
     }
 
     // True while requeueTransientErrors() will still retry this error by itself, so callers
@@ -1704,6 +1857,14 @@ class Encoder extends ObjectYPT
                     _error_log("Encoder::run: getVideosId returned videos_id=" . intval($return_vars->videos_id));
                     $encoder = new Encoder($encoder->getId()); // re-read after getVideosId persists return_vars to DB
                 }
+                $destination = $encoder->checkJobDestination();
+                if (!empty($destination->error)) {
+                    $encoder->setStatus(self::STATUS_ERROR, false);
+                    $encoder->recordRecovery($destination->code, !$destination->retryable, $destination->msg);
+                    @unlink($lockFile);
+                    return static::run(0);
+                }
+                $return_vars = json_decode($encoder->getReturn_vars());
                 $encoder->setStatus_obs("Started at " . date("Y-m-d H:i:s"));
                 $encoder->save();
                 $objFile = static::downloadFile($encoder->getId());
@@ -1758,7 +1919,7 @@ class Encoder extends ObjectYPT
                         } else if ($resp->error === -1) {
                             unlink($lockFile); // Remove the lock file before returning
                             return false;
-                        } else if ($try < 4) {
+                        } else if (!empty($resp->addInQueueAgain) && $try < 4) {
                             $msg = "Encoder::run: Trying again: [$try] => Execute code error 1 " . json_encode($resp->msg) . " \n Code: {$resp->code}";
                             _error_log($msg);
                             $encoder->setStatus(Encoder::STATUS_QUEUE);
@@ -1767,7 +1928,10 @@ class Encoder extends ObjectYPT
                             unlink($lockFile); // Remove the lock file before returning
                             return static::run($try);
                         } else {
-                            $obj->msg = "Execute code error 2 [{$objFile->pathFileName}]  [{$rowNext['id']} == " . $encoder->getId() . '] ' . json_encode($resp->msg) . " \n Code: {$resp->code}";
+                            $obj->msg = !empty($resp->msg) ? (string) $resp->msg : 'FFmpeg failed without an error description. Check the job progress log.';
+                            $encoder->load($encoder->getId());
+                            $encoder->setFailureDetails($resp->error_stage ?? 'encoding', $obj->msg, $resp->exit_code ?? null);
+                            $encoder->save();
                             _error_log("Encoder::run: Encoder Run: " . json_encode($obj));
                             self::setStatusError($encoder->getId(), $obj->msg);
                             unlink($lockFile); // Remove the lock file before returning
@@ -2004,16 +2168,18 @@ class Encoder extends ObjectYPT
                 continue;
             }
             $duration = is_file($file) && filesize($file) > 0 ? self::getDurationFromFile($file) : 'EE:EE:EE';
+            $decodeError = $duration !== 'EE:EE:EE' && strtolower(pathinfo($file, PATHINFO_EXTENSION)) !== 'zip'
+                && Format::videoFileHasErrors($file);
             $result['files'][] = [
                 'name' => $name,
                 'duration' => $duration === 'EE:EE:EE' ? null : $duration,
-                'error' => $duration === 'EE:EE:EE'
+                'error' => $duration === 'EE:EE:EE' || $decodeError
             ];
         }
         if (!empty($result['files'])) {
             $result['error'] = in_array(true, array_column($result['files'], 'error'), true);
             $result['msg'] = $result['error']
-                ? 'Could not read the duration of one or more files. They may be missing or corrupted.'
+                ? 'One or more output files are missing, corrupted, or failed decoding. Check the validation diagnostics.'
                 : 'Output files passed the duration check. No re-encoding was performed.';
         }
         return $result;
@@ -2642,7 +2808,7 @@ class Encoder extends ObjectYPT
             return $obj;
         }
 
-        if (!preg_match('/\.zip$/', $file) && Format::videoFileHasErrors($file)) {
+        if (!preg_match('/\.(zip|jpg|jpeg|png|gif|webp)$/i', $file) && Format::videoFileHasErrors($file)) {
             $msg = "sendFileChunk: we found errors on video file ({$file}) we will not transfer it";
             $obj->code = 'output_corrupted';
             _error_log($msg);
@@ -3101,6 +3267,14 @@ class Encoder extends ObjectYPT
             $postFields['streamers_id'] = $streamers_id;
             $postFields['user'] = $user;
             $postFields['pass'] = $pass;
+            if (!empty($return_vars->video_id_hash) && (int) ($return_vars->job_access_checked_at ?? 0) > time() - 300
+                && in_array($target, ['objects/aVideoEncoder.json.php', 'objects/aVideoEncoderLog.json.php',
+                    'objects/aVideoEncoderReceiveImage.json.php', 'objects/aVideoEncoderReceiveSpectrum.json.php',
+                    'objects/aVideoEncoderNotifyIsDone.json.php', 'objects/aVideoEncoderAlert.json.php'], true)) {
+                // The preflight verified and renewed this job's scoped authorization.
+                // Do not repeatedly submit a revoked account password alongside it.
+                unset($postFields['user'], $postFields['pass']);
+            }
         }
 
         if (is_object($return_vars)) {
@@ -3134,7 +3308,11 @@ class Encoder extends ObjectYPT
         // Log outgoing request fields (binary values replaced) to diagnose empty-response issues.
         $postFieldsLog = [];
         foreach ($postFields as $_k => $_v) {
-            $postFieldsLog[] = $_k . '=' . (($_v instanceof \CURLFile || in_array($_k, ['video', 'image', 'gifimage', 'webpimage', 'gifimage', 'spectrumimage'])) ? '[BINARY]' : substr((string)$_v, 0, 200));
+            if (in_array($_k, ['pass', 'password', 'encodedPass', 'video_id_hash', 'encoderChunkToken', 'return_vars'], true)) {
+                $postFieldsLog[] = $_k . '=[redacted]';
+            } else {
+                $postFieldsLog[] = $_k . '=' . (($_v instanceof \CURLFile || in_array($_k, ['video', 'image', 'gifimage', 'webpimage', 'gifimage', 'spectrumimage'])) ? '[BINARY]' : substr((string)$_v, 0, 200));
+            }
         }
         _error_log("sendToStreamer: url=$url fields=[" . implode(', ', $postFieldsLog) . "]");
         unset($postFieldsLog, $_k, $_v);

@@ -45,6 +45,14 @@ try {
         echo json_encode(['error' => true, 'msg' => __('Invalid request')]);
         exit;
     }
+    $destination = $encoder->checkJobDestination();
+    if (!empty($destination->error) && $destination->code !== 'authentication_required') {
+        $encoder->setStatus_obs($destination->msg, false);
+        $encoder->save();
+        $destination->msg = Encoder::getRecoveryMessage($destination->code, json_decode($encoder->getReturn_vars())->videos_id ?? 0);
+        echo json_encode($destination);
+        exit;
+    }
     $check = $encoder->recheckOutputFiles();
     if ($check['error']) {
         $check['msg'] = __($check['msg']);
@@ -52,7 +60,9 @@ try {
         exit;
     }
     $streamer = new Streamer($encoder->getStreamers_id());
-    if (!empty($_POST['renew']) && $password === null) {
+    if (empty($destination->error) && $destination->code === 'ready') {
+        $authentication = ['error' => false];
+    } elseif (!empty($_POST['renew']) && $password === null) {
         $authentication = ['error' => true, 'authentication_required' => true,
             'account' => $streamer->getUser(), 'site' => $streamer->getSiteURL(),
             'msg' => 'Enter this account password to renew access and continue the transfer.'];
@@ -64,6 +74,13 @@ try {
         $authentication['msg'] = __($authentication['msg']);
         echo json_encode($authentication);
         exit;
+    }
+    if (!empty($destination->error)) {
+        $destination = $encoder->checkJobDestination();
+        if (!empty($destination->error)) {
+            echo json_encode($destination);
+            exit;
+        }
     }
     $response = $encoder->startOutputResume();
     $response['msg'] = __($response['msg']);

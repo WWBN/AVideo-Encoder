@@ -62,6 +62,8 @@ class MP4Processor
         if(!empty($encoder_queue_id)){
             $progressFile = "{$global['systemRootPath']}videos/{$encoder_queue_id}_tmpFile_progress.txt";
             $command = "{$command} 1> $progressFile 2>&1";
+        } else {
+            $command .= ' 2>&1';
         }
 
         // Execute the FFmpeg command
@@ -69,12 +71,15 @@ class MP4Processor
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0) {
-            _error_log("MP4Processor: FFmpeg failed with output: $resultCode $command" . json_encode($output));
-            var_dump($resultCode, $output, $command);
-            throw new Exception("Failed to create MP4 file. $resultCode $command " . json_encode($output));
+            $message = !empty($progressFile) ? Format::getFFmpegFailureMessage($progressFile, $resultCode)
+                : 'FFmpeg failed (exit ' . $resultCode . '): ' . Format::summarizeFFmpegError(implode("\n", $output), $resultCode);
+            _error_log('MP4Processor: ' . $message);
+            return (object) ['error' => true, 'msg' => $message, 'exit_code' => $resultCode,
+                'error_stage' => 'encoding', 'code' => $command];
         }
 
         _error_log("MP4Processor: MP4 file created successfully at $destinationFile");
+        return (object) ['error' => false, 'code' => $command, 'destinationFile' => $destinationFile, 'exit_code' => 0];
     }
 
     private static function getResolution($pathFileName)

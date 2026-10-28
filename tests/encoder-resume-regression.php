@@ -29,6 +29,7 @@ class Configuration
 }
 class Format
 {
+    public static function videoFileHasErrors($file) { return false; }
     public function __construct($id) {}
     public function getOrder() { return 99; }
     public function getExtension() { return 'mp4'; }

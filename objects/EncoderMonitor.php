@@ -777,8 +777,13 @@ class EncoderMonitor
             $row['last_result'] = 'deferred: job changed before delivery';
             return $row;
         }
-        $returnVars = json_decode((string) $job['return_vars']);
+        $returnVars = json_decode((string) $encoder->getReturn_vars());
         $row['last_attempt_at'] = $now;
+        if (($returnVars->recovery->code ?? '') === 'destination_deleted') {
+            // The destination and its owner association no longer exist. Do not keep
+            // retrying the old account to deliver an alert for this deleted video.
+            return self::markAlertHandled($row, $decision['alert'], $now, 'skipped: destination video was deleted');
+        }
         if (!is_object($returnVars) || empty($returnVars->videos_id)) {
             // The Streamer has no video for this job yet, so there is no owner to notify.
             return self::markAlertHandled($row, $decision['alert'], $now, 'skipped: no videos_id');
