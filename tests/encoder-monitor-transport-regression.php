@@ -128,7 +128,7 @@ try {
     $cfg = EncoderMonitor::defaults();
     $cfg['diskMinFreeGB'] = 0;
     $cfg['diskMinFreePercent'] = 0;
-    $stats = ['waiting' => 1, 'processing' => 0, 'oldestWaitingMinutes' => 60, 'errorsLastHour' => 0, 'lastError' => ''];
+    $stats = ['waiting' => 1, 'processing' => 0, 'oldestWaitingMinutes' => 60, 'idleMinutes' => 60, 'errorsLastHour' => 0, 'lastError' => ''];
     $paused = [];
     $issues = [];
     $runChecks = new ReflectionMethod('EncoderMonitor', 'runSystemChecks');

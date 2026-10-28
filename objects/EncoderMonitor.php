@@ -52,6 +52,7 @@ class EncoderMonitor
     const STATE_HEARTBEAT = 'heartbeat';
     const STATE_LAST_ERROR = 'last_error';
     const STATE_STREAMER_ISSUE = 'streamer_issue_';
+    const STATE_QUEUE_IDLE_SINCE = 'queue_idle_since';
 
     const ISSUE_UNREACHABLE = 'unreachable';
     const ISSUE_NO_ENDPOINT = 'no_endpoint';
@@ -77,6 +78,7 @@ class EncoderMonitor
             'diskMinFreePercent' => 5,
             'diskMinFreeGB' => 2,
             'queueStalledMinutes' => 30,
+            'queueIdleMinutes' => 10,          // and nothing processed for this long, despite the cron restarts
             'errorSpikeCount' => 5,            // errors within the last hour
             'systemAlertIntervalMinutes' => 360,
             'heartbeatStaleMinutes' => 10,
@@ -333,8 +335,12 @@ class EncoderMonitor
                 $checks[] = self::SYSTEM_DISK_LOW;
             }
         }
+        // A long wait alone is not a stall: jobs wait behind a long conversion, and the run right after
+        // a job finishes sees nothing processing for a moment. Only a queue that stayed idle across
+        // several cron restarts is stalled.
         if ($cfg['queueStalledMinutes'] > 0 && $stats['waiting'] > 0 && $stats['processing'] === 0
-            && $stats['oldestWaitingMinutes'] >= $cfg['queueStalledMinutes']) {
+            && $stats['oldestWaitingMinutes'] >= $cfg['queueStalledMinutes']
+            && intval(@$stats['idleMinutes']) >= $cfg['queueIdleMinutes']) {
             $checks[] = self::SYSTEM_QUEUE_STALLED;
         }
         if ($cfg['errorSpikeCount'] > 0 && $stats['errorsLastHour'] >= $cfg['errorSpikeCount']) {
@@ -426,6 +432,7 @@ class EncoderMonitor
         }
 
         self::deleteFinishedRows();
+        $stats['idleMinutes'] = self::trackQueueIdle($stats, $now);
 
         // 2. Keep the queue moving before any slow network call.
         if (!empty($cfg['kickQueue']) && $stats['waiting'] > 0 && Encoder::canEncodeNow()) {
@@ -609,6 +616,11 @@ class EncoderMonitor
                 }
                 return $aError ? $a['minutes'] - $b['minutes'] : $b['minutes'] - $a['minutes'];
             });
+            // Read only: the cron owns this state.
+            $idleSince = self::getState(self::STATE_QUEUE_IDLE_SINCE);
+            if (!empty($idleSince) && $stats['waiting'] > 0 && $stats['processing'] === 0) {
+                $stats['idleMinutes'] = self::minutesBetween($idleSince, self::getDatabaseNow());
+            }
         }
         $checks = self::decideSystemChecks($stats, $cfg);
         $age = $report['heartbeatAge'];
@@ -696,6 +708,24 @@ class EncoderMonitor
         _error_log("EncoderMonitor: streamer {$streamers_id} did not answer, pausing its alerts");
         self::setState('streamer_unreachable_' . $streamers_id, $now);
         $paused[$streamers_id] = true;
+    }
+
+    /**
+     * Minutes the queue has had waiting jobs and nothing processing, counted from the first run
+     * that saw it; 0 (and the state cleared) as soon as something processes or nothing waits.
+     */
+    private static function trackQueueIdle(array $stats, $now)
+    {
+        if ($stats['waiting'] === 0 || $stats['processing'] > 0) {
+            self::deleteState(self::STATE_QUEUE_IDLE_SINCE);
+            return 0;
+        }
+        $since = self::getState(self::STATE_QUEUE_IDLE_SINCE);
+        if (empty($since)) {
+            self::setState(self::STATE_QUEUE_IDLE_SINCE, $now);
+            return 0;
+        }
+        return self::minutesBetween($since, $now);
     }
 
     private static function isDue($stateName, $now, $minutes)

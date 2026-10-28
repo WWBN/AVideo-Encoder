@@ -58,12 +58,21 @@ class ErrorStatementFixture
             $this->db->states[$this->params[0]] = $this->params[1];
         } elseif (strpos($this->sql, 'DELETE FROM encoder_monitor_state') === 0) {
             unset($this->db->states[$this->params[0]]);
-        } elseif (strpos($this->sql, 'SELECT COUNT(*) FROM information_schema.TABLES') !== 0) {
+        } elseif (strpos($this->sql, 'SELECT COUNT(*) FROM information_schema.TABLES') !== 0
+            && strpos($this->sql, 'SELECT value FROM encoder_monitor_state') !== 0) {
             throw new RuntimeException('Unexpected statement');
         }
         return true;
     }
-    public function fetch() { $this->result = 2; return true; }
+    public function fetch()
+    {
+        if (strpos($this->sql, 'SELECT value FROM encoder_monitor_state') === 0) {
+            $this->result = $this->db->states[$this->params[0]] ?? null;
+            return $this->result !== null;
+        }
+        $this->result = 2;
+        return true;
+    }
     public function close()
     {
         if ($this->failed) { $this->db->closedFailedStatements++; }

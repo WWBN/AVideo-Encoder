@@ -201,7 +201,12 @@ $stats = ['diskFree' => 50 * 1073741824, 'diskTotal' => 100 * 1073741824, 'waiti
 checkMonitor(EncoderMonitor::decideSystemChecks($stats, $cfg) === [], 'healthy encoder');
 checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['diskFree' => 4 * 1073741824]), $cfg) === ['disk_low'], 'low by percent');
 checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['diskFree' => 1073741824, 'diskTotal' => 10 * 1073741824]), $cfg) === ['disk_low'], 'low by size');
-checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 3, 'oldestWaitingMinutes' => 31]), $cfg) === ['queue_stalled'], 'stalled queue');
+checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 3, 'oldestWaitingMinutes' => 31, 'idleMinutes' => 10]), $cfg) === ['queue_stalled'], 'stalled queue');
+// 27/10/2026: a job waited 124 minutes behind a long conversion; the first run after that conversion
+// finished saw nothing processing, started the next job and still reported a stalled queue.
+checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 1, 'oldestWaitingMinutes' => 124, 'idleMinutes' => 0]), $cfg) === [], 'a queue that just went idle is not stalled');
+checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 1, 'oldestWaitingMinutes' => 124]), $cfg) === [], 'no idle time tracked is not stalled');
+checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 1, 'oldestWaitingMinutes' => 5, 'idleMinutes' => 60]), $cfg) === [], 'a new job is not stalled');
 checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['waiting' => 3, 'processing' => 1, 'oldestWaitingMinutes' => 300]), $cfg) === [], 'a busy queue is not stalled');
 checkMonitor(EncoderMonitor::decideSystemChecks(array_merge($stats, ['errorsLastHour' => 5]), $cfg) === ['error_spike'], 'error spike');
 
