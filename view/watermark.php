@@ -52,6 +52,12 @@ if (!empty($_REQUEST['_'])) {
     }
     unset($_REQUEST['_']);
 }
+// videos_id and resolution build the cache path used in the shell commands below, and the values
+// copied from "_" skip objects/security.php: keep only their integer value.
+$_REQUEST['videos_id'] = intval($_REQUEST['videos_id'] ?? 0);
+if (!empty($_REQUEST['resolution'])) {
+    $_REQUEST['resolution'] = intval($_REQUEST['resolution']);
+}
 
 
 $domain = get_domain($_REQUEST['file']);
