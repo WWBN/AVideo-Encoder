@@ -60,8 +60,11 @@ function installerChecks() {
         ['label' => 'Database schema', 'ok' => is_readable(__DIR__ . '/database.sql'), 'detail' => 'install/database.sql'],
         ['label' => 'Configuration write access', 'ok' => is_dir($videos) ? is_writable($videos) : is_writable(installerRoot()), 'detail' => 'videos directory'],
     ];
-    foreach (['mysqli', 'curl', 'gd', 'mbstring', 'zip', 'zlib', 'openssl'] as $extension) {
-        $checks[] = ['label' => 'PHP ' . $extension, 'ok' => extension_loaded($extension), 'detail' => 'Enable in the web server php.ini'];
+    require_once installerRoot() . 'objects/PHPRequirements.php';
+    $phpVersion = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    foreach (PHPRequirements::EXTENSIONS as $extension) {
+        $checks[] = ['label' => 'PHP ' . $extension, 'ok' => extension_loaded($extension),
+            'detail' => 'Ubuntu: ' . PHPRequirements::getInstallCommand([$extension], $phpVersion) . ', then restart the web server'];
     }
     $checks[] = ['label' => 'Frontend assets', 'ok' => is_readable(installerRoot() . 'node_modules/jquery/dist/jquery.min.js') && is_readable(installerRoot() . 'node_modules/bootstrap/dist/js/bootstrap.min.js') && is_readable(installerRoot() . 'node_modules/bootstrap/dist/css/bootstrap.min.css'), 'detail' => 'Run npm install in the Encoder directory.'];
     foreach (['exec', 'proc_open'] as $function) {

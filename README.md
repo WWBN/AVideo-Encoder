@@ -123,7 +123,7 @@ Additional requirements:
 - Python 3 with `yt-dlp` installed
 - `exiftool`
 - PHP command execution functions such as `exec` and `shell_exec`
-- The queue (`view/run.php`) runs on the **command-line PHP** (`/usr/bin/php`, or `$global['php']` in `videos/configuration.php`) and the monitor cron on the PHP binary that ran `install/installCron.php`; both are often a different version than the web server's PHP. Installing a newer PHP package can silently switch `/usr/bin/php` to it; install the same extensions for that version (`mysqli`, `curl`, `gd`, `mbstring`, `zip`) or point `$global['php']` at the web server's version. Check with `php -v` and `php -m`.
+- The queue (`view/run.php`) runs on the **command-line PHP** (`/usr/bin/php`, or `$global['php']` in `videos/configuration.php`) and the monitor cron on the PHP binary that ran `install/installCron.php`; both are often a different version than the web server's PHP. Installing a newer PHP package can silently switch `/usr/bin/php` to it; install the same extensions for that version (`mysqli`, `curl`, `gd`, `mbstring`, `zip`) or point `$global['php']` at the web server's version. Check with `php -v` and `php -m`. The Encoder checks this itself (`objects/PHPRequirements.php`): the admin page shows the missing extensions with the exact `apt-get install` command, and `view/run.php` / `install/cron.php` log it.
 
 > The Dockerfile uses `php:8.2-apache`, a PHP branch covered by the regression tests.
 

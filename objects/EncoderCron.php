@@ -39,6 +39,21 @@ class EncoderCron
             . '* * * * * ' . $user . ' ' . self::getCommand($rootPath, $php) . "\n";
     }
 
+    /**
+     * PHP binary written in an installed cron file by buildFile(), '' when it cannot be read.
+     * It is the PHP that ran installCron.php, which can differ from getPHP().
+     */
+    public static function getInstalledPHP($rootPath, $cronDir = '/etc/cron.d')
+    {
+        $file = rtrim($cronDir, '/') . '/' . self::getFileName($rootPath);
+        $content = @is_readable($file) ? (string) @file_get_contents($file) : '';
+        $cronScript = self::shellQuote(self::normalizeRoot($rootPath) . 'install/cron.php');
+        if (!preg_match("~ '([^']+)' " . preg_quote(str_replace('%', '\\%', $cronScript), '~') . '~', $content, $matches)) {
+            return '';
+        }
+        return str_replace('\\%', '%', $matches[1]);
+    }
+
     private static function normalizeRoot($rootPath)
     {
         return rtrim(str_replace('\\', '/', (string) $rootPath), '/') . '/';

@@ -16,6 +16,11 @@ if (!$allowRoot && function_exists('posix_geteuid') && posix_geteuid() === 0) {
     exit(1);
 }
 
+require_once dirname(__FILE__) . '/../objects/PHPRequirements.php';
+if (!PHPRequirements::checkCommandLine(PHPRequirements::getLogFile(dirname(__DIR__)), 'Encoder monitor cron (install/cron.php) cannot run')) {
+    exit(1);
+}
+
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 
 if (!isCommandLineInterface()) {

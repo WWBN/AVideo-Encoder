@@ -4,6 +4,40 @@
 if (!Login::isAdmin()) {
     return;
 }
+require_once $global['systemRootPath'] . 'objects/PHPRequirements.php';
+require_once $global['systemRootPath'] . 'objects/EncoderCron.php';
+// The queue and the cron run on command-line PHP binaries that can lack extensions the web PHP has.
+$phpProblems = PHPRequirements::getProblems([getPHP(), EncoderCron::getInstalledPHP($global['systemRootPath'])]);
+foreach ($phpProblems as $phpProblem) {
+    $phpWho = $phpProblem['isCLI']
+        ? sprintf(__('The command-line PHP %s that runs the encoding queue and the monitor cron'), $phpProblem['phpVersion']) . ' (<code>' . htmlspecialchars($phpProblem['binary'], ENT_QUOTES, 'UTF-8') . '</code>)'
+        : sprintf(__('The web server PHP %s'), $phpProblem['phpVersion']);
+    ?>
+    <div class="alert alert-danger encoderPHPRequirements">
+        <strong><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> <?php echo __('Missing PHP extensions'); ?>:</strong>
+        <?php echo $phpWho; ?> <?php echo __('does not have'); ?>
+        <strong><?php echo htmlspecialchars(implode(', ', $phpProblem['missing']), ENT_QUOTES, 'UTF-8'); ?></strong>.
+        <?php if (!empty($phpProblem['blocking'])) { ?>
+            <?php echo __('Videos cannot be encoded until this is fixed.'); ?>
+        <?php } else { ?>
+            <?php echo __('Some encoder features can fail until this is fixed.'); ?>
+        <?php } ?>
+        <hr style="margin: 10px 0;">
+        <?php echo __('Run this on the server (Ubuntu) as root:'); ?>
+        <pre style="margin: 5px 0; white-space: pre-wrap;"><?php echo htmlspecialchars($phpProblem['installCommand'], ENT_QUOTES, 'UTF-8'); ?></pre>
+        <?php if (!empty($phpProblem['enableCommand'])) { ?>
+            <?php echo __('If the packages are already installed, enable the extensions:'); ?>
+            <pre style="margin: 5px 0; white-space: pre-wrap;"><?php echo htmlspecialchars($phpProblem['enableCommand'], ENT_QUOTES, 'UTF-8'); ?></pre>
+        <?php } ?>
+        <?php if (!$phpProblem['isCLI']) { ?>
+            <?php echo __('Then restart the web server:'); ?>
+            <pre style="margin: 5px 0; white-space: pre-wrap;">sudo systemctl restart apache2</pre>
+        <?php } else { ?>
+            <?php echo __('No restart is needed: the next queue and cron runs use the new extensions.'); ?>
+        <?php } ?>
+    </div>
+    <?php
+}
 require_once $global['systemRootPath'] . 'objects/EncoderMonitor.php';
 try {
     $monitorReport = EncoderMonitor::getStatusReport();

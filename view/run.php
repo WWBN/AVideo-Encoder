@@ -1,6 +1,12 @@
 <?php
 //exit;
 header('Content-Type: application/json');
+require_once dirname(__FILE__) . '/../objects/PHPRequirements.php';
+if (php_sapi_name() === 'cli'
+    && !PHPRequirements::checkCommandLine(PHPRequirements::getLogFile(dirname(__DIR__)), 'Encoder queue (view/run.php) cannot run')) {
+    echo json_encode(['error' => true, 'msg' => 'Missing PHP extensions, see the Encoder log']);
+    exit(1);
+}
 require_once dirname(__FILE__) . '/../videos/configuration.php';
 require_once $global['systemRootPath'].'objects/Encoder.php';
 require_once $global['systemRootPath'].'objects/Login.php';
