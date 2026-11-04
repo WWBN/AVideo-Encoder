@@ -1421,6 +1421,57 @@ function getPHP()
     return "php";
 }
 
+/**
+ * Cuts UTF-8 text to at most $maxBytes bytes without splitting a character.
+ * The queue runs on the CLI PHP from getPHP(), which can be another PHP version than the web
+ * server's and may lack mbstring; a missing mb_* function there killed every Encoder::run().
+ */
+function encoderCutUtf8($text, $maxBytes)
+{
+    $text = (string) $text;
+    $maxBytes = max(0, (int) $maxBytes);
+    if (strlen($text) <= $maxBytes) {
+        return $text;
+    }
+    if (function_exists('mb_strcut')) {
+        return mb_strcut($text, 0, $maxBytes, 'UTF-8');
+    }
+    $cut = substr($text, 0, $maxBytes);
+    $len = strlen($cut);
+    // Drop a trailing multibyte sequence that lost its last bytes.
+    for ($i = $len - 1; $i >= 0 && $i >= $len - 4; $i--) {
+        $byte = ord($cut[$i]);
+        if ($byte < 0x80) {
+            break;
+        }
+        if ($byte >= 0xC0) {
+            $need = $byte >= 0xF0 ? 4 : ($byte >= 0xE0 ? 3 : 2);
+            if ($len - $i < $need) {
+                $cut = substr($cut, 0, $i);
+            }
+            break;
+        }
+    }
+    return $cut;
+}
+
+/**
+ * First $maxChars characters of UTF-8 text, also without mbstring (see encoderCutUtf8()).
+ */
+function encoderSubstrUtf8($text, $maxChars)
+{
+    $text = (string) $text;
+    $maxChars = max(0, (int) $maxChars);
+    if (function_exists('mb_substr')) {
+        return mb_substr($text, 0, $maxChars, 'UTF-8');
+    }
+    if ($maxChars <= 65535 && preg_match('/^.{0,' . $maxChars . '}/su', $text, $matches)) {
+        return $matches[0];
+    }
+    // Invalid UTF-8: a byte cut is never longer than the requested character count.
+    return encoderCutUtf8($text, $maxChars);
+}
+
 //function __($msg) {
 //    return $msg;
 //}

@@ -1294,7 +1294,7 @@ if (!class_exists('Format')) {
             if ($message === '') {
                 $message = $exitCode ? 'The process stopped without an error description. Check the job progress log.' : 'The output could not be decoded.';
             }
-            return mb_substr($message, 0, 1200);
+            return encoderSubstrUtf8($message, 1200);
         }
 
 

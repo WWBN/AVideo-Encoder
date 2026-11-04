@@ -44,6 +44,9 @@ class Encoder extends ObjectYPT
     // backoff and can recover without repeatedly running FFmpeg.
     const MAX_AUTO_RETRIES = 5;
 
+    private static $runFatalHandlerRegistered = false;
+    private static $runJobId = 0;
+
     protected $id;
     protected $fileURI;
     protected $filename;
@@ -394,7 +397,7 @@ class Encoder extends ObjectYPT
         }
         _error_log("Encoder::setStatus_obs " . json_encode(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)));
         $old_status_obs = $this->status_obs;
-        $this->status_obs = mb_strcut((string) $status_obs, 0, 200, 'UTF-8');
+        $this->status_obs = encoderCutUtf8($status_obs, 200);
 
         if ($setStreamerLog && !empty($this->id) && $old_status_obs !== $this->status_obs) {
             self::setStreamerLog($this->id, $this->status_obs, Encoder::LOG_TYPE_StatusObs);
@@ -1469,7 +1472,7 @@ class Encoder extends ObjectYPT
     {
         $vars = json_decode($this->getReturn_vars());
         if (!is_object($vars)) { $vars = new stdClass(); }
-        $vars->failure = (object) ['stage' => $stage, 'message' => mb_substr($message, 0, 1600), 'exit_code' => $exitCode, 'code' => $code];
+        $vars->failure = (object) ['stage' => $stage, 'message' => encoderSubstrUtf8($message, 1600), 'exit_code' => $exitCode, 'code' => $code];
         $this->setReturn_vars(json_encode($vars));
     }
 
@@ -1803,6 +1806,39 @@ class Encoder extends ObjectYPT
         return count($encoding) < $concurrent;
     }
 
+    /**
+     * A PHP fatal error inside run() (for example a function from an extension missing in the CLI
+     * PHP) left the job queued with no visible cause while the lock blocked the queue. Record the
+     * cause on the job; it keeps its status and is retried automatically once the run lock expires.
+     */
+    private static function registerRunFatalHandler()
+    {
+        if (self::$runFatalHandlerRegistered) {
+            return;
+        }
+        self::$runFatalHandlerRegistered = true;
+        register_shutdown_function(function () {
+            $error = error_get_last();
+            if (empty(self::$runJobId) || empty($error)
+                || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                return;
+            }
+            _error_log('Encoder::run fatal error while processing job ' . self::$runJobId . ': ' . $error['message'] . ' in ' . $error['file'] . ':' . $error['line']);
+            // Only the first line, without server paths, is shown to users.
+            $cause = preg_replace('/\s+in\s+\S+:\d+.*$/s', '', strtok((string) $error['message'], "\n"));
+            try {
+                $encoder = new Encoder(self::$runJobId);
+                if (in_array($encoder->getStatus(), [self::STATUS_DONE, self::STATUS_ERROR], true)) {
+                    return;
+                }
+                $encoder->setStatus_obs('The Encoder stopped with a PHP error and will retry automatically: ' . $cause, false);
+                $encoder->save();
+            } catch (\Throwable $th) {
+                _error_log('Encoder::run could not record the fatal error: ' . $th->getMessage());
+            }
+        });
+    }
+
     public static function run($try = 0)
     {
         global $global, $advancedCustom;
@@ -1830,6 +1866,7 @@ class Encoder extends ObjectYPT
 
         // Create the lock file with the current time
         file_put_contents($lockFile, time());
+        self::registerRunFatalHandler();
         //_error_log("Encoder::run: Lock file created $lockFile");
 
         if ($try > $maxTries) {
@@ -1861,6 +1898,7 @@ class Encoder extends ObjectYPT
                 _error_log('Encoder::run exit: there is no file on queue');
             } else {
                 $encoder = new Encoder($rowNext['id']);
+                self::$runJobId = intval($encoder->getId());
                 $return_vars = json_decode($encoder->getReturn_vars());
                 if (empty($return_vars->videos_id)) {
                     _error_log("Encoder::run: videos_id empty for encoder_id={$encoder->getId()}, calling getVideosId to bootstrap from streamer");
