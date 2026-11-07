@@ -39,24 +39,12 @@ jobs:
           extensions: pcre, mbstring, xml, curl, gd, pdo_mysql, zip, intl, pcntl
           coverage: none
 
+      - name: Test media dependency setup
+        run: python3 .github/scripts/test-install-media-tools.py
+
       - name: Install media tools for real FFmpeg regressions
-        # A stalled package mirror must fail fast and be retried, not consume the whole job timeout.
         timeout-minutes: 15
-        run: |
-          apt_options='-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30'
-          for attempt in 1 2 3; do
-            if sudo timeout 240 apt-get $apt_options update \
-              && sudo timeout 300 apt-get $apt_options install --yes ffmpeg zip unzip; then
-              break
-            fi
-            if [ "$attempt" = 3 ]; then
-              exit 1
-            fi
-            echo "apt-get attempt $attempt failed; retrying"
-            sleep 10
-          done
-          ffmpeg -version
-          ffprobe -version
+        run: bash .github/scripts/install-media-tools.sh
 
       - name: Run every standalone PHP regression (required)
         run: |
