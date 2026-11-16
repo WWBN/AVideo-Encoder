@@ -65,6 +65,11 @@ try {
     copy($localFileDownloadDir . '/000.ts', $localFileDownloadDir . '/001.ts');
     createSymbolicLinks($localFileDownloadDir, $outputPath);
     watermarkExpect(allTSFilesAreSymlinks($outputPath), 'longer videos keep converting beyond the first watermarked segment');
+    // getTSFiles() lists only segments older than 2 s; one fresh mtime for both keeps the wait
+    // but stops a second boundary between the two writes from listing only the older one.
+    $watermarkFreshTime = time();
+    touch($outputPath . '/000.ts', $watermarkFreshTime);
+    touch($localFileDownloadDir . '/001.ts', $watermarkFreshTime);
     $process = proc_open([PHP_BINARY, __FILE__, $watermarkTestRoot, '--manifest', $watermarkTestDir], [1 => ['pipe', 'w'], 2 => ['file', $watermarkTestDir . '/child.log', 'a']], $pipes);
     $manifest = stream_get_contents($pipes[1]);
     fclose($pipes[1]);
