@@ -50,7 +50,8 @@ if (!class_exists('mysqli')) {
     die($msg);
 }
 
-$global['mysqli'] = new mysqli($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase, (int)($mysqlPort ?? ini_get('mysqli.default_port')));
+require_once $global['systemRootPath'] . 'objects/mysqlConnection.php';
+$global['mysqli'] = _mysql_new_connection($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase, (int)($mysqlPort ?? ini_get('mysqli.default_port')));
 
 $now = new DateTime();
 $mins = $now->getOffset() / 60;

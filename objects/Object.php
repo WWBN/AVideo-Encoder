@@ -253,7 +253,7 @@ abstract class ObjectYPT implements ObjectInterface
                 if ($attempts < $retryLimit) {
                     $attempts++;
                     sleep(5); // Delay for 5 seconds before retrying
-                    $global['mysqli'] = new mysqli($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase);
+                    $global['mysqli'] = _mysql_new_connection($mysqlHost, $mysqlUser, $mysqlPass, $mysqlDatabase);
                 } else {
                     die($e->getMessage());
                 }
