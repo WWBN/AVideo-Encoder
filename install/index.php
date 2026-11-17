@@ -81,6 +81,15 @@ $ready = !in_array(false, array_column($checks, 'ok'), true);
                     </div>
                     <div class="field full"><label for="tablesPrefix">Table prefix</label><input id="tablesPrefix" name="tablesPrefix" pattern="[A-Za-z0-9_]{0,25}" maxlength="25" placeholder="Optional, for example encoder_"><small>Use a unique prefix to share a database with other applications.</small></div>
                     <div class="field full database-mode"><label for="createTables">Database setup</label><select id="createTables" name="createTables"><option value="2">Create database and tables</option><option value="1">Create tables in an existing database</option><option value="0">Use a schema imported manually</option></select><small>The selected Encoder tables must contain no application data.</small></div>
+                    <details class="database-mode"><summary>Encrypted connection (SSL/TLS)</summary>
+                        <p>Only needed when the database is on another server that accepts only encrypted connections.</p>
+                        <div class="fields">
+                            <div class="field full"><label for="databaseSSL">Connection security</label><select id="databaseSSL" name="databaseSSL">
+                                <option value="0">Not encrypted (default)</option><option value="verify">Encrypted, verify the server certificate (recommended)</option><option value="encrypt">Encrypted, do not verify the server certificate</option>
+                            </select><small>Verification also confirms that you are connected to the right server. The database host must match the name in its certificate.</small></div>
+                            <div class="field full"><label for="databaseSSLCA">CA certificate file <span class="optional">optional</span></label><input id="databaseSSLCA" name="databaseSSLCA" maxlength="4096" autocomplete="off" spellcheck="false" placeholder="/etc/mysql/ca.pem"><small>Full path, on this server, of the certificate that signed the database certificate (your database provider gives it). Leave blank to use the certificates this server already trusts.</small></div>
+                        </div>
+                    </details>
                     <div class="card-footer"><span>Testing the connection does not change any data.</span><button type="button" class="button secondary" id="testConnection">Test connection <span aria-hidden="true">↗</span></button></div>
                     <div id="connectionResult" class="inline-result" role="status" hidden></div>
                 </section>
