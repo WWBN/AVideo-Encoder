@@ -22,7 +22,7 @@ if (!is_array($rows)) {
 foreach ($rows as $key => $value) {
     $jobVars = json_decode($rows[$key]['return_vars']);
     $rows[$key]['recovery_message'] = !empty($jobVars->recovery->code) && empty($jobVars->recovery->legacy)
-        ? Encoder::getRecoveryMessage($jobVars->recovery->code, $jobVars->videos_id ?? 0) : '';
+        ? Encoder::getRecoveryMessage($jobVars->recovery->code, $jobVars->videos_id ?? 0, $rows[$key]['status']) : '';
     $rows[$key]['failure_details'] = !empty($jobVars->failure->message) ? (string) $jobVars->failure->message : '';
     $rows[$key]['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($rows[$key], Login::getStreamerId());
     $rows[$key]['local_encoder_source_url'] = EncoderLocalEncoderPromotion::getSourceURL($rows[$key], Login::getStreamerId());

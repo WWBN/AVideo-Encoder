@@ -1397,9 +1397,9 @@ class Encoder extends ObjectYPT
         return $streamer->getJobStatus($vars->videos_id ?? 0, $vars->video_id_hash ?? '', $withCredentials);
     }
 
-    public static function getRecoveryMessage($code, $videosId = 0)
+    public static function getRecoveryMessage($code, $videosId = 0, $status = self::STATUS_ERROR)
     {
-        if ($code === 'recovering_output') {
+        if ($status !== self::STATUS_ERROR || $code === 'recovering_output') {
             return ''; // Show the worker's current error instead of hiding it behind an old retry state.
         }
         if ($code === 'transfer_too_large') {

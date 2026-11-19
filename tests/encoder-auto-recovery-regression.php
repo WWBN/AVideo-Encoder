@@ -141,6 +141,12 @@ try {
     expectRecovery(!$job->recoverJobAutomatically() && json_decode($job->getReturn_vars())->recovery->terminal
         && strpos($job->getStatus_obs(), 'HTTP 413') !== false, 'an upload size limit is explicit and never creates an endless transfer loop');
     expectRecovery(Encoder::getRecoveryMessage('recovering_output') === '', 'old recovery state does not hide current transfer diagnostics');
+    foreach (['queue', 'downloaded', 'downloading', 'encoding', 'packing', 'transferring', 'done'] as $activeStatus) {
+        expectRecovery(Encoder::getRecoveryMessage('output_missing', 114, $activeStatus) === '',
+            'stale recovery errors do not hide the current stage for ' . $activeStatus);
+    }
+    expectRecovery(strpos(Encoder::getRecoveryMessage('output_missing', 114, 'error'), 'missing') !== false,
+        'failed jobs still show actionable recovery diagnostics');
     foreach (['status' => 'queue', 'streamers_id' => 99] as $field => $newValue) {
         $job = jobRecovery(9);
         RecoveryFixture::$duringRequest = function ($id) use ($field, $newValue) { ObjectYPT::$rows[$id][$field] = $newValue; };

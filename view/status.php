@@ -57,7 +57,7 @@ $obj->queue_list = Encoder::getAllQueue();
 foreach ($obj->queue_list as &$queueItem) {
     $jobVars = $queueItem['return_vars'];
     $queueItem['recovery_message'] = !empty($jobVars->recovery->code) && empty($jobVars->recovery->legacy)
-        ? Encoder::getRecoveryMessage($jobVars->recovery->code, $jobVars->videos_id ?? 0) : '';
+        ? Encoder::getRecoveryMessage($jobVars->recovery->code, $jobVars->videos_id ?? 0, $queueItem['status']) : '';
     $queueItem['local_encoder_import_failed'] = EncoderLocalEncoderPromotion::isFailedURLImport($queueItem, Login::getStreamerId());
     $queueItem['local_encoder_source_url'] = EncoderLocalEncoderPromotion::getSourceURL($queueItem, Login::getStreamerId());
 }
