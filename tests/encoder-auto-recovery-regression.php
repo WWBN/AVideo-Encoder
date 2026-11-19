@@ -13,8 +13,9 @@ class ObjectYPT {
 class Login {}
 class Streamer {}
 class Format {
+    public static $extension = 'mp4';
     public function __construct($id) {}
-    public function getExtension_from() { return 'mp4'; }
+    public function getExtension_from() { return self::$extension; }
 }
 $global = ['systemRootPath' => rtrim($argv[1] ?? dirname(__DIR__), '/\\') . '/', 'docker_vars' => __DIR__ . '/missing'];
 require $global['systemRootPath'] . 'objects/Encoder.php';
@@ -38,6 +39,12 @@ $checks = 0;
 $testLog = tempnam(sys_get_temp_dir(), 'encoder-recovery-test-');
 $inputRoot = sys_get_temp_dir() . '/encoder-recovery-input-' . uniqid() . '/';
 mkdir($inputRoot . 'videos', 0700, true);
+register_shutdown_function(function () use ($inputRoot) {
+    foreach (glob($inputRoot . 'videos/*') ?: [] as $inputFile) { unlink($inputFile); }
+    if (is_file($inputRoot . 'bulk-source.mp4')) { unlink($inputRoot . 'bulk-source.mp4'); }
+    if (is_dir($inputRoot . 'videos')) { rmdir($inputRoot . 'videos'); }
+    if (is_dir($inputRoot)) { rmdir($inputRoot); }
+});
 ini_set('error_log', $testLog);
 ob_start();
 function expectRecovery($condition, $message) {
@@ -113,6 +120,16 @@ try {
     file_put_contents($inputRoot . 'videos/17_tmpFile.mp4', 'incomplete');
     $job = jobRecovery(17);
     expectRecovery(!$job->recoverJobAutomatically(), 'a tiny canonical placeholder is not treated as a downloaded input');
+    Format::$extension = '';
+    file_put_contents($inputRoot . 'videos/18_tmpFile', str_repeat('original-input', 4));
+    $job = jobRecovery(18);
+    expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue',
+        'formats without an input extension use the same retained input path as downloadFile');
+    Format::$extension = 'mp4';
+    file_put_contents($inputRoot . 'videos/19_tmpFile.mp4', str_repeat('original-input', 4));
+    $job = jobRecovery(19, 1, ['retry_count' => Encoder::MAX_AUTO_RETRIES]);
+    expectRecovery(!$job->recoverJobAutomatically() && $job->getStatus() === 'error',
+        'retained input does not bypass the automatic retry limit');
     $global['systemRootPath'] = $sourceRoot;
     $job = jobRecovery(12, 1, ['fileURI' => 'https://one.example/original.mp4',
         'return_vars' => json_encode(['videos_id' => 112, 'failure' => ['stage' => 'encoding', 'exit_code' => 1, 'message' => 'Connection timed out']])]);
@@ -142,10 +159,6 @@ try {
     expectRecovery($row['last_result'] === 'skipped: destination video was deleted' && $response === null,
         'a deleted destination never retries the saved login to send owner alerts');
     ob_end_clean();
-    foreach (glob($inputRoot . 'videos/*') as $inputFile) { unlink($inputFile); }
-    unlink($inputRoot . 'bulk-source.mp4');
-    rmdir($inputRoot . 'videos');
-    rmdir($inputRoot);
     unlink($testLog);
     echo 'PASS: ' . $checks . ' automatic recovery checks' . PHP_EOL;
 } catch (Throwable $error) {
