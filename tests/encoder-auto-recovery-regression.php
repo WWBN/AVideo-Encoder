@@ -12,7 +12,10 @@ class ObjectYPT {
 }
 class Login {}
 class Streamer {}
-class Format {}
+class Format {
+    public function __construct($id) {}
+    public function getExtension_from() { return 'mp4'; }
+}
 $global = ['systemRootPath' => rtrim($argv[1] ?? dirname(__DIR__), '/\\') . '/', 'docker_vars' => __DIR__ . '/missing'];
 require $global['systemRootPath'] . 'objects/Encoder.php';
 require $global['systemRootPath'] . 'objects/EncoderMonitor.php';
@@ -33,6 +36,8 @@ class RecoveryFixture extends Encoder {
 }
 $checks = 0;
 $testLog = tempnam(sys_get_temp_dir(), 'encoder-recovery-test-');
+$inputRoot = sys_get_temp_dir() . '/encoder-recovery-input-' . uniqid() . '/';
+mkdir($inputRoot . 'videos', 0700, true);
 ini_set('error_log', $testLog);
 ob_start();
 function expectRecovery($condition, $message) {
@@ -43,7 +48,7 @@ function expectRecovery($condition, $message) {
 function jobRecovery($id, $streamer = 1, $extra = []) {
     ObjectYPT::$rows[$id] = array_merge(['id' => $id, 'streamers_id' => $streamer, 'status' => 'error',
         'status_obs' => 'Execute code error 2', 'return_vars' => json_encode(['videos_id' => $id + 100]),
-        'retry_count' => 0, 'downloadedFileName' => '', 'fileURI' => ''], $extra);
+        'retry_count' => 0, 'formats_id' => 1, 'downloadedFileName' => '', 'fileURI' => ''], $extra);
     return new RecoveryFixture($id);
 }
 try {
@@ -93,6 +98,22 @@ try {
     expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue', 'missing output automatically requeues an available original');
     $job = jobRecovery(8);
     expectRecovery(!$job->recoverJobAutomatically() && json_decode($job->getReturn_vars())->recovery->code === 'output_missing', 'missing source and output is explicit');
+    $sourceRoot = $global['systemRootPath'];
+    $global['systemRootPath'] = $inputRoot;
+    file_put_contents($inputRoot . 'videos/14_tmpFile.mp4', str_repeat('original-input', 4));
+    $job = jobRecovery(14, 1, ['fileURI' => $inputRoot . 'removed-bulk-source.mp4']);
+    expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue',
+        'retained canonical input recovers when the bulk source moved and downloadedFileName is empty');
+    $job = jobRecovery(15);
+    expectRecovery(!$job->recoverJobAutomatically(), 'another job cannot reuse the retained input');
+    file_put_contents($inputRoot . 'bulk-source.mp4', str_repeat('bulk-input', 4));
+    $job = jobRecovery(16, 2, ['fileURI' => $inputRoot . 'bulk-source.mp4']);
+    expectRecovery($job->recoverJobAutomatically() && $job->getStatus() === 'queue',
+        'a local bulk source can be recovered before downloadedFileName is recorded');
+    file_put_contents($inputRoot . 'videos/17_tmpFile.mp4', 'incomplete');
+    $job = jobRecovery(17);
+    expectRecovery(!$job->recoverJobAutomatically(), 'a tiny canonical placeholder is not treated as a downloaded input');
+    $global['systemRootPath'] = $sourceRoot;
     $job = jobRecovery(12, 1, ['fileURI' => 'https://one.example/original.mp4',
         'return_vars' => json_encode(['videos_id' => 112, 'failure' => ['stage' => 'encoding', 'exit_code' => 1, 'message' => 'Connection timed out']])]);
     $resumes = RecoveryFixture::$resumes;
@@ -121,6 +142,10 @@ try {
     expectRecovery($row['last_result'] === 'skipped: destination video was deleted' && $response === null,
         'a deleted destination never retries the saved login to send owner alerts');
     ob_end_clean();
+    foreach (glob($inputRoot . 'videos/*') as $inputFile) { unlink($inputFile); }
+    unlink($inputRoot . 'bulk-source.mp4');
+    rmdir($inputRoot . 'videos');
+    rmdir($inputRoot);
     unlink($testLog);
     echo 'PASS: ' . $checks . ' automatic recovery checks' . PHP_EOL;
 } catch (Throwable $error) {

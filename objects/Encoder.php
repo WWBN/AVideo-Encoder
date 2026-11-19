@@ -740,6 +740,13 @@ class Encoder extends ObjectYPT
     }
 
 
+    private static function getInputFilePath($queue_id, $extension)
+    {
+        global $global;
+        return $global['systemRootPath'] . 'videos/' . intval($queue_id) . '_tmpFile'
+            . (!empty($extension) ? '.' . $extension : '');
+    }
+
     public static function downloadFile($queue_id)
     {
 
@@ -751,21 +758,16 @@ class Encoder extends ObjectYPT
         //$ext = pathinfo($value, PATHINFO_EXTENSION);
 
         $f = new Format($q->getFormats_id());
-        $ext = $f->getExtension_from();
-
-        if (!empty($ext)) {
-            $ext = ".{$ext}";
-        }
-
         $dstFilepath = $global['systemRootPath'] . "videos/";
-        $filename = "{$queue_id}_tmpFile" . $ext;
+        $inputFilePath = self::getInputFilePath($queue_id, $f->getExtension_from());
+        $filename = basename($inputFilePath);
         if (!is_dir($dstFilepath)) {
             mkdir($dstFilepath);
         }
 
         $obj->error = true;
         $obj->filename = $filename;
-        $obj->pathFileName = $dstFilepath . $filename;
+        $obj->pathFileName = $inputFilePath;
 
         if (!self::canDownloadNow()) {
             _error_log("downloadFile: there is a file downloading");
@@ -1533,7 +1535,15 @@ class Encoder extends ObjectYPT
             // No usable output: a bounded retry can encode the retained source again.
             $input = $this->getDownloadedFileName();
             $source = $this->getFileURI();
-            $hasInput = ($input && is_file($input)) || (is_string($source) && preg_match('~^https?://~i', $source));
+            $hasInput = ($input && is_file($input))
+                || (is_string($source) && (is_file($source) || preg_match('~^https?://~i', $source)));
+            if (!$hasInput) {
+                // A preflight failure can precede setDownloaded(), even though the job's
+                // canonical input was already retained by an earlier download or upload.
+                $format = new Format($this->getFormats_id());
+                $cachedInput = self::getInputFilePath($this->getId(), $format->getExtension_from());
+                $hasInput = is_file($cachedInput) && filesize($cachedInput) > 20;
+            }
             if ($hasInput && $this->getRetry_count() < self::MAX_AUTO_RETRIES) {
                 $this->setRetry_count($this->getRetry_count() + 1);
                 $this->setStatus(self::STATUS_QUEUE, false);
