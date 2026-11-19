@@ -17,6 +17,9 @@ $(function () {
     var failedText = <?php echo json_encode(__('Could not refresh the monitor status.', true)); ?>;
     var tab = $('#mainTabs a[href="#monitor"]');
     var loading = false;
+    var dismissURL = <?php echo json_encode($global['webSiteRootURL'] . 'view/monitorDismiss.json.php?' . getPHPSessionIDURL(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+    var dismissToken = <?php echo json_encode(getEncoderAdminCSRFToken()); ?>;
+    var dismissFailed = <?php echo json_encode(__('Could not dismiss the notice. Refresh the page and try again.', true)); ?>;
 
     function isOpen() {
         return $('#monitor').hasClass('active');
@@ -57,6 +60,27 @@ $(function () {
         $('html, body').animate({scrollTop: $('#mainTabs').offset().top - 70}, 200);
     });
     $(document).on('click', '#encoderMonitorRefresh', function () { refresh(true); });
+    $(document).on('click', '[data-monitor-dismiss]', function () {
+        var button = $(this);
+        var id = button.attr('data-streamer-id');
+        var version = button.attr('data-issue-version');
+        button.prop('disabled', true);
+        $.ajax({url: dismissURL, type: 'POST', dataType: 'json', timeout: 15000,
+            data: {streamers_id: id, version: version, csrfToken: dismissToken}
+        }).done(function (response) {
+            if (response.error) { avideoToastError(response.msg || dismissFailed); return; }
+            $('[data-monitor-issue]').filter(function () {
+                return $(this).attr('data-monitor-issue') === id + ':' + version;
+            }).remove();
+            $('.encoder-monitor-delivery-notice').each(function () {
+                if (!$(this).find('[data-monitor-issue]').length) { $(this).remove(); }
+            });
+            avideoToastSuccess(response.msg);
+            refresh(false);
+        }).fail(function (xhr) {
+            avideoToastError(xhr.responseJSON && xhr.responseJSON.msg || dismissFailed);
+        }).always(function () { button.prop('disabled', false); });
+    });
     $(document).on('click', '[data-monitor-copy]', function () {
         var text = $(this).attr('data-monitor-copy');
         var done = function () { avideoToastSuccess(copiedText); };

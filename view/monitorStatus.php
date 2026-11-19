@@ -87,7 +87,7 @@ $monitorIssueTexts = [
     </div>
 <?php } ?>
 <?php if (!empty($monitorReport['streamerIssues'])) { ?>
-    <div class="alert alert-warning">
+    <div class="alert alert-warning encoder-monitor-delivery-notice">
         <strong><i class="fas fa-envelope" aria-hidden="true"></i> <?php echo __('Encoder alerts'); ?>:</strong>
         <?php echo __('These accounts have unresolved Encoder alert delivery failures from the last 24 hours.'); ?>
         <ul style="margin: 5px 0 0;">
@@ -99,9 +99,16 @@ $monitorIssueTexts = [
                 }
                 $monitorText = isset($monitorIssueTexts[$monitorIssue['issue']]) ? $monitorIssueTexts[$monitorIssue['issue']] : $monitorIssueTexts[EncoderMonitor::ISSUE_REJECTED];
                 ?>
-                <li><strong><?php echo htmlspecialchars($monitorSite, ENT_QUOTES, 'UTF-8'); ?></strong>
+                <li data-monitor-issue="<?php echo intval($monitorIssue['streamers_id']) . ':' . htmlspecialchars($monitorIssue['version'], ENT_QUOTES, 'UTF-8'); ?>"><strong><?php echo htmlspecialchars($monitorSite, ENT_QUOTES, 'UTF-8'); ?></strong>
                     (<?php echo __('User'); ?>: <?php echo htmlspecialchars($monitorStreamer->getUser(), ENT_QUOTES, 'UTF-8'); ?>)
-                    <?php echo $monitorText; ?></li>
+                    <?php echo $monitorText; ?>
+                    <button type="button" class="btn btn-default btn-xs" data-monitor-dismiss
+                        data-streamer-id="<?php echo intval($monitorIssue['streamers_id']); ?>"
+                        data-issue-version="<?php echo htmlspecialchars($monitorIssue['version'], ENT_QUOTES, 'UTF-8'); ?>"
+                        title="<?php echo htmlspecialchars(__('Hide this notice. A new delivery failure will appear again.', true), ENT_QUOTES, 'UTF-8'); ?>">
+                        <i class="fas fa-times" aria-hidden="true"></i> <?php echo __('Dismiss notice'); ?>
+                    </button>
+                </li>
             <?php } ?>
         </ul>
         <a href="#monitor" data-monitor-open class="alert-link monitor-open-link"><?php echo __('Open the monitor'); ?> <i class="fas fa-arrow-right" aria-hidden="true"></i></a>

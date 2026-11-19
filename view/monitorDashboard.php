@@ -264,9 +264,31 @@ $settings = [
                             <small class="text-muted"><?php echo $esc($tr('User') . ': ' . $issueStreamer->getUser()); ?></small>
                             <span class="text-muted"><?php echo $esc(isset($issueLabels[$issue['issue']]) ? $issueLabels[$issue['issue']] : $issueLabels[EncoderMonitor::ISSUE_REJECTED]); ?></span>
                             <small class="text-muted"><?php echo $esc(sprintf($tr('%s ago'), $duration($issue['age']))); ?></small>
+                            <button type="button" class="btn btn-default btn-xs" data-monitor-dismiss
+                                data-streamer-id="<?php echo intval($issue['streamers_id']); ?>"
+                                data-issue-version="<?php echo $esc($issue['version']); ?>"
+                                title="<?php echo $esc($tr('Hide this notice. A new delivery failure will appear again.')); ?>">
+                                <i class="fas fa-times" aria-hidden="true"></i> <?php echo $esc($tr('Dismiss notice')); ?>
+                            </button>
                         </li>
                     <?php } ?>
                 </ul>
+            <?php } ?>
+            <?php if (!empty($report['dismissedStreamerIssues'])) { ?>
+                <details>
+                    <summary><?php echo $esc($tr('Dismissed notices')); ?></summary>
+                    <ul class="monitor-list">
+                        <?php foreach ($report['dismissedStreamerIssues'] as $issue) {
+                            $dismissedStreamer = new Streamer($issue['streamers_id']); ?>
+                            <li>
+                                <strong><?php echo $esc($streamerHost($issue['streamers_id'])); ?></strong>
+                                <small class="text-muted"><?php echo $esc($tr('User') . ': ' . $dismissedStreamer->getUser()); ?></small>
+                                <small class="text-muted"><?php echo $esc(sprintf($tr('%s ago'), $duration($issue['age']))); ?></small>
+                                <span class="text-muted"><?php echo $esc(isset($issueLabels[$issue['issue']]) ? $issueLabels[$issue['issue']] : $issueLabels[EncoderMonitor::ISSUE_REJECTED]); ?></span>
+                            </li>
+                        <?php } ?>
+                    </ul>
+                </details>
             <?php } ?>
         </section>
     </div>

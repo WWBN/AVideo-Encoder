@@ -52,6 +52,7 @@ class EncoderMonitor
     const STATE_HEARTBEAT = 'heartbeat';
     const STATE_LAST_ERROR = 'last_error';
     const STATE_STREAMER_ISSUE = 'streamer_issue_';
+    const STATE_DISMISSED_STREAMER_ISSUE = 'streamer_issue_dismissed_';
     const STATE_QUEUE_IDLE_SINCE = 'queue_idle_since';
 
     const ISSUE_UNREACHABLE = 'unreachable';
@@ -544,12 +545,13 @@ class EncoderMonitor
      */
     public static function getStatusReport()
     {
-        $report = ['tablesMissing' => !self::tablesExist(), 'heartbeatAge' => -1, 'summary' => null, 'lastError' => null, 'streamerIssues' => []];
+        $report = ['tablesMissing' => !self::tablesExist(), 'heartbeatAge' => -1, 'summary' => null, 'lastError' => null, 'streamerIssues' => [], 'dismissedStreamerIssues' => []];
         if ($report['tablesMissing']) {
             return $report;
         }
         $res = self::query("SELECT name, value, TIMESTAMPDIFF(MINUTE, modified, NOW()) AS age FROM " . self::stateTable()
             . " WHERE name IN ('" . self::STATE_HEARTBEAT . "', '" . self::STATE_LAST_ERROR . "') OR name LIKE 'streamer\\_issue\\_%'");
+        $dismissed = [];
         while ($row = $res->fetch_assoc()) {
             $value = json_decode((string) $row['value'], true);
             $age = intval($row['age']);
@@ -558,11 +560,15 @@ class EncoderMonitor
                 $report['summary'] = is_array($value) && isset($value['summary']) ? $value['summary'] : null;
             } elseif ($row['name'] === self::STATE_LAST_ERROR) {
                 $report['lastError'] = ['message' => is_array($value) ? (string) @$value['message'] : '', 'age' => $age];
+            } elseif (strpos($row['name'], self::STATE_DISMISSED_STREAMER_ISSUE) === 0) {
+                $dismissed[intval(substr($row['name'], strlen(self::STATE_DISMISSED_STREAMER_ISSUE)))] = (string) $row['value'];
             } elseif ($age <= 1440 && is_array($value) && !empty($value['issue'])) {
+                $streamers_id = intval(substr($row['name'], strlen(self::STATE_STREAMER_ISSUE)));
                 $report['streamerIssues'][] = [
-                    'streamers_id' => intval(substr($row['name'], strlen(self::STATE_STREAMER_ISSUE))),
+                    'streamers_id' => $streamers_id,
                     'issue' => (string) $value['issue'],
                     'age' => $age,
+                    'version' => self::getStreamerIssueVersion($streamers_id, $row['value']),
                 ];
             }
         }
@@ -570,8 +576,38 @@ class EncoderMonitor
             $report['streamerIssues'] = self::filterRelevantStreamerIssues(
                 $report['streamerIssues'], self::getJobs(self::getConfig()), self::getAdminStreamerIds()
             );
+            $visible = [];
+            foreach ($report['streamerIssues'] as $issue) {
+                if (($dismissed[$issue['streamers_id']] ?? '') === $issue['version']) {
+                    $report['dismissedStreamerIssues'][] = $issue;
+                } else {
+                    $visible[] = $issue;
+                }
+            }
+            $report['streamerIssues'] = $visible;
         }
         return $report;
+    }
+
+    public static function getStreamerIssueVersion($streamers_id, $value)
+    {
+        return hash('sha256', intval($streamers_id) . ':' . $value);
+    }
+
+    /** Acknowledge exactly the displayed occurrence, keeping diagnostics and retry state. */
+    public static function dismissStreamerIssue($streamers_id, $version)
+    {
+        $streamers_id = intval($streamers_id);
+        if ($streamers_id < 1 || !is_string($version) || !preg_match('/^[a-f0-9]{64}$/D', $version)) {
+            return false;
+        }
+        $current = self::getState(self::STATE_STREAMER_ISSUE . $streamers_id);
+        $issue = json_decode((string) $current, true);
+        if (empty($issue['issue']) || !hash_equals(self::getStreamerIssueVersion($streamers_id, $current), $version)) {
+            return false;
+        }
+        // If a new failure arrives during this write, its different version stays visible.
+        return self::setState(self::STATE_DISMISSED_STREAMER_ISSUE . $streamers_id, $version);
     }
 
     /** Keep system delivery failures and owner failures for jobs that still need alerts. */
@@ -1115,7 +1151,7 @@ class EncoderMonitor
         if (empty($issue)) {
             return self::deleteState($name);
         }
-        return self::setState($name, json_encode(['issue' => $issue]));
+        return self::setState($name, json_encode(['issue' => $issue, 'event_id' => bin2hex(random_bytes(16))]));
     }
 
     private static function setState($name, $value)
